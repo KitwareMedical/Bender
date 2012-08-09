@@ -1,0 +1,20 @@
+<armature name="Armature"  dataname="Armature" location="0.0 0.0 0.0" scale="1.0 1.0 1.0" orientation="-0.0 -0.0 -0.0 1.0" >
+ <bone name="Bone" id="0" head="0.0 0.0 0.0" tail="0.0 0.0 10.0" orientation="0.7071068286895752 0.0 0.0 0.7071068286895752" >
+ <pose rotation="0.0 0.0 0.0 1.0" />
+  <bone name="Bone.001" id="1" head="0.0 0.0 0.0" tail="0.0 7.549789984295785e-07 -10.0" orientation="-0.7071068286895752 0.0 0.0 0.7071068286895752" >
+  <pose rotation="0.5 -0.5000002980232239 -0.5 0.49999967217445374" />
+   <bone name="Bone.003" id="2" head="10.0 0.0 0.0" tail="10.0 -10.0 0.0" orientation="0.0 0.0 1.0 0.0" >
+   <pose rotation="0.0 0.0 0.0 1.0" />
+    <bone name="Bone.004" id="3" head="0.0 0.0 0.0" tail="0.0 10.0 0.0" orientation="0.0 0.0 0.0 1.0" >
+    <pose rotation="0.0 0.0 0.7071070075035095 0.7071065306663513" />
+    </bone>
+   </bone>
+   <bone name="Bone.002" id="4" head="0.0 0.0 0.0" tail="10.0 0.0 0.0" orientation="0.0 0.0 -0.7071067094802856 0.7071068286895752" >
+   <pose rotation="0.0 0.0 0.0 1.0" />
+   </bone>
+  </bone>
+  <bone name="Bone.005" id="5" head="0.0 0.0 0.0" tail="0.0 -7.549789984295785e-07 10.0" orientation="3.090862676913275e-08 0.7071068286895752 0.7071068286895752 3.0908619663705394e-08" >
+  <pose rotation="0.0 0.0 0.0 1.0" />
+  </bone>
+ </bone>
+</armature>
