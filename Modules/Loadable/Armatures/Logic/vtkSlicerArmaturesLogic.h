@@ -59,8 +59,9 @@ protected:
   vtkSlicerArmaturesLogic();
   virtual ~vtkSlicerArmaturesLogic();
 
-  void ReadBone(vtkPolyData* polyData, vtkXMLDataElement* boneElement,
-                const double origin[3], const double orientation[4]);
+  void ReadBone(vtkXMLDataElement* boneElement, vtkPolyData* polyData,
+                const double origin[3], const double parentMat[3][3], double parentLength = 0.);
+  void ReadPose(vtkXMLDataElement* poseElement, double orientation[4], bool invert = true);
   vtkSlicerModelsLogic* ModelsLogic;
 private:
   vtkSlicerArmaturesLogic(const vtkSlicerArmaturesLogic&); // Not implemented
