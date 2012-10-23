@@ -19,9 +19,14 @@
 =========================================================================*/
 
 // Models includes
+#include "vtkSlicerAnnotationModuleLogic.h"
 #include "vtkSlicerModelsLogic.h"
 
 // Armatures includes
+#include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLBoneDisplayNode.h"
+#include "vtkMRMLBoneNode.h"
+#include "vtkMRMLSelectionNode.h"
 #include "vtkSlicerArmaturesLogic.h"
 
 // MRML includes
@@ -38,6 +43,7 @@
 #include <cassert>
 
 vtkCxxSetObjectMacro(vtkSlicerArmaturesLogic, ModelsLogic, vtkSlicerModelsLogic);
+vtkCxxSetObjectMacro(vtkSlicerArmaturesLogic, AnnotationsLogic, vtkSlicerAnnotationModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerArmaturesLogic);
@@ -46,6 +52,7 @@ vtkStandardNewMacro(vtkSlicerArmaturesLogic);
 vtkSlicerArmaturesLogic::vtkSlicerArmaturesLogic()
 {
   this->ModelsLogic = 0;
+  this->AnnotationsLogic = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -57,6 +64,35 @@ vtkSlicerArmaturesLogic::~vtkSlicerArmaturesLogic()
 void vtkSlicerArmaturesLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::ObserveMRMLScene()
+{
+  vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
+    this->GetMRMLScene()->GetNthNodeByClass(0, "vtkMRMLSelectionNode"));
+  if (selectionNode)
+    {
+    selectionNode->AddNewAnnotationIDToList(
+      "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
+    }
+
+  this->Superclass::ObserveMRMLScene();
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::RegisterNodes()
+{
+  assert(this->GetMRMLScene());
+
+  vtkNew<vtkMRMLArmatureNode> armatureNode;
+  this->GetMRMLScene()->RegisterNodeClass( armatureNode.GetPointer() );
+
+  vtkNew<vtkMRMLBoneNode> boneNode;
+  this->GetMRMLScene()->RegisterNodeClass( boneNode.GetPointer() );
+
+  vtkNew<vtkMRMLBoneDisplayNode> boneDisplayNode;
+  this->GetMRMLScene()->RegisterNodeClass( boneDisplayNode.GetPointer() );
 }
 
 //----------------------------------------------------------------------------

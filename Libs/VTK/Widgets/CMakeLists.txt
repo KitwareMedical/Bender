@@ -70,7 +70,7 @@ set(MyExportHeaderPrefix ${PROJECT_NAME})
 set(MyLibName ${PROJECT_NAME})
 
 configure_file(
-  ${CMAKE_SOURCE_DIR}/CMake/BenderExport.h.in
+  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
   ${PROJECT_NAME}Export.h
   )
 

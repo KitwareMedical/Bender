@@ -6,6 +6,7 @@ set(MODULE_TITLE "Armatures")
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
 #-----------------------------------------------------------------------------
+add_subdirectory(MRML)
 add_subdirectory(Logic)
 
 #-----------------------------------------------------------------------------
@@ -17,6 +18,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${CMAKE_CURRENT_BINARY_DIR}/Logic
   ${vtkSlicerModelsModuleLogic_SOURCE_DIR}
   ${vtkSlicerModelsModuleLogic_BINARY_DIR}
+  ${qSlicerAnnotationsModuleWidgets_SOURCE_DIR}
+  ${qSlicerAnnotationsModuleWidgets_BINARY_DIR}
   )
 
 set(MODULE_SRCS
@@ -39,7 +42,9 @@ set(MODULE_UI_SRCS
   )
 
 set(MODULE_TARGET_LIBRARIES
+  qSlicerAnnotationsModuleWidgets
   vtkSlicerArmaturesModuleLogic
+  vtkBenderArmaturesModuleMRMLDisplayableManagers
   )
 
 set(MODULE_RESOURCES

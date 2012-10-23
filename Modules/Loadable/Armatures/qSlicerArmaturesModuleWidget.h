@@ -21,17 +21,18 @@
 #ifndef __qSlicerArmaturesModuleWidget_h
 #define __qSlicerArmaturesModuleWidget_h
 
+// Armatures includes
+#include "qSlicerArmaturesModuleExport.h"
+class qSlicerArmaturesModuleWidgetPrivate;
+class vtkMRMLArmatureNode;
+class vtkMRMLNode;
+
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
 
-#include "qSlicerArmaturesModuleExport.h"
-
-class qSlicerArmaturesModuleWidgetPrivate;
-class vtkMRMLNode;
-
 /// \ingroup Slicer_QtModules_Armatures
-class Q_SLICER_QTMODULES_ARMATURES_EXPORT qSlicerArmaturesModuleWidget :
-  public qSlicerAbstractModuleWidget
+class Q_SLICER_QTMODULES_ARMATURES_EXPORT qSlicerArmaturesModuleWidget
+  : public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
 
@@ -41,8 +42,26 @@ public:
   qSlicerArmaturesModuleWidget(QWidget *parent=0);
   virtual ~qSlicerArmaturesModuleWidget();
 
+  /// Return the current armature node if any, 0 otherwise.
+  /// \sa mrmlArmatureDisplayNode()
+  vtkMRMLArmatureNode* mrmlArmatureNode()const;
+  /// Return the display node of the current armature node if any, 0 otherwise.
+  /// \sa mrmlArmatureNode()
+  //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
 public slots:
+  /// Set \a armatureNode as current.
+  /// \sa setMRMLArmatureNode(vtkMRMLNode*)
+  void setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode);
+  /// Utility function to conveniently connect signals/slots.
+  /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
+  void setMRMLArmatureNode(vtkMRMLNode* armatureNode);
 
+  /// Set the visibility of the current armature node.
+  /// \sa vtkMRMLArmatureDisplayNode::Visibility
+  void setArmatureVisibility(bool visible);
+
+  /// Create a bone and start the mouse mode to place it.
+  void addAndPlaceBone();
 
 protected:
   QScopedPointer<qSlicerArmaturesModuleWidgetPrivate> d_ptr;

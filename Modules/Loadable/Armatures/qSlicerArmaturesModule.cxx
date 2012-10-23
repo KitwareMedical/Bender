@@ -34,6 +34,9 @@
 #include "qSlicerApplication.h"
 #include "qSlicerIOManager.h"
 #include "qSlicerModuleManager.h"
+#include <vtkMRMLSliceViewDisplayableManagerFactory.h>
+#include <vtkMRMLThreeDViewDisplayableManagerFactory.h>
+#include "vtkSlicerAnnotationModuleLogic.h"
 #include "vtkSlicerModelsLogic.h"
 
 //-----------------------------------------------------------------------------
@@ -80,18 +83,14 @@ qSlicerArmaturesModule::~qSlicerArmaturesModule()
 QString qSlicerArmaturesModule::helpText()const
 {
   QString help =
-    "This template module is meant to be used with the"
-    "with the ModuleWizard.py script distributed with the"
-    "Slicer source code (starting with version 4)."
-    "Developers can generate their own source code using the"
-    "wizard and then customize it to fit their needs.";
+    "The module is for armature and bone animation.";
   return help;
 }
 
 //-----------------------------------------------------------------------------
 QString qSlicerArmaturesModule::acknowledgementText()const
 {
-  return "This work was supported by NAMIC, NAC, and the Slicer Community...";
+  return "This work was supported by AFRL";
 }
 
 //-----------------------------------------------------------------------------
@@ -99,15 +98,13 @@ QStringList qSlicerArmaturesModule::contributors()const
 {
   QStringList moduleContributors;
   moduleContributors << QString("Julien Finet (Kitware)");
-  // moduleContributors << QString("Richard Roe (Organization2)");
-  // ...
   return moduleContributors;
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerArmaturesModule::dependencies()const
 {
-  return QStringList() << "Models";
+  return QStringList() << "Models" << "Annotations";
 }
 
 //-----------------------------------------------------------------------------
@@ -120,7 +117,8 @@ QIcon qSlicerArmaturesModule::icon()const
 void qSlicerArmaturesModule::setup()
 {
   this->Superclass::setup();
-  // Configure armatures logic
+
+  // Configure Armatures logic
   vtkSlicerArmaturesLogic* armaturesLogic =
     vtkSlicerArmaturesLogic::SafeDownCast(this->logic());
   qSlicerAbstractCoreModule* modelsModule =
@@ -129,9 +127,23 @@ void qSlicerArmaturesModule::setup()
     {
     vtkSlicerModelsLogic* modelsLogic =
       vtkSlicerModelsLogic::SafeDownCast(modelsModule->logic());
-    qDebug() << armaturesLogic << modelsLogic;
     armaturesLogic->SetModelsLogic(modelsLogic);
     }
+
+  qSlicerAbstractCoreModule* annotationsModule =
+    qSlicerCoreApplication::application()->moduleManager()->module("Annotations");
+  if (annotationsModule)
+    {
+    vtkSlicerAnnotationModuleLogic* annotationsLogic =
+      vtkSlicerAnnotationModuleLogic::SafeDownCast(annotationsModule->logic());
+    armaturesLogic->SetAnnotationsLogic(annotationsLogic);
+    }
+
+  // Register displayable manager
+  vtkMRMLThreeDViewDisplayableManagerFactory::GetInstance()
+    ->RegisterDisplayableManager("vtkMRMLArmatureDisplayableManager");
+  //vtkMRMLSliceViewDisplayableManagerFactory::GetInstance()
+  //  ->RegisterDisplayableManager("vtkMRMLArmatureDisplayableManager");
 
   // Register IOs
   qSlicerIOManager* ioManager = qSlicerApplication::application()->ioManager();

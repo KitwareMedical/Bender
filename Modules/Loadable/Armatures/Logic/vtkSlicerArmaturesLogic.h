@@ -18,11 +18,6 @@
 
 =========================================================================*/
 
-// .NAME vtkSlicerArmaturesLogic - slicer logic class for armature manipulation
-// .SECTION Description
-// This class manages the logic associated with reading, saving,
-// and changing properties of armatures
-
 #ifndef __vtkSlicerArmaturesLogic_h
 #define __vtkSlicerArmaturesLogic_h
 
@@ -30,6 +25,7 @@
 #include "vtkSlicerModuleLogic.h"
 #include "vtkSlicerArmaturesModuleLogicExport.h"
 class vtkSlicerModelsLogic;
+class vtkSlicerAnnotationModuleLogic;
 
 // MRML includes
 class vtkMRMLModelNode;
@@ -41,7 +37,11 @@ class vtkXMLDataElement;
 // STD includes
 #include <cstdlib>
 
-/// \ingroup Slicer_QtModules_Armatures
+/// \ingroup Bender_Logics
+/// \brief Logic class for armature manipulation.
+///
+/// This class manages the logic associated with reading, saving,
+/// and changing properties of armatures.
 class VTK_SLICER_ARMATURES_MODULE_LOGIC_EXPORT vtkSlicerArmaturesLogic
   : public vtkSlicerModuleLogic
 {
@@ -55,6 +55,18 @@ public:
   virtual void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
   vtkGetObjectMacro(ModelsLogic, vtkSlicerModelsLogic);
 
+  /// Set the Annotations module logic.
+  virtual void SetAnnotationsLogic(vtkSlicerAnnotationModuleLogic* logic);
+  vtkGetObjectMacro(AnnotationsLogic, vtkSlicerAnnotationModuleLogic);
+
+  /// Register bone pose mode.
+  /// \sa vtkMRMLSelectionNode::AddNewAnnotationIDToList()
+  virtual void ObserveMRMLScene();
+
+  /// Register armature and bone nodes.
+  /// \sa vtkMRMLScene::RegisterNodeClass()
+  virtual void RegisterNodes();
+
 protected:
   vtkSlicerArmaturesLogic();
   virtual ~vtkSlicerArmaturesLogic();
@@ -62,7 +74,9 @@ protected:
   void ReadBone(vtkXMLDataElement* boneElement, vtkPolyData* polyData,
                 const double origin[3], const double orientation[4]);
   void ReadPose(vtkXMLDataElement* poseElement, double orientation[4], bool invert = true);
+
   vtkSlicerModelsLogic* ModelsLogic;
+  vtkSlicerAnnotationModuleLogic* AnnotationsLogic;
 private:
   vtkSlicerArmaturesLogic(const vtkSlicerArmaturesLogic&); // Not implemented
   void operator=(const vtkSlicerArmaturesLogic&);               // Not implemented
