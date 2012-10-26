@@ -24,6 +24,7 @@
 
 create_test_sourcelist(${KIT}_TEST_SRCS
   vtkBoneWidgetTests.cxx
+  vtkArmatureWidgetTest.cxx
   vtkBoneWidgetRepresentationAndInteractionTest.cxx
   vtkBoneWidgetTwoBonesTest.cxx
   vtkBoneWidgetThreeBonesTest.cxx
@@ -34,6 +35,8 @@ add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
 target_link_libraries(${PROJECT_NAME}Tests
   ${PROJECT_NAME}
   )
+
+add_test(vtkArmatureWidgetTest ${CXX_TEST_PATH}/BenderWidgetTests vtkArmatureWidgetTest)
 
 add_test(vtkBoneWidgetRepresentationAndIntercationTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
 

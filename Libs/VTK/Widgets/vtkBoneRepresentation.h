@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Standard methods for the class.
-  vtkTypeMacro(vtkBoneRepresentation,vtkWidgetRepresentation);
+  vtkTypeMacro(vtkBoneRepresentation, vtkLineRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -68,15 +68,29 @@ public:
   virtual void SetTailWorldPosition(double pos[3]);
   virtual void SetTailDisplayPosition(double pos[3]);
 
+  // Description:
+  // Enum that mirrors the enums in vtkLineRepresentation with appropriate
+  // names for the bone animation. They manage the state of the widget.
+  //BTX
+  enum {Outside=0,
+        OnHead,
+        OnTail,
+        TranslatingHead,
+        TranslatingTail,
+        OnLine,
+        Scaling};
+  //ETX
+
+  // Description:
+  // Standard methods to get the handle representations.
+  // This allows the user to change the properties of the bone's
+  // endpoints.
   vtkPointHandleRepresentation3D* GetHeadRepresentation();
   vtkPointHandleRepresentation3D* GetTailRepresentation();
 
-  virtual void Highlight(int highlight)
-    {
-    this->HighlightLine(highlight);
-    this->HighlightPoint(0, highlight);
-    this->HighlightPoint(1, highlight);
-    }
+  // Description:
+  // Helper method to highlight the line and the endpoints.
+  virtual void Highlight(int highlight);
 
 protected:
   vtkBoneRepresentation();

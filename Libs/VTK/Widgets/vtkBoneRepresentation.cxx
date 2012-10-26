@@ -53,101 +53,99 @@ vtkBoneRepresentation::~vtkBoneRepresentation()
 {
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::GetHeadWorldPosition(double pos[3])
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 double* vtkBoneRepresentation::GetHeadWorldPosition()
 {
   return this->Point1Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::GetHeadDisplayPosition(double pos[3])
 {
   this->Point1Representation->GetDisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 double* vtkBoneRepresentation::GetHeadDisplayPosition()
 {
   return this->Point1Representation->GetDisplayPosition();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetHeadWorldPosition(double x[3])
 {
-  this->Point1Representation->SetWorldPosition(x);
-  this->LineSource->SetPoint1(x);
+  this->Superclass::SetPoint1WorldPosition(x);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetHeadDisplayPosition(double x[3])
 {
-  this->Point1Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point1Representation->GetWorldPosition(p);
-  this->Point1Representation->SetWorldPosition(p);
+  this->Superclass::SetPoint1DisplayPosition(x);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::GetTailWorldPosition(double pos[3])
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
 
+//----------------------------------------------------------------------------
 double* vtkBoneRepresentation::GetTailWorldPosition()
 {
   return this->Point2Representation->GetWorldPosition();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::GetTailDisplayPosition(double pos[3])
 {
   this->Point2Representation->GetDisplayPosition(pos);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 double* vtkBoneRepresentation::GetTailDisplayPosition()
 {
   return this->Point2Representation->GetDisplayPosition();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetTailWorldPosition(double x[3])
 {
-  this->Point2Representation->SetWorldPosition(x);
-  this->LineSource->SetPoint2(x);
-  //double p[3];
-  //this->Point2Representation->GetDisplayPosition(p);
-  //this->Point2Representation->SetDisplayPosition(p);
+  this->Superclass::SetPoint2WorldPosition(x);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetTailDisplayPosition(double x[3])
 {
-  this->Point2Representation->SetDisplayPosition(x);
-  double p[3];
-  this->Point2Representation->GetWorldPosition(p);
-  this->Point2Representation->SetWorldPosition(p);
+  this->Superclass::SetPoint2DisplayPosition(x);
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkPointHandleRepresentation3D* vtkBoneRepresentation::GetHeadRepresentation()
 {
   return this->GetPoint1Representation();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
 vtkPointHandleRepresentation3D* vtkBoneRepresentation::GetTailRepresentation()
 {
   return this->GetPoint2Representation();
 }
 
-//----------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::Highlight(int highlight)
+{
+  this->HighlightLine(highlight);
+  this->HighlightPoint(0, highlight);
+  this->HighlightPoint(1, highlight);
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

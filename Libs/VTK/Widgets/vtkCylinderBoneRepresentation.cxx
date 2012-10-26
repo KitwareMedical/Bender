@@ -43,12 +43,12 @@ vtkStandardNewMacro(vtkCylinderBoneRepresentation);
 //----------------------------------------------------------------------------
 vtkCylinderBoneRepresentation::vtkCylinderBoneRepresentation()
 {
-  // Declare cylinder representations
+  // Instantiate cylinder representations
   this->CylinderActor = vtkActor::New();
   this->CylinderMapper = vtkPolyDataMapper::New();
   this->CylinderGenerator= vtkTubeFilter::New();
 
-  // Declare cylinde properties
+  // Define cylinde properties
   this->Radius = 0.0;
   this->Capping = 1;
   this->NumberOfSides = 5;

@@ -41,7 +41,7 @@ vtkStandardNewMacro(vtkDoubleConeBoneRepresentation);
 //----------------------------------------------------------------------------
 vtkDoubleConeBoneRepresentation::vtkDoubleConeBoneRepresentation()
 {
-  // Cones representation
+  // Instantiate cones representation
   this->ConesActor = vtkActor::New();
   this->ConesMapper = vtkPolyDataMapper::New();
   this->Cone1 = vtkConeSource::New();

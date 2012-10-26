@@ -22,37 +22,51 @@
 #define __vtkBoneWidget_h
 
 // .NAME vtkBoneWidget - Widget for skeletal animation
-// .SECTION Description
-// The vtkBoneWIdget is a widget meant for animation. It defines a bone with
+// .SECTION General Description
+// The vtkBoneWidget is a widget meant for animation. It defines a bone with
 // a head and a tail point. The head and the tail can be manipulated by the
 // user depending on the widget current mode. The widget has 4 modes in which
 // its behavior varies.
+//
+// .SECTION Widget State
 // When creating the widget, the mode is Start. In START mode, the
 // LeftButtonPressEvent defines the bone's head. The widget then goes
 // to DEFINE mode. In DEFINE mode, a LeftButtonPressEvent defines the
 // bone's tail. The widget then goes to REST mode.
 // In rest mode, the user can move, resize, translate the bone, its head or
 // its tail. The rest transform is automatically updated to represent new
-// coordinated such as the world coordinates Y will be aligned with the bone's
+// coordinates such as the world coordinates Y will be aligned with the bone's
 // directionnal vector.
 // In POSE mode, the bone will keep its size. The user can only rotate
 // the tail of the bone in the camera plane when interacting.
 // The pose transform is updated such as the world coordinate Y will be
 // aligned with the bone directionnal vector when transformed by the product
 // of the pose transform and the rest transform.
-// The START mode and the DEFINED mode should not be set manually y the user.
+// The START mode and the DEFINED mode should not be set manually by the user.
 // To resume, the bone state-machine is the following:
 // START ---> Define ---> REST <<--->> POSE
 //
-// The user can also specify a parent to the bone. In that case, the
-// bone will be represented in it's parent coordinate system.
-// This means that if the parent moves in POSE mode, the child will
-// follow the same transformation (forward kinetic).
+// .SECTION Forward kinematic
+// The user can also specify a rotation and translation to the bone, called
+// WorldToParentRotation and WorldToParentTranslation. In that case, the
+// bone will be represented in the given coordinate system.
 //
+// In REST mode, the bone will automatically compute the following
+// rotations and translation:
+//  - World -> Bone.
+//  - Parent -> Bone.
+//
+// In POSE mode, the bone will recompute its position to always have the same
+// position in the Parent coordinate system (forward kinematic).
+//
+// .SECTION Representation
 // The representation associated are the vtkBoneWidgetRepresentation (a line),
 // the vtkCylinderBoneRepresentation (a cylinder around a line) and the
 // vtkDoubleConeRepresentation (2 cones with theirs base glued together around
 // a line).
+//
+// @sa vtkArmatureWidget vtkBoneWidgetRepresentation
+// @sa vtkCylinderBoneRepresentation vtkDoubleConeRepresentation
 
 // Bender includes
 #include "vtkBenderWidgetsExport.h"
@@ -89,14 +103,22 @@ public:
   virtual void SetEnabled(int);
 
   // Description:
+  // Set the bone representation.
+  // @sa CreateDefaultRepresentation() GetBoneRepresentation()
+  // @sa vtkBoneWidgetRepresentation vtkCylinderBoneRepresentation
+  // @sa vtkDoubleConeRepresentation
   void SetRepresentation(vtkBoneRepresentation* r);
 
   // Description:
   // Return the representation as a vtkBoneRepresentation.
+  // @sa vtkBoneWidgetRepresentation vtkCylinderBoneRepresentation
+  // @sa vtkDoubleConeRepresentation
   vtkBoneRepresentation* GetBoneRepresentation();
 
   // Description:
-  // Create the default widget representation (vtkBoneRepresentation) if no one is set.
+  // Create the default widget representation(vtkBoneRepresentation)
+  // if none is set.
+  // @sa vtkBoneWidgetRepresentation SetRepresentation()
   virtual void CreateDefaultRepresentation();
 
   // Description:
@@ -105,282 +127,450 @@ public:
   virtual void SetProcessEvents(int process);
 
   // Description:
-  // The modes work following this diagram:
-  // Start -> Define -> Rest <-> Pose
-  //
-  // Start Mode:  Define the first point when clicked. Goes then to define mode.
-  // Define Mode:  Define the second point when clicked. Goes then to rest mode.
-  // Rest Mode:  The bone can be moved and rescaled. If the bone has Children,
-  //             the Children will head will (Head) rescale of they are linked
-  //             (See HeadLinkedToParent).
-  // Pose Mode:  The bone can only be rotated. If the bone has Children, the Children
-  //             will rotate accordingly but will stay exactly the same
-  //             (NO rescaling).
-  //BTX
-  enum WidgetStateType {Start=0,Define,Rest,Pose};
-  //ETX
-
-  // Description:
-  // RestChangedEvent:  Fired when the bone reconstruct its RestTransform
-  //                    This reconstruction happens in Rest mode only.
-  // PoseChangedEvent:  Fired in pose mode when a point has been moved
-  // PoseInteractionStoppedEvent:  Fired when the interaction is stopped for
-  //                               the children of the bone
+  // RestChangedEvent: Fired in rest mode when a point or a transform
+  // was updated.
+  // PoseChangedEvent: Fired in pose mode when a point or a transform
+  // was updated.
   //BTX
   enum BoneWidgetEventType {RestChangedEvent = vtkCommand::UserEvent + 1,
                             PoseChangedEvent,
-                            PoseInteractionStoppedEvent};
+                           };
   //ETX
 
   // Description:
-  // Set the head rest world position
-  // The user should try to be in rest mode when using those methods.
-  // If the bone is in pose mode, this will set the position anyway.
-  // In that case, the bone behavior no longer guaranteed
-  void SetHeadRestWorldPosition(double x, double y, double z);
-  void SetHeadRestWorldPosition(double Head[3]);
-
-  // Description:
-  // Get the head rest position in world coordinates
-  void GetHeadRestWorldPosition(double Head[3]);
-  double* GetHeadRestWorldPosition();
-
-  // Description:
-  // Get the head pose position in world coordinates
-  void GetHeadPoseWorldPosition(double Head[3]);
-  double* GetHeadPoseWorldPosition();
-
-  // Description:
-  // Set the tail world position
-  // The user should try to be in rest mode when using those methods.
-  // If the bone is in pose mode, this will set the position anyway.
-  // In that case, the bone behavior no longer guaranteed
-  // The rotates methods should be used instead.
-  void SetTailRestWorldPosition(double x, double y, double z);
-  void SetTailRestWorldPosition(double Tail[3]);
-
-  // Description:
-  // Get the head rest position in world coordinates
-  void GetTailRestWorldPosition(double Head[3]);
-  double* GetTailRestWorldPosition();
-
-  // Description:
-  // Get the head rest position in world coordinates
-  void GetTailPoseWorldPosition(double Head[3]);
-  double* GetTailPoseWorldPosition();
-
-  // Description:
-  // Rotation methods to move the tail. Those methods can be used in any modes.
-  // Note: In pose mode, those methods must be used instead of
-  // SetTailWorldPosition. Angle is in radians.
-  void RotateTailX(double angle);
-  void RotateTailY(double angle);
-  void RotateTailZ(double angle);
-  void RotateTailWXYZ(double angle, double x, double y, double z);
-  void RotateTailWXYZ(double angle, double axis[3]);
-
-  // Descritption:
-  // Helper function for conversion quaternion conversion
-  // to and from rotation/axis
-  // Angle is in radians
-  static double QuaternionToAxisAngle(double quad[4], double axis[3]);
-  static void AxisAngleToQuaternion(double axis[3], double angle, double quad[4]);
+  // The modes work following this state-machine diagram:
+  // PlaceHead -> PlaceTail -> Rest <-> Pose
+  //
+  // PlaceHead Mode: Define the first point when clicked.
+  //  Goes then to PlaceTail mode.
+  // PlaceTail Mode: Define the second point when clicked.
+  //  Goes then to rest mode.
+  // Rest Mode: The bone can be moved and rescaled. If the parent transform is
+  //  changed, it will simply recompute its local points in the
+  //  new coordinate system.
+  // Pose Mode:  The bone can only be rotated. (NO rescaling). If the parent
+  //  transform is changed, it will recompute its global points to
+  //  regarding the new coordinate system.
+  //BTX
+  enum WidgetStateType {PlaceHead=0,PlaceTail,Rest,Pose};
+  //ETX
 
   // Description:
   // Set/Get the widget state.
-  // Start Mode:   Define the first point when clicked. Goes then to define mode
-  // Define Mode:  Define the second point when clicked. Goes then to rest mode
-  // Rest Mode:    The bone can be moved and rescaled. If the bone has Children,
-  //               the Children will head will (Head) rescale of they are linked
-  //               (See HeadLinkedToParent)
-  // Pose Mode:    The bone can only be rotated. If the bone has Children, the Children
-  //               will rotate accordingly but will stay exactly the same
-  //               (NO rescaling)
+  // Rest Mode:  The bone can be moved and rescaled.
+  // Pose Mode:  The bone can only be rotated.
+  // Start mode and define mode can only be achieved when creating a
+  // new bone and interactively placing its points.
+  // @sa WidgetStateType()
   vtkGetMacro(WidgetState, int);
   void SetWidgetState(int state);
   void SetWidgetStateToRest();
   void SetWidgetStateToPose();
 
-  // Description:
-  // Get/Set the bone's parent. If NULL, then the bone is considerer like root
-  void SetBoneParent(vtkBoneWidget* parent);
-  vtkBoneWidget* GetBoneParent();
-
-  // Description:
-  // Get/Set the bone's RestTransform. The RestTransform is updated in rest mode
-  // and fixed in pose mode. It is undefined in the other modes.
-  void GetRestTransform (double restTransform[4]);
-  double* GetRestTransform ();
-
   // Description
-  // Get/Set the bone's pose transform. The pose transform is updated in pose
-  // mode. It is undefined in the other modes.
-  void GetPoseTransform (double poseTransform[4]);
-  double* GetPoseTransform ();
-
-  // Description
-  // Set/get the roll imposed to the matrix, in radians. 0.0 by default.
+  // Set/Get the roll angle, in radians (0.0 by default). The roll is
+  // a rotation of axis the bone directionnal vector and amplitude Roll
+  // that is applied to the rest transform everytime it's recomputed.
+  // It will make the bone rotate around himself.
   vtkGetMacro(Roll, double);
   vtkSetMacro(Roll, double);
 
+  // Description:
+  // Get the current head/tail world position.
+  void GetCurrentWorldHead(double head[3]) const;
+  const double* GetCurrentWorldHead() const;
+  void GetCurrentWorldTail(double tail[3]) const;
+  const double* GetCurrentWorldTail() const;
+
+  // Description:
+  // Rest mode Set methods.
+  // Those methods set the world to parent REST transformation.
+  // When linking multiple bones together, those methods should be
+  // updated everytime the bone parent has changed.
+  // NOTE: When updating both the rotation and the translation,
+  // the method SetWorldToParentRestRotationAndTranslation() should
+  // be used in order to prevent the bone to update and fire the
+  // RestChangedEvent twice.
+  // @sa RestChangedEvent
+  void SetWorldToParentRestRotationAndTranslation(double quat[4],
+                                                  double translate[3]);
+  void SetWorldToParentRestRotation(double quat[4]);
+  void SetWorldToParentRestTranslation(double translate[3]);
+
+  // Description:
+  // Rest mode get methods.
+  // Access methods to all the rotation and translations from the rest mode.
+  vtkGetVector4Macro(WorldToParentRestRotation, double);
+  vtkGetVector3Macro(WorldToParentRestTranslation, double);
+
+  vtkGetVector4Macro(ParentToBoneRestRotation, double);
+  vtkGetVector3Macro(ParentToBoneRestTranslation, double);
+
+  vtkGetVector4Macro(WorldToBoneRestRotation, double);
+  vtkGetVector3Macro(WorldToBoneHeadRestTranslation, double);
+  vtkGetVector3Macro(WorldToBoneTailRestTranslation, double);
+
+  // Description:
+  // Rest mode methods to quickly create transforms.
+  vtkSmartPointer<vtkTransform> CreateWorldToBoneRestTransform() const;
+  vtkSmartPointer<vtkTransform> CreateWorldToBoneRestRotation() const;
+
+  vtkSmartPointer<vtkTransform> CreateWorldToParentRestTransform() const;
+  vtkSmartPointer<vtkTransform> CreateWorldToParentRestRotation() const;
+
+  vtkSmartPointer<vtkTransform> CreateParentToBoneRestTransform() const;
+  vtkSmartPointer<vtkTransform> CreateParentToBoneRestRotation() const;
+
+  // Description:
+  // Pose mode Set methods.
+  // Those methods set the world to parent POSE transformation.
+  // When linking multiple bones together, those methods should be
+  // updated everytime the bone parent has changed.
+  // NOTE: When updating both the rotation and the translation,
+  // the method SetWorldToParentPoseRotationAndTranslation() should
+  // be used in order to prevent the bone to update and fire the
+  // PoseChangedEvent twice.
+  // @sa PoseChangedEvent
+  void SetWorldToParentPoseRotationAndTranslation(double quat[4],
+                                                  double translate[3]);
+  void SetWorldToParentPoseRotation(double quat[4]);
+  void SetWorldToParentPoseTranslation(double translate[3]);
+
+  // Description:
+  // Pose mode get methods.
+  // Access methods to all the rotation and translations from the pose mode.
+  vtkGetVector4Macro(WorldToParentPoseRotation, double);
+  vtkGetVector3Macro(WorldToParentPoseTranslation, double);
+
+  vtkGetVector4Macro(ParentToBonePoseRotation, double);
+  vtkGetVector3Macro(ParentToBonePoseTranslation, double);
+
+  vtkGetVector4Macro(WorldToBonePoseRotation, double);
+  vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
+  vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
+
+  // Description:
+  // Pose mode methods to quickly create transforms.
+  vtkSmartPointer<vtkTransform> CreateWorldToBonePoseTransform() const;
+  vtkSmartPointer<vtkTransform> CreateWorldToBonePoseRotation() const;
+
+  vtkSmartPointer<vtkTransform> CreateWorldToParentPoseTransform() const;
+  vtkSmartPointer<vtkTransform> CreateWorldToParentPoseRotation() const;
+
+  vtkSmartPointer<vtkTransform> CreateParentToBonePoseTransform() const;
+  vtkSmartPointer<vtkTransform> CreateParentToBonePoseRotation() const;
+
+  // Description:
+  // Set the head/tail rest world position.
+  // These methods assume that the bone is in rest mode.
+  // @sa GetWorldHeadRest() GetWorldTailRest()
+  void SetWorldHeadAndTailRest(double head[3], double tail[3]);
+  void SetWorldHeadRest(double x, double y, double z);
+  void SetWorldHeadRest(double head[3]);
+  void SetWorldTailRest(double x, double y, double z);
+  void SetWorldTailRest(double tail[3]);
+
+  // Description:
+  // Set the head/tail rest display position.
+  // These methods assume that the bone is in rest mode
+  // and has a representation.
+  void SetHeadRestDisplayPosition(double x, double y);
+  void SetHeadRestDisplayPosition(double head[2]);
+  void SetTailRestDisplayPosition(double x, double y);
+  void SetTailRestDisplayPosition(double head[2]);
+
+  // Description:
+  // Get rest and pose mode world positions.
+  // @sa SetWorldHeadRest() SetWorldTailRest()
+  vtkGetVector3Macro(WorldHeadRest, double);
+  vtkGetVector3Macro(WorldTailRest, double);
+  vtkGetVector3Macro(WorldHeadPose, double);
+  vtkGetVector3Macro(WorldTailPose, double);
+
+  // Description:
+  // Set the head/tail rest local position.
+  // These methods assume that the bone is in rest mode.
+  // @sa GetLocalHeadRest() GetLocalTailRest()
+  void SetLocalHeadAndTailRest(double head[3], double tail[3]);
+  void SetLocalHeadRest(double x, double y, double z);
+  void SetLocalHeadRest(double head[3]);
+  void SetLocalTailRest(double x, double y, double z);
+  void SetLocalTailRest(double tail[3]);
+
+  // Description:
+  // Get rest and pose mode local positions.
+  // @sa SetLocalRestHead() SetLocalRestTail()
+  vtkGetVector3Macro(LocalHeadRest, double);
+  vtkGetVector3Macro(LocalTailRest, double);
+  vtkGetVector3Macro(LocalHeadPose, double);
+  vtkGetVector3Macro(LocalTailPose, double);
+
   // Description
   // Set/get if the debug axes are visible or not.
-  // Nothing <-> 0:                          Show nothing
-  // ShowRestTransform <-> 1:                  The debug axes will output the
-  //                                        RestTransform axes
-  // ShowPoseTransform  <-> 2:               The debug axes will output the
-  //                                        pose transform axes
-  // ShowPoseTransformAndRestTransform <-> 3:  The debug axes will output the
-  //                                        result of the RestTransform
-  //                                        and the pose tranform.
-  // The axes labels are disables by defaut. To change rendering properties,
-  // see GetAxesActor().
+  // Nothing:  Show nothing
+  // ShowRestTransform: The debug axes will output the rest transform axes.
+  // ShowPoseTransform: The debug axes will output the pose transform axes.
+  // @sa GetAxesActor().
   vtkGetMacro(AxesVisibility, int);
-  void SetAxesVisibility (int AxesVisibility);
+  void SetAxesVisibility (int axesVisibility);
 
   // Description:
-  // Nothing:                          Show nothing
-  // ShowRestTransform:                  The debug axes will output the RestTransform axes
-  // ShowPoseTransform:                The debug axes will output the pose transform axes
-  // ShowPoseTransformAndRestTransform:  The debug axes will output the result of the RestTransform
-  //                                  and the pose tranform.
+  // Hidden:  Hide the axes.
+  // ShowRestTransform: The debug axes will output the RestTransform axes.
+  // ShowPoseTransform: The debug axes will output the pose transform axes.
   //BTX
-  enum AxesVisibilityType {Nothing = 0,
+  enum AxesVisibilityType {Hidden = 0,
                            ShowRestTransform,
                            ShowPoseTransform,
-                           ShowPoseTransformAndRestTransform
                           };
-  //ETX
 
   // Description:
-  // Get the transform from world to bone parent coordinates.
-  // This transform is identity is the bone does not have a parent
-  // Otherwise:
-  //    Rest mode T = BoneParentRestTransform + Translation
-  //    Pose mode T = BonreParentRestTransform*BoneParentPoseTransform
-  //                  + Translation
-  //    Start/Define mode T = NULL
-  /// Where the translation is the translation by the bone parent's tail
-  // The user is responsible for deleting the transformed received.
-  vtkSmartPointer<vtkTransform> CreateWorldToBoneParentTransform();
+  // Get the Axes actor. This is meant for the user to modify the rendering
+  // properties of the actor. The other properties must be left unchanged.
+  // @sa GetAxesVisibility() SetAxesVisibility()
+  vtkAxesActor* GetAxesActor() { return this->AxesActor; };
+
+  // Debug functions
+  vtkSetMacro(DebugBoneID, unsigned int);
+  vtkGetMacro(DebugBoneID, unsigned int);
+
+  // Descritption:
+  // Helper function for conversion quaternion conversion
+  // to and from rotation/axis. Angle is in radians.
+  static double QuaternionToAxisAngle(const double quad[4], double axis[3]);
+  static void AxisAngleToQuaternion(
+    const double axis[3], const double angle, double quad[4]);
 
   // Description:
-  // Get the transform from world to bone parent coordinates for the rest mode.
-  // This transform is identity is the bone does not have a parent, otherwise
-  //    T = BoneParentRestTransform + Translation
-  vtkSmartPointer<vtkTransform> CreateWorldToBoneParentRestTransform();
-
-  // Description:
-  // Get the transform from world to bone parent coordinates for the pose mode.
-  // This transform is identity is the bone does not have a parent, otherwise
-  //    T = BonreParentRestTransform*BoneParentPoseTransform + Translation
-  vtkSmartPointer<vtkTransform> CreateWorldToBoneParentPoseTransform();
-
-  // Description:
-  // Set/Get if the bone Head is linked, i.e merged. with the parent Tail
-  // When setting this to true, the bone Head is automatically snapped
-  // to the parent Tail and the Head widget is disabled
-  // When setting this to false, nothing visible happen but the Head
-  // widget is re-enabled.
-  vtkGetMacro(HeadLinkedToParent, int);
-  void SetHeadLinkedToParent (int link);
+  // Rotation methods to move the tail. Those methods can be used in
+  // rest or pose mode. Angle is in radians.
+  void RotateTailX(double angle);
+  void RotateTailY(double angle);
+  void RotateTailZ(double angle);
+  void RotateTailWXYZ(double angle, double x, double y, double z);
+  void RotateTailWXYZ(double angle, double axis[3]); //TO CHECK !
 
   // Description
-  // Show/Hide the link between a child an its parent
-  vtkGetMacro(ShowParentage, int);
-  void SetShowParentage (int parentage);
+  // Show/Hide the link between a child's head an its parent origin.
+  // This link will of course be invisible if the bone is attached
+  // to its parent. True by default.
+  vtkGetMacro(ShowParenthood, int);
+  void SetShowParenthood (int parenthood);
 
   // Description:
-  // Get the Axes actor. This is meant for the user to
-  // modify the rendering properties of the actor. The
-  // other properties must be left unchanged.
-  vtkAxesActor* GetAxesActor()
-  { return this->AxesActor; };
+  // Reset the pose mode to the same positions and transformations than
+  // the rest positions and transformations.
+  void ResetPoseToRest();
 
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
 
-  // The state of the widget
+  // The different states of the widget.
   int WidgetState;
   int BoneSelected;
-  int HeadSelected;
-  int TailSelected;
+  //BTX
+  enum WidgetSelectedState
+    {
+    NotSelected = 0,
+    HeadSelected,
+    TailSelected,
+    LineSelected
+    };
+  //ETX
 
-  // Callback interface to capture events when
-  // placing the widget.
+  // Callback interface to capture events when placing the widget.
   static void AddPointAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
 
-  // The positioning handle widgets
-  vtkHandleWidget *HeadWidget;
-  vtkHandleWidget *TailWidget;
-  vtkBoneWidgetCallback *BoneWidgetCallback1;
-  vtkBoneWidgetCallback *BoneWidgetCallback2;
+  //BTX
+  friend class vtkBoneWidgetCallback;
+  //ETX
+
+  // The positioning handle widgets.
+  vtkHandleWidget* HeadWidget;
+  vtkHandleWidget* TailWidget;
+  vtkBoneWidgetCallback* HeadWidgetCallback;
+  vtkBoneWidgetCallback* TailWidgetCallback;
 
   // Methods invoked when the handles at the
-  // end points of the widget are manipulated
+  // end points of the widget are manipulated.
   void StartBoneInteraction();
   virtual void EndBoneInteraction();
 
   // Bone widget essentials
-  vtkBoneWidget*              BoneParent;
-  vtkBoneWidgetCallback*      BoneWidgetChildrenCallback;
-  double                      LocalRestHead[3];
-  double                      LocalRestTail[3];
-  double                      LocalPoseHead[3];
-  double                      LocalPoseTail[3];
-  double                      InteractionWorldHead[3];
-  double                      InteractionWorldTail[3];
-  double                      StartPoseTransform[4];
-  double                      Roll; // in radians
-  double                      RestTransform[4];
-  double                      PoseTransform[4];
+  // World positions:
+  // - Rest:
+  double WorldHeadRest[3];
+  double WorldTailRest[3];
+  // - Pose:
+  double WorldHeadPose[3];
+  double WorldTailPose[3];
+  // Local Positions:
+  // - Rest:
+  double LocalHeadRest[3];
+  double LocalTailRest[3];
+  // - Pose
+  double LocalHeadPose[3];
+  double LocalTailPose[3];
 
-  // For the link between parent and child
-  int                         HeadLinkedToParent;
-  int                         ShowParentage;
-  vtkLineWidget2*             ParentageLink;
+  // Roll Angle:
+  double Roll; // in radians
 
-  // For an easier debug and understanding
-  int                         AxesVisibility;
-  vtkAxesActor*               AxesActor;
-  double                      AxesSize;
+  // Note to myself:
+  // World to bone rotation - three solutions:
+  // - Recomputed everytime it's asked (quaternion product and normalization)
+  // - Recomputed everytime the parent or the bone orientation changes and
+  //   stored.
+  // So far: stored for faster access.
+  //
+  // Alternative solution. I clearly don't use Parent to bone much.
+  // (It's even recomputed from WorldToBone and WorldToParent).
+  // Maybe I could just get rid of it ?
 
-  // Essentials functions
-  // Recompute transforms:
-  void RebuildRestTransform();
-  void RebuildPoseTransform();
+  // Transforms:
+  // - Rest Transforms:
+  //   * Parent To Bone:
+  double ParentToBoneRestRotation[4];
+  double ParentToBoneRestTranslation[3]; // <-> LocalRestHead.
+  //   * World To Parent:
+  double WorldToParentRestRotation[4];// Given.
+  double WorldToParentRestTranslation[3];// Given.
+  //   * World To Bone:
+  double WorldToBoneRestRotation[4];
+  double WorldToBoneHeadRestTranslation[3];
+  double WorldToBoneTailRestTranslation[3];
 
-  // Recompute local points
+  // - Pose Transforms:
+  //   * Rest To Pose (<-> Rotate Tail around Head):
+  //double BoneRestToPoseRotation[4];
+  //   * Parent To Bone:
+  double ParentToBonePoseRotation[4];
+  double ParentToBonePoseTranslation[3]; // LocalPoseHead.
+  //   * World To Parent:
+  double WorldToParentPoseRotation[4];
+  double WorldToParentPoseTranslation[3];
+  //    * World To Bone:
+  //       WorldToBoneRestRotation * RestToPoseRotation.
+  double WorldToBonePoseRotation[4];
+  double WorldToBoneHeadPoseTranslation[3];
+  double WorldToBoneTailPoseTranslation[3];
+
+  // - Pose Interaction transform:
+  //   * To hold the BoneRestToPoseRotation during interaction.
+  double StartPoseRotation[4];
+
+  // To hold the old world position while interacting.
+  // This enables to recompute the RestToPose rotation from scratch
+  // while interacting.
+  double InteractionWorldHeadPose[3];
+  double InteractionWorldTailPose[3];
+
+  // Axes variables:
+  // For an easier debug and understanding.
+  int AxesVisibility;
+  vtkAxesActor* AxesActor;
+  double AxesSize;
+
+  // Helper methods to change the axes orientation and origin
+  // with respect to the AxesVisibility variable and the bone's transforms.
+  // Note: RebuildParentageLink() is yo be called when the visibility of
+  // the axes may be subject  to change. This will call RebuildAxes().
+  void RebuildAxes();
+  void UpdateAxesVisibility(); 
+
+  // Debug:
+  // Usefull when debugging multiple bones
+  // (mainly when doing print statements).
+  unsigned int DebugBoneID;
+
+  // Parentage line
+  int ShowParenthood;
+  vtkLineWidget2* ParenthoodLink;
+
+  // Helper methods to change the Parenthood line origin
+  // with respect to the ParentTranslation.
+  // Note: UpdateParenthoodLinkVisibility() should be called
+  // when the visibility of the line may be subject 
+  // to change. This will call RebuildParenthoodLink().
+  void RebuildParenthoodLink();
+  void UpdateParenthoodLinkVisibility();
+  // Create the line representation and set the proper variables.
+  void InstantiateParenthoodLink();
+
+  // Tansforms Essentials functions
+  // Rest Mode
+  //  - Rotations:
+  void RebuildParentToBoneRestRotation();
+  void RebuildWorldToBoneRestRotation();
+
+  //  - Translations:
+  void RebuildParentToBoneRestTranslation();
+  void RebuildWorldToBoneRestTranslations(); // Compute both WorldToBoneHead
+                                             // and WorldToBoneTail.
+
+  // Pose Mode:
+  //  - Rotations:
+  void RebuildParentToBonePoseRotation();
+  void RebuildWorldToBonePoseRotationInteraction();
+  void RebuildWorldToBonePoseRotationFromParent();
+
+  //  - Translations:
+  void RebuildParentToBonePoseTranslation();
+  void RebuildWorldToBonePoseTranslations(); // Compute both WorldToBoneHead
+                                             // and WorldToBoneTail.
+
+  // Recompute local points from the world positions.
   void RebuildLocalRestPoints();
   void RebuildLocalPosePoints();
+  void RebuildLocalTailPose();
 
-  // Recompute features
-  void RebuildAxes();
-  void RebuildParentageLink();
+  // Helpers function that gather calls to Rebuilds functions.
+  void UpdateRestMode();
+  void UpdatePoseMode();
 
-  // Those methods change the visibility of the features
-  // and call the corresponding Rebuild...()
-  void UpdateParentageLinkVisibility();
-  void UpdateAxesVisibility();
+  // Update the representation (if any) to world points.
+  void UpdateRepresentation();
+  void UpdateDisplay();
 
-  // Description:
-  // Move the point Head to the parent Tail
-  void LinkHeadToParent();
-  // Description:
-  // Move this Tail to the child's Head. Used for translations.
-  void LinkTailToChild(vtkBoneWidget* child);
+  // Compute new world points from the pose transforms and local points.
+  void UpdateWorldRestPositions();
+  void UpdateWorldPosePositions();
 
-  // Function called upon Parent events
-  void BoneParentPoseChanged();
-  void BoneParentInteractionStopped();
-  void BoneParentRestChanged();
+  // Update the pose interaction variable
+  void UpdatePoseIntercationsVariables();
 
-//BTX
-  friend class vtkBoneWidgetCallback;
-//ETX
+  //
+  // Computation functions:
+  //
+  // Compute the rotation between a frame from which the Y axis is given
+  // to the bone frame (where Y is the current bone line) and store it in
+  // the given quaternion.
+  // Axis is the reference frame Y axis (vector 3D) and newOrientation the
+  // rotation computed (quaternion).
+  // Also applies a rotation aroud the new Y axis and of amplitude Roll.
+  // (If roll not zero)
+  void ComputeRotationFromReferenceAxis(
+    const double* axis, double* newOrientation);
+
+  // Return if the camera axis exist (there is a renderer and a camera) and if
+  // it is orthogonal to the given vector.
+  bool ShouldUseCameraAxisForPoseTransform(
+    const double* vec1, const double* vec2);
+
+  // Rotate the current tail on itself by a rotation of angle and axis.
+  void RotateTail(double angle, double axis[3], double newTail[3]);
+
+  // Rebuild the worlds points to their positions in Rest or Pose mode.
+  void RebuildWorldPosePointsFromWorldRestPoints();
+
+  // Init pose mode with rest values.
+  bool ShouldInitializePoseMode;
+  void InitializePoseMode();
+
+  // Selects and highlight the widget representation
+  void SetWidgetSelectedState(int selectionState);
 
 private:
   vtkBoneWidget(const vtkBoneWidget&);  //Not implemented

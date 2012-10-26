@@ -43,10 +43,12 @@
 
 #include <vtkInteractorStyleTrackballCamera.h>
 
+#include "vtkArmatureWidget.h"
 #include "vtkBoneWidget.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
 
+#include <map>
 
 void Matrix3x3ToMatrix4x4(double M[3][3], double resultM[4][4])
 {
@@ -241,6 +243,63 @@ Angle different !
 
 */
 
+class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
+{
+  public:
+    static Test1KeyPressInteractorStyle* New();
+    vtkTypeMacro(Test1KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
+
+    virtual void OnKeyPress()
+      {
+      vtkRenderWindowInteractor *rwi = this->Interactor;
+      std::string key = rwi->GetKeySym();
+      std::cout<<"Key Pressed: "<<key<<std::endl;
+
+      if (key == "Shift_L")
+        {
+        std::cout<<"Changing representation !"<<std::endl;
+
+        // Cycling through the representations
+        int newRepresentationType = Armature->GetBonesRepresentationType() + 1;
+        if (newRepresentationType > vtkArmatureWidget::DoubleCone
+            || newRepresentationType < vtkArmatureWidget::Bone) //last case is case no representation
+          {
+          newRepresentationType = 0;
+          }
+        Armature->SetBonesRepresentation(newRepresentationType);
+        }
+
+      //if (key == "a")
+        //{
+        //vtkSmartPointer<vtkTransform> transform =
+        //  vtkSmartPointer<vtkTransform>::New();
+        //transform->Translate(Armature->GetBone(1)->GetParentToBoneRestTranslation());
+
+        //transform->Concatenate(Armature->GetBone(1)->CreateParentToBoneRestRotation());
+
+        //Axes->SetUserTransform(transform);
+        //}
+      if (key == "Control_L")
+        {
+        Armature->SetWidgetState( ! Armature->GetWidgetState() );
+        }
+      else if (key == "Tab")
+        {
+        int state = Armature->GetAxesVisibility() + 1;
+        if (state > vtkBoneWidget::ShowPoseTransform)
+          {
+          state = 0;
+          }
+        Armature->SetAxesVisibility(state);
+        }
+      }
+
+  vtkArmatureWidget* Armature;
+  //vtkAxesActor* Axes;
+};
+
+vtkStandardNewMacro(Test1KeyPressInteractorStyle);
+
 void printNormal(double axis[3])
 {
   double Y[3] = {0.0, 1.0, 0.0}, normal[3];
@@ -251,9 +310,9 @@ void printNormal(double axis[3])
 
 int vtkBoneWidgetTwoBonesTestRotationMatrix(int, char *[])
 {
-  double axis[3];
+/* double axis[3];
 
-  axis[0] = 0.0; axis[1] =-0.999534; axis[2] = 0.001;
+   axis[0] = 0.0; axis[1] =-0.999534; axis[2] = 0.001;
   printNormal(axis);
 
   axis[0] = 0.0; axis[1] = -0.999534; axis[2] = 0.0001;
@@ -272,9 +331,89 @@ int vtkBoneWidgetTwoBonesTestRotationMatrix(int, char *[])
   std::cout<<vtkMath::Norm(axis)<<std::endl;
   printNormal(axis);
 
-/*lineVect -0.0171035 -0.999413 -0.0296692
+lineVect -0.0171035 -0.999413 -0.0296692
 rotationAxis -0.866354 0 0.49943*/
 
-  std::cin >> axis[0];
+  vtkSmartPointer<vtkRenderer> renderer =
+    vtkSmartPointer<vtkRenderer>::New();
+  vtkSmartPointer<vtkRenderWindow> renderWindow =
+    vtkSmartPointer<vtkRenderWindow>::New();
+  renderWindow->AddRenderer(renderer);
+
+  // An interactor
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
+    vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  renderWindowInteractor->SetRenderWindow(renderWindow);
+
+  vtkSmartPointer<vtkArmatureWidget> armature =
+    vtkSmartPointer<vtkArmatureWidget>::New();
+  armature->SetInteractor(renderWindowInteractor);
+  armature->SetCurrentRenderer(renderer);
+  armature->CreateDefaultRepresentation();
+  armature->SetBonesRepresentation(vtkArmatureWidget::Bone);
+  armature->SetWidgetState(vtkArmatureWidget::Rest);
+
+  vtkBoneWidget* arm = armature->CreateBone(NULL);
+  armature->AddBone(arm, NULL, "Arm");
+  arm->SetWorldHeadRest(0.0, 0.0, 0.0);
+  arm->SetWorldTailRest(10.0, 0.0, 0.0);
+  vtkSmartPointer<vtkCylinderBoneRepresentation> armRep =
+    vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
+  arm->SetRepresentation(armRep);
+  armRep->GetCylinderProperty()->SetOpacity(0.4);
+
+  vtkBoneWidget* forearm = armature->CreateBone(arm);
+  armature->AddBone(forearm, arm, 20.0, 0.0, 0.0);
+  vtkSmartPointer<vtkDoubleConeBoneRepresentation> forearmRep =
+    vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
+  forearm->SetRepresentation(forearmRep);
+  forearmRep->GetConesProperty()->SetOpacity(0.4);
+
+  vtkBoneWidget* thumb = armature->CreateBone(forearm);
+  armature->AddBone(thumb, forearm, 20.0, 4.0, 0.0);
+  thumb->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+
+  vtkBoneWidget* indexFinger = armature->CreateBone(forearm);
+  armature->AddBone(indexFinger, forearm, 22.0, 2.0, 0.0);
+  indexFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+
+  vtkBoneWidget* middleFinger = armature->CreateBone(forearm);
+  armature->AddBone(middleFinger, forearm, 22.0, 1.0, 0.0);
+  middleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+
+  vtkBoneWidget* ringFinger = armature->CreateBone(forearm);
+  armature->AddBone(ringFinger, forearm, 22.0, -1.0, 0.0);
+  ringFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+
+  vtkBoneWidget* littleFinger = armature->CreateBone(forearm);
+  armature->AddBone(littleFinger, forearm, 22.0, -2.0, 0.0);
+  littleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+
+  armature->SetWidgetState(vtkArmatureWidget::Pose);
+
+  vtkSmartPointer<Test1KeyPressInteractorStyle> style =
+    vtkSmartPointer<Test1KeyPressInteractorStyle>::New();
+  renderWindowInteractor->SetInteractorStyle(style);
+  style->Armature = armature;
+
+  vtkSmartPointer<vtkAxesActor> axes =
+    vtkSmartPointer<vtkAxesActor>::New();
+
+  vtkSmartPointer<vtkOrientationMarkerWidget> axesWidget =
+    vtkSmartPointer<vtkOrientationMarkerWidget>::New();
+  axesWidget->SetOrientationMarker( axes );
+  axesWidget->SetInteractor( renderWindowInteractor );
+  axesWidget->On();
+
+  // Render
+  renderWindow->Render();
+  renderWindowInteractor->Initialize();
+  renderWindow->Render();
+  armature->On();
+
+  // Begin mouse interaction
+  renderWindowInteractor->Start();
+
   return EXIT_SUCCESS;
 }
+

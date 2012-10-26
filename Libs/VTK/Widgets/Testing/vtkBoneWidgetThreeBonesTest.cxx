@@ -50,108 +50,73 @@
 // Define interaction style
 class ThreeBonesTestKeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
-  public:
-    static ThreeBonesTestKeyPressInteractorStyle* New();
-    vtkTypeMacro(ThreeBonesTestKeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
- 
-    virtual void OnKeyPress() 
+public:
+  static ThreeBonesTestKeyPressInteractorStyle* New();
+  vtkTypeMacro(ThreeBonesTestKeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
+
+  virtual void OnKeyPress() 
+    {
+    vtkRenderWindowInteractor *rwi = this->Interactor;
+    std::string key = rwi->GetKeySym();
+    std::cout<<"Key Pressed: "<<key<<std::endl;
+    std::cout<<"Key == Control_L:"<<(key == "Control_L")<<std::endl;
+    std::cout<<"Key == Tab:"<<(key == "Tab")<<std::endl;
+    std::cout<<"Key == l:"<<(key == "l")<<std::endl;
+    std::cout<<"Key == Alt_L:"<<(key == "Alt_L")<<std::endl;
+
+    if (key == "Control_L")
       {
-      vtkRenderWindowInteractor *rwi = this->Interactor;
-      std::string key = rwi->GetKeySym();
-      std::cout<<"Key Pressed: "<<key<<std::endl;
+      /*int widgetState = this->Widget->GetWidgetState();
 
-      if (key == "Control_L")
+      if ( widgetState == vtkBoneWidget::Rest )
         {
-        int widgetState = this->Widget->GetWidgetState();
-        //std::cout<<"WidgetState: "<<widgetState <<" (Rest = "
-        //  <<vtkBoneWidget::Rest<<", Pose = "
-        //  <<vtkBoneWidget::Pose<<")"<<std::endl;
-
-        if ( widgetState == vtkBoneWidget::Rest )
-          {
-          std::cout<<"Set Widget State to Pose"<<std::endl;
-          this->Widget->SetWidgetStateToPose();
-          this->MiddleSonWidget->SetWidgetStateToPose();
-          this->SonWidget->SetWidgetStateToPose();
-          }
-        else if ( widgetState == vtkBoneWidget::Pose )
-          {
-          std::cout<<"Set Widget State to Rest"<<std::endl;
-          this->Widget->SetWidgetStateToRest();
-          this->MiddleSonWidget->SetWidgetStateToRest();
-          this->SonWidget->SetWidgetStateToRest();
-          }
-
+        std::cout<<"Set Widget State to Pose"<<std::endl;
+        this->Widget->SetWidgetStateToPose();
+        this->MiddleSonWidget->SetWidgetStateToPose();
+        this->SonWidget->SetWidgetStateToPose();
         }
-      /*else if (key == "Tab"
+      else if ( widgetState == vtkBoneWidget::Pose )
         {
-        vtkWidgetRepresentation* rep = Widget->GetRepresentation();
-
-        if (vtkCylinderBoneRepresentation::SafeDownCast(rep)) // switch to double cone
-            {
-            vtkSmartPointer<vtkDoubleConeBoneRepresentation> simsIconRep = 
-              vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
-            simsIconRep->SetNumberOfSides(10);
-            simsIconRep->SetRatio(0.2);
-            simsIconRep->SetCapping(1);
-            Widget->SetRepresentation(simsIconRep);
-            }
-        else if (vtkDoubleConeBoneRepresentation::SafeDownCast(rep)) // switch to line
-          {
-          vtkSmartPointer<vtkBoneRepresentation> lineRep = 
-              vtkSmartPointer<vtkBoneRepresentation>::New();
-          Widget->SetRepresentation(lineRep);
-          }
-        else if (vtkBoneRepresentation::SafeDownCast(rep))
-          {
-          vtkSmartPointer<vtkCylinderBoneRepresentation> cylinderRep = 
-            vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
-          cylinderRep->SetNumberOfSides(10);
-          Widget->SetRepresentation(cylinderRep);
-          }
+        std::cout<<"Set Widget State to Rest"<<std::endl;
+        this->Widget->SetWidgetStateToRest();
+        this->MiddleSonWidget->SetWidgetStateToRest();
+        this->SonWidget->SetWidgetStateToRest();
         }*/
-      else if (key == "p")
-        {
-        double axis[3];
-        double angle = vtkBoneWidget::QuaternionToAxisAngle(
-           this->MiddleSonWidget->GetRestTransform(), axis);
-
-        std::cout<<"MiddleSonWidget RestTransform:"<<std::endl;
-        std::cout<<"  Theta:          "<<vtkMath::DegreesFromRadians(angle)<<std::endl;
-        std::cout<<"  Rotation Axis:  "<<axis[0]<<" "
-          <<axis[1]<<" "<<axis[2]<<std::endl;
-
-        angle = vtkBoneWidget::QuaternionToAxisAngle(
-           this->MiddleSonWidget->GetPoseTransform(), axis);
-        std::cout<<"MiddleSonWidget Pose Transfotm:"<<std::endl;
-        std::cout<<"  Theta:          "<<vtkMath::DegreesFromRadians(angle)<<std::endl;
-        std::cout<<"  Rotation Axis:  "<<axis[0]<<" "
-          <<axis[1]<<" "<<axis[2]<<std::endl;
-        }
-      else if (key == "Tab")
-        {
-        //std::cout<<"Tab"<<std::endl;
-        int state = Widget->GetAxesVisibility() + 1;
-        if (state > vtkBoneWidget::ShowPoseTransformAndRestTransform)
-          {
-          state = 0;
-          }
-        Widget->SetAxesVisibility(state);
-        SonWidget->SetAxesVisibility(state);
-        MiddleSonWidget->SetAxesVisibility(state);
-        }
-      else if (key == "l")
-        {
-        MiddleSonWidget->SetHeadLinkedToParent(
-         ! MiddleSonWidget->GetHeadLinkedToParent() );
-        SonWidget->SetHeadLinkedToParent(
-         ! SonWidget->GetHeadLinkedToParent() );
-        }
       }
+    else if (key == "Tab")
+      {
+      //int state = Widget->GetAxesVisibility() + 1;
+      //if (state > vtkBoneWidget::ShowPoseTransformAndRestTransform)
+      //  {
+      //  state = 0;
+      //  }
+      //Widget->SetAxesVisibility(state);
+      //SonWidget->SetAxesVisibility(state);
+      //MiddleSonWidget->SetAxesVisibility(state);
+      }
+    else if (key == "l")
+      {
+      //MiddleSonWidget->SetHeadLinkedToParent(
+      // ! MiddleSonWidget->GetHeadLinkedToParent() );
+      //SonWidget->SetHeadLinkedToParent(
+      // ! SonWidget->GetHeadLinkedToParent() );
+      }
+    else if (key == "Alt_L")
+      {
+      //  std::cout<<"KEY :"<<key<<std::endl;
+      //std::cout<<" Show parentage (Widget): "<<Widget->GetShowParentage()<<std::endl;
+      //Widget->SetShowParentage(
+      //  ! Widget->GetShowParentage());
+      //SonWidget->SetShowParentage(
+      //  ! SonWidget->GetShowParentage());
+      //MiddleSonWidget->SetShowParentage(
+      //  ! MiddleSonWidget->GetShowParentage());
+      }
+    }
 
-    vtkBoneWidget* Widget;
-    vtkBoneWidget* MiddleSonWidget;
-    vtkBoneWidget* SonWidget;
+  vtkBoneWidget* Widget;
+  vtkBoneWidget* MiddleSonWidget;
+  vtkBoneWidget* SonWidget;
 };
 
 vtkStandardNewMacro(ThreeBonesTestKeyPressInteractorStyle);
@@ -194,8 +159,8 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
   fatherBoneWidget->SetWidgetStateToRest();
 
   //Reset Father position
-  fatherBoneWidget->SetHeadRestWorldPosition(0.0, 0.0, 0.0);
-  fatherBoneWidget->SetTailRestWorldPosition(0.0, 0.1, 0.0);
+//  fatherBoneWidget->SetHeadRestWorldPosition(0.0, 0.0, 0.0);
+//  fatherBoneWidget->SetTailRestWorldPosition(0.0, 0.1, 0.0);
 
   vtkSmartPointer<vtkBoneWidget> middleSonBoneWidget = 
     vtkSmartPointer<vtkBoneWidget>::New();
@@ -203,9 +168,9 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
   middleSonBoneWidget->CreateDefaultRepresentation();
 
   middleSonBoneWidget->SetWidgetStateToRest();
-  middleSonBoneWidget->SetHeadRestWorldPosition(0.0, 0.2, 0.0);
-  middleSonBoneWidget->SetTailRestWorldPosition(0.1, 0.2, 0.0);
-  middleSonBoneWidget->SetBoneParent(fatherBoneWidget);
+//  middleSonBoneWidget->SetHeadRestWorldPosition(0.0, 0.2, 0.0);
+//  middleSonBoneWidget->SetTailRestWorldPosition(0.1, 0.2, 0.0);
+//  middleSonBoneWidget->SetBoneParent(fatherBoneWidget);
   middleSonBoneWidget->GetBoneRepresentation()->GetHeadRepresentation()->GetProperty()->SetColor(0.0, 1.0, 1.0);
   middleSonBoneWidget->GetBoneRepresentation()->GetTailRepresentation()->GetProperty()->SetColor(0.0, 0.0, 1.0);
 
@@ -215,9 +180,9 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
   sonBoneWidget->CreateDefaultRepresentation();
 
   sonBoneWidget->SetWidgetStateToRest();
-  sonBoneWidget->SetHeadRestWorldPosition(0.1, 0.3, 0.0);
-  sonBoneWidget->SetTailRestWorldPosition(0.1, 0.4, 0.0);
-  sonBoneWidget->SetBoneParent(middleSonBoneWidget);
+//  sonBoneWidget->SetHeadRestWorldPosition(0.1, 0.3, 0.0);
+//  sonBoneWidget->SetTailRestWorldPosition(0.1, 0.4, 0.0);
+//  sonBoneWidget->SetBoneParent(middleSonBoneWidget);
   sonBoneWidget->GetBoneRepresentation()->GetHeadRepresentation()->GetProperty()->SetColor(0.0, 1.0, 1.0);
   sonBoneWidget->GetBoneRepresentation()->GetTailRepresentation()->GetProperty()->SetColor(0.0, 0.0, 1.0);
 
@@ -232,13 +197,12 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
 
   vtkSmartPointer<vtkAxesActor> axes = 
     vtkSmartPointer<vtkAxesActor>::New();
- 
+
   vtkSmartPointer<vtkOrientationMarkerWidget> axesWidget = 
     vtkSmartPointer<vtkOrientationMarkerWidget>::New();
   axesWidget->SetOrientationMarker( axes );
   axesWidget->SetInteractor( renderWindowInteractor );
   axesWidget->On();
-
 
   // Render
   renderWindow->Render();
@@ -248,7 +212,6 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
   middleSonBoneWidget->On();
   sonBoneWidget->On();
 
-
   box->On();
 
   // Begin mouse interaction
@@ -256,3 +219,4 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
  
   return EXIT_SUCCESS;
 }
+

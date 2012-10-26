@@ -43,14 +43,18 @@ include_directories(
   )
 
 set(${KIT}_SRCS
-  vtkBoneRepresentation.h
+  vtkArmatureRepresentation.h
+  vtkArmatureRepresentation.cxx
+  vtkArmatureWidget.h
+  vtkArmatureWidget.cxx
   vtkBoneRepresentation.cxx
-  vtkBoneWidget.h
+  vtkBoneRepresentation.h
   vtkBoneWidget.cxx
-  vtkCylinderBoneRepresentation.h
+  vtkBoneWidget.h
   vtkCylinderBoneRepresentation.cxx
-  vtkDoubleConeBoneRepresentation.h
+  vtkCylinderBoneRepresentation.h
   vtkDoubleConeBoneRepresentation.cxx
+  vtkDoubleConeBoneRepresentation.h
   )
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})

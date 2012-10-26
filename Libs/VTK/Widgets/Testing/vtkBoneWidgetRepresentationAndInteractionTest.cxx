@@ -63,24 +63,24 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         {
         int widgetState = this->Widget->GetWidgetState();
    
-        if ( widgetState == vtkBoneWidget::Start )
+        if ( widgetState == vtkBoneWidget::PlaceHead )
           {
           //do nothing
           //I wanted this if to be explicit !
           }
-        else if ( widgetState == vtkBoneWidget::Define )
+        else if ( widgetState == vtkBoneWidget::PlaceTail )
           {
           //do nothing
           //I wanted this if to be explicit !
           }
-        else if ( widgetState == vtkBoneWidget::Rest )
+        /*else if ( widgetState == vtkBoneWidget::Rest )
           {
           this->Widget->SetWidgetStateToPose();
           }
         else if ( widgetState == vtkBoneWidget::Pose )
           {
           this->Widget->SetWidgetStateToRest();
-          }
+          }*/
         }
       else if (key == "Tab")
         {
@@ -114,15 +114,15 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         }
       else if (key == "u")
         {
-        std::cout<<"here"<<std::endl;
-        double axis[3];
-        vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-        transform->Translate( Widget->GetTailRestWorldPosition() );
+  //      std::cout<<"here"<<std::endl;
+ //       double axis[3];
+ //       vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
+//        transform->Translate( Widget->GetTailRestWorldPosition() );
 
-        double angle = vtkBoneWidget::QuaternionToAxisAngle(Widget->GetRestTransform(), axis);
-        transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis[0], axis[1], axis[2]);
+  //      double angle = vtkBoneWidget::QuaternionToAxisAngle(Widget->GetRestTransform(), axis);
+//        transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis[0], axis[1], axis[2]);
 
-        Axes->SetUserTransform(transform);
+   //     Axes->SetUserTransform(transform);
         }
       else if (key == "h")
         {
@@ -173,3 +173,4 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
  
   return EXIT_SUCCESS;
 }
+
