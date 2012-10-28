@@ -21,9 +21,13 @@
 #ifndef __vtkSlicerArmaturesLogic_h
 #define __vtkSlicerArmaturesLogic_h
 
+// Armatures includes
+#include "vtkSlicerArmaturesModuleLogicExport.h"
+class vtkMRMLArmatureNode;
+class vtkMRMLBoneNode;
+
 // Slicer includes
 #include "vtkSlicerModuleLogic.h"
-#include "vtkSlicerArmaturesModuleLogicExport.h"
 class vtkSlicerModelsLogic;
 class vtkSlicerAnnotationModuleLogic;
 
@@ -59,6 +63,32 @@ public:
   virtual void SetAnnotationsLogic(vtkSlicerAnnotationModuleLogic* logic);
   vtkGetObjectMacro(AnnotationsLogic, vtkSlicerAnnotationModuleLogic);
 
+  /// Set active bone.
+  /// The active bone will be the parent of the future bones added into the
+  /// scene. If there is no active bone (bone == 0), the Armature is
+  /// considered active.
+  void SetActiveArmature(vtkMRMLArmatureNode* armature);
+  vtkMRMLArmatureNode* GetActiveArmature();
+
+  /// \tbd move to vtkMRMLArmatureNode ?
+  /// Set active bone.
+  /// The active bone will be the parent of the future bones added into the
+  /// scene. If there is no active bone (bone == 0), the Armature is
+  /// considered active.
+  void SetActiveBone(vtkMRMLBoneNode* bone);
+  vtkMRMLBoneNode* GetActiveBone();
+
+  /// Return the armature the bone belongs to.
+  /// \sa GetBoneParent()
+  vtkMRMLArmatureNode* GetBoneArmature(vtkMRMLBoneNode* bone);
+  /// Return the parent of the bone or 0 if the bone has no parent or its
+  /// parent is an armature.
+  /// \sa GetBoneArmature()
+  vtkMRMLBoneNode* GetBoneParent(vtkMRMLBoneNode* bone);
+
+  /// Observe MRML scene events
+  virtual void SetMRMLSceneInternal(vtkMRMLScene * newScene);
+
   /// Register bone pose mode.
   /// \sa vtkMRMLSelectionNode::AddNewAnnotationIDToList()
   virtual void ObserveMRMLScene();
@@ -67,9 +97,15 @@ public:
   /// \sa vtkMRMLScene::RegisterNodeClass()
   virtual void RegisterNodes();
 
+  virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+  virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+
 protected:
   vtkSlicerArmaturesLogic();
   virtual ~vtkSlicerArmaturesLogic();
+
+  virtual void ProcessMRMLLogicsEvents(vtkObject* caller, unsigned long event,
+                                       void* callData);
 
   void ReadBone(vtkXMLDataElement* boneElement, vtkPolyData* polyData,
                 const double origin[3], const double orientation[4]);
@@ -77,6 +113,7 @@ protected:
 
   vtkSlicerModelsLogic* ModelsLogic;
   vtkSlicerAnnotationModuleLogic* AnnotationsLogic;
+
 private:
   vtkSlicerArmaturesLogic(const vtkSlicerArmaturesLogic&); // Not implemented
   void operator=(const vtkSlicerArmaturesLogic&);               // Not implemented

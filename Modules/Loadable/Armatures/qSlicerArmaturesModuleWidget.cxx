@@ -25,6 +25,7 @@
 #include "qSlicerArmaturesModuleWidget.h"
 #include "ui_qSlicerArmaturesModule.h"
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLBoneNode.h"
 #include "vtkSlicerArmaturesLogic.h"
 
 // Annotations includes
@@ -75,6 +76,16 @@ void qSlicerArmaturesModuleWidgetPrivate::setupUi(qSlicerWidget* armatureModuleW
 {
   Q_Q(qSlicerArmaturesModuleWidget);
   this->Superclass::setupUi(armatureModuleWidget);
+
+  // Armatures
+  QObject::connect(this->ArmatureNodeComboBox,
+                   SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+                   q, SLOT(setMRMLArmatureNode(vtkMRMLNode*)));
+  QObject::connect(this->ArmatureVisibilityCheckBox, SIGNAL(toggled(bool)),
+                   q, SLOT(setArmatureVisibility(bool)));
+
+  // Bones
+  this->BonesTreeView->annotationModel()->setAnnotationsAreParent(true);
   this->BonesTreeView->setLogic(this->logic()->GetAnnotationsLogic());
   this->BonesTreeView->annotationModel()->setNameColumn(0);
   this->BonesTreeView->annotationModel()->setVisibilityColumn(0);
@@ -87,17 +98,19 @@ void qSlicerArmaturesModuleWidgetPrivate::setupUi(qSlicerWidget* armatureModuleW
 
   this->BonesTreeView->setHeaderHidden(true);
 
+  QObject::connect(this->BonesTreeView,
+                   SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+                   q, SLOT(setMRMLBoneNode(vtkMRMLNode*)));
+
   QAction* addBoneAction = new QAction("Add bone", this->BonesTreeView);
   this->BonesTreeView->prependNodeMenuAction(addBoneAction);
   this->BonesTreeView->prependSceneMenuAction(addBoneAction);
   QObject::connect(addBoneAction, SIGNAL(triggered()),
                    q, SLOT(addAndPlaceBone()));
 
-  QObject::connect(this->ArmatureNodeComboBox,
-                   SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-                   q, SLOT(setMRMLArmatureNode(vtkMRMLNode*)));
-  QObject::connect(this->ArmatureVisibilityCheckBox, SIGNAL(toggled(bool)),
-                   q, SLOT(setArmatureVisibility(bool)));
+  // Logic
+  q->qvtkConnect(this->logic(), vtkCommand::ModifiedEvent,
+                 q, SLOT(updateWidgetFromLogic()));
 }
 
 //-----------------------------------------------------------------------------
@@ -127,9 +140,8 @@ void qSlicerArmaturesModuleWidget::setup()
 void qSlicerArmaturesModuleWidget
 ::setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode)
 {
-  //Q_D(qSlicerArmaturesModuleWidget);
-  //d->BonesTreeView->
-  Q_UNUSED(armatureNode);
+  Q_D(qSlicerArmaturesModuleWidget);
+  d->logic()->SetActiveArmature(armatureNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -167,6 +179,26 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 */
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget
+::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+  //d->logic()->SetActiveBone(boneNode);
+  //if (boneNode == 0)
+  //  {
+  //  d->logic()->SetActiveArmature(this->mrmlArmatureNode());
+  //  }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget
+::setMRMLBoneNode(vtkMRMLNode* boneNode)
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+  this->setMRMLBoneNode(vtkMRMLBoneNode::SafeDownCast(boneNode));
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::addAndPlaceBone()
 {
   Q_D(qSlicerArmaturesModuleWidget);
@@ -181,27 +213,17 @@ void qSlicerArmaturesModuleWidget::addAndPlaceBone()
     return;
     }
   selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
-  vtkMRMLNode* currentNode = d->BonesTreeView->currentNode();
-  if (!currentNode)
-    {
-    currentNode = d->ArmatureNodeComboBox->currentNode();
-    }
-  if (currentNode && !currentNode->IsA("vtkMRMLAnnotationHierarchyNode"))
-    {
-    // Bone nodes are not hierarchy nodes, and therefore can't be parent
-    // of new bones. Only their associated hierarchy node can be.
-    // \tdb Use AssociatedNodeID attribute instead of searching the scene?
-    currentNode = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-      vtkMRMLDisplayableHierarchyNode::GetDisplayableHierarchyNode(
-        currentNode->GetScene(), currentNode->GetID()));
-    }
-  if (!currentNode)
-    {
-    qCritical() << "No parent for bone to add.";
-    return;
-    }
-  // Ensure the bones gets added to the current armature.
-  d->logic()->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
-    currentNode->GetID());
   interactionNode->SwitchToSinglePlaceMode();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+  vtkMRMLNode* activeNode = d->logic()->GetActiveBone();
+  if (activeNode == 0)
+    {
+    activeNode = d->logic()->GetActiveArmature();
+    }
+  d->BonesTreeView->setCurrentNode(activeNode);
 }

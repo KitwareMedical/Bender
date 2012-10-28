@@ -20,6 +20,7 @@ set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
   vtkBender${MODULE_NAME}ModuleMRMLCore
   vtkSlicerModelsModuleLogic
+  vtkSlicerAnnotationsModuleLogic
   )
 
 #-----------------------------------------------------------------------------

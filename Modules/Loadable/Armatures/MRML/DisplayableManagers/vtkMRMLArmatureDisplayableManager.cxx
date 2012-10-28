@@ -36,6 +36,7 @@
 // MRML includes
 #include <vtkMRMLApplicationLogic.h>
 #include <vtkMRMLAnnotationClickCounter.h>
+#include <vtkMRMLAnnotationDisplayableManagerHelper.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
 #include <vtkMRMLViewNode.h>
@@ -717,34 +718,18 @@ void vtkMRMLArmatureDisplayableManager::OnClickInRenderWindow(double x, double y
   // place the seed where the user clicked
   this->PlaceSeed(x,y);
 
-  if (!this->m_ClickCounter->HasEnoughClicks(2))
+  double worldCoordinates[4] = {0.,0.,0.,1.};
+  this->GetDisplayToWorldCoordinates(x, y, worldCoordinates);
+
+  if (this->m_ClickCounter->Click() >= 2)
     {
-    this->GetDisplayToWorldCoordinates(x, y, this->LastClickWorldCoordinates);
-    }
-  else
-   {
     // switch to updating state to avoid events mess
     this->m_Updating = 1;
 
-    vtkHandleWidget *h2 = this->GetSeed(1);
-
-    vtkHandleRepresentation* hr2 = vtkHandleRepresentation::SafeDownCast(h2->GetRepresentation());
-    // convert the coordinates
-    double* displayCoordinates2 = hr2 ? hr2->GetDisplayPosition() : 0;
-    assert(displayCoordinates2);
-
-    double worldCoordinates1[4] = {this->LastClickWorldCoordinates[0],
-                                   this->LastClickWorldCoordinates[1],
-                                   this->LastClickWorldCoordinates[2],
-                                   1};
-    double worldCoordinates2[4] = {0.,0.,0.,1.};
-
-    this->GetDisplayToWorldCoordinates(displayCoordinates2[0],displayCoordinates2[1],worldCoordinates2);
-
     vtkNew<vtkMRMLBoneNode> boneNode;
     boneNode->SetName(this->GetMRMLScene()->GetUniqueNameByString("Bone"));
-    boneNode->SetWorldHeadRest(worldCoordinates1);
-    boneNode->SetWorldTailRest(worldCoordinates2);
+    boneNode->SetWorldHeadRest(this->LastClickWorldCoordinates);
+    boneNode->SetWorldTailRest(worldCoordinates);
 
     this->GetMRMLScene()->SaveStateForUndo();
 
@@ -763,7 +748,10 @@ void vtkMRMLArmatureDisplayableManager::OnClickInRenderWindow(double x, double y
     vtkMRMLInteractionNode *interactionNode = this->GetInteractionNode();
     if (interactionNode && interactionNode->GetPlaceModePersistence() != 1)
       {
+      this->Helper->RemoveSeeds();
+      this->m_ClickCounter->Reset();
       interactionNode->SetCurrentInteractionMode(vtkMRMLInteractionNode::ViewTransform);
       }
     }
+  memcpy(this->LastClickWorldCoordinates, worldCoordinates, 4 * sizeof(double));
 }

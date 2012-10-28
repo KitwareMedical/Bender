@@ -25,17 +25,21 @@
 #include "qSlicerArmaturesModuleExport.h"
 class qSlicerArmaturesModuleWidgetPrivate;
 class vtkMRMLArmatureNode;
+class vtkMRMLBoneNode;
 class vtkMRMLNode;
 
 // SlicerQt includes
 #include "qSlicerAbstractModuleWidget.h"
+
+// CTK includes
+#include <ctkVTKObject.h>
 
 /// \ingroup Slicer_QtModules_Armatures
 class Q_SLICER_QTMODULES_ARMATURES_EXPORT qSlicerArmaturesModuleWidget
   : public qSlicerAbstractModuleWidget
 {
   Q_OBJECT
-
+  QVTK_OBJECT
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
@@ -56,12 +60,22 @@ public slots:
   /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
   void setMRMLArmatureNode(vtkMRMLNode* armatureNode);
 
+  /// Set \a boneNode as current.
+  /// \sa setMRMLBoneNode(vtkMRMLNode*)
+  void setMRMLBoneNode(vtkMRMLBoneNode* boneNode);
+  /// Utility function to conveniently connect signals/slots.
+  /// \sa setMRMLBoneNode(vtkMRMLBoneNode*)
+  void setMRMLBoneNode(vtkMRMLNode* boneNode);
+
   /// Set the visibility of the current armature node.
   /// \sa vtkMRMLArmatureDisplayNode::Visibility
   void setArmatureVisibility(bool visible);
 
   /// Create a bone and start the mouse mode to place it.
   void addAndPlaceBone();
+
+protected slots:
+  void updateWidgetFromLogic();
 
 protected:
   QScopedPointer<qSlicerArmaturesModuleWidgetPrivate> d_ptr;

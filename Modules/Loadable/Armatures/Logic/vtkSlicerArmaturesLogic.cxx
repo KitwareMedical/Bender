@@ -30,6 +30,7 @@
 #include "vtkSlicerArmaturesLogic.h"
 
 // MRML includes
+#include <vtkEventBroker.h>
 
 // VTK includes
 #include <vtkMath.h>
@@ -43,7 +44,6 @@
 #include <cassert>
 
 vtkCxxSetObjectMacro(vtkSlicerArmaturesLogic, ModelsLogic, vtkSlicerModelsLogic);
-vtkCxxSetObjectMacro(vtkSlicerArmaturesLogic, AnnotationsLogic, vtkSlicerAnnotationModuleLogic);
 
 //----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkSlicerArmaturesLogic);
@@ -64,6 +64,16 @@ vtkSlicerArmaturesLogic::~vtkSlicerArmaturesLogic()
 void vtkSlicerArmaturesLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
+{
+  vtkIntArray *events = vtkIntArray::New();
+  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+  this->SetAndObserveMRMLSceneEventsInternal(newScene, events);
+  events->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +103,179 @@ void vtkSlicerArmaturesLogic::RegisterNodes()
 
   vtkNew<vtkMRMLBoneDisplayNode> boneDisplayNode;
   this->GetMRMLScene()->RegisterNodeClass( boneDisplayNode.GetPointer() );
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
+{
+  this->Superclass::OnMRMLSceneNodeAdded(node);
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode)
+    {
+    this->SetActiveArmature(armatureNode);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode)
+    {
+    this->SetActiveBone(boneNode);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* node)
+{
+  this->Superclass::OnMRMLSceneNodeRemoved(node);
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode && this->GetActiveArmature() == armatureNode)
+    {
+    this->SetActiveArmature(0);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode && this->GetActiveBone())
+    {
+    vtkMRMLBoneNode* parentBone = this->GetBoneParent(boneNode);
+    if (parentBone)
+      {
+      this->SetActiveBone(parentBone);
+      }
+    else
+      {
+      this->SetActiveArmature(this->GetBoneArmature(boneNode));
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic
+::SetAnnotationsLogic(vtkSlicerAnnotationModuleLogic* annotationLogic)
+{
+  if (this->AnnotationsLogic == annotationLogic)
+    {
+    return;
+    }
+
+  vtkEventBroker::GetInstance()->RemoveObservations(
+      this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+      this, this->GetMRMLLogicsCallbackCommand());
+
+  this->AnnotationsLogic = annotationLogic;
+
+  vtkEventBroker::GetInstance()->AddObservation(
+    this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+    this, this->GetMRMLLogicsCallbackCommand());
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic
+::ProcessMRMLLogicsEvents(vtkObject* caller, unsigned long event,
+                          void* callData)
+{
+  this->Superclass::ProcessMRMLLogicsEvents(caller, event, callData);
+  if (vtkSlicerAnnotationModuleLogic::SafeDownCast(caller))
+    {
+    assert(event == vtkCommand::ModifiedEvent);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetActiveArmature(vtkMRMLArmatureNode* armature)
+{
+  assert(this->AnnotationsLogic != 0);
+  if (this->GetActiveArmature() == armature)
+    {
+    return;
+    }
+  this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+    armature ? armature->GetID() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic::GetActiveArmature()
+{
+  assert(this->AnnotationsLogic != 0);
+  if (this->GetActiveBone())
+    {
+    return this->GetBoneArmature(this->GetActiveBone());
+    }
+  return vtkMRMLArmatureNode::SafeDownCast(
+    this->GetAnnotationsLogic()->GetActiveHierarchyNode());
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetActiveBone(vtkMRMLBoneNode* bone)
+{
+  assert(this->AnnotationsLogic != 0);
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode = 0;
+  if (bone != 0)
+    {
+    hierarchyNode = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+    }
+  if (hierarchyNode == 0)
+    {
+    hierarchyNode = this->GetActiveArmature();
+    }
+  if (hierarchyNode == 0)
+    {
+    hierarchyNode = this->GetAnnotationsLogic()->GetActiveHierarchyNode();
+    }
+  this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+    hierarchyNode ? hierarchyNode->GetID() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetActiveBone()
+{
+  assert(this->AnnotationsLogic != 0);
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    this->GetAnnotationsLogic()->GetActiveHierarchyNode();
+  return vtkMRMLBoneNode::SafeDownCast(
+    hierarchyNode? hierarchyNode->GetDisplayableNode() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
+::GetBoneArmature(vtkMRMLBoneNode* bone)
+{
+  if (bone == 0)
+    {
+    return 0;
+    }
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      hierarchyNode->GetParentNode());
+  vtkMRMLArmatureNode* armatureNode = 
+    vtkMRMLArmatureNode::SafeDownCast(parentHierarchyNode);
+  if (armatureNode == 0)
+    {
+    armatureNode = this->GetBoneArmature(
+      vtkMRMLBoneNode::SafeDownCast(parentHierarchyNode->GetDisplayableNode()));
+    }
+  return armatureNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetBoneParent(vtkMRMLBoneNode* bone)
+{
+  if (bone == 0)
+    {
+    return 0;
+    }
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      hierarchyNode->GetParentNode());
+  return vtkMRMLBoneNode::SafeDownCast(
+    parentHierarchyNode? parentHierarchyNode->GetDisplayableNode() : 0);
 }
 
 //----------------------------------------------------------------------------
