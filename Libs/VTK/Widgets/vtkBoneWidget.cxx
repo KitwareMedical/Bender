@@ -237,10 +237,8 @@ vtkBoneWidget::vtkBoneWidget()
   // Bone widget essentials.
   // World positions:
   // - Rest:
-  this->WorldHeadRest[0] = -0.5;
-  this->WorldHeadRest[1] = 0.0;
-  this->WorldHeadRest[2] = 0.0;
-  this->WorldTailRest[0] = 0.5;
+  InitializeVector3(this->WorldHeadRest);
+  this->WorldTailRest[0] = 1.0;
   this->WorldTailRest[1] = 0.0;
   this->WorldTailRest[2] = 0.0;
   // - Pose:
