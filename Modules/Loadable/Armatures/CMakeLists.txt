@@ -29,12 +29,14 @@ set(MODULE_SRCS
   qSlicerArmaturesModule.h
   qSlicerArmaturesModuleWidget.cxx
   qSlicerArmaturesModuleWidget.h
+  qSlicerArmaturesModuleWidget_p.h
   )
 
 set(MODULE_MOC_SRCS
   qSlicerArmaturesIO.h
   qSlicerArmaturesModule.h
   qSlicerArmaturesModuleWidget.h
+  qSlicerArmaturesModuleWidget_p.h
   )
 
 set(MODULE_UI_SRCS

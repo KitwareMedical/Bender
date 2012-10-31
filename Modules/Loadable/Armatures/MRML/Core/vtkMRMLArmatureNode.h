@@ -28,6 +28,8 @@
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkMRMLBoneNode;
 
+class vtkArmatureWidget;
+
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
 ///
@@ -78,6 +80,44 @@ public:
   virtual const char* GetIcon();
 
   //--------------------------------------------------------------------------
+  // Armature methods
+  //--------------------------------------------------------------------------
+
+  /// Set the bones representation type.
+  /// \sa GetBonesRepresentation()
+  void SetBonesRepresentation(int representationType);
+  /// Get the bones representation type.
+  /// \sa SetBonesRepresentation()
+  int GetBonesRepresentation();
+
+  /// Set the bones widget state.
+  /// \sa GetWidgetState()
+  void SetWidgetState(int state);
+  /// Get the bones widget state.
+  /// \sa SetWidgetState()
+  int GetWidgetState();
+
+  /// Set the bones debug axes visibility.
+  /// \sa GetAxesVisibility()
+  void SetAxesVisibility(int axesVisibility);
+  /// Get the bones debug axes visibility.
+  /// \sa SetAxesVisibility()
+  int GetAxesVisibility();
+
+  /// Show the a line between the bones and their origin.
+  /// \sa GetShowParenthood()
+  void SetShowParenthood(int parenthood);
+  /// Hide the a line between the bones and their origin.
+  /// \sa SetShowParenthood()
+  int GetShowParenthood();
+
+  /// Show/Hide the armature.
+  /// \sa GetVisibility(), SetVisibility()
+  void SetVisibility(bool visible);
+  bool GetVisibility();
+
+
+  //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
   /// Search and populate the \a bones collection with all the bones found
@@ -85,17 +125,32 @@ public:
   /// \sa GetBoneParent()
   inline void GetAllBones(vtkCollection* bones);
 
-  ///.Search and return the parent of the \a boneNode bone. Return 0 if the
+  /// Search and return the parent of the \a boneNode bone. Return 0 if the
   /// bone doesn't have a parent (top-level) or doesn't belong to the
   /// armature.
   /// \sa GetAllBones()
   vtkMRMLBoneNode* GetParentBone(vtkMRMLBoneNode* boneNode);
+
+  //--------------------------------------------------------------------------
+  // Helper methods
+  //--------------------------------------------------------------------------
+
+  /// Copy the properties of the widget into the node
+  /// \sa PasteArmatureNodeProperties()
+  void CopyArmatureWidgetProperties(vtkArmatureWidget* armatureWidget);
+
+  /// Paste the properties of the node into the widget
+  /// \sa CopyArmatureWidgetProperties()
+  void PasteArmatureNodeProperties(vtkArmatureWidget* armatureWidget);
+
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
 
   vtkMRMLArmatureNode(const vtkMRMLArmatureNode&); /// not implemented
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
+
+  vtkArmatureWidget* ArmatureProperties;
 };
 
 //----------------------------------------------------------------------------

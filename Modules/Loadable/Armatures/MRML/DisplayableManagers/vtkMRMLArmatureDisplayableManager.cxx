@@ -180,8 +180,18 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   this->BoneNodes.insert(
     std::pair<vtkMRMLBoneNode*, vtkBoneWidget*>(
       boneNode, static_cast<vtkBoneWidget*>(0)));
+
   // The bone widget is created here if needed.
   this->UpdateBoneWidgetFromNode(boneNode, 0);
+
+  /*if(this->ArmatureNodes.empty())
+    {
+    vtkNew<vtkMRMLArmatureNode> newArmatureNode;
+    this->AddArmatureNode(newArmatureNode);
+
+
+    }*/
+
 }
 
 
@@ -490,27 +500,8 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
       }
     }
 
-  // Update the representation
-  vtkArmatureRepresentation* rep =
-    armatureWidget->GetArmatureRepresentation();
+  armatureNode->CopyArmatureWidgetProperties(armatureWidget);
 
-  // rep->SetEdgeColor(sliceNode->GetLayoutColor());
-  // rep->PlaceWidget(bounds);
-  // rep->SetOrigin(sliceToRAS->GetElement(0,3),
-  //               sliceToRAS->GetElement(1,3),
-  //               sliceToRAS->GetElement(2,3));
-
-  // Update the widget itself if necessary
-  /*
-  if ((!armatureWidget->GetEnabled() && armatureNode->GetWidgetVisible()) ||
-     (armatureWidget->GetEnabled() && !armatureNode->GetWidgetVisible()) ||
-     (!rep->GetLockNormalToCamera() && armatureNode->GetWidgetNormalLockedToCamera()) ||
-     (rep->GetLockNormalToCamera() && !armatureNode->GetWidgetNormalLockedToCamera()))
-    {
-    armatureWidget->SetEnabled(armatureNode->GetWidgetVisible());
-    armatureWidget->SetLockNormalToCamera(armatureNode->GetWidgetNormalLockedToCamera());
-    }
-  */
   armatureWidget->SetEnabled(1);//armatureNode->GetWidgetVisible());
 }
 
@@ -531,20 +522,21 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     // Instantiate widget and link it if
     // there is no one associated to the boneNode yet
     boneWidget = this->CreateBoneWidget();
-    this->BoneNodes.find(boneNode)->second  = boneWidget;
+    this->BoneNodes.find(boneNode)->second = boneWidget;
     }
 
   boneWidget->SetWorldHeadRest(boneNode->GetWorldHeadRest());
   boneWidget->SetWorldTailRest(boneNode->GetWorldTailRest());
-
-  bool visible = boneNode->GetVisible() &&
-    (boneDisplayNode ?
-     boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
+  boneNode->PasteBoneNodeProperties(boneWidget);
 
   // Update the representation
   //vtkBoneRepresentation* rep =
   //  boneWidget->GetRepresentation();
   // rep->PlaceWidget(bounds);
+
+  bool visible = boneNode->GetVisible() &&
+    (boneDisplayNode ?
+     boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
   boneWidget->SetEnabled(visible);
 }
 
@@ -554,7 +546,9 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::UpdateArmatureNodeFromWidget(vtkMRMLArmatureNode* armatureNode,
                                vtkArmatureWidget* widget)
 {
-  // \todo
+  int wasModifying = armatureNode->StartModify();
+  armatureNode->CopyArmatureWidgetProperties(widget);
+  armatureNode->EndModify(wasModifying);
 }
 
 //---------------------------------------------------------------------------
@@ -563,8 +557,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
                            vtkBoneWidget* widget)
 {
   int wasModifying = boneNode->StartModify();
-  boneNode->SetWorldHeadRest(widget->GetWorldHeadRest());
-  boneNode->SetWorldTailRest(widget->GetWorldTailRest());
+  boneNode->CopyBoneWidgetProperties(widget);
   boneNode->EndModify(wasModifying);
 }
 
@@ -576,6 +569,8 @@ vtkMRMLArmatureDisplayableManager::vtkMRMLArmatureDisplayableManager()
 {
   this->Internal = new vtkInternal(this);
   this->m_Focus = "vtkMRMLArmatureNode";
+
+  //std::cout<<"vtkMRMLArmatureDisplayableManager Created !"<<std::endl;
 }
 
 //---------------------------------------------------------------------------
@@ -721,10 +716,14 @@ bool vtkMRMLArmatureDisplayableManager::IsManageable(const char* nodeID)
 /// Create a annotationMRMLnode
 void vtkMRMLArmatureDisplayableManager::OnClickInRenderWindow(double x, double y, const char *associatedNodeID)
 {
+  //std::cout<<"OnClickInRenderWindow"<<std::endl;
   if (!this->IsCorrectDisplayableManager())
     {
     return;
     }
+
+  //std::cout<<"OnClickInRenderWindow"<<std::endl;
+
   // place the seed where the user clicked
   this->PlaceSeed(x,y);
 

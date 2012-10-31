@@ -27,7 +27,9 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
+#include <vtkArmatureWidget.h>
 #include <vtkObjectFactory.h>
+#include <vtkWidgetRepresentation.h>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
@@ -35,12 +37,15 @@ vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 {
+  this->ArmatureProperties = vtkArmatureWidget::New();
+  this->ArmatureProperties->CreateDefaultRepresentation();
   this->SetHideFromEditors(0);
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 {
+  this->ArmatureProperties->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -117,4 +122,92 @@ vtkMRMLBoneNode* vtkMRMLArmatureNode::GetParentBone(vtkMRMLBoneNode* bone)
       boneHierarchyNode->GetParentNode());
   return vtkMRMLBoneNode::SafeDownCast(
     parentHierarchyNode->GetDisplayableNode());
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetBonesRepresentation(int representationType)
+{
+  this->ArmatureProperties->SetBonesRepresentation(representationType);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetBonesRepresentation()
+{
+  return this->ArmatureProperties->GetBonesRepresentationType();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetWidgetState(int state)
+{
+  this->ArmatureProperties->SetWidgetState(state);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetWidgetState()
+{
+  return this->ArmatureProperties->GetWidgetState();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetAxesVisibility(int axesVisibility)
+{
+  this->ArmatureProperties->SetAxesVisibility(axesVisibility);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetAxesVisibility()
+{
+  return this->ArmatureProperties->GetAxesVisibility();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetShowParenthood(int parenthood)
+{
+  this->ArmatureProperties->SetShowParenthood(parenthood);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetShowParenthood()
+{
+  return this->ArmatureProperties->GetShowParenthood();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetVisibility(bool visible)
+{
+  this->ArmatureProperties->GetRepresentation()->SetVisibility(visible);
+}
+
+//---------------------------------------------------------------------------
+bool vtkMRMLArmatureNode::GetVisibility()
+{
+  return this->ArmatureProperties->GetRepresentation()->GetVisibility();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode
+::CopyArmatureWidgetProperties(vtkArmatureWidget* armatureWidget)
+{
+  //int wasModifying = this->StartModify(); // ? Probably not
+  this->ArmatureProperties->SetBonesRepresentation(
+    armatureWidget->GetBonesRepresentationType());
+  this->ArmatureProperties->SetWidgetState(armatureWidget->GetWidgetState());
+  this->ArmatureProperties->SetAxesVisibility(
+    armatureWidget->GetAxesVisibility());
+  this->ArmatureProperties->SetShowParenthood(
+    armatureWidget->GetShowParenthood());
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode
+::PasteArmatureNodeProperties(vtkArmatureWidget* armatureWidget)
+{
+  //int wasModifying = this->StartModify(); // ? Probably not
+  armatureWidget->SetBonesRepresentation(
+    this->ArmatureProperties->GetBonesRepresentationType());
+  armatureWidget->SetWidgetState(this->ArmatureProperties->GetWidgetState());
+  armatureWidget->SetAxesVisibility(
+    this->ArmatureProperties->GetAxesVisibility());
+  armatureWidget->SetShowParenthood(
+    this->ArmatureProperties->GetShowParenthood());
 }

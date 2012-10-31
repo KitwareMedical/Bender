@@ -27,6 +27,7 @@
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkMRMLBoneDisplayNode;
+class vtkBoneRepresentation;
 class vtkBoneWidget;
 
 /// \ingroup Bender_MRML
@@ -80,6 +81,9 @@ public:
 
   virtual void Initialize(vtkMRMLScene* mrmlScene);
 
+  /// Reimplement the vtkMRMLAnnotationNode method to create a modified event.
+  //void SetVisible(int visible);
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -92,19 +96,137 @@ public:
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
 
-  /// Set the bone head position in world coordinates.
-  /// \sa GetWorldHeadRest(), SetWorldTailRest()
-  void SetWorldHeadRest(double headPoint[3]);
-  /// Get the bone head position in world coordinates.
-  /// \sa SetWorldHeadRest(), GetWorldTailRest()
-  double* GetWorldHeadRest();
+  // -- State ----------------------------------------------------------------
+  /// Set/Get the bone roll.
+  void SetWidgetState(int state); // need to update vtkBoneWidgets
+  int GetWidgetState();
 
-  /// Set the bone tail position in world coordinates.
-  /// \sa GetWorldTailRest(), SetWorldHeadRest()
-  void SetWorldTailRest(double tailPoint[3]);
-  /// Get the bone tail position in world coordinates.
-  /// \sa GetWorldTailRest(), GetWorldHeadRest()
+  // -- Representation -------------------------------------------------------
+  /// Set/Get the bone representation.
+  void SetBoneRepresentation(vtkBoneRepresentation* rep);
+  vtkBoneRepresentation* GetBoneRepresentation();
+
+  /// Helper function to set the representation.
+  /// 1 for vtkCylinderBoneRepresentation, 2 for vtkDoubleConeBoneRepresentation,
+  /// otherwise vtkBoneRepresentation.
+  void SetBoneRepresentationType(int type); // \TO LOGIC ?
+  vtkGetMacro(BoneRepresentationType, int);
+
+  // -- Color ----------------------------------------------------------------
+  /// Helper function to set/get the representation color.
+  void SetBoneColor(int rgb[3]);
+  void GetBoneColor(int rgb[3]);
+
+  // -- Opacity --------------------------------------------------------------
+  /// Helper function to set/get the representation color.
+  void SetOpacity(double opacity);
+  double GetOpacity();
+
+  // -- Distance -------------------------------------------------------------
+  /// Helper function to get the distance between head and tail
+  double GetDistance();
+
+  // -- Roll -----------------------------------------------------------------
+  /// Set/Get the bone roll.
+  void SetRoll(double roll);
+  double GetRoll();
+
+  //-- World Positions -------------------------------------------------------
+  /// Set/Get the head/tail position in the world coordinates.
+  /// \sa GetWorldHeadRest(), GetWorldTailRest()
+  /// \sa GetWorldHeadPose(), GetWorldTailPose()
+  /// \sa SetWorldHeadRest(), SetWorldTailRest()
+  void SetWorldHeadRest(const double* headPoint);
+  void SetWorldTailRest(const double* tailPoint);
+  double* GetWorldHeadRest();
+  double* GetWorldHeadPose();
   double* GetWorldTailRest();
+  double* GetWorldTailPose();
+
+  //-- Local Positions -------------------------------------------------------
+  /// Set/Get the local head/tail position in the parent coordinates.
+  /// \sa GetLocalHeadRest(), GetLocalTailRest()
+  /// \sa GetLocalHeadPose(), GetLocalTailPose()
+  /// \sa SetLocalHeadRest(), SetLocalTailRest()
+  void SetLocalHeadRest(const double* tailPoint);
+  void SetLocalTailRest(const double* tailPoint);
+  double* GetLocalHeadRest();
+  double* GetLocalTailRest();
+  double* GetLocalHeadPose();
+  double* GetLocalTailPose();
+
+  // -- Axes visibility ------------------------------------------------------
+  /// Set/Get the bone axes visibility.
+  void SetAxesVisibility(int axesVisibility);
+  int GetAxesVisibility();
+
+  // -- World to parent transforms -------------------------------------------
+  /// Set/Get the world to parent rotations.
+  /// \sa GetWorldToParentRestRotation(), SetWorldToParentRestTranslation()
+  /// \sa GetWorldToParentPoseRotation(), SetWorldToParentPoseTranslation()
+  void SetWorldToParentRestRotation(const double* rotation);
+  void SetWorldToParentPoseRotation(const double* rotation);
+  double* GetWorldToParentRestRotation();
+  double* GetWorldToParentPoseRotation();
+
+  /// Set/Get the world to parent translations.
+  /// \sa GetWorldToParentRestTranslation(), SetWorldToParentRestRotation()
+  /// \sa GetWorldToParentPoseTranslation(), SetWorldToParentPoseRotation()
+  void SetWorldToParentRestTranslation(const double* translation);
+  void SetWorldToParentPoseTranslation(const double* translation);
+  double* GetWorldToParentRestTranslation();
+  double* GetWorldToParentPoseTranslation();
+
+  // -- Parent to bone transforms --------------------------------------------
+  /// Get the parent to bone rotations.
+  /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
+  double* GetParentToBoneRestRotation();
+  double* GetParentToBonePoseRotation();
+
+  /// Get the parent to bone rotations.
+  /// \sa GetParentToBoneRestTranslation(), GetParentToBonePoseTranslation()
+  double* GetParentToBoneRestTranslation();
+  double* GetParentToBonePoseTranslation();
+
+  // -- World to bone transforms --------------------------------------------
+  /// Get the world to bone rotations.
+  /// \sa GetWorldToBoneHeadRestTranslation()
+  /// \sa GetWorldToBoneTailRestTranslation()
+  /// \sa GetWorldToBoneHeadPoseTranslation()
+  /// \sa GetWorldToBoneTailPoseTranslation()
+  /// \sa GetWorldToBoneRestRotation()
+  /// \sa GetWorldToBonePoseRotation()
+  double* GetWorldToBoneRestRotation();
+  double* GetWorldToBonePoseRotation();
+
+  /// Get the world to bone rotations.
+  /// \sa GetWorldToBoneHeadRestTranslation()
+  /// \sa GetWorldToBoneTailRestTranslation()
+  /// \sa GetWorldToBoneHeadPoseTranslation()
+  /// \sa GetWorldToBoneTailPoseTranslation()
+  /// \sa GetWorldToBoneRestRotation()
+  /// \sa GetWorldToBonePoseRotation()
+  double* GetWorldToBoneHeadRestTranslation();
+  double* GetWorldToBoneTailRestTranslation();
+  double* GetWorldToBoneHeadPoseTranslation();
+  double* GetWorldToBoneTailPoseTranslation();
+
+  // -- Parenthood -----------------------------------------------------------
+  /// Set/Get the bone parenthood.
+  void SetShowParenthood(int parenthood);
+  int GetShowParenthood();
+
+  //--------------------------------------------------------------------------
+  // Helper methods
+  //--------------------------------------------------------------------------
+
+  /// Copy the properties of the widget into the node
+  /// \sa PasteBoneNodeProperties()
+  void CopyBoneWidgetProperties(vtkBoneWidget* boneWidget);
+
+  /// Paste the properties of the node into the widget
+  /// \sa CopyBoneWidgetProperties()
+  void PasteBoneNodeProperties(vtkBoneWidget* boneWidget);
 
 protected:
   vtkMRMLBoneNode();
@@ -113,7 +235,13 @@ protected:
   vtkMRMLBoneNode(const vtkMRMLBoneNode&); /// not implemented
   void operator=(const vtkMRMLBoneNode&); /// not implemented
 
+  //BTX
+  friend class vtkMRMLBoneNodeCallback;
+  //ETX
+  vtkMRMLBoneNodeCallback* Callback;
+
   vtkBoneWidget* BoneProperties;
+  int BoneRepresentationType;
 };
 
 #endif

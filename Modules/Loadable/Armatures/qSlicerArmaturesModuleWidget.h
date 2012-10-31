@@ -40,6 +40,7 @@ class Q_SLICER_QTMODULES_ARMATURES_EXPORT qSlicerArmaturesModuleWidget
 {
   Q_OBJECT
   QVTK_OBJECT
+
 public:
 
   typedef qSlicerAbstractModuleWidget Superclass;
@@ -49,6 +50,11 @@ public:
   /// Return the current armature node if any, 0 otherwise.
   /// \sa mrmlArmatureDisplayNode()
   vtkMRMLArmatureNode* mrmlArmatureNode()const;
+
+  /// Return the current bone node if any, 0 otherwise.
+  /// \sa mrmlArmatureDisplayNode()
+  vtkMRMLBoneNode* mrmlBoneNode()const;
+
   /// Return the display node of the current armature node if any, 0 otherwise.
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
@@ -75,7 +81,22 @@ public slots:
   void addAndPlaceBone();
 
 protected slots:
+  /// Update the GUI from the armatures logic.
   void updateWidgetFromLogic();
+
+  /// Update the GUI from the \a the current armature node.
+  /// \sa onMRMLArmatureNodeModified()
+  void onMRMLArmatureNodeModified();
+
+  /// Update the GUI from the \a the current bone node.
+  /// \sa onMRMLArmatureNodeModified()
+  void onMRMLBoneNodeModified();
+
+  /// Update the GUI for the \a selected node.
+  /// \sa onMRMLArmatureNodeModified()
+  void onTreeNodeSelected(vtkMRMLNode* node);
+
+  void updateCurrentMRMLBoneNode();
 
 protected:
   QScopedPointer<qSlicerArmaturesModuleWidgetPrivate> d_ptr;

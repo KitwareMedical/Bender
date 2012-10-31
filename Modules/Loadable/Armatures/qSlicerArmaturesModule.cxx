@@ -26,6 +26,7 @@
 #include <vtkSlicerArmaturesLogic.h>
 
 // Armatures includes
+#include "ArmaturesModuleInstantiator.h"
 #include "qSlicerArmaturesModule.h"
 #include "qSlicerArmaturesModuleWidget.h"
 #include "qSlicerArmaturesIO.h"
@@ -97,7 +98,8 @@ QString qSlicerArmaturesModule::acknowledgementText()const
 QStringList qSlicerArmaturesModule::contributors()const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("Julien Finet (Kitware)");
+  moduleContributors << QString("Julien Finet (Kitware)")
+    << QString("Johan Andruejol (Kitware)");
   return moduleContributors;
 }
 

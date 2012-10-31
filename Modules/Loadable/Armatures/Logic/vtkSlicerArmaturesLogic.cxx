@@ -398,8 +398,8 @@ void vtkSlicerArmaturesLogic::ReadBone(vtkXMLDataElement* boneElement,
   polyData->InsertNextCell(VTK_LINE, 2, indexes);
 #endif
 
-  std::cout << "local quat: w=" << localOrientationWXYZ[0] << " x=" << localOrientationWXYZ[1] << " y=" << localOrientationWXYZ[2] << " z=" << localOrientationWXYZ[3] << std::endl;
-  std::cout << "New quat: w=" << worldOrientation[0] << " x=" << worldOrientation[1] << " y=" << worldOrientation[2] << " z=" << worldOrientation[3] << std::endl;
+  //std::cout << "local quat: w=" << localOrientationWXYZ[0] << " x=" << localOrientationWXYZ[1] << " y=" << localOrientationWXYZ[2] << " z=" << localOrientationWXYZ[3] << std::endl;
+  //std::cout << "New quat: w=" << worldOrientation[0] << " x=" << worldOrientation[1] << " y=" << worldOrientation[2] << " z=" << worldOrientation[3] << std::endl;
   for (int child = 0; child < boneElement->GetNumberOfNestedElements(); ++child)
     {
     vtkXMLDataElement* childElement = boneElement->GetNestedElement(child);
