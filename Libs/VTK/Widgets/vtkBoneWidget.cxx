@@ -404,17 +404,17 @@ void vtkBoneWidget::SetRepresentation(vtkBoneRepresentation* representation)
     {
     if (this->WidgetState == vtkBoneWidget::Rest)
       {
-      representation->SetHeadWorldPosition(this->WorldHeadRest);
-      representation->SetTailWorldPosition(this->WorldTailRest);
+      representation->SetWorldHeadPosition(this->WorldHeadRest);
+      representation->SetWorldTailPosition(this->WorldTailRest);
       }
     else if (this->WidgetState == vtkBoneWidget::Pose)
       {
-      representation->SetHeadWorldPosition(this->WorldHeadPose);
-      representation->SetTailWorldPosition(this->WorldTailPose);
+      representation->SetWorldHeadPosition(this->WorldHeadPose);
+      representation->SetWorldTailPosition(this->WorldTailPose);
       }
     else if (this->WidgetState == vtkBoneWidget::PlaceTail)
       {
-      representation->SetHeadWorldPosition(this->WorldHeadRest);
+      representation->SetWorldHeadPosition(this->WorldHeadRest);
       }
 
     this->InstantiateParenthoodLink();
@@ -834,52 +834,52 @@ void vtkBoneWidget::SetWorldTailRest(double tail[3])
 
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetHeadRestDisplayPosition(double x, double y)
+void vtkBoneWidget::SetDisplayHeadRestPosition(double x, double y)
 {
   double displayHead[2];
   displayHead[0] = x;
   displayHead[1] = y;
-  this->SetHeadRestDisplayPosition(displayHead);
+  this->SetDisplayHeadRestPosition(displayHead);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetHeadRestDisplayPosition(double displayHead[2])
+void vtkBoneWidget::SetDisplayHeadRestPosition(double displayHead[2])
 {
   if (CompareVector2(
-      this->GetBoneRepresentation()->GetHeadDisplayPosition(), displayHead))
+      this->GetBoneRepresentation()->GetDisplayHeadPosition(), displayHead))
     {
     return;
     }
 
-  this->GetBoneRepresentation()->SetHeadDisplayPosition(displayHead);
+  this->GetBoneRepresentation()->SetDisplayHeadPosition(displayHead);
   CopyVector3(
-    this->GetBoneRepresentation()->GetHeadWorldPosition(),
+    this->GetBoneRepresentation()->GetWorldHeadPosition(),
     this->WorldHeadRest);
 
   this->UpdateRestMode();
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetTailRestDisplayPosition(double x, double y)
+void vtkBoneWidget::SetDisplayTailRestPosition(double x, double y)
 {
   double displayTail[2];
   displayTail[0] = x;
   displayTail[1] = y;
-  this->SetTailRestDisplayPosition(displayTail);
+  this->SetDisplayTailRestPosition(displayTail);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetTailRestDisplayPosition(double displayTail[2])
+void vtkBoneWidget::SetDisplayTailRestPosition(double displayTail[2])
 {
   if (CompareVector2(
-      this->GetBoneRepresentation()->GetTailDisplayPosition(), displayTail))
+      this->GetBoneRepresentation()->GetDisplayTailPosition(), displayTail))
     {
     return;
     }
 
-  this->GetBoneRepresentation()->SetTailDisplayPosition(displayTail);
+  this->GetBoneRepresentation()->SetDisplayTailPosition(displayTail);
   CopyVector3(
-    this->GetBoneRepresentation()->GetTailWorldPosition(),
+    this->GetBoneRepresentation()->GetWorldTailPosition(),
     this->WorldTailRest);
 
   this->UpdateRestMode();
@@ -1101,8 +1101,8 @@ void vtkBoneWidget::AddPointAction(vtkAbstractWidget *w)
     self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
 
     // Place Point yourself.
-    vtkBoneRepresentation::SafeDownCast(self->WidgetRep)->SetHeadDisplayPosition(e);
-    CopyVector3(self->GetBoneRepresentation()->GetHeadWorldPosition(), self->WorldHeadRest);
+    vtkBoneRepresentation::SafeDownCast(self->WidgetRep)->SetDisplayHeadPosition(e);
+    CopyVector3(self->GetBoneRepresentation()->GetWorldHeadPosition(), self->WorldHeadRest);
     CopyVector3(self->WorldHeadRest, self->WorldHeadPose);
     self->HeadWidget->SetEnabled(1);
     self->Modified();
@@ -1118,7 +1118,7 @@ void vtkBoneWidget::AddPointAction(vtkAbstractWidget *w)
     self->TailWidget->GetRepresentation()->SetVisibility(1);
     self->WidgetRep->SetVisibility(1);
 
-    self->SetTailRestDisplayPosition(e);
+    self->SetDisplayTailRestPosition(e);
     CopyVector3(self->WorldTailRest, self->WorldTailPose);
     }
 
@@ -1190,11 +1190,11 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
     {
     if (self->BoneSelected == vtkBoneWidget::HeadSelected)
       {
-      self->SetHeadRestDisplayPosition(e);
+      self->SetDisplayHeadRestPosition(e);
       }
     else if (self->BoneSelected == vtkBoneWidget::TailSelected)
       {
-      self->SetTailRestDisplayPosition(e);
+      self->SetDisplayTailRestPosition(e);
       }
 
     else if (self->BoneSelected == vtkBoneWidget::LineSelected)
@@ -1204,8 +1204,8 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
       self->GetBoneRepresentation()->WidgetInteraction(e);
 
       self->SetWorldHeadAndTailRest(
-        self->GetBoneRepresentation()->GetHeadWorldPosition(),
-        self->GetBoneRepresentation()->GetTailWorldPosition());
+        self->GetBoneRepresentation()->GetWorldHeadPosition(),
+        self->GetBoneRepresentation()->GetWorldTailPosition());
       }
 
     self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
@@ -1219,7 +1219,7 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
 
     // Get display positions
     double e1[2];
-    self->GetBoneRepresentation()->GetHeadDisplayPosition(e1);
+    self->GetBoneRepresentation()->GetDisplayHeadPosition(e1);
 
     // Get the current line (-> the line between Head and the event)
     // in display coordinates.
@@ -1921,11 +1921,11 @@ void vtkBoneWidget::UpdateRepresentation()
     {
     double head[3];
     this->GetCurrentWorldHead(head);
-    rep->SetHeadWorldPosition(head);
+    rep->SetWorldHeadPosition(head);
 
     double tail[3];
     this->GetCurrentWorldTail(tail);
-    rep->SetTailWorldPosition(tail);
+    rep->SetWorldTailPosition(tail);
     }
 }
 

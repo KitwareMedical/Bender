@@ -280,10 +280,10 @@ public:
   // Set the head/tail rest display position.
   // These methods assume that the bone is in rest mode
   // and has a representation.
-  void SetHeadRestDisplayPosition(double x, double y);
-  void SetHeadRestDisplayPosition(double head[2]);
-  void SetTailRestDisplayPosition(double x, double y);
-  void SetTailRestDisplayPosition(double head[2]);
+  void SetDisplayHeadRestPosition(double x, double y);
+  void SetDisplayHeadRestPosition(double head[2]);
+  void SetDisplayTailRestPosition(double x, double y);
+  void SetDisplayTailRestPosition(double head[2]);
 
   // Description:
   // Get rest and pose mode world positions.
