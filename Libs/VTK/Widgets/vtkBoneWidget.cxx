@@ -699,14 +699,17 @@ vtkSmartPointer<vtkTransform>
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldHeadAndTailRest(double head[3], double tail[3])
 {
-  if (CompareVector3(this->WorldHeadRest, head)
-      && CompareVector3(this->WorldTailRest, tail))
+  if (! CompareVector3(this->WorldHeadRest, head))
     {
-    return;
+    CopyVector3(head, this->WorldHeadRest);
     }
 
-  CopyVector3(head, this->WorldHeadRest);
-  this->SetWorldTailRest(tail);
+  if (! CompareVector3(this->WorldTailRest, tail))
+    {
+    CopyVector3(tail, this->WorldTailRest);
+    }
+
+  this->UpdateRestMode();
 }
 
 //----------------------------------------------------------------------------
@@ -809,14 +812,17 @@ void vtkBoneWidget::SetDisplayTailRestPosition(double displayTail[2])
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetLocalHeadAndTailRest(double head[3], double tail[3])
 {
-  if (! CompareVector3(this->LocalHeadRest, head)
-      && CompareVector3(this->LocalTailRest, tail))
+  if (! CompareVector3(this->LocalHeadRest, head))
     {
-    return;
+    CopyVector3(head, this->LocalHeadRest);
     }
 
-  CopyVector3(head, this->LocalHeadRest);
-  this->SetLocalTailRest(tail);
+  if (! CompareVector3(this->LocalTailRest, tail))
+    {
+    CopyVector3(tail, this->LocalTailRest);
+    }
+
+  this->UpdateRestMode();
 }
 
 //----------------------------------------------------------------------------
