@@ -458,7 +458,7 @@ void vtkBoneWidget::SetProcessEvents(int pe)
 void vtkBoneWidget::SetWidgetState(int state)
 {
   state = std::min(3, std::max(state, 0));
-  if (state == vtkBoneWidget::PlaceHead || state == vtkBoneWidget::PlaceHead)
+  if (state == vtkBoneWidget::PlaceHead || state == vtkBoneWidget::PlaceTail)
     {
     return;
     }
