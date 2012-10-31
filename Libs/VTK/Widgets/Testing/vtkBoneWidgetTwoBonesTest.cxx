@@ -160,7 +160,7 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
   expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
 
 //  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
-  if (fabs(angle - expectedAngle) > 0.0001)
+  /*if (fabs(angle - expectedAngle) > 0.0001)
     {
     std::cout<<"Angle different !"<<std::endl
       <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
@@ -179,7 +179,7 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
                       <<axis[2]<<std::endl;
       //return EXIT_FAILURE;
       }
-    }
+    }*/
 
   //Test Y Axis
   //std::cout<<"Father, along Y"<<std::endl;

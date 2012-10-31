@@ -39,6 +39,8 @@
 #include <vtkCaptionActor2D.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkNew.h>
+#include <vtkTubeFilter.h>
+#include <vtkLineSource.h>
 #include <vtkTransform.h>
 
 #include <vtkInteractorStyleTrackballCamera.h>
@@ -360,41 +362,60 @@ rotationAxis -0.866354 0 0.49943*/
   vtkSmartPointer<vtkCylinderBoneRepresentation> armRep =
     vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
   arm->SetRepresentation(armRep);
-  armRep->GetCylinderProperty()->SetOpacity(0.4);
+  //arm->CreateDefaultRepresentation();
 
-  vtkBoneWidget* forearm = armature->CreateBone(arm);
-  armature->AddBone(forearm, arm, 20.0, 0.0, 0.0);
+  vtkBoneWidget* forearm = armature->CreateBone(arm, 20.0, 0.0, 0.0);
+  armature->AddBone(forearm, arm);
   vtkSmartPointer<vtkDoubleConeBoneRepresentation> forearmRep =
     vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
   forearm->SetRepresentation(forearmRep);
   forearmRep->GetConesProperty()->SetOpacity(0.4);
 
-  vtkBoneWidget* thumb = armature->CreateBone(forearm);
-  armature->AddBone(thumb, forearm, 20.0, 4.0, 0.0);
+  vtkBoneWidget* thumb = armature->CreateBone(forearm, 20.0, 4.0, 0.0);
+  armature->AddBone(thumb, forearm);
   thumb->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* indexFinger = armature->CreateBone(forearm);
-  armature->AddBone(indexFinger, forearm, 22.0, 2.0, 0.0);
+  vtkBoneWidget* indexFinger = armature->CreateBone(forearm, 22.0, 2.0, 0.0);
+  armature->AddBone(indexFinger, forearm);
   indexFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* middleFinger = armature->CreateBone(forearm);
-  armature->AddBone(middleFinger, forearm, 22.0, 1.0, 0.0);
+  vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0);
+  armature->AddBone(middleFinger, forearm);
   middleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* ringFinger = armature->CreateBone(forearm);
-  armature->AddBone(ringFinger, forearm, 22.0, -1.0, 0.0);
+  vtkBoneWidget* ringFinger = armature->CreateBone(forearm, 22.0, -1.0, 0.0);
+  armature->AddBone(ringFinger, forearm);
   ringFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* littleFinger = armature->CreateBone(forearm);
-  armature->AddBone(littleFinger, forearm, 22.0, -2.0, 0.0);
+  vtkBoneWidget* littleFinger = armature->CreateBone(forearm, 22.0, -2.0, 0.0);
+  armature->AddBone(littleFinger, forearm);
   littleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
 
-  armature->SetWidgetState(vtkArmatureWidget::Pose);
+  //armature->SetWidgetState(vtkArmatureWidget::Pose);
 
   vtkSmartPointer<Test1KeyPressInteractorStyle> style =
     vtkSmartPointer<Test1KeyPressInteractorStyle>::New();
   renderWindowInteractor->SetInteractorStyle(style);
   style->Armature = armature;
+
+  vtkActor* CylinderActor = vtkActor::New();
+  vtkPolyDataMapper* CylinderMapper = vtkPolyDataMapper::New();
+  vtkTubeFilter* CylinderGenerator= vtkTubeFilter::New();
+
+  // Define cylinde properties
+  CylinderGenerator->SetRadius(10.0);
+
+  // Make the necessary connections
+  vtkLineSource* LineSource = vtkLineSource::New();
+  LineSource->SetPoint1(0.0, 0.0, 0.0);
+  LineSource->SetPoint2(100.0, 0.0, 0.0);
+  LineSource->Update();
+
+  CylinderGenerator->SetInput(LineSource->GetOutput());
+  CylinderMapper->SetInput(CylinderGenerator->GetOutput());
+  CylinderActor->SetMapper(CylinderMapper);
+
+  renderer->AddActor(CylinderActor);
 
   vtkSmartPointer<vtkAxesActor> axes =
     vtkSmartPointer<vtkAxesActor>::New();
@@ -410,6 +431,25 @@ rotationAxis -0.866354 0 0.49943*/
   renderWindowInteractor->Initialize();
   renderWindow->Render();
   armature->On();
+
+  vtkActor* CylinderActor2 = vtkActor::New();
+  vtkPolyDataMapper* CylinderMapper2 = vtkPolyDataMapper::New();
+  vtkTubeFilter* CylinderGenerator2 = vtkTubeFilter::New();
+  // Define cylinde properties
+  CylinderGenerator2->SetRadius(10.0);
+
+  // Make the necessary connections
+  vtkLineSource* LineSource2 = vtkLineSource::New();
+  LineSource2->SetPoint1(50.0, -50.0, 0.0);
+  LineSource2->SetPoint2(50.0, 50.0, 0.0);
+  LineSource2->Update();
+
+  CylinderGenerator2->SetInput(LineSource2->GetOutput());
+  CylinderMapper2->SetInput(CylinderGenerator2->GetOutput());
+  CylinderActor2->SetMapper(CylinderMapper2);
+
+  renderer->AddActor(CylinderActor2);
+
 
   // Begin mouse interaction
   renderWindowInteractor->Start();

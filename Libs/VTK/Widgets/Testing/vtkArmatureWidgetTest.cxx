@@ -134,15 +134,17 @@ int vtkArmatureWidgetTest(int, char *[])
   arm->CreateDefaultRepresentation();
 
   // Add root bone
-  vtkBoneWidget* root = arm->CreateBone();
-  arm->AddBone(root, NULL, "Root");
+  vtkBoneWidget* root = arm->CreateBone(NULL, "Root");
+  arm->AddBone(root, NULL);
+  root->Delete();
   root->SetWorldHeadRest(0.0, 0.0, 0.0);
-  root->SetWorldTailRest(1.0, 0.0, 0.0);
+  root->SetWorldTailRest(0.5, 0.0, 0.0);
 
   arm->SetBonesRepresentation(vtkArmatureWidget::Bone);
 
-  vtkBoneWidget* child = arm->CreateBone(root);
-  arm->AddBone(child, root, "irst Child (Red)");
+  vtkBoneWidget* child = arm->CreateBone(root, "first Child (Red)");
+  arm->AddBone(child, root);
+  child->Delete();
   child->SetWorldHeadRest(2.0, 0.0, 0.0);
   child->SetWorldTailRest(2.0, 1.0, 0.0);
 
@@ -153,8 +155,9 @@ int vtkArmatureWidgetTest(int, char *[])
     }
   child->GetBoneRepresentation()->GetLineProperty()->SetColor(1.0, 0.0, 0.0);
 
-  vtkBoneWidget* finalChild = arm->CreateBone(child);
-  arm->AddBone(finalChild, child, 3.0, 1.0, 0.0, "Grand child (Green)");
+  vtkBoneWidget* finalChild = arm->CreateBone(child, 3.0, 1.0, 0.0, "Grand child (Green)");
+  arm->AddBone(finalChild, child);
+  finalChild->Delete();
   if (finalChild == NULL)
     {
     std::cerr<<"There should be a bone with id 2"<<std::endl;
@@ -162,52 +165,52 @@ int vtkArmatureWidgetTest(int, char *[])
     }
   finalChild->GetBoneRepresentation()->GetLineProperty()->SetColor(0.0, 1.0, 0.0);
 
-  /*vtkBoneWidget* secondFinalChild = arm->CreateBone(finalChild);
-  if (secondFinalChild == NULL)
+  vtkBoneWidget* toBeRemovedChild = arm->CreateBone(finalChild, "toBeRemovedChild");
+  if (toBeRemovedChild == NULL)
     {
     std::cerr<<"There should be a bone with id 3"<<std::endl;
     return EXIT_FAILURE;
     }
-  arm->SetBoneLinkedWithParent(secondFinalChild, false);
-  if (arm->GetBoneLinkedWithParent(secondFinalChild) != false)
+  arm->AddBone(toBeRemovedChild);
+  toBeRemovedChild->Delete();
+  if (arm->GetBoneLinkedWithParent(toBeRemovedChild) != false)
     {
     std::cerr<<"The bones should be unlinked !"<<std::endl;
     return EXIT_FAILURE;
     }
-  secondFinalChild->GetBoneRepresentation()->GetLineProperty()->SetColor(0.0, 0.0, 1.0);
-
-  vtkBoneWidget* lastChild = arm->CreateBone(secondFinalChild);
-  arm->AddBone(lastChild, secondFinalChild, 4.0, 1.0, -1.0, "Last child (Cyan)");
-  lastChild->GetBoneRepresentation()->GetLineProperty()->SetColor(0.0, 1.0, 1.0);
-
-  // Delete bone
-  /*if (arm->RemoveBone(42))
+  arm->SetBoneLinkedWithParent(toBeRemovedChild, true);
+  if (arm->GetBoneLinkedWithParent(toBeRemovedChild) != true)
     {
-    std::cerr<<"Deleting a bone with id 42 should have failed"<<std::endl;
+    std::cerr<<"The bones should be linked !"<<std::endl;
     return EXIT_FAILURE;
     }
-  if (! arm->RemoveBone(childIndex))
+
+  // Delete bone
+  vtkSmartPointer<vtkBoneWidget> fake = vtkSmartPointer<vtkBoneWidget>::New();
+  if (arm->RemoveBone(fake))
     {
-    std::cerr<<"Deleting a bone with id "
-      <<childIndex<<" shouldn't have failed"<<std::endl;
+    std::cerr<<"Deleting a fake bone should have failed"<<std::endl;
+    return EXIT_FAILURE;
+    }
+  if (! arm->RemoveBone(toBeRemovedChild))
+    {
+    std::cerr<<"Deleting a bone child shouldn't have failed"<<std::endl;
     return EXIT_FAILURE;
     }
 
   arm->SetShowParenthood(false);
-  if (secondFinalChild->GetShowParenthood())
+  if (finalChild->GetShowParenthood())
     {
-    std::cerr<<"Parenthood for bone with id "
-      <<childIndex<<" shouldn't be active"<<std::endl;
+    std::cerr<<"Parenthood for bone with shouldn't be active"<<std::endl;
     return EXIT_FAILURE;
     }
-  secondFinalChild->SetShowParenthood(true);
+  finalChild->SetShowParenthood(true);
   arm->SetShowParenthood(true);
-  if (! secondFinalChild->GetShowParenthood())
+  if (! finalChild->GetShowParenthood())
     {
-    std::cerr<<"Parenthood for bone with id "
-      <<childIndex<<" should be active"<<std::endl;
+    std::cerr<<"Parenthood for bone should be active"<<std::endl;
     return EXIT_FAILURE;
-    }*/
+    }
 
   // Setup callbacks
   vtkSmartPointer<ArmatureTestKeyPressInteractorStyle> style =

@@ -29,6 +29,7 @@
 // VTK includes
 #include <vtkCallbackCommand.h>
 #include <vtkCommand.h>
+#include <vtkCollection.h>
 #include <vtkMath.h>
 #include <vtkObjectFactory.h>
 #include <vtkRenderer.h>
@@ -40,8 +41,6 @@
 
 // STD includes
 #include <algorithm>
-#include <map>
-#include <vector>
 
 vtkStandardNewMacro(vtkArmatureWidget);
 
@@ -51,7 +50,6 @@ struct ArmatureTreeNode
   std::vector<ArmatureTreeNode*> Children;
   typedef std::vector<ArmatureTreeNode*>::iterator ChildrenNodeIteratorType;
   ArmatureTreeNode* Parent;
-  vtkStdString BoneName;
   bool HeadLinkedToParent;
 
   ArmatureTreeNode()
@@ -59,7 +57,6 @@ struct ArmatureTreeNode
     this->Bone = 0;
     this->Children.clear();
     this->Parent = 0;
-    this->BoneName = "";
     this->HeadLinkedToParent = false;
     }
 
@@ -99,12 +96,12 @@ struct ArmatureTreeNode
     }
 
   // Find a new root (if any), update children and returns the new root
-  ArmatureTreeNode* RemoveRoot(ArmatureTreeNode* root)
+  ArmatureTreeNode* RemoveRoot()
     {
     ArmatureTreeNode* newRoot = NULL;
 
-    for (ChildrenNodeIteratorType it = root->Children.begin();
-      it != root->Children.end(); ++it)
+    for (ChildrenNodeIteratorType it = this->Children.begin();
+      it != this->Children.end(); ++it)
       {
       if (!newRoot)
         {
@@ -185,8 +182,6 @@ vtkArmatureWidget::vtkArmatureWidget()
 
   // Init map and root
   this->Bones = new ArmatureTreeNodeVectorType;
-  this->Root = 0;
-
   // Init bones properties
   this->BonesRepresentationType = vtkArmatureWidget::None;
   this->WidgetState = vtkArmatureWidget::Rest;
@@ -279,74 +274,76 @@ void vtkArmatureWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------------
-vtkBoneWidget* vtkArmatureWidget::CreateBone(vtkBoneWidget* parent)
+vtkBoneWidget* vtkArmatureWidget
+::CreateBone(vtkBoneWidget* parent, const vtkStdString& name)
 {
   vtkBoneWidget* newBone = vtkBoneWidget::New();
+  newBone->SetName(name);
   this->UpdateBoneWithArmatureOptions(newBone, parent);
   return newBone;
 }
 
-//----------------------------------------------------------------------------
-int vtkArmatureWidget
-::AddBone(vtkBoneWidget* bone, vtkBoneWidget* parent, const vtkStdString& name)
-{
-  if (!this->Root && parent)
-    {
-    vtkErrorMacro("The first bone inserted should always be root.");
-    return -1;
-    }
-  else if (this->Root && !parent)
-    {
-    vtkErrorMacro("Root already exists, there can be only one.");
-    return -1;
-    }
-
-  // Create bone
-  ArmatureTreeNode* newNode = CreateNewMapElement(parent);
-  newNode->Bone = bone;
-  newNode->BoneName = name;
-
-  this->Bones->push_back(newNode);
-  newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
-  return 1;
-}
 
 //----------------------------------------------------------------------------
-int vtkArmatureWidget::AddBone(vtkBoneWidget* bone,
-                               vtkBoneWidget* parent,
-                               double tail[3],
-                               const vtkStdString& name)
+vtkBoneWidget* vtkArmatureWidget::CreateBone(vtkBoneWidget* parent,
+                                             double tail[3],
+                                             const vtkStdString& name)
 {
   if (!parent)
     {
-    vtkErrorMacro("The bone inserted with this method must have a parent."
-      " If you want to insert the root bone, see AddNewBone().");
-    return -1;
+    vtkErrorMacro("The bone inserted with this method must have a parent.");
+    return NULL;
     }
 
-  ArmatureTreeNode* newNode = CreateNewMapElement(parent);
-  newNode->HeadLinkedToParent = true;
-  newNode->BoneName = name;
-  newNode->Bone = bone;
-  newNode->Bone->SetWorldHeadRest(parent->GetWorldTailRest());
-  newNode->Bone->SetWorldTailRest(tail);
+  vtkBoneWidget* newBone = vtkBoneWidget::New();
+  newBone->SetName(name);
+  this->UpdateBoneWithArmatureOptions(newBone, parent);
+  newBone->SetWorldHeadRest(parent->GetWorldTailRest());
+  newBone->SetWorldTailRest(tail);
 
-  this->Bones->push_back(newNode);
-  newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
-  return 1;
+  return newBone;
 }
 
 //----------------------------------------------------------------------------
-int vtkArmatureWidget::AddBone(vtkBoneWidget* bone,
-                               vtkBoneWidget* parent,
-                               double xTail, double yTail, double zTail,
-                               const vtkStdString& name)
+vtkBoneWidget* vtkArmatureWidget::CreateBone(vtkBoneWidget* parent,
+                                             double xTail,
+                                             double yTail,
+                                             double zTail,
+                                             const vtkStdString& name)
 {
   double tail[3];
   tail [0] = xTail;
   tail [1] = yTail;
   tail [2] = zTail;
-  return this->AddBone(bone, parent, tail, name);
+  return this->CreateBone(parent, tail, name);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::AddBone(vtkBoneWidget* bone, vtkBoneWidget* parent, bool linkedWithParent)
+{
+  bone->Register(this);
+
+  // Create bone
+  ArmatureTreeNode* newNode = this->CreateNewMapElement(parent);
+  newNode->Bone = bone;
+  if (! parent)
+    {
+    this->TopLevelBones.push_back(bone);
+    }
+
+  if (! parent || ! linkedWithParent)
+    {
+    newNode->HeadLinkedToParent = false;
+    }
+  else
+    {
+    bone->SetWorldHeadRest(parent->GetWorldTailRest());
+    newNode->HeadLinkedToParent = true;
+    }
+
+  this->Bones->push_back(newNode);
+  newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
 }
 
 //----------------------------------------------------------------------------
@@ -362,10 +359,7 @@ ArmatureTreeNode* vtkArmatureWidget::CreateNewMapElement(vtkBoneWidget* parent)
     {
     newNode->Parent->AddChild(newNode);
     }
-  else
-    {
-    this->Root = newNode;
-    }
+
   return newNode;
 }
 
@@ -378,9 +372,9 @@ void vtkArmatureWidget::SetWidgetState(int state)
     }
 
   this->WidgetState = state;
-  if (!this->Root)
+  if (this->TopLevelBones.empty())
     {
-    vtkErrorMacro("Could not find the root element !"
+    vtkErrorMacro("Could not find any root element !"
       " Cannot set armature state.");
     return;
     }
@@ -401,7 +395,12 @@ void vtkArmatureWidget::SetWidgetState(int state)
       {
       // could be smart and check if something has changed since the last
       // state switch and only udpate if it's the case
-      this->SetBoneWorldToParentPoseTransform(this->Root->Bone, NULL);
+      for (BoneVectorIterator it = this->TopLevelBones.begin();
+        it != this->TopLevelBones.end(); ++it)
+        {
+        this->SetBoneWorldToParentPoseTransform(*it, NULL);
+        }
+
       for (NodeIteratorType it = this->Bones->begin();
         it != this->Bones->end(); ++it)
         {
@@ -519,6 +518,42 @@ void vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
+bool vtkArmatureWidget::HasBone(vtkBoneWidget* bone)
+{
+  return this->GetNode(bone) != 0;
+}
+
+//----------------------------------------------------------------------------
+vtkBoneWidget* vtkArmatureWidget::GetBoneParent(vtkBoneWidget* bone)
+{
+  ArmatureTreeNode* node = this->GetNode(bone);
+  if (node && node->Parent)
+    {
+    return node->Parent->Bone;
+    }
+
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
+{
+  vtkCollection* children = vtkCollection::New();
+
+  ArmatureTreeNode* node = this->GetNode(parent);
+  if (node)
+    {
+    for (NodeIteratorType it = node->Children.begin();
+      it != node->Children.end(); ++it)
+      {
+      children->AddItem((*it)->Bone);
+      }
+    }
+
+  return children;
+}
+
+//----------------------------------------------------------------------------
 bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
 {
   for (NodeIteratorType it = this->Bones->begin();
@@ -533,8 +568,21 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
         }
       else // It was root
         {
-        this->Root = (*it)->RemoveRoot(this->Root);
-        this->UpdateChildren(this->Root);
+        ArmatureTreeNode* replacementRoot = (*it)->RemoveRoot();
+        if (replacementRoot)
+          {
+          this->TopLevelBones.push_back(replacementRoot->Bone);
+          this->UpdateChildren(replacementRoot);
+          }
+
+        BoneVectorIterator rootsIterator
+          = std::find(this->TopLevelBones.begin(),
+            this->TopLevelBones.end(),
+            (*it)->Bone);
+        if (rootsIterator != this->TopLevelBones.end())
+          {
+          this->TopLevelBones.erase(rootsIterator);
+          }
         }
 
       (*it)->Delete();
@@ -553,7 +601,7 @@ bool vtkArmatureWidget
   ArmatureTreeNode* node = this->GetNode(bone);
   if (node)
     {
-    node->BoneName = name;
+    node->Bone->SetName(name);
     return true;
     }
 
@@ -566,7 +614,7 @@ vtkStdString vtkArmatureWidget::GetBoneName(vtkBoneWidget* bone)
   ArmatureTreeNode* node = this->GetNode(bone);
   if (node)
     {
-    return node->BoneName;
+    return node->Bone->GetName();
     }
 
   return "";
@@ -578,7 +626,7 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneByName(const vtkStdString& name)
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    if ((*it)->BoneName == name)
+    if ((*it)->Bone->GetName() == name)
       {
       return (*it)->Bone;
       }
@@ -587,14 +635,14 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneByName(const vtkStdString& name)
 }
 
 //----------------------------------------------------------------------------
-int vtkArmatureWidget::GetBoneLinkedWithParent(vtkBoneWidget* bone)
+bool vtkArmatureWidget::GetBoneLinkedWithParent(vtkBoneWidget* bone)
 {
   ArmatureTreeNode* node = this->GetNode(bone);
   if (node)
     {
     return node->HeadLinkedToParent;
     }
-  return -1;
+  return false;
 }
 
 //----------------------------------------------------------------------------
