@@ -472,13 +472,13 @@ void vtkBoneWidget::SetWidgetState(int state)
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWidgetStateToPose()
 {
-  this->SetWidgetState(vtkBoneWidget::Rest);
+  this->SetWidgetState(vtkBoneWidget::Pose);
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWidgetStateToRest()
 {
-  this->SetWidgetState(vtkBoneWidget::Pose);
+  this->SetWidgetState(vtkBoneWidget::Rest);
 }
 
 //----------------------------------------------------------------------------
