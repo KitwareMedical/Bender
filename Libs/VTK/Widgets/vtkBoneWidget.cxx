@@ -56,54 +56,6 @@ static const double Z[3] = {0.0, 0.0, 1.0};
 namespace
 {
 
-void MultiplyQuaternion(const double* quad1, const double* quad2, double resultQuad[4])
-{
-  // Quaternion are (w, x, y, z)
-  // The multiplication is given by :
-  // (Q1 * Q2).w = (w1w2 - x1x2 - y1y2 - z1z2)
-  // (Q1 * Q2).x = (w1x2 + x1w2 + y1z2 - z1y2)
-  // (Q1 * Q2).y = (w1y2 - x1z2 + y1w2 + z1x2)
-  // (Q1 * Q2).z = (w1z2 + x1y2 - y1x2 + z1w2)
-
-  resultQuad[0] = quad1[0]*quad2[0] - quad1[1]*quad2[1]
-                  - quad1[2]*quad2[2] - quad1[3]*quad2[3];
-
-  resultQuad[1] = quad1[0]*quad2[1] + quad1[1]*quad2[0]
-                  + quad1[2]*quad2[3] - quad1[3]*quad2[2];
-
-  resultQuad[2] = quad1[0]*quad2[2] + quad1[2]*quad2[0]
-                  + quad1[3]*quad2[1] - quad1[1]*quad2[3];
-
-  resultQuad[3] = quad1[0]*quad2[3] + quad1[3]*quad2[0]
-                  + quad1[1]*quad2[2] - quad1[2]*quad2[1];
-}
-
-void NormalizeQuaternion(double* quad)
-{
-  double mag2 = quad[0]*quad[0] + quad[1]*quad[1] + quad[2]*quad[2] + quad[3]*quad[3];
-  double mag = sqrt(mag2);
-  quad[0] /= mag;
-  quad[1] /= mag;
-  quad[2] /= mag;
-  quad[3] /= mag;
-}
-
-void InitializeQuaternion(double* quad)
-{
-  quad[0] = 1.0;
-  quad[1] = 0.0;
-  quad[2] = 0.0;
-  quad[3] = 0.0;
-}
-
-void CopyQuaternion(const double* quad, double* copyQuad)
-{
-  copyQuad[0] = quad[0];
-  copyQuad[1] = quad[1];
-  copyQuad[2] = quad[2];
-  copyQuad[3] = quad[3];
-}
-
 void InitializeVector3(double* vec)
 {
   vec[0] = 0.0;
@@ -141,24 +93,6 @@ bool CompareVector2(const double* v1, const double* v2)
     }
 
   return false;
-}
-
-void ConjugateQuaternion(const double* quad, double resultQuad[4])
-{
-  //Quaternion are (w, x, y, z)
-  //The conjugate is (w, -x, -y, -z);
-
-  resultQuad[0] = quad[0];
-  resultQuad[1] = -quad[1];
-  resultQuad[2] = -quad[2];
-  resultQuad[3] = -quad[3];
-}
-
-void InverseQuaternion(const double* quad, double resultQuad[4])
-{
-  //Quaternion are (w, x, y, z)
-  ConjugateQuaternion(quad, resultQuad);
-  NormalizeQuaternion(resultQuad);
 }
 
 }// End namespace
@@ -263,31 +197,23 @@ vtkBoneWidget::vtkBoneWidget()
   //
   // - Rest Transforms:
   //   * Parent To Bone:
-  InitializeQuaternion(this->ParentToBoneRestRotation);
+  //InitializeQuaternion(this->ParentToBoneRestRotation);
   InitializeVector3(this->ParentToBoneRestTranslation);
   //   * World To Parent:
-  InitializeQuaternion(this->WorldToParentRestRotation);
   InitializeVector3(this->WorldToParentRestTranslation);
   //   * World To Bone:
-  InitializeQuaternion(this->WorldToBoneRestRotation);
   InitializeVector3(this->WorldToBoneHeadRestTranslation);
   InitializeVector3(this->WorldToBoneTailRestTranslation);
 
   // - Pose Transforms:
   //   * Rest To Pose (<-> Rotate Tail around Head):
-  //InitializeQuaternion(this->BoneRestToPoseRotation);
   //   * Parent To Bone:
-  InitializeQuaternion(this->ParentToBonePoseRotation);
   InitializeVector3(this->ParentToBonePoseTranslation);
   //   * World To Parent:
-  InitializeQuaternion(this->WorldToParentPoseRotation);
   InitializeVector3(this->WorldToParentPoseTranslation);
   //    * World To Bone:
-  InitializeQuaternion(this->WorldToBonePoseRotation);
   InitializeVector3(this->WorldToBoneHeadPoseTranslation);
   InitializeVector3(this->WorldToBoneTailPoseTranslation);
-
-  InitializeQuaternion(this->StartPoseRotation);
 
   InitializeVector3(this->InteractionWorldHeadPose);
   InitializeVector3(this->InteractionWorldTailPose);
@@ -545,7 +471,7 @@ void vtkBoneWidget
 ::SetWorldToParentRestRotationAndTranslation(double quat[4],
                                              double translate[3])
 {
-  CopyQuaternion(quat, this->WorldToParentRestRotation);
+  this->WorldToParentRestRotation.Set(quat);
   CopyVector3(translate, this->WorldToParentRestTranslation);
   this->UpdateRestMode();
 }
@@ -553,7 +479,7 @@ void vtkBoneWidget
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentRestRotation(double quat[4])
 {
-  CopyQuaternion(quat, this->WorldToParentRestRotation);
+  this->WorldToParentRestRotation.Set(quat);
   this->UpdateRestMode();
 }
 
@@ -587,8 +513,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(
-    this->WorldToParentRestRotation, axis);
+  double angle = this->WorldToParentRestRotation.GetRotationAngleAndAxis(axis);
   worldToParentRotation->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -619,8 +544,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(
-    this->ParentToBoneRestRotation, axis);
+  double angle = this->ParentToBoneRestRotation.GetRotationAngleAndAxis(axis);
   parentToBoneRotationTransform->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -650,8 +574,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(
-    this->WorldToBoneRestRotation, axis);
+  double angle = this->WorldToBoneRestRotation.GetRotationAngleAndAxis(axis);
   worldToBoneRotationTransform->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -663,14 +586,14 @@ void vtkBoneWidget
 ::SetWorldToParentPoseRotationAndTranslation(double quat[4],
                                              double translate[3])
 {
-  CopyQuaternion(quat, this->WorldToParentPoseRotation);
+  this->WorldToParentPoseRotation.Set(quat);
   this->SetWorldToParentPoseTranslation(translate);
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentPoseRotation(double quat[4])
 {
-  CopyQuaternion(quat, this->WorldToParentPoseRotation);
+  this->WorldToParentPoseRotation.Set(quat);
   this->UpdateWorldPosePositions();
   this->UpdatePoseMode();
 }
@@ -706,8 +629,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(
-    this->WorldToBonePoseRotation, axis);
+  double angle = this->WorldToBonePoseRotation.GetRotationAngleAndAxis(axis);
   worldToBoneRotationTransform->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -737,8 +659,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(
-    this->WorldToParentPoseRotation, axis);
+  double angle = this->WorldToParentPoseRotation.GetRotationAngleAndAxis(axis);
   worldToParentRotationTransform->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -768,7 +689,7 @@ vtkSmartPointer<vtkTransform>
     = vtkSmartPointer<vtkTransform>::New();
 
   double axis[3];
-  double angle = QuaternionToAxisAngle(this->ParentToBonePoseRotation, axis);
+  double angle = this->ParentToBonePoseRotation.GetRotationAngleAndAxis(axis);
   parentToBoneRotationTransform->RotateWXYZ(
     vtkMath::DegreesFromRadians(angle), axis);
 
@@ -958,54 +879,6 @@ void vtkBoneWidget::SetAxesVisibility(int visibility)
 }
 
 //----------------------------------------------------------------------------
-double vtkBoneWidget
-::QuaternionToAxisAngle(const double quad[4], double axis[3])
-{
-  double angle = acos(quad[0]) * 2.0;
-  double f = sin( angle * 0.5 );
-  if (f > 1e-13)
-    {
-    axis[0] = quad[1] / f;
-    axis[1] = quad[2] / f;
-    axis[2] = quad[3] / f;
-    }
-  else if (angle > 1e-13 || angle < -1e-13) // Means rotation of pi.
-    {
-    axis[0] = 1.0;
-    axis[1] = 0.0;
-    axis[2] = 0.0;
-    }
-  else
-    {
-    axis[0] = 0.0;
-    axis[1] = 0.0;
-    axis[2] = 0.0;
-    }
-
-  return angle;
-}
-
-//----------------------------------------------------------------------------
-void vtkBoneWidget
-::AxisAngleToQuaternion(const double axis[3],
-                        const double angle,
-                        double quad[4])
-{
-  quad[0] = cos( angle / 2.0 );
-
-  double vec[3];
-  vec[0] = axis[0];
-  vec[1] = axis[1];
-  vec[2] = axis[2];
-  vtkMath::Normalize(vec);
-
-  double f = sin( angle / 2.0);
-  quad[1] =  vec[0] * f;
-  quad[2] =  vec[1] * f;
-  quad[3] =  vec[2] * f;
-}
-
-//----------------------------------------------------------------------------
 void vtkBoneWidget::RotateTailX(double angle)
 {
   this->RotateTailWXYZ(angle, 1.0, 0.0, 0.0);
@@ -1046,12 +919,11 @@ void vtkBoneWidget::RotateTailWXYZ(double angle, double axis[3])
     // Update local pose tail to new position.
     this->RebuildLocalTailPose();
 
-    double rotation[4];
-    this->AxisAngleToQuaternion(axis, angle, rotation);
-    NormalizeQuaternion(rotation);
-    MultiplyQuaternion(this->ParentToBonePoseRotation,
-      rotation, this->ParentToBonePoseRotation);
-    NormalizeQuaternion(this->ParentToBonePoseRotation);
+    vtkQuaterniond rotation;
+    rotation.SetRotationAngleAndAxis(angle, axis);
+    rotation.Normalize();
+    this->ParentToBonePoseRotation = rotation * this->ParentToBonePoseRotation;
+    this->ParentToBonePoseRotation.Normalize();
 
     this->UpdatePoseMode();
     }
@@ -1448,19 +1320,18 @@ void vtkBoneWidget::RebuildParentToBoneRestRotation()
   // We always have WorldToBone = WorldToParent * ParentToBone
   // then ParentToBone = WorldToParent^(-1) * WorldToBone
   // Plus, inverting a quaternion isn't so bad (conjugation + normalization)
-  double parentToWorldRestRotation[4];
-  InverseQuaternion(this->WorldToParentRestRotation,
-    parentToWorldRestRotation);
+  vtkQuaterniond parentToWorldRestRotation
+    = this->WorldToParentRestRotation.Inverse();
 
-  MultiplyQuaternion(parentToWorldRestRotation,
-    this->WorldToBoneRestRotation, this->ParentToBoneRestRotation);
-  NormalizeQuaternion(this->ParentToBoneRestRotation);
+  this->ParentToBoneRestRotation
+    = parentToWorldRestRotation * this->WorldToBoneRestRotation;
+  this->ParentToBoneRestRotation.Normalize();
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::RebuildWorldToBoneRestRotation()
 {
-  this->ComputeRotationFromReferenceAxis(Y, this->WorldToBoneRestRotation);
+  this->WorldToBoneRestRotation = this->ComputeRotationFromReferenceAxis(Y);
 }
 
 //----------------------------------------------------------------------------
@@ -1491,9 +1362,10 @@ void vtkBoneWidget::RebuildWorldToBonePoseTranslations()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget
-::ComputeRotationFromReferenceAxis(const double* axis, double* newOrientation)
+vtkQuaterniond vtkBoneWidget
+::ComputeRotationFromReferenceAxis(const double* axis)
 {
+  vtkQuaterniond newOrientation;
   // Code greatly inspired by: http://www.fastgraph.com/makegames/3drotation/ .
 
   double viewOut[3]; // The View or "new Z" vector.
@@ -1511,8 +1383,7 @@ void vtkBoneWidget
     {
     vtkErrorMacro("Tail and Head are not enough apart,"
       " could not rebuild rest Transform");
-    InitializeQuaternion(newOrientation);
-    return;
+    return newOrientation;
     }
 
   // Now the hard part: The ViewUp or "new Y" vector.
@@ -1553,7 +1424,7 @@ void vtkBoneWidget
         {
         vtkErrorMacro("Could not fin a vector perpendiculare to the bone,"
           " check the bone values. This should not be happening.");
-        return;
+        return newOrientation;
         }
       }
     }
@@ -1566,20 +1437,22 @@ void vtkBoneWidget
   vtkMath::Normalize(viewRight); //Let's be paranoid about the normalization.
 
   // Get the rest transform matrix.
-  AxisAngleToQuaternion(viewRight, acos(upProjection) , newOrientation);
-  NormalizeQuaternion(newOrientation);
+  newOrientation.SetRotationAngleAndAxis(acos(upProjection), viewRight);
+  newOrientation.Normalize();
 
   if (this->Roll != 0.0)
     {
     // Get the roll matrix.
-    double rollQuad[4];
-    AxisAngleToQuaternion(viewOut, this->Roll , rollQuad);
-    NormalizeQuaternion(rollQuad);
+    vtkQuaterniond rollQuad;
+    rollQuad.SetRotationAngleAndAxis(this->Roll, viewOut);
+    rollQuad.Normalize();
 
     // Get final matrix.
-    MultiplyQuaternion(rollQuad, newOrientation, newOrientation);
-    NormalizeQuaternion(newOrientation);
+    newOrientation = rollQuad * newOrientation;
+    newOrientation.Normalize();
     }
+
+  return newOrientation;
 }
 
 //----------------------------------------------------------------------------
@@ -1629,21 +1502,20 @@ void vtkBoneWidget::RebuildParentToBonePoseRotation()
   // then ParentToBone = WorldToParent^(-1) * WorldToBone
   // Plus, inverting a quaternion isn't so bad (conjugation + normalization)
 
-  double parentToWorldPoseRotation[4];
-  InverseQuaternion(this->WorldToParentPoseRotation,
-    parentToWorldPoseRotation);
+  vtkQuaterniond parentToWorldPoseRotation
+    = this->WorldToParentPoseRotation.Inverse();
 
-  MultiplyQuaternion(parentToWorldPoseRotation, this->WorldToBonePoseRotation,
-     this->ParentToBonePoseRotation);
-  NormalizeQuaternion(this->ParentToBonePoseRotation);
+  this->ParentToBonePoseRotation
+    = parentToWorldPoseRotation * this->WorldToBonePoseRotation;
+  this->ParentToBonePoseRotation.Normalize();
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::RebuildWorldToBonePoseRotationFromParent()
 {
-  MultiplyQuaternion(this->WorldToParentPoseRotation,
-    this->ParentToBonePoseRotation, this->WorldToBonePoseRotation);
-  NormalizeQuaternion(this->WorldToBonePoseRotation);
+  this->WorldToBonePoseRotation =
+    this->WorldToParentPoseRotation * this->ParentToBonePoseRotation;
+  this->WorldToBonePoseRotation.Normalize();
 }
 
 //----------------------------------------------------------------------------
@@ -1759,13 +1631,12 @@ void vtkBoneWidget::RebuildWorldToBonePoseRotationInteraction()
 
   // PoseTransform is the sum of the transform applied to the bone in
   // pose mode. The previous transforms are stored in StartPoseTransform.
-  double quad[4];
-  AxisAngleToQuaternion(rotationAxis, poseAngle, quad);
-  NormalizeQuaternion(quad);
-  // Old Version
-  MultiplyQuaternion(
-    quad, this->StartPoseRotation, this->WorldToBonePoseRotation);
-  NormalizeQuaternion(this->WorldToBonePoseRotation);
+  vtkQuaterniond quad;
+  quad.SetRotationAngleAndAxis(poseAngle, rotationAxis);
+  quad.Normalize();
+
+  this->WorldToBonePoseRotation = quad * this->StartPoseRotation;
+  this->WorldToBonePoseRotation.Normalize();
 
   this->RebuildParentToBonePoseRotation();
 }
@@ -1878,7 +1749,7 @@ void vtkBoneWidget::UpdatePoseIntercationsVariables()
 {
   CopyVector3(this->WorldHeadPose, this->InteractionWorldHeadPose);
   CopyVector3(this->WorldTailPose, this->InteractionWorldTailPose);
-  CopyQuaternion(this->WorldToBonePoseRotation, this->StartPoseRotation);
+  this->StartPoseRotation = this->WorldToBonePoseRotation;
 }
 
 //----------------------------------------------------------------------------
@@ -1941,20 +1812,17 @@ void vtkBoneWidget::UpdateDisplay()
 void vtkBoneWidget::InitializePoseMode()
 {
   // World to Parent.
-  CopyQuaternion(this->WorldToParentRestRotation,
-    this->WorldToParentPoseRotation);
+  this->WorldToParentPoseRotation = this->WorldToParentRestRotation;
   CopyVector3(this->WorldToParentRestTranslation,
     this->WorldToParentPoseTranslation);
 
   // Parent to Bone.
-  CopyQuaternion(this->ParentToBoneRestRotation,
-    this->ParentToBonePoseRotation);
+  this->ParentToBonePoseRotation = this->ParentToBoneRestRotation;
   CopyVector3(this->ParentToBoneRestTranslation,
     this->ParentToBonePoseTranslation);
 
   // World to Bone.
-  CopyQuaternion(this->WorldToBoneRestRotation,
-    this->WorldToBonePoseRotation);
+  this->WorldToBonePoseRotation = this->WorldToBoneRestRotation;
   CopyVector3(this->WorldToBoneHeadRestTranslation,
     this->WorldToBoneHeadPoseTranslation);
   CopyVector3(this->WorldToBoneTailRestTranslation,
