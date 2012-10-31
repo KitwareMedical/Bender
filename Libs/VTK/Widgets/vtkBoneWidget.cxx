@@ -195,6 +195,9 @@ public:
 //----------------------------------------------------------------------------
 vtkBoneWidget::vtkBoneWidget()
 {
+  // Name
+  this->Name = "";
+
   // Widget interaction init.
   this->WidgetState = vtkBoneWidget::PlaceHead;
   this->BoneSelected = vtkBoneWidget::NotSelected;

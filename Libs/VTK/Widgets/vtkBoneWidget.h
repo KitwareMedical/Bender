@@ -75,6 +75,7 @@
 #include <vtkAbstractWidget.h>
 #include <vtkCommand.h>
 #include <vtkSmartPointer.h>
+#include <vtkStdString.h>
 
 class vtkAxesActor;
 class vtkBoneRepresentation;
@@ -95,6 +96,11 @@ public:
   // Standard methods for a VTK class.
   vtkTypeMacro(vtkBoneWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get a bone's name
+  vtkSetMacro(Name,vtkStdString);
+  vtkGetMacro(Name, vtkStdString);
 
   // Description:
   // The method for activiating and deactiviating this widget. This method
@@ -365,6 +371,9 @@ public:
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
+
+  // Bone Name
+  vtkStdString Name;
 
   // The different states of the widget.
   int WidgetState;
