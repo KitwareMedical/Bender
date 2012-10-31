@@ -28,9 +28,7 @@
 // a skeleton of bones and manages all the necessaries callback to be able to
 // animate it properly.
 // Each bone is associated with an unique ID, a name, one parent and children.
-// The root bone is unique and the only bone with a NULL parent. All the
-// other bones are its children (directly or not). A given bone can have any
-// number of children.
+// A given bone can have any number of children.
 //
 // .SECTION Options
 // All the options applied to the armature are applied to all its bones.
@@ -47,12 +45,15 @@
 #include <vtkAbstractWidget.h>
 #include <vtkStdString.h>
 
+#include <vector>
+
 class ArmatureTreeNodeVectorType;
 struct ArmatureTreeNode;
 
 class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
 class vtkBoneWidget;
+class vtkCollection;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureWidget : public vtkAbstractWidget
 {
@@ -99,29 +100,30 @@ public:
   // Creates a bone and initializes it with all the options of the armature.
   // The bone can then be parsed to the armature with the Add methods.
   // Otherwise, the user is responsible for deleting the bone.
-  // @sa AddBone() RemoveBone()
-  vtkBoneWidget* CreateBone(vtkBoneWidget* parent=0);
+  // @sa AddBone() RemoveBone() HasBone()
+  vtkBoneWidget* CreateBone(vtkBoneWidget* parent=0, const vtkStdString& name = "");
+
+  // Description:
+  // Create a bone to the armature with the given parent.
+  // The new bone head will be set to its parent tail.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
+  // @sa FindBoneChildren()
+  // @sa GetBoneLinkedWithParent()
+  vtkBoneWidget* CreateBone(
+     vtkBoneWidget* parent,
+     double tail[3], const vtkStdString& name = "");
+  vtkBoneWidget* CreateBone(vtkBoneWidget* parent,
+    double xTail, double yTail, double zTail,
+    const vtkStdString& name = "");
 
   // Description:
   // Add a bone to the armature with the given parent. If the parent
   // is NULL, then the bone is considered to be root.
-  // There can be ONLY ONE root. Returns 1 upon success and -1 on error.
-  // @sa CreateBone() AddBone() RemoveBone()
-  int AddBone(vtkBoneWidget* bone,
-    vtkBoneWidget* parent=0, const vtkStdString& name = "");
-
-  // Description:
-  // Add a bone to the armature with the given parent.
-  // The new bone head will be attached to its parent tail and they will
-  // move together.  Returns 1 upon success and -1 on error.
-  // @sa CreateBone() AddBone() RemoveBone()
-  // @sa GetBoneLinkedWithParent()
-  int AddBone(vtkBoneWidget* bone,
-    vtkBoneWidget* parent, double tail[3], const vtkStdString& name = "");
-  int AddBone(vtkBoneWidget* bone,
-    vtkBoneWidget* parent,
-    double xTail, double yTail, double zTail,
-    const vtkStdString& name = "");
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
+  // @sa FindBoneChildren()
+  void AddBone(vtkBoneWidget* bone,
+    vtkBoneWidget* parent=0,
+    bool linkedWithParent = true);
 
   // Description:
   // Delete the bone with the corresponding boneId. Return false
@@ -130,9 +132,28 @@ public:
   // linked to its parent.
   // In the case of the root bone, the first child (if any) is chosen as the
   // new root. All the other children are linked to the new root.
-  // @sa CreateBone() AddBone() RemoveBone()
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
+  // @sa FindBoneChildren()
   // @sa GetBoneLinkedWithParent()
   bool RemoveBone(vtkBoneWidget* bone);
+
+  // Description:
+  // Returns if the given bone belongs to this amrature or not.
+  // @sa CreateBone() AddBone() RemoveBone()
+  bool HasBone(vtkBoneWidget* bone);
+
+  // Description:
+  // Returns the bone's parent if the bone has one and it belongs
+  // to the armature.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  vtkBoneWidget* GetBoneParent(vtkBoneWidget* bone);
+
+  // Description:
+  // Returns the bone's children if the bone has any and it belongs
+  // to the armature.
+  // The user is responsible for deleting the returned collection.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
 
   // Description:
   // Set the bone's name. Return false string if no bone is found.
@@ -154,7 +175,7 @@ public:
   // Get whether the bone is linked with its parent. If no bone
   // with boneId is found, returns -1.
   // @sa SetBoneLinkedWithParent()
-  int GetBoneLinkedWithParent(vtkBoneWidget* bone);
+  bool GetBoneLinkedWithParent(vtkBoneWidget* bone);
 
   // Description:
   // Set whether the bone is linked with its parent. If no bone
@@ -217,7 +238,11 @@ protected:
 
   // Bone Tree
   ArmatureTreeNodeVectorType* Bones;
-  ArmatureTreeNode* Root;
+
+  // Top level bone tree
+  typedef std::vector<vtkBoneWidget*> BoneVectorType;
+  typedef BoneVectorType::iterator BoneVectorIterator;
+  std::vector<vtkBoneWidget*> TopLevelBones;
 
   // Bone Properties
   int BonesRepresentationType;

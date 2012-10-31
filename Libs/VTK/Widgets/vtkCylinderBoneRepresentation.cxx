@@ -19,24 +19,25 @@
 =========================================================================*/
 #include "vtkCylinderBoneRepresentation.h"
 
-#include "vtkActor.h"
-#include "vtkAppendPolyData.h"
-#include "vtkBox.h"
-#include "vtkCamera.h"
-#include "vtkCallbackCommand.h"
-#include "vtkCylinderSource.h"
-#include "vtkFollower.h"
-#include "vtkInteractorObserver.h"
-#include "vtkLineSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTransformPolydataFilter.h"
-#include "vtkTubeFilter.h"
-#include "vtkWindow.h"
+#include <vtkActor.h>
+#include <vtkAppendPolyData.h>
+#include <vtkBox.h>
+#include <vtkCamera.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCylinderSource.h>
+#include <vtkFollower.h>
+#include <vtkInteractorObserver.h>
+#include <vtkLineSource.h>
+#include <vtkObjectFactory.h>
+#include <vtkOpenGL.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkTransformPolydataFilter.h>
+#include <vtkTubeFilter.h>
+#include <vtkWindow.h>
 
 vtkStandardNewMacro(vtkCylinderBoneRepresentation);
 
@@ -148,7 +149,7 @@ void vtkCylinderBoneRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 }
 
 //----------------------------------------------------------------------------
-int vtkCylinderBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+int vtkCylinderBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
@@ -162,11 +163,13 @@ int vtkCylinderBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
     }
   // Cylinder actor
   count += this->CylinderActor->RenderOpaqueGeometry(v);
+
   return count;
 }
 
 //----------------------------------------------------------------------------
-int vtkCylinderBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+int vtkCylinderBoneRepresentation
+::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
@@ -180,6 +183,26 @@ int vtkCylinderBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewpor
     }
   // Cylinder actor
   count += this->CylinderActor->RenderTranslucentPolygonalGeometry(v);
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count += this->LineActor->RenderOverlay(v);
+  count += this->Handle[0]->RenderOverlay(v);
+  count += this->Handle[1]->RenderOverlay(v);
+  if (this->DistanceAnnotationVisibility)
+    {
+    count += this->TextActor->RenderOverlay(v);
+    }
+  // Cylinder actor
+  count += this->CylinderActor->RenderOverlay(v);
+
   return count;
 }
 

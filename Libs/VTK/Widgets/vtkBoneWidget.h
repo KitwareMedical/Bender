@@ -70,11 +70,14 @@
 
 // Bender includes
 #include "vtkBenderWidgetsExport.h"
+#include "vtkQuaternion.h"
+#include "vtkQuaternionSetGet.h"
 
 // VTK includes
 #include <vtkAbstractWidget.h>
 #include <vtkCommand.h>
 #include <vtkSmartPointer.h>
+#include <vtkStdString.h>
 
 class vtkAxesActor;
 class vtkBoneRepresentation;
@@ -95,6 +98,11 @@ public:
   // Standard methods for a VTK class.
   vtkTypeMacro(vtkBoneWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Set/Get a bone's name
+  vtkSetMacro(Name,vtkStdString);
+  vtkGetMacro(Name, vtkStdString);
 
   // Description:
   // The method for activiating and deactiviating this widget. This method
@@ -200,13 +208,13 @@ public:
   // Description:
   // Rest mode get methods.
   // Access methods to all the rotation and translations from the rest mode.
-  vtkGetVector4Macro(WorldToParentRestRotation, double);
+  vtkGetQuaternionMacro(WorldToParentRestRotation, double);
   vtkGetVector3Macro(WorldToParentRestTranslation, double);
 
-  vtkGetVector4Macro(ParentToBoneRestRotation, double);
+  vtkGetQuaternionMacro(ParentToBoneRestRotation, double);
   vtkGetVector3Macro(ParentToBoneRestTranslation, double);
 
-  vtkGetVector4Macro(WorldToBoneRestRotation, double);
+  vtkGetQuaternionMacro(WorldToBoneRestRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadRestTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailRestTranslation, double);
 
@@ -239,13 +247,13 @@ public:
   // Description:
   // Pose mode get methods.
   // Access methods to all the rotation and translations from the pose mode.
-  vtkGetVector4Macro(WorldToParentPoseRotation, double);
+  vtkGetQuaternionMacro(WorldToParentPoseRotation, double);
   vtkGetVector3Macro(WorldToParentPoseTranslation, double);
 
-  vtkGetVector4Macro(ParentToBonePoseRotation, double);
+  vtkGetQuaternionMacro(ParentToBonePoseRotation, double);
   vtkGetVector3Macro(ParentToBonePoseTranslation, double);
 
-  vtkGetVector4Macro(WorldToBonePoseRotation, double);
+  vtkGetQuaternionMacro(WorldToBonePoseRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
@@ -274,10 +282,10 @@ public:
   // Set the head/tail rest display position.
   // These methods assume that the bone is in rest mode
   // and has a representation.
-  void SetHeadRestDisplayPosition(double x, double y);
-  void SetHeadRestDisplayPosition(double head[2]);
-  void SetTailRestDisplayPosition(double x, double y);
-  void SetTailRestDisplayPosition(double head[2]);
+  void SetDisplayHeadRestPosition(double x, double y);
+  void SetDisplayHeadRestPosition(double head[3]);
+  void SetDisplayTailRestPosition(double x, double y);
+  void SetDisplayTailRestPosition(double tail[3]);
 
   // Description:
   // Get rest and pose mode world positions.
@@ -334,13 +342,6 @@ public:
   vtkSetMacro(DebugBoneID, unsigned int);
   vtkGetMacro(DebugBoneID, unsigned int);
 
-  // Descritption:
-  // Helper function for conversion quaternion conversion
-  // to and from rotation/axis. Angle is in radians.
-  static double QuaternionToAxisAngle(const double quad[4], double axis[3]);
-  static void AxisAngleToQuaternion(
-    const double axis[3], const double angle, double quad[4]);
-
   // Description:
   // Rotation methods to move the tail. Those methods can be used in
   // rest or pose mode. Angle is in radians.
@@ -365,6 +366,9 @@ public:
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
+
+  // Bone Name
+  vtkStdString Name;
 
   // The different states of the widget.
   int WidgetState;
@@ -432,13 +436,13 @@ protected:
   // Transforms:
   // - Rest Transforms:
   //   * Parent To Bone:
-  double ParentToBoneRestRotation[4];
+  vtkQuaterniond ParentToBoneRestRotation;
   double ParentToBoneRestTranslation[3]; // <-> LocalRestHead.
   //   * World To Parent:
-  double WorldToParentRestRotation[4];// Given.
+  vtkQuaterniond WorldToParentRestRotation;// Given.
   double WorldToParentRestTranslation[3];// Given.
   //   * World To Bone:
-  double WorldToBoneRestRotation[4];
+  vtkQuaterniond WorldToBoneRestRotation;
   double WorldToBoneHeadRestTranslation[3];
   double WorldToBoneTailRestTranslation[3];
 
@@ -446,20 +450,20 @@ protected:
   //   * Rest To Pose (<-> Rotate Tail around Head):
   //double BoneRestToPoseRotation[4];
   //   * Parent To Bone:
-  double ParentToBonePoseRotation[4];
+  vtkQuaterniond ParentToBonePoseRotation;
   double ParentToBonePoseTranslation[3]; // LocalPoseHead.
   //   * World To Parent:
-  double WorldToParentPoseRotation[4];
+  vtkQuaterniond WorldToParentPoseRotation;
   double WorldToParentPoseTranslation[3];
   //    * World To Bone:
   //       WorldToBoneRestRotation * RestToPoseRotation.
-  double WorldToBonePoseRotation[4];
+  vtkQuaterniond WorldToBonePoseRotation;
   double WorldToBoneHeadPoseTranslation[3];
   double WorldToBoneTailPoseTranslation[3];
 
   // - Pose Interaction transform:
   //   * To hold the BoneRestToPoseRotation during interaction.
-  double StartPoseRotation[4];
+  vtkQuaterniond StartPoseRotation;
 
   // To hold the old world position while interacting.
   // This enables to recompute the RestToPose rotation from scratch
@@ -551,8 +555,7 @@ protected:
   // rotation computed (quaternion).
   // Also applies a rotation aroud the new Y axis and of amplitude Roll.
   // (If roll not zero)
-  void ComputeRotationFromReferenceAxis(
-    const double* axis, double* newOrientation);
+  vtkQuaterniond ComputeRotationFromReferenceAxis(const double* axis);
 
   // Return if the camera axis exist (there is a renderer and a camera) and if
   // it is orthogonal to the given vector.

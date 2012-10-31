@@ -31,6 +31,7 @@
 #include <vtkLineSource.h>
 #include <vtkMath.h>
 #include <vtkObjectFactory.h>
+#include <vtkOpenGL.h>
 #include <vtkPointHandleRepresentation3D.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyData.h>
@@ -46,6 +47,7 @@ vtkStandardNewMacro(vtkBoneRepresentation);
 //----------------------------------------------------------------------------
 vtkBoneRepresentation::vtkBoneRepresentation()
 {
+  this->AlwaysOnTop = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -54,73 +56,73 @@ vtkBoneRepresentation::~vtkBoneRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetHeadWorldPosition(double pos[3])
+void vtkBoneRepresentation::GetWorldHeadPosition(double pos[3])
 {
   this->Point1Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------------
-double* vtkBoneRepresentation::GetHeadWorldPosition()
+double* vtkBoneRepresentation::GetWorldHeadPosition()
 {
   return this->Point1Representation->GetWorldPosition();
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetHeadDisplayPosition(double pos[3])
+void vtkBoneRepresentation::GetDisplayHeadPosition(double pos[3])
 {
   this->Point1Representation->GetDisplayPosition(pos);
 }
 
 //----------------------------------------------------------------------------
-double* vtkBoneRepresentation::GetHeadDisplayPosition()
+double* vtkBoneRepresentation::GetDisplayHeadPosition()
 {
   return this->Point1Representation->GetDisplayPosition();
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetHeadWorldPosition(double x[3])
+void vtkBoneRepresentation::SetWorldHeadPosition(double x[3])
 {
   this->Superclass::SetPoint1WorldPosition(x);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetHeadDisplayPosition(double x[3])
+void vtkBoneRepresentation::SetDisplayHeadPosition(double x[3])
 {
   this->Superclass::SetPoint1DisplayPosition(x);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetTailWorldPosition(double pos[3])
+void vtkBoneRepresentation::GetWorldTailPosition(double pos[3])
 {
   this->Point2Representation->GetWorldPosition(pos);
 }
 
 //----------------------------------------------------------------------------
-double* vtkBoneRepresentation::GetTailWorldPosition()
+double* vtkBoneRepresentation::GetWorldTailPosition()
 {
   return this->Point2Representation->GetWorldPosition();
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetTailDisplayPosition(double pos[3])
+void vtkBoneRepresentation::GetDisplayTailPosition(double pos[3])
 {
   this->Point2Representation->GetDisplayPosition(pos);
 }
 
 //----------------------------------------------------------------------------
-double* vtkBoneRepresentation::GetTailDisplayPosition()
+double* vtkBoneRepresentation::GetDisplayTailPosition()
 {
   return this->Point2Representation->GetDisplayPosition();
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetTailWorldPosition(double x[3])
+void vtkBoneRepresentation::SetWorldTailPosition(double x[3])
 {
   this->Superclass::SetPoint2WorldPosition(x);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetTailDisplayPosition(double x[3])
+void vtkBoneRepresentation::SetDisplayTailPosition(double x[3])
 {
   this->Superclass::SetPoint2DisplayPosition(x);
 }
@@ -149,4 +151,85 @@ void vtkBoneRepresentation::Highlight(int highlight)
 void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Always On Top: " << this->AlwaysOnTop << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+{
+  int count = 0;
+  if (! this->AlwaysOnTop)
+    {
+    count = this->RenderTranslucentPolygonalGeometryInternal(v);
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+{
+  int count = 0;
+  if (! this->AlwaysOnTop)
+    {
+    count = this->RenderOpaqueGeometryInternal(v);
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
+{
+  int count = 0;
+  if (this->AlwaysOnTop)
+    {
+    GLint flag;
+    glGetIntegerv(GL_DEPTH_FUNC,&flag);
+
+    if(flag != GL_ALWAYS)
+      {
+      glDepthFunc(GL_ALWAYS);
+      }
+
+    if (this->HasTranslucentPolygonalGeometry())
+      {
+      count = this->RenderTranslucentPolygonalGeometryInternal(v);
+      }
+    else
+      {
+      count = this->RenderOpaqueGeometryInternal(v);
+      }
+
+    if(flag != GL_ALWAYS)
+      {
+      glDepthFunc(flag);
+      }
+    }
+  else
+    {
+    count = this->RenderOverlayInternal(v);
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation
+::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderTranslucentPolygonalGeometry(v);
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderOpaqueGeometry(v);
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderOverlay(v);
 }

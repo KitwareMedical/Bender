@@ -55,18 +55,18 @@ public:
   // Methods to Set/Get the coordinates of the two points defining
   // this representation. Note that methods are available for both
   // display and world coordinates.
-  void GetHeadWorldPosition(double pos[3]);
-  double* GetHeadWorldPosition();
-  void GetHeadDisplayPosition(double pos[3]);
-  double* GetHeadDisplayPosition();
-  virtual void SetHeadWorldPosition(double pos[3]);
-  virtual void SetHeadDisplayPosition(double pos[3]);
-  void GetTailDisplayPosition(double pos[3]);
-  double* GetTailDisplayPosition();
-  void GetTailWorldPosition(double pos[3]);
-  double* GetTailWorldPosition();
-  virtual void SetTailWorldPosition(double pos[3]);
-  virtual void SetTailDisplayPosition(double pos[3]);
+  void GetWorldHeadPosition(double pos[3]);
+  double* GetWorldHeadPosition();
+  void GetDisplayHeadPosition(double pos[3]);
+  double* GetDisplayHeadPosition();
+  virtual void SetWorldHeadPosition(double pos[3]);
+  virtual void SetDisplayHeadPosition(double pos[3]);
+  void GetDisplayTailPosition(double pos[3]);
+  double* GetDisplayTailPosition();
+  void GetWorldTailPosition(double pos[3]);
+  double* GetWorldTailPosition();
+  virtual void SetWorldTailPosition(double pos[3]);
+  virtual void SetDisplayTailPosition(double pos[3]);
 
   // Description:
   // Enum that mirrors the enums in vtkLineRepresentation with appropriate
@@ -92,9 +92,30 @@ public:
   // Helper method to highlight the line and the endpoints.
   virtual void Highlight(int highlight);
 
+  // Description:
+  // Set/Get if the bones are represented in X-Ray mode or not. In this
+  // mode, the bone are overlayed any element of the scene, which makes them
+  // always visible.
+  vtkSetMacro(AlwaysOnTop, int);
+  vtkGetMacro(AlwaysOnTop, int);
+
+  // Description:
+  // Rendering methods.
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int RenderOpaqueGeometry(vtkViewport*);
+  virtual int RenderOverlay(vtkViewport*);
+
 protected:
   vtkBoneRepresentation();
   ~vtkBoneRepresentation();
+
+  int AlwaysOnTop;
+
+  // Protected rendring classes. They do the the regular job of rendering and
+  // are called depeding if the rendering is overlayed or not.
+  virtual int RenderOpaqueGeometryInternal(vtkViewport *v);
+  virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport* v);
+  virtual int RenderOverlayInternal(vtkViewport*);
 
 private:
   vtkBoneRepresentation(const vtkBoneRepresentation&);  //Not implemented

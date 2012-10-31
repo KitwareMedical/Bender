@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(KIT Widgets)
+set(KIT CommonMath)
 project(vtkBender${KIT})
 string(TOUPPER ${KIT} KIT_UPPER)
 
@@ -40,28 +40,17 @@ include(${VTK_USE_FILE})
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_BINARY_DIR}
-  ${vtkBender_DIR}/Common/Math
   )
-
+ 
 set(${KIT}_SRCS
-  vtkArmatureRepresentation.cxx
-  vtkArmatureRepresentation.h
-  vtkArmatureWidget.cxx
-  vtkArmatureWidget.h
-  vtkBoneRepresentation.cxx
-  vtkBoneRepresentation.h
-  vtkBoneWidget.cxx
-  vtkBoneWidget.h
-  vtkCylinderBoneRepresentation.cxx
-  vtkCylinderBoneRepresentation.h
-  vtkDoubleConeBoneRepresentation.cxx
-  vtkDoubleConeBoneRepresentation.h
+  vtkQuaternion.txx
+  vtkQuaternion.h
+  vtkTuple.h
   )
 
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
-  #vtkBenderCommonMath
   )
 
 #-----------------------------------------------------------------------------
@@ -72,15 +61,9 @@ set(MyExportHeaderPrefix ${PROJECT_NAME})
 set(MyLibName ${PROJECT_NAME})
 
 configure_file(
-  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
+  ${CMAKE_SOURCE_DIR}/CMake/BenderExport.h.in
   ${PROJECT_NAME}Export.h
   )
 
 set(dynamicHeaders
   "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Export.h")
-
-#-----------------------------------------------------------------------------
-# Add testing
-enable_testing()
-
-add_subdirectory(Testing)
