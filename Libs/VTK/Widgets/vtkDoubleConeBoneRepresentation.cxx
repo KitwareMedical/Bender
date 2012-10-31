@@ -20,21 +20,22 @@
 
 #include "vtkDoubleConeBoneRepresentation.h"
 
-#include "vtkActor.h"
-#include "vtkAppendPolyData.h"
-#include "vtkBox.h"
-#include "vtkCamera.h"
-#include "vtkConeSource.h"
-#include "vtkFollower.h"
-#include "vtkLineSource.h"
-#include "vtkObjectFactory.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkProperty.h"
-#include "vtkRenderer.h"
-#include "vtkSmartPointer.h"
-#include "vtkTubeFilter.h"
-#include "vtkWindow.h"
+#include <vtkActor.h>
+#include <vtkAppendPolyData.h>
+#include <vtkBox.h>
+#include <vtkCamera.h>
+#include <vtkConeSource.h>
+#include <vtkFollower.h>
+#include <vtkLineSource.h>
+#include <vtkObjectFactory.h>
+#include <vtkOpenGL.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderer.h>
+#include <vtkSmartPointer.h>
+#include <vtkTubeFilter.h>
+#include <vtkWindow.h>
 
 vtkStandardNewMacro(vtkDoubleConeBoneRepresentation);
 
@@ -188,7 +189,8 @@ void vtkDoubleConeBoneRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 }
 
 //----------------------------------------------------------------------------
-int vtkDoubleConeBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+int vtkDoubleConeBoneRepresentation
+::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
@@ -202,11 +204,13 @@ int vtkDoubleConeBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
     }
   // Cones actor
   count += this->ConesActor->RenderOpaqueGeometry(v);
+
   return count;
 }
 
 //----------------------------------------------------------------------------
-int vtkDoubleConeBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+int vtkDoubleConeBoneRepresentation
+::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();

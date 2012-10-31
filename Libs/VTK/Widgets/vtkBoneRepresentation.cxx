@@ -31,6 +31,7 @@
 #include <vtkLineSource.h>
 #include <vtkMath.h>
 #include <vtkObjectFactory.h>
+#include <vtkOpenGL.h>
 #include <vtkPointHandleRepresentation3D.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyData.h>
@@ -46,6 +47,7 @@ vtkStandardNewMacro(vtkBoneRepresentation);
 //----------------------------------------------------------------------------
 vtkBoneRepresentation::vtkBoneRepresentation()
 {
+  this->AlwaysOnTop = 1;
 }
 
 //----------------------------------------------------------------------------
@@ -149,4 +151,75 @@ void vtkBoneRepresentation::Highlight(int highlight)
 void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+
+  os << indent << "Always On Top: " << this->AlwaysOnTop << "\n";
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
+{
+  int count = 0;
+  if (! this->AlwaysOnTop)
+    {
+    count = this->RenderTranslucentPolygonalGeometryInternal(v);
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOpaqueGeometry(vtkViewport *v)
+{
+  int count = 0;
+  if (! this->AlwaysOnTop)
+    {
+    count = this->RenderOpaqueGeometryInternal(v);
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
+{
+  int count = 0;
+  if (this->AlwaysOnTop)
+    {
+    GLint flag;
+    glGetIntegerv(GL_DEPTH_FUNC,&flag);
+
+    if(flag != GL_ALWAYS)
+      {
+      glDepthFunc(GL_ALWAYS);
+      }
+
+    if (this->HasTranslucentPolygonalGeometry())
+      {
+      count = this->RenderTranslucentPolygonalGeometryInternal(v);
+      }
+    else
+      {
+      count = this->RenderOpaqueGeometryInternal(v);
+      }
+
+    if(flag != GL_ALWAYS)
+      {
+      glDepthFunc(flag);
+      }
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation
+::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderTranslucentPolygonalGeometry(v);
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderOpaqueGeometry(v);
 }

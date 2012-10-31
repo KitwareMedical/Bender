@@ -92,9 +92,29 @@ public:
   // Helper method to highlight the line and the endpoints.
   virtual void Highlight(int highlight);
 
+  // Description:
+  // Set/Get if the bones are represented in X-Ray mode or not. In this
+  // mode, the bone are overlayed any element of the scene, which makes them
+  // always visible.
+  vtkSetMacro(AlwaysOnTop, int);
+  vtkGetMacro(AlwaysOnTop, int);
+
+  // Description:
+  // Rendering methods.
+  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
+  virtual int RenderOpaqueGeometry(vtkViewport*);
+  virtual int RenderOverlay(vtkViewport*);
+
 protected:
   vtkBoneRepresentation();
   ~vtkBoneRepresentation();
+
+  int AlwaysOnTop;
+
+  // Protected rendring classes. They do the the regular job of rendering and
+  // are called depeding if the rendering is overlayed or not.
+  virtual int RenderOpaqueGeometryInternal(vtkViewport *v);
+  virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport* v);
 
 private:
   vtkBoneRepresentation(const vtkBoneRepresentation&);  //Not implemented

@@ -94,8 +94,6 @@ public:
   // Methods supporting the rendering process.
   virtual void GetActors(vtkPropCollection *pc);
   virtual void ReleaseGraphicsResources(vtkWindow*);
-  virtual int RenderOpaqueGeometry(vtkViewport*);
-  virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
 
 protected:
@@ -119,6 +117,8 @@ protected:
   int    NumberOfSides;
 
   void RebuildCylinder();
+  virtual int RenderOpaqueGeometryInternal(vtkViewport*);
+  virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport*);
 
 private:
   vtkCylinderBoneRepresentation(const vtkCylinderBoneRepresentation&);  // Not implemented
