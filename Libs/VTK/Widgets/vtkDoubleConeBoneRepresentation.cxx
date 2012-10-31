@@ -228,6 +228,25 @@ int vtkDoubleConeBoneRepresentation
 }
 
 //----------------------------------------------------------------------------
+int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count += this->LineActor->RenderOverlay(v);
+  count += this->Handle[0]->RenderOverlay(v);
+  count += this->Handle[1]->RenderOverlay(v);
+  if (this->DistanceAnnotationVisibility)
+    {
+    count += this->TextActor->RenderOverlay(v);
+    }
+  // Cones actor
+  count += this->ConesActor->RenderOverlay(v);
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
 int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;

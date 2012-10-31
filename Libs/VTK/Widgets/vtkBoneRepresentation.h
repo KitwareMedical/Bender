@@ -57,16 +57,16 @@ public:
   // display and world coordinates.
   void GetWorldHeadPosition(double pos[3]);
   double* GetWorldHeadPosition();
-  void GetDisplayHeadPosition(double pos[2]);
+  void GetDisplayHeadPosition(double pos[3]);
   double* GetDisplayHeadPosition();
   virtual void SetWorldHeadPosition(double pos[3]);
-  virtual void SetDisplayHeadPosition(double pos[2]);
-  void GetDisplayTailPosition(double pos[2]);
+  virtual void SetDisplayHeadPosition(double pos[3]);
+  void GetDisplayTailPosition(double pos[3]);
   double* GetDisplayTailPosition();
   void GetWorldTailPosition(double pos[3]);
   double* GetWorldTailPosition();
   virtual void SetWorldTailPosition(double pos[3]);
-  virtual void SetDisplayTailPosition(double pos[2]);
+  virtual void SetDisplayTailPosition(double pos[3]);
 
   // Description:
   // Enum that mirrors the enums in vtkLineRepresentation with appropriate
@@ -115,6 +115,7 @@ protected:
   // are called depeding if the rendering is overlayed or not.
   virtual int RenderOpaqueGeometryInternal(vtkViewport *v);
   virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport* v);
+  virtual int RenderOverlayInternal(vtkViewport*);
 
 private:
   vtkBoneRepresentation(const vtkBoneRepresentation&);  //Not implemented

@@ -82,19 +82,6 @@ bool CompareVector3(const double* v1, const double* v2)
   return false;
 }
 
-bool CompareVector2(const double* v1, const double* v2)
-{
-  double diff[2];
-  diff[0] = v1[0] - v2[0];
-  diff[1] = v1[1] - v2[1];
-  if (diff[0]*diff[0] + diff[1]*diff[1] < 1e-6)
-    {
-    return true;
-    }
-
-  return false;
-}
-
 }// End namespace
 
 //----------------------------------------------------------------------------
@@ -760,16 +747,17 @@ void vtkBoneWidget::SetWorldTailRest(double tail[3])
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetDisplayHeadRestPosition(double x, double y)
 {
-  double displayHead[2];
+  double displayHead[3];
   displayHead[0] = x;
   displayHead[1] = y;
+  displayHead[2] = 0.0;
   this->SetDisplayHeadRestPosition(displayHead);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetDisplayHeadRestPosition(double displayHead[2])
+void vtkBoneWidget::SetDisplayHeadRestPosition(double displayHead[3])
 {
-  if (CompareVector2(
+  if (CompareVector3(
       this->GetBoneRepresentation()->GetDisplayHeadPosition(), displayHead))
     {
     return;
@@ -786,16 +774,17 @@ void vtkBoneWidget::SetDisplayHeadRestPosition(double displayHead[2])
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetDisplayTailRestPosition(double x, double y)
 {
-  double displayTail[2];
+  double displayTail[3];
   displayTail[0] = x;
   displayTail[1] = y;
+  displayTail[2] = 0.0;
   this->SetDisplayTailRestPosition(displayTail);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetDisplayTailRestPosition(double displayTail[2])
+void vtkBoneWidget::SetDisplayTailRestPosition(double displayTail[3])
 {
-  if (CompareVector2(
+  if (CompareVector3(
       this->GetBoneRepresentation()->GetDisplayTailPosition(), displayTail))
     {
     return;
@@ -967,9 +956,10 @@ void vtkBoneWidget::AddPointAction(vtkAbstractWidget *w)
 
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  double e[2];
+  double e[3];
   e[0] = static_cast<double>(X);
   e[1] = static_cast<double>(Y);
+  e[2] = 0.0;
 
   // If we are placing the first point it's easy.
   if ( self->WidgetState == vtkBoneWidget::PlaceHead )
@@ -1053,9 +1043,10 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
   // Delegate the event consistent with the state.
   int X = self->Interactor->GetEventPosition()[0];
   int Y = self->Interactor->GetEventPosition()[1];
-  double e[2];
+  double e[3];
   e[0] = static_cast<double>(X);
   e[1] = static_cast<double>(Y);
+  e[2] = 0.0;
 
   if ( self->WidgetState == vtkBoneWidget::PlaceTail )
     {
@@ -1096,7 +1087,7 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
     //
 
     // Get display positions
-    double e1[2];
+    double e1[3];
     self->GetBoneRepresentation()->GetDisplayHeadPosition(e1);
 
     // Get the current line (-> the line between Head and the event)

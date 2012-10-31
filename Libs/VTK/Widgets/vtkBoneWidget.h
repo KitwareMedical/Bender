@@ -283,9 +283,9 @@ public:
   // These methods assume that the bone is in rest mode
   // and has a representation.
   void SetDisplayHeadRestPosition(double x, double y);
-  void SetDisplayHeadRestPosition(double head[2]);
+  void SetDisplayHeadRestPosition(double head[3]);
   void SetDisplayTailRestPosition(double x, double y);
-  void SetDisplayTailRestPosition(double head[2]);
+  void SetDisplayTailRestPosition(double tail[3]);
 
   // Description:
   // Get rest and pose mode world positions.

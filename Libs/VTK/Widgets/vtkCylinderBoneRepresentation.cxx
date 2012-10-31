@@ -188,6 +188,25 @@ int vtkCylinderBoneRepresentation
 }
 
 //----------------------------------------------------------------------------
+int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count += this->LineActor->RenderOverlay(v);
+  count += this->Handle[0]->RenderOverlay(v);
+  count += this->Handle[1]->RenderOverlay(v);
+  if (this->DistanceAnnotationVisibility)
+    {
+    count += this->TextActor->RenderOverlay(v);
+    }
+  // Cylinder actor
+  count += this->CylinderActor->RenderOverlay(v);
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
 int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;

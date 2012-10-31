@@ -133,6 +133,7 @@ protected:
 
   virtual int RenderOpaqueGeometryInternal(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport*);
+  virtual int RenderOverlayInternal(vtkViewport*);
 
 private:
   vtkDoubleConeBoneRepresentation(const vtkDoubleConeBoneRepresentation&);  //Not implemented

@@ -119,6 +119,7 @@ protected:
   void RebuildCylinder();
   virtual int RenderOpaqueGeometryInternal(vtkViewport*);
   virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport*);
+  virtual int RenderOverlayInternal(vtkViewport*);
 
 private:
   vtkCylinderBoneRepresentation(const vtkCylinderBoneRepresentation&);  // Not implemented

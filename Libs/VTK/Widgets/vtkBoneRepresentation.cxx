@@ -68,7 +68,7 @@ double* vtkBoneRepresentation::GetWorldHeadPosition()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetDisplayHeadPosition(double pos[2])
+void vtkBoneRepresentation::GetDisplayHeadPosition(double pos[3])
 {
   this->Point1Representation->GetDisplayPosition(pos);
 }
@@ -86,7 +86,7 @@ void vtkBoneRepresentation::SetWorldHeadPosition(double x[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetDisplayHeadPosition(double x[2])
+void vtkBoneRepresentation::SetDisplayHeadPosition(double x[3])
 {
   this->Superclass::SetPoint1DisplayPosition(x);
 }
@@ -104,7 +104,7 @@ double* vtkBoneRepresentation::GetWorldTailPosition()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::GetDisplayTailPosition(double pos[2])
+void vtkBoneRepresentation::GetDisplayTailPosition(double pos[3])
 {
   this->Point2Representation->GetDisplayPosition(pos);
 }
@@ -122,7 +122,7 @@ void vtkBoneRepresentation::SetWorldTailPosition(double x[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::SetDisplayTailPosition(double x[2])
+void vtkBoneRepresentation::SetDisplayTailPosition(double x[3])
 {
   this->Superclass::SetPoint2DisplayPosition(x);
 }
@@ -207,6 +207,10 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
       glDepthFunc(flag);
       }
     }
+  else
+    {
+    count = this->RenderOverlayInternal(v);
+    }
 
   return count;
 }
@@ -222,4 +226,10 @@ int vtkBoneRepresentation
 int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   return this->Superclass::RenderOpaqueGeometry(v);
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
+{
+  return this->Superclass::RenderOverlay(v);
 }
