@@ -26,6 +26,7 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+class vtkMRMLBoneNode;
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -79,8 +80,16 @@ public:
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
+  /// Search and populate the \a bones collection with all the bones found
+  /// in the armature.
+  /// \sa GetBoneParent()
   inline void GetAllBones(vtkCollection* bones);
 
+  ///.Search and return the parent of the \a boneNode bone. Return 0 if the
+  /// bone doesn't have a parent (top-level) or doesn't belong to the
+  /// armature.
+  /// \sa GetAllBones()
+  vtkMRMLBoneNode* GetParentBone(vtkMRMLBoneNode* boneNode);
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();

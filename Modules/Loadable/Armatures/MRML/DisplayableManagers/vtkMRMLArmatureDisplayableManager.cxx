@@ -459,6 +459,14 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     return;
     }
 
+  if (!armatureWidget)
+    {
+    // Instantiate widget and link it if
+    // there is no one associated to the armatureNode yet
+    armatureWidget = this->CreateArmatureWidget();
+    this->ArmatureNodes.find(armatureNode)->second  = armatureWidget;
+    }
+
   vtkNew<vtkCollection> bones;
   armatureNode->GetAllBones(bones.GetPointer());
   vtkCollectionSimpleIterator it;
@@ -468,18 +476,18 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
          bones->GetNextItemAsObject(it)));)
     {
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
-    if (boneNode)
+    if (!boneNode)
       {
-      this->AddBoneNode(boneNode);
+      continue;
       }
-    }
-
-  if (!armatureWidget)
-    {
-    // Instantiate widget and link it if
-    // there is no one associated to the armatureNode yet
-    armatureWidget = this->CreateArmatureWidget();
-    this->ArmatureNodes.find(armatureNode)->second  = armatureWidget;
+    this->AddBoneNode(boneNode);
+    vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
+    assert(boneWidget);
+    vtkBoneWidget* parentBoneWidget = this->GetBoneWidget(armatureNode->GetParentBone(boneNode));
+    if (!armatureWidget->HasBone(boneWidget))
+      {
+      armatureWidget->AddBone(boneWidget, parentBoneWidget);
+      }
     }
 
   // Update the representation
@@ -513,10 +521,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 {
   vtkMRMLBoneDisplayNode* boneDisplayNode =
     boneNode ? boneNode->GetBoneDisplayNode() : 0;
-  bool visible = boneNode->GetVisible() &&
-    (boneDisplayNode ?
-     boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
-  if (!boneNode || (!boneWidget && !visible))
+  if (!boneNode)
     {
     return;
     }
@@ -531,6 +536,11 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 
   boneWidget->SetWorldHeadRest(boneNode->GetWorldHeadRest());
   boneWidget->SetWorldTailRest(boneNode->GetWorldTailRest());
+
+  bool visible = boneNode->GetVisible() &&
+    (boneDisplayNode ?
+     boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
+
   // Update the representation
   //vtkBoneRepresentation* rep =
   //  boneWidget->GetRepresentation();

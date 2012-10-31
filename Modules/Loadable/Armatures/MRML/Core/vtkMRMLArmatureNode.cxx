@@ -21,18 +21,13 @@
 // Armatures includes
 #include "vtkMRMLArmatureNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
-//#include "vtkMRMLBoneStorageNode.h"
+#include "vtkMRMLBoneNode.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
 
 // VTK includes
 #include <vtkObjectFactory.h>
-
-// STD includes
-//#include <algorithm>
-//#include <cassert>
-//#include <sstream>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
@@ -109,4 +104,17 @@ void vtkMRMLArmatureNode::Copy(vtkMRMLNode* anode)
 const char* vtkMRMLArmatureNode::GetIcon()
 {
   return this->Superclass::GetIcon();
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkMRMLArmatureNode::GetParentBone(vtkMRMLBoneNode* bone)
+{
+  vtkMRMLDisplayableHierarchyNode* boneHierarchyNode =
+    vtkMRMLDisplayableHierarchyNode::GetDisplayableHierarchyNode(
+      bone->GetScene(), bone->GetID());
+  vtkMRMLDisplayableHierarchyNode* parentHierarchyNode =
+    vtkMRMLDisplayableHierarchyNode::SafeDownCast(
+      boneHierarchyNode->GetParentNode());
+  return vtkMRMLBoneNode::SafeDownCast(
+    parentHierarchyNode->GetDisplayableNode());
 }
