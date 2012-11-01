@@ -39,7 +39,7 @@ include(${VTK_USE_FILE})
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
  
 set(${KIT}_SRCS
@@ -48,10 +48,11 @@ set(${KIT}_SRCS
   vtkTuple.h
   )
 
-add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
-target_link_libraries(${PROJECT_NAME}
-  ${VTK_LIBRARIES}
-  )
+#add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
+#target_link_libraries(${PROJECT_NAME}
+#  ${VTK_LIBRARIES}
+#  )
+#set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 #-----------------------------------------------------------------------------
 # Configure export file
@@ -61,7 +62,7 @@ set(MyExportHeaderPrefix ${PROJECT_NAME})
 set(MyLibName ${PROJECT_NAME})
 
 configure_file(
-  ${CMAKE_SOURCE_DIR}/CMake/BenderExport.h.in
+  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
   ${PROJECT_NAME}Export.h
   )
 
