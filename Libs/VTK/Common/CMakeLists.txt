@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(KIT CommonMath)
+set(KIT Common)
 project(vtkBender${KIT})
 string(TOUPPER ${KIT} KIT_UPPER)
 
@@ -39,12 +39,12 @@ include(${VTK_USE_FILE})
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
- 
+
 set(${KIT}_SRCS
-  vtkQuaternion.txx
   vtkQuaternion.h
+  vtkQuaternion.txx
   vtkTuple.h
   )
 
@@ -61,7 +61,7 @@ set(MyExportHeaderPrefix ${PROJECT_NAME})
 set(MyLibName ${PROJECT_NAME})
 
 configure_file(
-  ${CMAKE_SOURCE_DIR}/CMake/BenderExport.h.in
+  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
   ${PROJECT_NAME}Export.h
   )
 
