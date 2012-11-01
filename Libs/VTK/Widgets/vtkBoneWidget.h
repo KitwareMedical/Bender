@@ -313,6 +313,10 @@ public:
   vtkGetVector3Macro(LocalHeadPose, double);
   vtkGetVector3Macro(LocalTailPose, double);
 
+  // Description:
+  // Get the distance between the current head and tail.
+  double GetLength();
+
   // Description
   // Set/get if the debug axes are visible or not.
   // Nothing:  Show nothing

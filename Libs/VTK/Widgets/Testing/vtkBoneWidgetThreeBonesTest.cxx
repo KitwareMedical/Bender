@@ -159,8 +159,15 @@ int vtkBoneWidgetThreeBonesTest(int, char *[])
   fatherBoneWidget->SetWidgetStateToRest();
 
   //Reset Father position
-//  fatherBoneWidget->SetHeadRestWorldPosition(0.0, 0.0, 0.0);
-//  fatherBoneWidget->SetTailRestWorldPosition(0.0, 0.1, 0.0);
+  fatherBoneWidget->SetWorldHeadRest(0.0, 0.0, 0.0);
+  fatherBoneWidget->SetWorldTailRest(0.0, 0.1, 0.0);
+
+  if (fatherBoneWidget->GetLength() != 0.1)
+    {
+    std::cerr<<"Bone Length Invalid"<<std::endl;
+    return EXIT_FAILURE;
+    }
+
 
   vtkSmartPointer<vtkBoneWidget> middleSonBoneWidget = 
     vtkSmartPointer<vtkBoneWidget>::New();
