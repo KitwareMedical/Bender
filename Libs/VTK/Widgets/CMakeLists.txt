@@ -34,13 +34,15 @@ string(TOUPPER ${KIT} KIT_UPPER)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
+find_package(OpenGL)
+
 #-----------------------------------------------------------------------------
 # Create library
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_CURRENT_BINARY_DIR}
-  ${vtkBender_DIR}/Common/Math
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${vtkBenderCommonMath_SOURCE_DIR}
   )
 
 set(${KIT}_SRCS
@@ -61,7 +63,7 @@ set(${KIT}_SRCS
 add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
-  #vtkBenderCommonMath
+  ${OPENGL_LIBRARIES}
   )
 
 #-----------------------------------------------------------------------------
