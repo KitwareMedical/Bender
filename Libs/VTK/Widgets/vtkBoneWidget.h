@@ -391,7 +391,7 @@ protected:
   //ETX
 
   // Callback interface to capture events when placing the widget.
-  static void AddPointAction(vtkAbstractWidget*);
+  static void StartSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
 

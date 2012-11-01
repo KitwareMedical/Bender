@@ -152,7 +152,7 @@ vtkBoneWidget::vtkBoneWidget()
 
   // These are the event callbacks supported by this widget.
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
-    vtkWidgetEvent::AddPoint, this, vtkBoneWidget::AddPointAction);
+    vtkWidgetEvent::Select, this, vtkBoneWidget::StartSelectAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::MouseMoveEvent,
      vtkWidgetEvent::Move, this, vtkBoneWidget::MoveAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonReleaseEvent,
@@ -964,7 +964,7 @@ void vtkBoneWidget::ResetPoseToRest()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::AddPointAction(vtkAbstractWidget *w)
+void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 {
   vtkBoneWidget *self = vtkBoneWidget::SafeDownCast(w);
 
@@ -1036,6 +1036,8 @@ void vtkBoneWidget::AddPointAction(vtkAbstractWidget *w)
         self->WidgetRep->StartWidgetInteraction(e);
         self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
         }
+
+      self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
       }
     }
 
@@ -1206,6 +1208,11 @@ void vtkBoneWidget::EndSelectAction(vtkAbstractWidget *w)
        state == vtkBoneRepresentation::OnLine )
     {
     self->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+
+    if (state == vtkBoneRepresentation::OnLine)
+      {
+      self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+      }
     }
   else
     {
