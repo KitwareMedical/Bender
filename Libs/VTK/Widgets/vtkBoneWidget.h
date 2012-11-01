@@ -319,23 +319,26 @@ public:
   // ShowRestTransform: The debug axes will output the rest transform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
   // @sa GetAxesActor().
-  vtkGetMacro(AxesVisibility, int);
-  void SetAxesVisibility (int axesVisibility);
+  vtkGetMacro(ShowAxes, int);
+  void SetShowAxes(int show);
 
   // Description:
   // Hidden:  Hide the axes.
   // ShowRestTransform: The debug axes will output the RestTransform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
   //BTX
-  enum AxesVisibilityType {Hidden = 0,
-                           ShowRestTransform,
-                           ShowPoseTransform,
-                          };
+  enum ShowAxesType
+    {
+    Hidden = 0,
+    ShowRestTransform,
+    ShowPoseTransform,
+    };
+  //ETX
 
   // Description:
   // Get the Axes actor. This is meant for the user to modify the rendering
   // properties of the actor. The other properties must be left unchanged.
-  // @sa GetAxesVisibility() SetAxesVisibility()
+  // @sa GetShowAxes() SetShowAxes()
   vtkAxesActor* GetAxesActor() { return this->AxesActor; };
 
   // Debug functions
@@ -473,16 +476,16 @@ protected:
 
   // Axes variables:
   // For an easier debug and understanding.
-  int AxesVisibility;
+  int ShowAxes;
   vtkAxesActor* AxesActor;
   double AxesSize;
 
   // Helper methods to change the axes orientation and origin
-  // with respect to the AxesVisibility variable and the bone's transforms.
+  // with respect to the ShowAxes variable and the bone's transforms.
   // Note: RebuildParentageLink() is yo be called when the visibility of
   // the axes may be subject  to change. This will call RebuildAxes().
   void RebuildAxes();
-  void UpdateAxesVisibility(); 
+  void UpdateShowAxes();
 
   // Debug:
   // Usefull when debugging multiple bones

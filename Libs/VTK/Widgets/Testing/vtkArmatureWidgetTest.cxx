@@ -93,12 +93,12 @@ class ArmatureTestKeyPressInteractorStyle : public vtkInteractorStyleTrackballCa
         }
       else if (key == "Tab")
         {
-        int state = Armature->GetAxesVisibility() + 1;
+        int state = Armature->GetShowAxes() + 1;
         if (state > vtkBoneWidget::ShowPoseTransform)
           {
           state = 0;
           }
-        Armature->SetAxesVisibility(state);
+        Armature->SetShowAxes(state);
         }
       }
 

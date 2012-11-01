@@ -203,9 +203,9 @@ public:
 
   // Description
   // Set/get if the debug axes are visible or not.
-  // @sa vtkBoneWidget::AxesVisibilityType
-  void SetAxesVisibility (int AxesVisibility);
-  vtkGetMacro(AxesVisibility, int);
+  // @sa vtkBoneWidget::ShowAxesType
+  void SetShowAxes (int show);
+  vtkGetMacro(ShowAxes, int);
 
   // Description
   // Show/Hide the a line between the bones and their
@@ -234,7 +234,7 @@ protected:
   // Bone Properties
   int BonesRepresentationType;
   int WidgetState;
-  int AxesVisibility;
+  int ShowAxes;
   int ShowParenthood;
 
   // Add all the necessaries observers to a bone

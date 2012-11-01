@@ -206,7 +206,7 @@ vtkBoneWidget::vtkBoneWidget()
   InitializeVector3(this->InteractionWorldTailPose);
 
   // Debug axes init.
-  this->AxesVisibility = vtkBoneWidget::Hidden;
+  this->ShowAxes = vtkBoneWidget::Hidden;
   this->AxesActor = vtkAxesActor::New();
   this->AxesActor->SetAxisLabels(0);
   this->AxesSize = 0.4;
@@ -216,7 +216,7 @@ vtkBoneWidget::vtkBoneWidget()
 
   this->ShouldInitializePoseMode = true;
 
-  this->UpdateAxesVisibility();
+  this->UpdateShowAxes();
   this->UpdateParenthoodLinkVisibility();
 }
 
@@ -306,7 +306,7 @@ void vtkBoneWidget::SetEnabled(int enabling)
       {
       this->CurrentRenderer->RemoveActor(this->AxesActor);
       }
-    this->UpdateAxesVisibility();
+    this->UpdateShowAxes();
     }
 }
 
@@ -861,15 +861,15 @@ void vtkBoneWidget::SetLocalTailRest(double tail[3])
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetAxesVisibility(int visibility)
+void vtkBoneWidget::SetShowAxes(int show)
 {
-  if (this->AxesVisibility == visibility)
+  if (this->ShowAxes == show)
     {
     return;
     }
 
-  this->AxesVisibility = visibility;
-  this->UpdateAxesVisibility();
+  this->ShowAxes = show;
+  this->UpdateShowAxes();
   this->Modified();
 }
 
@@ -1221,11 +1221,11 @@ void vtkBoneWidget::RebuildAxes()
     vtkSmartPointer<vtkTransform>::New();
   transform->Translate(this->GetCurrentWorldTail());
 
-  if (this->AxesVisibility == vtkBoneWidget::ShowRestTransform)
+  if (this->ShowAxes == vtkBoneWidget::ShowRestTransform)
     {
     transform->Concatenate(this->CreateWorldToBoneRestRotation());
     }
-  else if (this->AxesVisibility == vtkBoneWidget::ShowPoseTransform)
+  else if (this->ShowAxes == vtkBoneWidget::ShowPoseTransform)
     {
     transform->Concatenate(this->CreateWorldToBonePoseRotation());
     }
@@ -1234,9 +1234,9 @@ void vtkBoneWidget::RebuildAxes()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::UpdateAxesVisibility()
+void vtkBoneWidget::UpdateShowAxes()
 {
-  if (this->AxesVisibility == vtkBoneWidget::Hidden
+  if (this->ShowAxes == vtkBoneWidget::Hidden
       || this->WidgetState == vtkBoneWidget::PlaceHead
       || this->WidgetState == vtkBoneWidget::PlaceTail
       || this->Enabled == 0)
@@ -1987,7 +1987,7 @@ void vtkBoneWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Axes:" << "\n";
   os << indent << "  Axes Actor: "<< this->AxesActor << "\n";
-  os << indent << "  Axes Visibility: "<< this->AxesVisibility << "\n";
+  os << indent << "  Show Axes: "<< this->ShowAxes << "\n";
   os << indent << "  Axes Size: "<< this->AxesSize << "\n";
 
   os << indent << "Parent link: "<< "\n";

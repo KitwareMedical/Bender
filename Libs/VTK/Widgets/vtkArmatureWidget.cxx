@@ -185,7 +185,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   // Init bones properties
   this->BonesRepresentationType = vtkArmatureWidget::None;
   this->WidgetState = vtkArmatureWidget::Rest;
-  this->AxesVisibility = vtkBoneWidget::Hidden;
+  this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
 }
 
@@ -418,18 +418,18 @@ void vtkArmatureWidget::SetWidgetState(int state)
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetAxesVisibility(int axesVisibility)
+void vtkArmatureWidget::SetShowAxes(int show)
 {
-  if (axesVisibility == this->AxesVisibility)
+  if (show == this->ShowAxes)
     {
     return;
     }
 
-  this->AxesVisibility = axesVisibility;
+  this->ShowAxes = show;
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    (*it)->Bone->SetAxesVisibility(this->AxesVisibility);
+    (*it)->Bone->SetShowAxes(this->ShowAxes);
     }
 }
 
