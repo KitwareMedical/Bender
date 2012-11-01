@@ -320,8 +320,8 @@ double vtkMRMLBoneNode::GetDistance()
   // Can't use bone properties -> rep -> distance because the representation
   // is never built. Thus the distance is never recomputed
   return sqrt(vtkMath::Distance2BetweenPoints(
-    this->BoneProperties->GetBoneRepresentation()->GetHeadWorldPosition(),
-    this->BoneProperties->GetBoneRepresentation()->GetTailWorldPosition()));
+    this->BoneProperties->GetBoneRepresentation()->GetWorldHeadPosition(),
+    this->BoneProperties->GetBoneRepresentation()->GetWorldTailPosition()));
 }
 
 //-- Roll -------------------------------------------------------------------

@@ -10,6 +10,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerAnnotationsModuleMRML_BINARY_DIR}
   ${vtkBenderWidgets_SOURCE_DIR}
   ${vtkBenderWidgets_BINARY_DIR}
+  ${vtkBenderCommonMath_SOURCE_DIR}
   )
 
 set(${KIT}_SRCS
