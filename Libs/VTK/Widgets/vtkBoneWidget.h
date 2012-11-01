@@ -100,8 +100,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get a bone's name
-  vtkSetMacro(Name,vtkStdString);
+  // Set/Get a bone's name. Default is an empty string.
+  vtkSetMacro(Name, vtkStdString);
   vtkGetMacro(Name, vtkStdString);
 
   // Description:

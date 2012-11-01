@@ -27,13 +27,11 @@
 // of bones (vtkBoneWidget). Most importantly, it allows the user to create
 // a skeleton of bones and manages all the necessaries callback to be able to
 // animate it properly.
-// Each bone is associated with an unique ID, a name, one parent and children.
+// Each bone is associated with an unique ID, an unique parent and children.
 // A given bone can have any number of children.
 //
 // .SECTION Options
 // All the options applied to the armature are applied to all its bones.
-// The bone can be accessed directly too through their names or the associated
-// id.
 //
 // .SECTION See Also
 // vtkArmatureRepresentation, vtkBoneWidget
@@ -156,19 +154,8 @@ public:
   vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
 
   // Description:
-  // Set the bone's name. Return false string if no bone is found.
-  // @sa GetBoneName()
-  bool SetBoneName(vtkBoneWidget* bone, const vtkStdString& name);
-
-  // Description:
-  // Get the bone's name. Return an empty string if no bone is found.
-  // @sa SetBoneName()
-  vtkStdString GetBoneName(vtkBoneWidget* bone);
-
-  // Description:
   // Get a bone using its name. This will return the first bone with
-  // the given name or null if no bone is found.
-  // @sa GetBoneIdByName() SetBoneName() GetBoneName()
+  // the given name or null if no bone matching the name is found.
   vtkBoneWidget* GetBoneByName(const vtkStdString& name);
 
   // Description:

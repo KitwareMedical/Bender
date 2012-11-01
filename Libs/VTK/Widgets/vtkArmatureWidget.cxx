@@ -595,32 +595,6 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
 }
 
 //----------------------------------------------------------------------------
-bool vtkArmatureWidget
-::SetBoneName(vtkBoneWidget* bone, const vtkStdString& name)
-{
-  ArmatureTreeNode* node = this->GetNode(bone);
-  if (node)
-    {
-    node->Bone->SetName(name);
-    return true;
-    }
-
-  return false;
-}
-
-//----------------------------------------------------------------------------
-vtkStdString vtkArmatureWidget::GetBoneName(vtkBoneWidget* bone)
-{
-  ArmatureTreeNode* node = this->GetNode(bone);
-  if (node)
-    {
-    return node->Bone->GetName();
-    }
-
-  return "";
-}
-
-//----------------------------------------------------------------------------
 vtkBoneWidget* vtkArmatureWidget::GetBoneByName(const vtkStdString& name)
 {
   for (NodeIteratorType it = this->Bones->begin();
