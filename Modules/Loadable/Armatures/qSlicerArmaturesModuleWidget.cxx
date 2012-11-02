@@ -300,7 +300,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   if (boneNode)
     {
     this->BoneShowAxesComboBox->setCurrentIndex(
-      boneNode->GetAxesVisibility());
+      boneNode->GetShowAxes());
     this->BoneShowParenthoodCheckBox->setChecked(
       boneNode->GetShowParenthood());
     }
@@ -591,7 +591,7 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
 
   d->BoneNode->SetOpacity(d->BoneOpacitySlider->value());
 
-  d->BoneNode->SetAxesVisibility(d->BoneShowAxesComboBox->currentIndex());
+  d->BoneNode->SetShowAxes(d->BoneShowAxesComboBox->currentIndex());
 
   d->BoneNode->SetShowParenthood(
     d->BoneShowParenthoodCheckBox->isChecked());

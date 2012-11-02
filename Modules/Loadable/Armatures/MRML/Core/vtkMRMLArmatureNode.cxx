@@ -149,15 +149,15 @@ int vtkMRMLArmatureNode::GetWidgetState()
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetAxesVisibility(int axesVisibility)
+void vtkMRMLArmatureNode::SetShowAxes(int axesVisibility)
 {
-  this->ArmatureProperties->SetAxesVisibility(axesVisibility);
+  this->ArmatureProperties->SetShowAxes(axesVisibility);
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLArmatureNode::GetAxesVisibility()
+int vtkMRMLArmatureNode::GetShowAxes()
 {
-  return this->ArmatureProperties->GetAxesVisibility();
+  return this->ArmatureProperties->GetShowAxes();
 }
 
 //---------------------------------------------------------------------------
@@ -192,8 +192,8 @@ void vtkMRMLArmatureNode
   this->ArmatureProperties->SetBonesRepresentation(
     armatureWidget->GetBonesRepresentationType());
   this->ArmatureProperties->SetWidgetState(armatureWidget->GetWidgetState());
-  this->ArmatureProperties->SetAxesVisibility(
-    armatureWidget->GetAxesVisibility());
+  this->ArmatureProperties->SetShowAxes(
+    armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(
     armatureWidget->GetShowParenthood());
 }
@@ -206,8 +206,8 @@ void vtkMRMLArmatureNode
   armatureWidget->SetBonesRepresentation(
     this->ArmatureProperties->GetBonesRepresentationType());
   armatureWidget->SetWidgetState(this->ArmatureProperties->GetWidgetState());
-  armatureWidget->SetAxesVisibility(
-    this->ArmatureProperties->GetAxesVisibility());
+  armatureWidget->SetShowAxes(
+    this->ArmatureProperties->GetShowAxes());
   armatureWidget->SetShowParenthood(
     this->ArmatureProperties->GetShowParenthood());
 }

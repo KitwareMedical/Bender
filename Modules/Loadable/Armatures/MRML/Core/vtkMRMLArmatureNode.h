@@ -98,11 +98,11 @@ public:
   int GetWidgetState();
 
   /// Set the bones debug axes visibility.
-  /// \sa GetAxesVisibility()
-  void SetAxesVisibility(int axesVisibility);
+  /// \sa GetShowAxes()
+  void SetShowAxes(int axesVisibility);
   /// Get the bones debug axes visibility.
-  /// \sa SetAxesVisibility()
-  int GetAxesVisibility();
+  /// \sa SetShowAxes()
+  int GetShowAxes();
 
   /// Show the a line between the bones and their origin.
   /// \sa GetShowParenthood()

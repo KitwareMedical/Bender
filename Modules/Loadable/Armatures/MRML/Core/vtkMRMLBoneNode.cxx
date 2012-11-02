@@ -441,16 +441,16 @@ double* vtkMRMLBoneNode::GetLocalTailPose()
   return this->BoneProperties->GetLocalTailPose();
 }
 
-//-- Axes Visibility ---------------------------------------------------------
-void vtkMRMLBoneNode::SetAxesVisibility(int axesVisibility)
+//-- Show Axes --------------------------------------------------------------
+void vtkMRMLBoneNode::SetShowAxes(int axesVisibility)
 {
-  this->BoneProperties->SetAxesVisibility(axesVisibility);
+  this->BoneProperties->SetShowAxes(axesVisibility);
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLBoneNode::GetAxesVisibility()
+int vtkMRMLBoneNode::GetShowAxes()
 {
-  return this->BoneProperties->GetAxesVisibility();
+  return this->BoneProperties->GetShowAxes();
 }
 
 //-- World to parent transforms ---------------------------------------------
@@ -617,7 +617,7 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
     boneWidget->GetWorldToParentPoseTranslation());
 
   // -- Axes -- 
-  this->BoneProperties->SetAxesVisibility(boneWidget->GetAxesVisibility());
+  this->BoneProperties->SetShowAxes(boneWidget->GetShowAxes());
 
   // -- Parenthood -- 
   this->BoneProperties->SetShowParenthood(boneWidget->GetShowParenthood());
@@ -684,7 +684,7 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
     this->BoneProperties->GetWorldToParentPoseTranslation());
 
   // -- Axes -- 
-  boneWidget->SetAxesVisibility(this->BoneProperties->GetAxesVisibility());
+  boneWidget->SetShowAxes(this->BoneProperties->GetShowAxes());
 
   // -- Parenthood -- 
   boneWidget->SetShowParenthood(this->BoneProperties->GetShowParenthood());

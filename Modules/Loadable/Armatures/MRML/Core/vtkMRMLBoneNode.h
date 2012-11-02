@@ -163,10 +163,10 @@ public:
   double* GetLocalHeadPose();
   double* GetLocalTailPose();
 
-  // -- Axes visibility ------------------------------------------------------
+  // -- Show Axes -----------------------------------------------------------
   /// Set/Get the bone axes visibility.
-  void SetAxesVisibility(int axesVisibility);
-  int GetAxesVisibility();
+  void SetShowAxes(int axesVisibility);
+  int GetShowAxes();
 
   // -- World to parent transforms -------------------------------------------
   /// Set/Get the world to parent rotations.
