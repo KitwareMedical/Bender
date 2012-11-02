@@ -348,47 +348,38 @@ void qSlicerArmaturesModuleWidgetPrivate
 void qSlicerArmaturesModuleWidgetPrivate
 ::setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode)
 {
-  if (!boneNode)
+  double head[3] = {0.0, 0.0, 0.0};
+  double tail[3] = {0.0, 0.0, 0.0};
+
+  if (boneNode && boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
     {
-    this->HeadCoordinatesWidget->setCoordinates(0.0);
-    this->TailCoordinatesWidget->setCoordinates(0.0);
-    return;
+    if (this->BonePositionTypeComboBox->currentText() == "Local")
+      {
+      boneNode->GetLocalHeadRest(head);
+      boneNode->GetLocalTailRest(tail);
+      }
+    else
+      {
+      boneNode->GetWorldHeadRest(head);
+      boneNode->GetWorldTailRest(tail);
+      }
+    }
+  else if (boneNode && boneNode->GetWidgetState() == vtkMRMLBoneNode::Pose)
+    {
+    if (this->BonePositionTypeComboBox->currentText() == "Local")
+      {
+      boneNode->GetLocalHeadPose(head);
+      boneNode->GetLocalTailPose(tail);
+      }
+    else
+      {
+      boneNode->GetWorldHeadPose(head);
+      boneNode->GetWorldTailPose(tail);
+      }
     }
 
-  if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
-    {
-    if (this->BonePositionTypeComboBox->currentText() == "Local")
-      {
-      this->HeadCoordinatesWidget->setCoordinates(
-        boneNode->GetLocalHeadRest());
-      this->TailCoordinatesWidget->setCoordinates(
-        boneNode->GetLocalTailRest());
-      }
-    else
-      {
-      this->HeadCoordinatesWidget->setCoordinates(
-        boneNode->GetWorldHeadRest());
-      this->TailCoordinatesWidget->setCoordinates(
-        boneNode->GetWorldTailRest());
-      }
-    }
-  else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Pose)
-    {
-    if (this->BonePositionTypeComboBox->currentText() == "Local")
-      {
-      this->HeadCoordinatesWidget->setCoordinates(
-        boneNode->GetLocalHeadPose());
-      this->TailCoordinatesWidget->setCoordinates(
-        boneNode->GetLocalTailPose());
-      }
-    else
-      {
-      this->HeadCoordinatesWidget->setCoordinates(
-        boneNode->GetWorldHeadPose());
-      this->TailCoordinatesWidget->setCoordinates(
-        boneNode->GetWorldTailPose());
-      }
-    }
+  this->HeadCoordinatesWidget->setCoordinates(head);
+  this->TailCoordinatesWidget->setCoordinates(tail);
 }
 
 //-----------------------------------------------------------------------------

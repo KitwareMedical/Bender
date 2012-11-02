@@ -158,9 +158,13 @@ public:
   void SetWorldHeadRest(const double* headPoint);
   void SetWorldTailRest(const double* tailPoint);
   double* GetWorldHeadRest();
+  void GetWorldHeadRest(double head[3]);
   double* GetWorldHeadPose();
+  void GetWorldHeadPose(double head[3]);
   double* GetWorldTailRest();
+  void GetWorldTailRest(double tail[3]);
   double* GetWorldTailPose();
+  void GetWorldTailPose(double tail[3]);
 
   //-- Local Positions -------------------------------------------------------
   /// Set/Get the local head/tail position in the parent coordinates.
@@ -170,9 +174,13 @@ public:
   void SetLocalHeadRest(const double* tailPoint);
   void SetLocalTailRest(const double* tailPoint);
   double* GetLocalHeadRest();
+  void GetLocalHeadRest(double head[3]);
   double* GetLocalTailRest();
+  void GetLocalHeadPose(double head[3]);
   double* GetLocalHeadPose();
+  void GetLocalTailRest(double tail[3]);
   double* GetLocalTailPose();
+  void GetLocalTailPose(double tail[3]);
 
   // -- Show Axes -----------------------------------------------------------
   /// Set/Get the bone axes visibility.

@@ -369,9 +369,21 @@ double* vtkMRMLBoneNode::GetWorldHeadRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldHeadRest(double head[3])
+{
+  this->BoneProperties->GetWorldHeadRest(head);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldHeadPose()
 {
   return this->BoneProperties->GetWorldHeadPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldHeadPose(double head[3])
+{
+  this->BoneProperties->GetWorldHeadPose(head);
 }
 
 //---------------------------------------------------------------------------
@@ -391,9 +403,21 @@ double* vtkMRMLBoneNode::GetWorldTailRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldTailRest(double tail[3])
+{
+  this->BoneProperties->GetWorldTailRest(tail);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldTailPose()
 {
   return this->BoneProperties->GetWorldTailPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldTailPose(double tail[3])
+{
+  this->BoneProperties->GetWorldTailPose(tail);
 }
 
 //-- Local Positions -------------------------------------------------------
@@ -424,9 +448,21 @@ double* vtkMRMLBoneNode::GetLocalHeadRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalHeadRest(double head[3])
+{
+  this->BoneProperties->GetLocalHeadRest(head);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetLocalHeadPose()
 {
   return this->BoneProperties->GetLocalHeadPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalHeadPose(double head[3])
+{
+  this->BoneProperties->GetLocalHeadPose(head);
 }
 
 //---------------------------------------------------------------------------
@@ -436,9 +472,21 @@ double* vtkMRMLBoneNode::GetLocalTailRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalTailRest(double tail[3])
+{
+  this->BoneProperties->GetLocalTailRest(tail);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetLocalTailPose()
 {
   return this->BoneProperties->GetLocalTailPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalTailPose(double tail[3])
+{
+  this->BoneProperties->GetLocalTailPose(tail);
 }
 
 //-- Show Axes --------------------------------------------------------------
