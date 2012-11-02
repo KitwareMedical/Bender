@@ -287,12 +287,12 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         }
       else if (key == "Tab")
         {
-        int state = Armature->GetAxesVisibility() + 1;
+        int state = Armature->GetShowAxes() + 1;
         if (state > vtkBoneWidget::ShowPoseTransform)
           {
           state = 0;
           }
-        Armature->SetAxesVisibility(state);
+        Armature->SetShowAxes(state);
         }
       }
 
@@ -373,23 +373,23 @@ rotationAxis -0.866354 0 0.49943*/
 
   vtkBoneWidget* thumb = armature->CreateBone(forearm, 20.0, 4.0, 0.0);
   armature->AddBone(thumb, forearm);
-  thumb->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+  thumb->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   vtkBoneWidget* indexFinger = armature->CreateBone(forearm, 22.0, 2.0, 0.0);
   armature->AddBone(indexFinger, forearm);
-  indexFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+  indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0);
   armature->AddBone(middleFinger, forearm);
-  middleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+  middleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   vtkBoneWidget* ringFinger = armature->CreateBone(forearm, 22.0, -1.0, 0.0);
   armature->AddBone(ringFinger, forearm);
-  ringFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+  ringFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   vtkBoneWidget* littleFinger = armature->CreateBone(forearm, 22.0, -2.0, 0.0);
   armature->AddBone(littleFinger, forearm);
-  littleFinger->SetAxesVisibility(vtkBoneWidget::ShowPoseTransform);
+  littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   //armature->SetWidgetState(vtkArmatureWidget::Pose);
 

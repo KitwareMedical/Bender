@@ -68,15 +68,6 @@ struct ArmatureTreeNode
     child->Parent = this;
     }
 
-  // Remove bone, obsevers and this
-  void Delete()
-    {
-    this->Bone->RemoveAllObservers();
-    this->Bone->Delete();
-
-    delete this;
-    }
-
   // Link child's children to parent and vise versa
   // and then remove the child.
   void RemoveChild(ArmatureTreeNode* child)
@@ -185,7 +176,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   // Init bones properties
   this->BonesRepresentationType = vtkArmatureWidget::None;
   this->WidgetState = vtkArmatureWidget::Rest;
-  this->AxesVisibility = vtkBoneWidget::Hidden;
+  this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
 }
 
@@ -196,7 +187,7 @@ vtkArmatureWidget::~vtkArmatureWidget()
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    (*it)->Bone->RemoveAllObservers();
+    this->RemoveBoneObservers((*it)->Bone);
     (*it)->Bone->Delete(); // Delete bone
     }
 
@@ -211,7 +202,7 @@ void vtkArmatureWidget::CreateDefaultRepresentation()
   if (!armatureRepresentation)
     {
     armatureRepresentation = vtkArmatureRepresentation::New();
-    this->WidgetRep = armatureRepresentation;
+    this->SetRepresentation(armatureRepresentation);
     }
 }
 
@@ -283,7 +274,6 @@ vtkBoneWidget* vtkArmatureWidget
   return newBone;
 }
 
-
 //----------------------------------------------------------------------------
 vtkBoneWidget* vtkArmatureWidget::CreateBone(vtkBoneWidget* parent,
                                              double tail[3],
@@ -342,8 +332,12 @@ void vtkArmatureWidget
     newNode->HeadLinkedToParent = true;
     }
 
+  this->AddBoneObservers(bone);
+
   this->Bones->push_back(newNode);
   newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -415,22 +409,26 @@ void vtkArmatureWidget::SetWidgetState(int state)
       break;
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetAxesVisibility(int axesVisibility)
+void vtkArmatureWidget::SetShowAxes(int show)
 {
-  if (axesVisibility == this->AxesVisibility)
+  if (show == this->ShowAxes)
     {
     return;
     }
 
-  this->AxesVisibility = axesVisibility;
+  this->ShowAxes = show;
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    (*it)->Bone->SetAxesVisibility(this->AxesVisibility);
+    (*it)->Bone->SetShowAxes(this->ShowAxes);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -447,6 +445,8 @@ void vtkArmatureWidget::SetShowParenthood(int parenthood)
     {
     (*it)->Bone->SetShowParenthood(this->ShowParenthood);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -470,6 +470,8 @@ void vtkArmatureWidget::SetBonesRepresentation(int representationType)
     {
     this->SetBoneRepresentation((*it)->Bone, this->BonesRepresentationType);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -585,39 +587,16 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
           }
         }
 
-      (*it)->Delete();
+      this->RemoveBoneObservers((*it)->Bone);
+      (*it)->Bone->Delete();
       this->Bones->erase(it);
+
+      this->Modified();
       return true;
       }
     }
 
   return false;
-}
-
-//----------------------------------------------------------------------------
-bool vtkArmatureWidget
-::SetBoneName(vtkBoneWidget* bone, const vtkStdString& name)
-{
-  ArmatureTreeNode* node = this->GetNode(bone);
-  if (node)
-    {
-    node->Bone->SetName(name);
-    return true;
-    }
-
-  return false;
-}
-
-//----------------------------------------------------------------------------
-vtkStdString vtkArmatureWidget::GetBoneName(vtkBoneWidget* bone)
-{
-  ArmatureTreeNode* node = this->GetNode(bone);
-  if (node)
-    {
-    return node->Bone->GetName();
-    }
-
-  return "";
 }
 
 //----------------------------------------------------------------------------
@@ -658,6 +637,8 @@ void vtkArmatureWidget
       node->Bone->SetWorldHeadRest(node->Parent->Bone->GetWorldTailRest());
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -670,10 +651,19 @@ void vtkArmatureWidget::AddBoneObservers(vtkBoneWidget* bone)
 }
 
 //----------------------------------------------------------------------------
+void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
+{
+  bone->RemoveObserver(vtkBoneWidget::RestChangedEvent);
+  bone->RemoveObserver(vtkBoneWidget::PoseChangedEvent);
+}
+
+//----------------------------------------------------------------------------
 void vtkArmatureWidget
 ::UpdateBoneWithArmatureOptions(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   this->SetBoneRepresentation(bone, this->BonesRepresentationType);
+  bone->SetShowAxes(this->ShowAxes);
+  bone->SetShowParenthood(this->ShowParenthood);
 
   if (this->WidgetState == vtkArmatureWidget::Rest)
     {
@@ -685,8 +675,6 @@ void vtkArmatureWidget
     this->SetBoneWorldToParentPoseTransform(bone, parent);
     bone->SetWidgetStateToPose();
     }
-
-  this->AddBoneObservers(bone);
 }
 
 //----------------------------------------------------------------------------
@@ -762,9 +750,9 @@ void vtkArmatureWidget
 ::UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode)
 {
   if (!parentNode)
-  {
-  return;
-  }
+    {
+    return;
+    }
 
   for (ChildrenNodeIteratorType it = parentNode->Children.begin();
     it != parentNode->Children.end(); ++it)
@@ -783,9 +771,9 @@ void vtkArmatureWidget
 ::UpdateChildrenWidgetStateToPose(ArmatureTreeNode* parentNode)
 {
   if (!parentNode)
-  {
-  return;
-  }
+    {
+    return;
+    }
 
   for (ChildrenNodeIteratorType it = parentNode->Children.begin();
     it != parentNode->Children.end(); ++it)

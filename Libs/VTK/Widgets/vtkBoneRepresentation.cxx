@@ -128,6 +128,13 @@ void vtkBoneRepresentation::SetDisplayTailPosition(double x[3])
 }
 
 //----------------------------------------------------------------------------
+double vtkBoneRepresentation::GetLength()
+{
+  return this->Superclass::GetDistance();
+}
+
+
+//----------------------------------------------------------------------------
 vtkPointHandleRepresentation3D* vtkBoneRepresentation::GetHeadRepresentation()
 {
   return this->GetPoint1Representation();

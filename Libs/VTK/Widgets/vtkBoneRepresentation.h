@@ -69,6 +69,10 @@ public:
   virtual void SetDisplayTailPosition(double pos[3]);
 
   // Description:
+  // Methods to return the distance between the head and the tail.
+  virtual double GetLength();
+
+  // Description:
   // Enum that mirrors the enums in vtkLineRepresentation with appropriate
   // names for the bone animation. They manage the state of the widget.
   //BTX

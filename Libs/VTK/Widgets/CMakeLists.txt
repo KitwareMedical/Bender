@@ -41,8 +41,8 @@ find_package(OpenGL)
 
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
-  ${CMAKE_CURRENT_BINARY_DIR}
-  ${vtkBenderCommonMath_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+  ${vtkBenderCommon_SOURCE_DIR}
   )
 
 set(${KIT}_SRCS
@@ -64,6 +64,7 @@ add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   ${OPENGL_LIBRARIES}
+  #vtkBenderCommon
   )
 
 #-----------------------------------------------------------------------------

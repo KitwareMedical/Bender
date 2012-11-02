@@ -27,13 +27,11 @@
 // of bones (vtkBoneWidget). Most importantly, it allows the user to create
 // a skeleton of bones and manages all the necessaries callback to be able to
 // animate it properly.
-// Each bone is associated with an unique ID, a name, one parent and children.
+// Each bone is associated with an unique ID, an unique parent and children.
 // A given bone can have any number of children.
 //
 // .SECTION Options
 // All the options applied to the armature are applied to all its bones.
-// The bone can be accessed directly too through their names or the associated
-// id.
 //
 // .SECTION See Also
 // vtkArmatureRepresentation, vtkBoneWidget
@@ -156,19 +154,8 @@ public:
   vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
 
   // Description:
-  // Set the bone's name. Return false string if no bone is found.
-  // @sa GetBoneName()
-  bool SetBoneName(vtkBoneWidget* bone, const vtkStdString& name);
-
-  // Description:
-  // Get the bone's name. Return an empty string if no bone is found.
-  // @sa SetBoneName()
-  vtkStdString GetBoneName(vtkBoneWidget* bone);
-
-  // Description:
   // Get a bone using its name. This will return the first bone with
-  // the given name or null if no bone is found.
-  // @sa GetBoneIdByName() SetBoneName() GetBoneName()
+  // the given name or null if no bone matching the name is found.
   vtkBoneWidget* GetBoneByName(const vtkStdString& name);
 
   // Description:
@@ -214,17 +201,22 @@ public:
   void SetWidgetState(int state);
   vtkGetMacro(WidgetState, int);
 
-  // Description
+  // Description:
   // Set/get if the debug axes are visible or not.
-  // @sa vtkBoneWidget::AxesVisibilityType
-  void SetAxesVisibility (int AxesVisibility);
-  vtkGetMacro(AxesVisibility, int);
+  // @sa vtkBoneWidget::ShowAxesType
+  void SetShowAxes (int show);
+  vtkGetMacro(ShowAxes, int);
 
-  // Description
+  // Description:
   // Show/Hide the a line between the bones and their
   // origin. True by default.
   void SetShowParenthood(int parenthood);
   vtkGetMacro(ShowParenthood, int);
+
+  // Description:
+  // Updates a bone with all the current options of the vtkArmatureWidget.
+  void UpdateBoneWithArmatureOptions(vtkBoneWidget* bone,
+    vtkBoneWidget* parent);
 
 protected:
   vtkArmatureWidget();
@@ -247,11 +239,12 @@ protected:
   // Bone Properties
   int BonesRepresentationType;
   int WidgetState;
-  int AxesVisibility;
+  int ShowAxes;
   int ShowParenthood;
 
-  // Add all the necessaries observers to a bone
+  // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);
+  void RemoveBoneObservers(vtkBoneWidget* bone);
 
   // Helper functions to propagate change
   void UpdateChildren(ArmatureTreeNode* parentNode);
@@ -265,10 +258,6 @@ protected:
                                          vtkBoneWidget* parent);
 
   ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
-
-  // Uodates a bone with all the current options of the vtkArmatureWidget.
-  void UpdateBoneWithArmatureOptions(
-    vtkBoneWidget* bone, vtkBoneWidget* parent);
 
   // Set the representation type for a given bone.
   void SetBoneRepresentation(vtkBoneWidget* bone, int representationType);
