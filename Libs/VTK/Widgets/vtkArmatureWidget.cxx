@@ -202,7 +202,7 @@ void vtkArmatureWidget::CreateDefaultRepresentation()
   if (!armatureRepresentation)
     {
     armatureRepresentation = vtkArmatureRepresentation::New();
-    this->WidgetRep = armatureRepresentation;
+    this->SetRepresentation(armatureRepresentation);
     }
 }
 
@@ -274,7 +274,6 @@ vtkBoneWidget* vtkArmatureWidget
   return newBone;
 }
 
-
 //----------------------------------------------------------------------------
 vtkBoneWidget* vtkArmatureWidget::CreateBone(vtkBoneWidget* parent,
                                              double tail[3],
@@ -337,6 +336,8 @@ void vtkArmatureWidget
 
   this->Bones->push_back(newNode);
   newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -408,6 +409,8 @@ void vtkArmatureWidget::SetWidgetState(int state)
       break;
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -424,6 +427,8 @@ void vtkArmatureWidget::SetShowAxes(int show)
     {
     (*it)->Bone->SetShowAxes(this->ShowAxes);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -440,6 +445,8 @@ void vtkArmatureWidget::SetShowParenthood(int parenthood)
     {
     (*it)->Bone->SetShowParenthood(this->ShowParenthood);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -463,6 +470,8 @@ void vtkArmatureWidget::SetBonesRepresentation(int representationType)
     {
     this->SetBoneRepresentation((*it)->Bone, this->BonesRepresentationType);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -581,6 +590,8 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
       this->RemoveBoneObservers((*it)->Bone);
       (*it)->Bone->Delete();
       this->Bones->erase(it);
+
+      this->Modified();
       return true;
       }
     }
@@ -626,6 +637,8 @@ void vtkArmatureWidget
       node->Bone->SetWorldHeadRest(node->Parent->Bone->GetWorldTailRest());
       }
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -737,9 +750,9 @@ void vtkArmatureWidget
 ::UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode)
 {
   if (!parentNode)
-  {
-  return;
-  }
+    {
+    return;
+    }
 
   for (ChildrenNodeIteratorType it = parentNode->Children.begin();
     it != parentNode->Children.end(); ++it)
@@ -758,9 +771,9 @@ void vtkArmatureWidget
 ::UpdateChildrenWidgetStateToPose(ArmatureTreeNode* parentNode)
 {
   if (!parentNode)
-  {
-  return;
-  }
+    {
+    return;
+    }
 
   for (ChildrenNodeIteratorType it = parentNode->Children.begin();
     it != parentNode->Children.end(); ++it)
