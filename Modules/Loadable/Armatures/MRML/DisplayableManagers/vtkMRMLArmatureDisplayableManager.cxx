@@ -384,6 +384,8 @@ vtkArmatureWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
   armatureWidget->SetRepresentation(rep.GetPointer());
   armatureWidget->SetEnabled(0);
 
+  armatureWidget->SetBonesRepresentation(vtkArmatureWidget::DoubleCone);
+
   // Link widget evenement to the LogicCallbackCommand
   armatureWidget->AddObserver(vtkCommand::StartInteractionEvent,
                               this->External->GetWidgetsCallbackCommand());
@@ -413,12 +415,10 @@ vtkBoneWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
   // The Manager has to manage the destruction of the widgets
   vtkBoneWidget* boneWidget = vtkBoneWidget::New();
   boneWidget->SetInteractor(this->External->GetInteractor());
-  boneWidget->CreateDefaultRepresentation();
-  boneWidget->SetEnabled(0);
-  boneWidget->SetWidgetStateToRest();
-
   vtkNew<vtkDoubleConeBoneRepresentation> boneRepresentation;
   boneWidget->SetRepresentation(boneRepresentation.GetPointer());
+  boneWidget->SetEnabled(0);
+  boneWidget->SetWidgetStateToRest();
 
   // Link widget evenement to the LogicCallbackCommand
   boneWidget->AddObserver(vtkCommand::StartInteractionEvent,
@@ -474,30 +474,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     // Instantiate widget and link it if
     // there is no one associated to the armatureNode yet
     armatureWidget = this->CreateArmatureWidget();
-    this->ArmatureNodes.find(armatureNode)->second  = armatureWidget;
-    }
-
-  vtkNew<vtkCollection> bones;
-  armatureNode->GetAllBones(bones.GetPointer());
-  vtkCollectionSimpleIterator it;
-  vtkMRMLNode* node = 0;
-  for (bones->InitTraversal(it);
-       (node = vtkMRMLNode::SafeDownCast(
-         bones->GetNextItemAsObject(it)));)
-    {
-    vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
-    if (!boneNode)
-      {
-      continue;
-      }
-    this->AddBoneNode(boneNode);
-    vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
-    assert(boneWidget);
-    vtkBoneWidget* parentBoneWidget = this->GetBoneWidget(armatureNode->GetParentBone(boneNode));
-    if (!armatureWidget->HasBone(boneWidget))
-      {
-      armatureWidget->AddBone(boneWidget, parentBoneWidget);
-      }
+    this->ArmatureNodes.find(armatureNode)->second = armatureWidget;
     }
 
   armatureNode->CopyArmatureWidgetProperties(armatureWidget);
@@ -525,14 +502,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     this->BoneNodes.find(boneNode)->second = boneWidget;
     }
 
-  boneWidget->SetWorldHeadRest(boneNode->GetWorldHeadRest());
-  boneWidget->SetWorldTailRest(boneNode->GetWorldTailRest());
   boneNode->PasteBoneNodeProperties(boneWidget);
-
-  // Update the representation
-  //vtkBoneRepresentation* rep =
-  //  boneWidget->GetRepresentation();
-  // rep->PlaceWidget(bounds);
 
   bool visible = boneNode->GetVisible() &&
     (boneDisplayNode ?
@@ -607,7 +577,47 @@ void vtkMRMLArmatureDisplayableManager
     }
   else if (nodeAdded->IsA("vtkMRMLBoneNode"))
     {
-    this->Internal->AddBoneNode(vtkMRMLBoneNode::SafeDownCast(nodeAdded));
+    vtkMRMLBoneNode* newBoneNode = vtkMRMLBoneNode::SafeDownCast(nodeAdded);
+    this->Internal->AddBoneNode(newBoneNode);
+
+    vtkMRMLAnnotationHierarchyNode* hierarchyNode
+      = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode
+            ::GetAssociatedHierarchyNode(
+              newBoneNode->GetScene(), newBoneNode->GetID()));
+
+    if (hierarchyNode
+      && hierarchyNode->GetParentNode()
+      && hierarchyNode->GetTopParentNode())
+      {
+      vtkMRMLBoneNode* boneParentNode
+        = vtkMRMLBoneNode::SafeDownCast(
+            hierarchyNode->GetParentNode()->GetAssociatedNode());
+
+      vtkMRMLArmatureNode* armatureNode
+        = vtkMRMLArmatureNode::SafeDownCast(
+            hierarchyNode->GetTopParentNode());
+
+      vtkBoneWidget* newBoneWidget
+        = this->Internal->GetBoneWidget(newBoneNode);
+      vtkBoneWidget* parentBoneWidget
+        = this->Internal->GetBoneWidget(boneParentNode);
+      vtkArmatureWidget* armatureWidget
+        = this->Internal->GetArmatureWidget(armatureNode);
+
+      if (armatureWidget
+        && !armatureWidget->HasBone(newBoneWidget))
+        {
+        armatureWidget->UpdateBoneWithArmatureOptions(
+          newBoneWidget,
+          parentBoneWidget);
+
+        // I'm not clear why this isn't happening automatically
+        this->Internal->UpdateBoneNodeFromWidget(newBoneNode, newBoneWidget);
+
+        armatureWidget->AddBone(newBoneWidget, parentBoneWidget);
+        }
+      }
     }
 }
 

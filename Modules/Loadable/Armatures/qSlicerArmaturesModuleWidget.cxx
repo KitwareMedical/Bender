@@ -127,6 +127,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     this, SLOT(onDirectionChanged(double*)));
 
   // -- Display --
+  this->BoneRepresentationComboBox->setCurrentIndex(2);
+
   QObject::connect(this->BoneNameLineEdit,
     SIGNAL(textChanged(const QString&)), q, SLOT(updateCurrentMRMLBoneNode()));
   QObject::connect(this->BoneRepresentationComboBox,
@@ -197,6 +199,15 @@ void qSlicerArmaturesModuleWidgetPrivate::blockPositionsSignals(bool block)
   this->TailCoordinatesWidget->blockSignals(block);
   this->DistanceSpinBox->blockSignals(block);
   this->DirectionCoordinatesWidget->blockSignals(block);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::blockDisplaySignals(bool block)
+{
+  this->BoneNameLineEdit->blockSignals(block);
+  this->BoneRepresentationComboBox->blockSignals(block);
+  this->BoneColorPickerButton->blockSignals(block);
+  this->BoneOpacitySlider->blockSignals(block);
 }
 
 //-----------------------------------------------------------------------------
@@ -274,8 +285,8 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   if (boneNode)
     {
+    this->blockDisplaySignals(true);
     this->BoneNameLineEdit->setText(QString(boneNode->GetBoneName()));
-
 
     this->BoneRepresentationComboBox->setCurrentIndex(
       boneNode->GetBoneRepresentationType());
@@ -286,6 +297,7 @@ void qSlicerArmaturesModuleWidgetPrivate
       QColor::fromRgb(rgb[0], rgb[1], rgb[2]));
 
     this->BoneOpacitySlider->setValue(boneNode->GetOpacity());
+    this->blockDisplaySignals(false);
     }
 
   this->updateAdvancedDisplay(boneNode);

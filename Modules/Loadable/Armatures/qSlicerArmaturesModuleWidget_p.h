@@ -56,6 +56,7 @@ public:
   QVector3D direction();
 
   void blockPositionsSignals(bool block);
+  void blockDisplaySignals(bool block);
 
 public slots:
   // Hierarchy update functions
