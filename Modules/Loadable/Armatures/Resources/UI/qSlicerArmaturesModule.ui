@@ -208,7 +208,7 @@
              </widget>
             </item>
             <item row="1" column="0">
-             <widget class="QLabel" name="DirectionLabel">
+             <widget class="QLabel" name="LengthLabel">
               <property name="text">
                <string>Direction:</string>
               </property>
@@ -227,12 +227,12 @@
          <item row="2" column="0">
           <widget class="QLabel" name="DistanceDisplayLabel">
            <property name="text">
-            <string>Distance:</string>
+            <string>Length:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="2">
-          <widget class="QDoubleSpinBox" name="DistanceSpinBox">
+          <widget class="QDoubleSpinBox" name="LengthSpinBox">
            <property name="maximum">
             <double>999999999.000000000000000</double>
            </property>

@@ -99,6 +99,10 @@ public:
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
 
+  // -- Length ----------------------------------------------------------------
+  /// Get the bone length.
+  double GetLength();
+
   // -- Name ----------------------------------------------------------------
   /// Set/Get the bone roll.
   void SetBoneName(vtkStdString name);

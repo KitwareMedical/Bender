@@ -184,6 +184,14 @@ void vtkMRMLBoneNode::CreateBoneDisplayNode()
   this->AddAndObserveDisplayNodeID(boneDisplayNode->GetID());
 }
 
+//-- Length -----------------------------------------------------------------
+//---------------------------------------------------------------------------
+double vtkMRMLBoneNode::GetLength()
+{
+  std::cout<<"this->BoneProperties->GetLength() "<<this->BoneProperties->GetLength()<<std::endl;
+  return this->BoneProperties->GetLength();
+}
+
 //-- Name -------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetBoneName(vtkStdString name)

@@ -119,7 +119,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->BonePositionTypeComboBox,
     SIGNAL(currentIndexChanged(QString)),
     this, SLOT(onPositionTypeChanged()));
-  QObject::connect(this->DistanceSpinBox,
+  QObject::connect(this->LengthSpinBox,
     SIGNAL(valueChanged(double)),
     this, SLOT(onDistanceChanged(double)));
   QObject::connect(this->DirectionCoordinatesWidget,
@@ -147,20 +147,6 @@ void qSlicerArmaturesModuleWidgetPrivate
 void qSlicerArmaturesModuleWidgetPrivate::onPositionTypeChanged()
 {
   this->setCoordinatesFromBoneNode(this->BoneNode);
-}
-
-//-----------------------------------------------------------------------------
-double qSlicerArmaturesModuleWidgetPrivate::distance()
-{
-  QVector3D head(this->HeadCoordinatesWidget->coordinates()[0],
-    this->HeadCoordinatesWidget->coordinates()[1],
-    this->HeadCoordinatesWidget->coordinates()[2]);
-
-  QVector3D tail(this->TailCoordinatesWidget->coordinates()[0],
-    this->TailCoordinatesWidget->coordinates()[1],
-    this->TailCoordinatesWidget->coordinates()[2]);
-
-  return QVector3D(tail - head).length();
 }
 
 //-----------------------------------------------------------------------------
@@ -197,7 +183,7 @@ void qSlicerArmaturesModuleWidgetPrivate::blockPositionsSignals(bool block)
 {
   this->HeadCoordinatesWidget->blockSignals(block);
   this->TailCoordinatesWidget->blockSignals(block);
-  this->DistanceSpinBox->blockSignals(block);
+  this->LengthSpinBox->blockSignals(block);
   this->DirectionCoordinatesWidget->blockSignals(block);
 }
 
@@ -219,7 +205,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     this->HeadCoordinatesWidget->coordinates()[2]);
   QVector3D direction(newDirection[0], newDirection[1], newDirection[2]);
 
-  QVector3D newTail = head + direction * this->DistanceSpinBox->value();
+  QVector3D newTail = head + direction * this->LengthSpinBox->value();
 
   this->TailCoordinatesWidget->setCoordinates(
     newTail.x(), newTail.y(), newTail.z());
@@ -251,7 +237,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   bool enableTailWidget = false;
 
   this->setCoordinatesFromBoneNode(boneNode);
-  this->DistanceSpinBox->setValue(this->distance());
 
   QVector3D direction(this->direction());
   this->DirectionCoordinatesWidget->setCoordinates(
@@ -271,10 +256,14 @@ void qSlicerArmaturesModuleWidgetPrivate
       enableTailWidget = true;
       }
     }
+  else
+    {
+    this->LengthSpinBox->setValue(0.0);
+    }
 
   this->HeadCoordinatesWidget->setEnabled(enableHeadWidget);
   this->TailCoordinatesWidget->setEnabled(enableTailWidget);
-  this->DistanceSpinBox->setEnabled(enableTailWidget);
+  this->LengthSpinBox->setEnabled(enableTailWidget);
   this->DirectionCoordinatesWidget->setEnabled(enableTailWidget);
 
   this->updateAdvancedPositions(boneNode);

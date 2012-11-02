@@ -52,7 +52,6 @@ public:
   vtkSlicerArmaturesLogic* logic() const;
   virtual void setupUi(qSlicerWidget* armatureModuleWidget);
 
-  double distance();
   QVector3D direction();
 
   void blockPositionsSignals(bool block);
