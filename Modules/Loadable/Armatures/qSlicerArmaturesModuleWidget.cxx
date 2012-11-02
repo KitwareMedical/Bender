@@ -33,6 +33,7 @@
 // VTK includes
 #include <vtkCollection.h>
 #include <vtkNew.h>
+#include <vtkStdString.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
@@ -273,7 +274,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   if (boneNode)
     {
-    this->BoneNameLineEdit->setText(QString(boneNode->GetName()));
+    this->BoneNameLineEdit->setText(QString(boneNode->GetBoneName()));
 
 
     this->BoneRepresentationComboBox->setCurrentIndex(
@@ -577,7 +578,7 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
 
   d->setCoordinatesToBoneNode(d->BoneNode);
 
-  d->BoneNode->SetName(d->BoneNameLineEdit->text().toStdString().c_str());
+  d->BoneNode->SetBoneName(d->BoneNameLineEdit->text().toStdString().c_str());
 
   d->BoneNode->SetBoneRepresentationType(
     d->BoneRepresentationComboBox->currentIndex());

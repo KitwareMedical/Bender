@@ -184,6 +184,20 @@ void vtkMRMLBoneNode::CreateBoneDisplayNode()
   this->AddAndObserveDisplayNodeID(boneDisplayNode->GetID());
 }
 
+//-- Name -------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetBoneName(vtkStdString name)
+{
+  this->BoneProperties->SetName(name);
+  this->SetName(name);
+}
+
+//---------------------------------------------------------------------------
+vtkStdString vtkMRMLBoneNode::GetBoneName()
+{
+  return this->BoneProperties->GetName();
+}
+
 //-- State ------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWidgetState(int state)
@@ -619,6 +633,9 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
   // -- State --
   //this->BoneProperties->SetWidgetState(boneWidget->GetWidgeState()); // \TO DO
 
+  // -- Name --
+  this->SetBoneName(boneWidget->GetName());
+
   this->Modified();
 }
 
@@ -699,4 +716,7 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 
   // -- State --
   //boneWidget->SetWidgetState(this->BoneProperties->GetWidgeState()); // \TO DO
+
+  // -- Name --
+  boneWidget->SetName(this->BoneProperties->GetName());
 }

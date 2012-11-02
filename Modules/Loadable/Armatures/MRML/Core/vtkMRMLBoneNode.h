@@ -21,6 +21,9 @@
 #ifndef __vtkMRMLBoneNode_h
 #define __vtkMRMLBoneNode_h
 
+// VTK includes
+#include <vtkStdString.h>
+
 // Slicer includes
 #include "vtkMRMLAnnotationNode.h"
 
@@ -95,6 +98,11 @@ public:
   /// Create a default display node if not already present.
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
+
+  // -- Name ----------------------------------------------------------------
+  /// Set/Get the bone roll.
+  void SetBoneName(vtkStdString name);
+  vtkStdString GetBoneName();
 
   // -- State ----------------------------------------------------------------
   /// Set/Get the bone roll.
