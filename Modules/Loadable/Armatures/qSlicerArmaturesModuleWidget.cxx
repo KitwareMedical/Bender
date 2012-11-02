@@ -250,11 +250,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 
   if (boneNode)
     {
-    if (boneNode->GetWidgetState() == 1 /*vtkBoneWidget::PlaceTail*/)
+    this->LengthSpinBox->setValue(boneNode->GetLength());
+
+    if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
       enableHeadWidget = true;
       }
-    else if (boneNode->GetWidgetState() == 2 /*vtkBoneWidget::Rest*/)
+    else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
       enableHeadWidget = true;
       enableTailWidget = true;
@@ -327,7 +329,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     return;
     }
 
-  if (boneNode->GetWidgetState() == 2 /*vtkBoneWidget::Rest*/)
+  if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
     {
     if (this->BonePositionTypeComboBox->currentText() == "Local")
       {
@@ -353,7 +355,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     return;
     }
 
-  if (boneNode->GetWidgetState() == 2 /*vtkBoneWidget::Rest*/)
+  if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
     {
     if (this->BonePositionTypeComboBox->currentText() == "Local")
       {
@@ -370,7 +372,7 @@ void qSlicerArmaturesModuleWidgetPrivate
         boneNode->GetWorldTailRest());
       }
     }
-  else if (boneNode->GetWidgetState() == 3 /*vtkBoneWidget::Pose*/)
+  else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Pose)
     {
     if (this->BonePositionTypeComboBox->currentText() == "Local")
       {

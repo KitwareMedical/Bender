@@ -106,8 +106,19 @@ public:
 
   // -- State ----------------------------------------------------------------
   /// Set/Get the bone roll.
-  void SetWidgetState(int state); // need to update vtkBoneWidgets
+  void SetWidgetState(int state);
   int GetWidgetState();
+
+  /// Mirroring the vtkBoneWidget widget states.
+  //BTX
+  enum WidgetStateType
+    {
+    PlaceHead = 0,
+    PlaceTail,
+    Rest,
+    Pose
+    };
+  //ETX
 
   // -- Representation -------------------------------------------------------
   /// Set/Get the bone representation.
