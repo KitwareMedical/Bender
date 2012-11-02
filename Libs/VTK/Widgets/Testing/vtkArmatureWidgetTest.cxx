@@ -212,6 +212,12 @@ int vtkArmatureWidgetTest(int, char *[])
     return EXIT_FAILURE;
     }
 
+
+  vtkBoneWidget* bone = vtkBoneWidget::New();
+  arm->UpdateBoneWithArmatureOptions(bone, finalChild);
+  arm->AddBone(bone, finalChild);
+  bone->Delete();
+
   // Setup callbacks
   vtkSmartPointer<ArmatureTestKeyPressInteractorStyle> style =
     vtkSmartPointer<ArmatureTestKeyPressInteractorStyle>::New();

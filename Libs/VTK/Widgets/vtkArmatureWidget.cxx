@@ -68,15 +68,6 @@ struct ArmatureTreeNode
     child->Parent = this;
     }
 
-  // Remove bone, obsevers and this
-  void Delete()
-    {
-    this->Bone->RemoveAllObservers();
-    this->Bone->Delete();
-
-    delete this;
-    }
-
   // Link child's children to parent and vise versa
   // and then remove the child.
   void RemoveChild(ArmatureTreeNode* child)
@@ -196,7 +187,7 @@ vtkArmatureWidget::~vtkArmatureWidget()
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    (*it)->Bone->RemoveAllObservers();
+    this->RemoveBoneObservers((*it)->Bone);
     (*it)->Bone->Delete(); // Delete bone
     }
 
@@ -341,6 +332,8 @@ void vtkArmatureWidget
     bone->SetWorldHeadRest(parent->GetWorldTailRest());
     newNode->HeadLinkedToParent = true;
     }
+
+  this->AddBoneObservers(bone);
 
   this->Bones->push_back(newNode);
   newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
@@ -585,7 +578,8 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
           }
         }
 
-      (*it)->Delete();
+      this->RemoveBoneObservers((*it)->Bone);
+      (*it)->Bone->Delete();
       this->Bones->erase(it);
       return true;
       }
@@ -644,10 +638,19 @@ void vtkArmatureWidget::AddBoneObservers(vtkBoneWidget* bone)
 }
 
 //----------------------------------------------------------------------------
+void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
+{
+  bone->RemoveObserver(vtkBoneWidget::RestChangedEvent);
+  bone->RemoveObserver(vtkBoneWidget::PoseChangedEvent);
+}
+
+//----------------------------------------------------------------------------
 void vtkArmatureWidget
 ::UpdateBoneWithArmatureOptions(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   this->SetBoneRepresentation(bone, this->BonesRepresentationType);
+  bone->SetShowAxes(this->ShowAxes);
+  bone->SetShowParenthood(this->ShowParenthood);
 
   if (this->WidgetState == vtkArmatureWidget::Rest)
     {
@@ -659,8 +662,6 @@ void vtkArmatureWidget
     this->SetBoneWorldToParentPoseTransform(bone, parent);
     bone->SetWidgetStateToPose();
     }
-
-  this->AddBoneObservers(bone);
 }
 
 //----------------------------------------------------------------------------
