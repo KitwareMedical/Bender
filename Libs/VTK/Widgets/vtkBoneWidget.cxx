@@ -863,11 +863,6 @@ void vtkBoneWidget::SetLocalTailRest(double tail[3])
 //----------------------------------------------------------------------------
 double vtkBoneWidget::GetLength()
 {
-  if (this->GetBoneRepresentation())
-    {
-    return this->GetBoneRepresentation()->GetLength();
-    }
-
   double lineVect[3];
   vtkMath::Subtract(this->GetCurrentWorldTail(),
     this->GetCurrentWorldHead(), lineVect);
