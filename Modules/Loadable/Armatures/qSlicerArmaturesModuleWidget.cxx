@@ -227,6 +227,15 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
+::updateArmatureWidget(vtkMRMLBoneNode* boneNode)
+{
+  this->updateHierarchy(boneNode);
+  this->updatePositions(boneNode);
+  this->updateDisplay(boneNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
 ::updateHierarchy(vtkMRMLBoneNode* boneNode)
 {
   this->HierarchyCollapsibleGroupBox->setEnabled(boneNode != 0);
@@ -546,9 +555,7 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 void qSlicerArmaturesModuleWidget::updateWidgetFromBoneNode()
 {
   Q_D(qSlicerArmaturesModuleWidget);
-  d->updateHierarchy(d->BoneNode);
-  d->updatePositions(d->BoneNode);
-  d->updateDisplay(d->BoneNode);
+  d->updateArmatureWidget(d->BoneNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -564,9 +571,7 @@ void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
     d->BoneNode = boneNode;
     }
 
-  d->updateHierarchy(d->BoneNode);
-  d->updatePositions(boneNode);
-  d->updateDisplay(boneNode);
+  d->updateArmatureWidget(boneNode);
 }
 
 //-----------------------------------------------------------------------------

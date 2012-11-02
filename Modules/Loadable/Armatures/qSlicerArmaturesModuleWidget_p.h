@@ -59,6 +59,9 @@ public:
   void blockDisplaySignals(bool block);
 
 public slots:
+  // Calls all the update functions
+  void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
+
   // Hierarchy update functions
   void updateHierarchy(vtkMRMLBoneNode* boneNode);
 
