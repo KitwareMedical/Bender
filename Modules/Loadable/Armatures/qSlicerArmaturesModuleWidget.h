@@ -85,15 +85,15 @@ protected slots:
   void updateWidgetFromLogic();
 
   /// Update the GUI from the \a the current armature node.
-  /// \sa onMRMLArmatureNodeModified()
-  void onMRMLArmatureNodeModified();
+  /// \sa updateWidgetFromBoneNode()
+  void updateWidgetFromArmatureNode();
 
   /// Update the GUI from the \a the current bone node.
-  /// \sa onMRMLArmatureNodeModified()
-  void onMRMLBoneNodeModified();
+  /// \sa updateWidgetFromArmatureNode()
+  void updateWidgetFromBoneNode();
 
   /// Update the GUI for the \a selected node.
-  /// \sa onMRMLArmatureNodeModified()
+  /// \sa updateWidgetFromArmatureNode(), updateWidgetFromBoneNode()
   void onTreeNodeSelected(vtkMRMLNode* node);
 
   void updateCurrentMRMLBoneNode();

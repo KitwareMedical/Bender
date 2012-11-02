@@ -411,12 +411,12 @@ void qSlicerArmaturesModuleWidget
 {
   Q_D(qSlicerArmaturesModuleWidget);
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
-    vtkCommand::ModifiedEvent, this, SLOT(onMRMLArmatureNodeModified()));
+    vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromArmatureNode()));
   d->ArmatureNode = armatureNode;
 
   d->logic()->SetActiveArmature(armatureNode);
   this->onTreeNodeSelected(armatureNode);
-  this->onMRMLArmatureNodeModified();
+  this->updateWidgetFromArmatureNode();
 }
 
 //-----------------------------------------------------------------------------
@@ -530,7 +530,7 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::onMRMLArmatureNodeModified()
+void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
@@ -543,7 +543,7 @@ void qSlicerArmaturesModuleWidget::onMRMLArmatureNodeModified()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::onMRMLBoneNodeModified()
+void qSlicerArmaturesModuleWidget::updateWidgetFromBoneNode()
 {
   Q_D(qSlicerArmaturesModuleWidget);
   d->updateHierarchy(d->BoneNode);
@@ -560,7 +560,7 @@ void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
   if (boneNode)
     {
     this->qvtkReconnect(d->BoneNode, boneNode, vtkCommand::ModifiedEvent,
-      this, SLOT(onMRMLBoneNodeModified()));
+      this, SLOT(updateWidgetFromBoneNode()));
     d->BoneNode = boneNode;
     }
 
