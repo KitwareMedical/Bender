@@ -82,6 +82,14 @@ bool CompareVector3(const double* v1, const double* v2)
   return false;
 }
 
+bool CompareQuaternion(vtkQuaterniond q1, double q2[4])
+{
+  vtkQuaterniond quad2;
+  quad2.Set(q2);
+
+  return q1.Compare(quad2, 1e-6);
+}
+
 }// End namespace
 
 //----------------------------------------------------------------------------
@@ -356,6 +364,7 @@ void vtkBoneWidget::CreateDefaultRepresentation()
   this->InstantiateParenthoodLink();
 
   this->UpdateRepresentation();
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -371,10 +380,12 @@ void vtkBoneWidget::SetProcessEvents(int pe)
 void vtkBoneWidget::SetWidgetState(int state)
 {
   state = std::min(3, std::max(state, 0));
-  if (state == vtkBoneWidget::PlaceHead || state == vtkBoneWidget::PlaceTail)
+  if (state == this->WidgetState
+    || state == vtkBoneWidget::PlaceHead || state == vtkBoneWidget::PlaceTail)
     {
     return;
     }
+
   this->BoneSelected = vtkBoneWidget::NotSelected;
   this->WidgetState = state;
 
@@ -458,14 +469,34 @@ void vtkBoneWidget
 ::SetWorldToParentRestRotationAndTranslation(double quat[4],
                                              double translate[3])
 {
-  this->WorldToParentRestRotation.Set(quat);
-  CopyVector3(translate, this->WorldToParentRestTranslation);
-  this->UpdateRestMode();
+  bool changeRotation =
+    ! CompareQuaternion(this->WorldToParentRestRotation, quat);
+  bool changeTranslation =
+    ! CompareVector3(this->WorldToParentRestTranslation, translate);
+
+  if (changeRotation)
+    {
+    this->WorldToParentRestRotation.Set(quat);
+    }
+  if (changeTranslation)
+    {
+    CopyVector3(translate, this->WorldToParentRestTranslation);
+    }
+
+  if (changeRotation || changeTranslation)
+    {
+    this->UpdateRestMode();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentRestRotation(double quat[4])
 {
+  if (CompareQuaternion(this->WorldToParentRestRotation, quat))
+    {
+    return;
+    }
+
   this->WorldToParentRestRotation.Set(quat);
   this->UpdateRestMode();
 }
@@ -473,6 +504,11 @@ void vtkBoneWidget::SetWorldToParentRestRotation(double quat[4])
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentRestTranslation(double translate[3])
 {
+  if (CompareVector3(this->WorldToParentRestTranslation, translate))
+    {
+    return;
+    }
+
   CopyVector3(translate, this->WorldToParentRestTranslation);
   this->UpdateRestMode(); //probably recomputing rotations for nothing.
 }
@@ -573,13 +609,35 @@ void vtkBoneWidget
 ::SetWorldToParentPoseRotationAndTranslation(double quat[4],
                                              double translate[3])
 {
-  this->WorldToParentPoseRotation.Set(quat);
-  this->SetWorldToParentPoseTranslation(translate);
+  bool changeRotation =
+    ! CompareQuaternion(this->WorldToParentPoseRotation, quat);
+  bool changeTranslation =
+    ! CompareVector3(this->WorldToParentPoseTranslation, translate);
+
+  if (changeRotation)
+    {
+    this->WorldToParentPoseRotation.Set(quat);
+    }
+  if (changeTranslation)
+    {
+    CopyVector3(translate, this->WorldToParentPoseTranslation);
+    }
+
+  if (changeRotation || changeTranslation)
+    {
+    this->UpdateWorldPosePositions();
+    this->UpdatePoseMode();
+    }
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentPoseRotation(double quat[4])
 {
+  if (CompareQuaternion(this->WorldToParentPoseRotation, quat))
+    {
+    return;
+    }
+
   this->WorldToParentPoseRotation.Set(quat);
   this->UpdateWorldPosePositions();
   this->UpdatePoseMode();
@@ -588,6 +646,11 @@ void vtkBoneWidget::SetWorldToParentPoseRotation(double quat[4])
 ///----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldToParentPoseTranslation(double translate[3])
 {
+  if (CompareVector3(this->WorldToParentPoseTranslation, translate))
+    {
+    return;
+    }
+
   CopyVector3(translate, this->WorldToParentPoseTranslation);
   this->UpdateWorldPosePositions();
   this->UpdatePoseMode();
@@ -686,17 +749,22 @@ vtkSmartPointer<vtkTransform>
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldHeadAndTailRest(double head[3], double tail[3])
 {
-  if (! CompareVector3(this->WorldHeadRest, head))
+  bool changeHead = ! CompareVector3(this->WorldHeadRest, head);
+  bool changeTail = ! CompareVector3(this->WorldTailRest, tail);
+
+  if (changeHead)
     {
     CopyVector3(head, this->WorldHeadRest);
     }
-
-  if (! CompareVector3(this->WorldTailRest, tail))
+  if (changeTail)
     {
     CopyVector3(tail, this->WorldTailRest);
     }
 
-  this->UpdateRestMode();
+  if (changeHead || changeTail)
+    {
+    this->UpdateRestMode();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -801,17 +869,22 @@ void vtkBoneWidget::SetDisplayTailRestPosition(double displayTail[3])
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetLocalHeadAndTailRest(double head[3], double tail[3])
 {
-  if (! CompareVector3(this->LocalHeadRest, head))
+  bool changeHead = ! CompareVector3(this->LocalHeadRest, head);
+  bool changeTail = ! CompareVector3(this->LocalTailRest, tail);
+
+  if (changeHead)
     {
     CopyVector3(head, this->LocalHeadRest);
     }
-
-  if (! CompareVector3(this->LocalTailRest, tail))
+  if (changeTail)
     {
     CopyVector3(tail, this->LocalTailRest);
     }
 
-  this->UpdateRestMode();
+  if (changeHead || changeTail)
+    {
+    this->UpdateRestMode();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -997,6 +1070,7 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 
     self->SetDisplayTailRestPosition(e);
     CopyVector3(self->WorldTailRest, self->WorldTailPose);
+    self->Modified();
     }
 
   else if ( self->WidgetState == vtkBoneWidget::Rest 
@@ -1875,6 +1949,8 @@ void vtkBoneWidget::SetWidgetSelectedState(int selectionState)
     {
     this->GetBoneRepresentation()->Highlight(0);
     }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
