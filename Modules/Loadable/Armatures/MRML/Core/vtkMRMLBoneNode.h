@@ -105,8 +105,7 @@ public:
 
   // -- Name ----------------------------------------------------------------
   /// Set/Get the bone roll.
-  void SetBoneName(vtkStdString name);
-  vtkStdString GetBoneName();
+  void SetName(vtkStdString name);
 
   // -- State ----------------------------------------------------------------
   /// Set/Get the bone roll.

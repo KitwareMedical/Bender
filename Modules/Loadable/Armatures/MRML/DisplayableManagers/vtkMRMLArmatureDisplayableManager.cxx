@@ -757,7 +757,6 @@ void vtkMRMLArmatureDisplayableManager::OnClickInRenderWindow(double x, double y
 
     vtkNew<vtkMRMLBoneNode> boneNode;
     boneNode->SetName(this->GetMRMLScene()->GetUniqueNameByString("Bone"));
-    boneNode->SetBoneName(boneNode->GetName());
     boneNode->SetWorldHeadRest(this->LastClickWorldCoordinates);
     boneNode->SetWorldTailRest(worldCoordinates);
 

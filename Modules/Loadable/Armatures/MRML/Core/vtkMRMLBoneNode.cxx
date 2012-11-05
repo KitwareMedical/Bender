@@ -193,16 +193,10 @@ double vtkMRMLBoneNode::GetLength()
 
 //-- Name -------------------------------------------------------------------
 //---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetBoneName(vtkStdString name)
+void vtkMRMLBoneNode::SetName(vtkStdString name)
 {
   this->BoneProperties->SetName(name);
-  this->SetName(name);
-}
-
-//---------------------------------------------------------------------------
-vtkStdString vtkMRMLBoneNode::GetBoneName()
-{
-  return this->BoneProperties->GetName();
+  this->Superclass::SetName(name);
 }
 
 //-- State ------------------------------------------------------------------
@@ -694,7 +688,7 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
   this->BoneProperties->SetWidgetState(boneWidget->GetWidgetState());
 
   // -- Name --
-  this->SetBoneName(boneWidget->GetName());
+  this->SetName(boneWidget->GetName());
 }
 
 //---------------------------------------------------------------------------

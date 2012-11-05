@@ -292,7 +292,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   if (boneNode)
     {
     this->blockDisplaySignals(true);
-    this->BoneNameLineEdit->setText(QString(boneNode->GetBoneName()));
+    this->BoneNameLineEdit->setText(QString(boneNode->GetName()));
 
     this->BoneRepresentationComboBox->setCurrentIndex(
       boneNode->GetBoneRepresentationType());
@@ -583,7 +583,7 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
 
   d->setCoordinatesToBoneNode(d->BoneNode);
 
-  d->BoneNode->SetBoneName(d->BoneNameLineEdit->text().toStdString().c_str());
+  d->BoneNode->SetName(d->BoneNameLineEdit->text().toStdString().c_str());
 
   d->BoneNode->SetBoneRepresentationType(
     d->BoneRepresentationComboBox->currentIndex());
