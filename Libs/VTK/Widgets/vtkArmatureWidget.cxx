@@ -653,8 +653,10 @@ void vtkArmatureWidget::AddBoneObservers(vtkBoneWidget* bone)
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
 {
-  bone->RemoveObserver(vtkBoneWidget::RestChangedEvent);
-  bone->RemoveObserver(vtkBoneWidget::PoseChangedEvent);
+  bone->RemoveObservers(vtkBoneWidget::RestChangedEvent,
+    this->ArmatureWidgetCallback);
+  bone->RemoveObservers(vtkBoneWidget::PoseChangedEvent,
+    this->ArmatureWidgetCallback);
 }
 
 //----------------------------------------------------------------------------
