@@ -146,7 +146,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate::onPositionTypeChanged()
 {
+  bool oldHeadState = this->HeadCoordinatesWidget->blockSignals(true);
+  bool oldTailState = this->TailCoordinatesWidget->blockSignals(true);
+
   this->setCoordinatesFromBoneNode(this->BoneNode);
+
+  this->HeadCoordinatesWidget->blockSignals(oldHeadState);
+  this->TailCoordinatesWidget->blockSignals(oldTailState);
 }
 
 //-----------------------------------------------------------------------------

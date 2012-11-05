@@ -429,6 +429,10 @@ vtkBoneWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
                           this->External->GetWidgetsCallbackCommand());
   boneWidget->AddObserver(vtkCommand::UpdateEvent,
                           this->External->GetWidgetsCallbackCommand());
+  // Need ModifiedEvent because the bone can be modified by the armature too
+  // (And the node need to reflect that).
+  boneWidget->AddObserver(vtkCommand::ModifiedEvent,
+                          this->External->GetWidgetsCallbackCommand());
 
   return boneWidget;
 }
@@ -502,14 +506,23 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     this->BoneNodes.find(boneNode)->second = boneWidget;
     }
 
+  // We need to stop listening to the boneWidget when changing its properties
+  // according to the node. Otherwise it will send ModifiedEvent() for the
+  // first property changed, thus updating the node.
+  // -> The widget won't be properly updated if more than 1 property
+  // is changed.
+  // Hackish solution, remove observer then add it again
+  boneWidget->RemoveObservers(vtkCommand::ModifiedEvent,
+    this->External->GetWidgetsCallbackCommand());
   boneNode->PasteBoneNodeProperties(boneWidget);
+  boneWidget->AddObserver(vtkCommand::ModifiedEvent,
+    this->External->GetWidgetsCallbackCommand());
 
   bool visible = boneNode->GetVisible() &&
     (boneDisplayNode ?
      boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
   boneWidget->SetEnabled(visible);
 }
-
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::vtkInternal
@@ -611,9 +624,6 @@ void vtkMRMLArmatureDisplayableManager
         armatureWidget->UpdateBoneWithArmatureOptions(
           newBoneWidget,
           parentBoneWidget);
-
-        // I'm not clear why this isn't happening automatically
-        this->Internal->UpdateBoneNodeFromWidget(newBoneNode, newBoneWidget);
 
         armatureWidget->AddBone(newBoneWidget, parentBoneWidget);
         }
