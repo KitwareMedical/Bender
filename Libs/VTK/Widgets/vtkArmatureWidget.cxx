@@ -337,6 +337,7 @@ void vtkArmatureWidget
   this->Bones->push_back(newNode);
   newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
 
+  this->InvokeEvent(vtkArmatureWidget::AddedBone, bone);
   this->Modified();
 }
 
@@ -591,6 +592,7 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
       (*it)->Bone->Delete();
       this->Bones->erase(it);
 
+      this->InvokeEvent(vtkArmatureWidget::RemovedBone, bone);
       this->Modified();
       return true;
       }

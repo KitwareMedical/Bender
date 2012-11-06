@@ -41,6 +41,7 @@
 
 // VTK includes
 #include <vtkAbstractWidget.h>
+#include <vtkCommand.h>
 #include <vtkStdString.h>
 
 #include <vector>
@@ -118,7 +119,7 @@ public:
   // Add a bone to the armature with the given parent. If the parent
   // is NULL, then the bone is considered to be root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
+  // @sa FindBoneChildren(), ArmatureEventType
   void AddBone(vtkBoneWidget* bone,
     vtkBoneWidget* parent=0,
     bool linkedWithParent = true);
@@ -131,8 +132,7 @@ public:
   // In the case of the root bone, the first child (if any) is chosen as the
   // new root. All the other children are linked to the new root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
-  // @sa GetBoneLinkedWithParent()
+  // @sa GetBoneLinkedWithParent(), ArmatureEventType
   bool RemoveBone(vtkBoneWidget* bone);
 
   // Description:
@@ -217,6 +217,18 @@ public:
   // Updates a bone with all the current options of the vtkArmatureWidget.
   void UpdateBoneWithArmatureOptions(vtkBoneWidget* bone,
     vtkBoneWidget* parent);
+
+  // Description:
+  // Event fired when adding/removing bones.
+  // A pointer to the bone added/removed is passed in the data.
+  // Note: the pointer emited can point to empty data.
+  //BTX
+  enum ArmatureEventType
+    {
+    AddedBone = vtkCommand::UserEvent+1,
+    RemovedBone
+    };
+  //ETX
 
 protected:
   vtkArmatureWidget();
