@@ -41,6 +41,7 @@
 
 // VTK includes
 #include <vtkAbstractWidget.h>
+#include <vtkCommand.h>
 #include <vtkStdString.h>
 
 #include <vector>
@@ -118,7 +119,7 @@ public:
   // Add a bone to the armature with the given parent. If the parent
   // is NULL, then the bone is considered to be root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
+  // @sa FindBoneChildren(), ArmatureEventType, ReparentBone()
   void AddBone(vtkBoneWidget* bone,
     vtkBoneWidget* parent=0,
     bool linkedWithParent = true);
@@ -131,8 +132,8 @@ public:
   // In the case of the root bone, the first child (if any) is chosen as the
   // new root. All the other children are linked to the new root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
-  // @sa GetBoneLinkedWithParent()
+  // @sa FindBoneChildren(), ReparentBone()
+  // @sa GetBoneLinkedWithParent(), ArmatureEventType
   bool RemoveBone(vtkBoneWidget* bone);
 
   // Description:
@@ -218,6 +219,25 @@ public:
   void UpdateBoneWithArmatureOptions(vtkBoneWidget* bone,
     vtkBoneWidget* parent);
 
+  // Description:
+  // Event fired when adding/removing bones.
+  // A pointer to the bone added/removed is passed in the data.
+  // Note: the pointer emited can point to empty data.
+  //BTX
+  enum ArmatureEventType
+    {
+    AddedBone = vtkCommand::UserEvent+1,
+    RemovedBone,
+    ReparentedBone
+    };
+  //ETX
+
+  // Description:
+  // Change the given bone parent to the new parent.
+  // If the new parent is null, the bone is added to the top level bones.
+  // Sa AddBone(), RemoveBone, ArmatureEventType
+  void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
+
 protected:
   vtkArmatureWidget();
   ~vtkArmatureWidget();
@@ -252,11 +272,24 @@ protected:
   void UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode);
 
   // Set the bone world to parent rest or pose transform correctly
+  void SetBoneWorldToParentTransform(vtkBoneWidget* bone,
+                                     vtkBoneWidget* parent);
   void SetBoneWorldToParentRestTransform(vtkBoneWidget* bone,
                                          vtkBoneWidget* parent);
   void SetBoneWorldToParentPoseTransform(vtkBoneWidget* bone,
                                          vtkBoneWidget* parent);
 
+  // Make a new map element corresponding to the bone and the parent.
+  ArmatureTreeNode* AddNewNodeToHierarchy(
+    vtkBoneWidget* bone, vtkBoneWidget* parent, bool linkedWithParent);
+
+  // Remove the element according to the hierarchy.
+  // Deleting the node from the bone's vector and the bone itself
+  // must still be performed.
+  void RemoveNodeFromHierarchy(int nodePosition);
+
+  // Returns the corresponding bone.
+  // Null if it does not exist in the bone vector.
   ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
 
   // Set the representation type for a given bone.

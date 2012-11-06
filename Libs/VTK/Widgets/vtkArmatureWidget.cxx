@@ -315,28 +315,14 @@ void vtkArmatureWidget
   bone->Register(this);
 
   // Create bone
-  ArmatureTreeNode* newNode = this->CreateNewMapElement(parent);
-  newNode->Bone = bone;
-  if (! parent)
-    {
-    this->TopLevelBones.push_back(bone);
-    }
-
-  if (! parent || ! linkedWithParent)
-    {
-    newNode->HeadLinkedToParent = false;
-    }
-  else
-    {
-    bone->SetWorldHeadRest(parent->GetWorldTailRest());
-    newNode->HeadLinkedToParent = true;
-    }
-
+  ArmatureTreeNode* newNode
+    = this->AddNewNodeToHierarchy(bone, parent, linkedWithParent);
   this->AddBoneObservers(bone);
 
   this->Bones->push_back(newNode);
   newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
 
+  this->InvokeEvent(vtkArmatureWidget::AddedBone, bone);
   this->Modified();
 }
 
@@ -563,34 +549,13 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
     {
     if ((*it)->Bone == bone)
       {
-      if ((*it)->Parent) // Stitch children to the father
-        {
-        (*it)->Parent->RemoveChild(*it);
-        this->UpdateChildren((*it)->Parent);
-        }
-      else // It was root
-        {
-        ArmatureTreeNode* replacementRoot = (*it)->RemoveRoot();
-        if (replacementRoot)
-          {
-          this->TopLevelBones.push_back(replacementRoot->Bone);
-          this->UpdateChildren(replacementRoot);
-          }
-
-        BoneVectorIterator rootsIterator
-          = std::find(this->TopLevelBones.begin(),
-            this->TopLevelBones.end(),
-            (*it)->Bone);
-        if (rootsIterator != this->TopLevelBones.end())
-          {
-          this->TopLevelBones.erase(rootsIterator);
-          }
-        }
+      this->RemoveNodeFromHierarchy(it - this->Bones->begin());
 
       this->RemoveBoneObservers((*it)->Bone);
       (*it)->Bone->Delete();
       this->Bones->erase(it);
 
+      this->InvokeEvent(vtkArmatureWidget::RemovedBone, bone);
       this->Modified();
       return true;
       }
@@ -681,6 +646,51 @@ void vtkArmatureWidget
 
 //----------------------------------------------------------------------------
 void vtkArmatureWidget
+::ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent)
+{
+  if (!bone)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
+    {
+    if ((*it)->Bone == bone)
+      {
+      // Create new node with bone and NEW parent
+      ArmatureTreeNode* newNode
+        = this->AddNewNodeToHierarchy(
+          bone, newParent, (*it)->HeadLinkedToParent);
+      this->Bones->push_back(newNode);
+
+      // Remove old node
+      this->RemoveNodeFromHierarchy(it - this->Bones->begin());
+
+      // Update bone
+      this->SetBoneWorldToParentTransform(bone, newParent);
+      this->InvokeEvent(vtkArmatureWidget::ReparentedBone, bone);
+      this->Modified();
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::SetBoneWorldToParentTransform(vtkBoneWidget* bone, vtkBoneWidget* parent)
+{
+  if (bone->GetWidgetState() == vtkArmatureWidget::Rest)
+    {
+    this->SetBoneWorldToParentRestTransform(bone, parent);
+    }
+  else if (bone->GetWidgetState()== vtkBoneWidget::Pose)
+    {
+    this->SetBoneWorldToParentPoseTransform(bone, parent);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
 ::SetBoneWorldToParentRestTransform(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   double parentWorldToBoneRestRotation[4] = {1.0, 0.0, 0.0, 0.0};
@@ -713,6 +723,69 @@ void vtkArmatureWidget
 
   bone->SetWorldToParentPoseRotationAndTranslation(
     parentWorldToBonePoseRotation, parentWorldToBonePoseTranslation);
+}
+
+//----------------------------------------------------------------------------
+ArmatureTreeNode* vtkArmatureWidget::AddNewNodeToHierarchy(
+  vtkBoneWidget* bone,
+  vtkBoneWidget* newParent,
+  bool linkedWithParent)
+{
+  ArmatureTreeNode* newNode = this->CreateNewMapElement(newParent);
+  newNode->Bone = bone;
+  if (! newParent)
+    {
+    this->TopLevelBones.push_back(bone);
+    }
+
+  if (! newParent || ! linkedWithParent)
+    {
+    newNode->HeadLinkedToParent = false;
+    }
+  else
+    {
+    bone->SetWorldHeadRest(newParent->GetWorldTailRest());
+    newNode->HeadLinkedToParent = true;
+    }
+
+  return newNode;
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::RemoveNodeFromHierarchy(int nodePosition)
+{
+  if (nodePosition < 0
+    || nodePosition > static_cast<int>(this->Bones->size()))
+    {
+    return;
+    }
+
+  NodeIteratorType boneIterator = this->Bones->begin() + nodePosition;
+
+  if ((*boneIterator)->Parent) // Stitch children to the father
+    {
+    (*boneIterator)->Parent->RemoveChild(*boneIterator);
+    this->UpdateChildren((*boneIterator)->Parent);
+    }
+  else // It was root
+    {
+    ArmatureTreeNode* replacementRoot = (*boneIterator)->RemoveRoot();
+    if (replacementRoot)
+      {
+      this->TopLevelBones.push_back(replacementRoot->Bone);
+      this->UpdateChildren(replacementRoot);
+      }
+
+    BoneVectorIterator rootsIterator
+      = std::find(this->TopLevelBones.begin(),
+        this->TopLevelBones.end(),
+        (*boneIterator)->Bone);
+    if (rootsIterator != this->TopLevelBones.end())
+      {
+      this->TopLevelBones.erase(rootsIterator);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------
