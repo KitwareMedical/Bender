@@ -238,6 +238,11 @@ public:
   // Sa AddBone(), RemoveBone, ArmatureEventType
   void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
 
+  // Description:
+  // Reset the pose positions to the initial rest position with no rotations
+  // or translations.
+  void ResetPoseToRest();
+
 protected:
   vtkArmatureWidget();
   ~vtkArmatureWidget();
@@ -261,6 +266,7 @@ protected:
   int WidgetState;
   int ShowAxes;
   int ShowParenthood;
+  bool ShouldResetPoseToRest;
 
   // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);
