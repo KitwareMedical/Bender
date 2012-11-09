@@ -55,11 +55,16 @@ public:
   QVector3D direction();
 
   void blockPositionsSignals(bool block);
-  void blockDisplaySignals(bool block);
+  void blockArmatureDisplaySignals(bool block);
 
 public slots:
   // Calls all the update functions
   void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
+  void updateArmatureWidget(vtkMRMLArmatureNode* armatureNode);
+
+  // Display positions functions
+  void updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode);
+  void updateArmatureAdvancedDisplay(vtkMRMLArmatureNode* armatureNode);
 
   // Hierarchy update functions
   void updateHierarchy(vtkMRMLBoneNode* boneNode);
@@ -67,10 +72,6 @@ public slots:
   // Positions update functions
   void updatePositions(vtkMRMLBoneNode* boneNode);
   void updateAdvancedPositions(vtkMRMLBoneNode* boneNode);
-
-  // Display positions functions
-  void updateDisplay(vtkMRMLBoneNode* boneNode);
-  void updateAdvancedDisplay(vtkMRMLBoneNode* boneNode);
 
   void setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode);
   void setCoordinatesToBoneNode(vtkMRMLBoneNode* boneNode);

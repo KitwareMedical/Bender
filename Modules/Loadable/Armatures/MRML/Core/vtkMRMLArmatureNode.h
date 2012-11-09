@@ -29,6 +29,7 @@
 class vtkMRMLBoneNode;
 
 class vtkArmatureWidget;
+class vtkBoneWidget;
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -116,6 +117,27 @@ public:
   void SetVisibility(bool visible);
   bool GetVisibility();
 
+  /// Set/Get the armature opacity.
+  /// The armature opacity will be propagated to all its bones.
+  /// \sa GetOpacity(), SetOpacity()
+  void SetOpacity(double opacity);
+  double GetOpacity();
+
+  /// Set/Get the armature color.
+  /// The armature color will be propagated to all its bones.
+  /// \sa GetColor(), SetColor()
+  void SetColor(int rgb[3]);
+  void GetColor(int rgb[3]);
+
+  /*/// Add a widget bone to the armature.
+  /// \sa RemoveBone()
+  void AddBone(vtkBoneWidget* bone,
+    vtkBoneWidget* boneParent = 0, bool linkedWithParent = true);*/
+
+  /*/// Set/Get the bone is linked with its parents or not.
+  /// \sa GetColor(), SetColor()
+  void SetBoneLinkedWithParent(vtkBoneWidget* bone, bool linked);
+  bool GetBoneLinkedWithParent(vtkBoneWidget* bone);*/
 
   //--------------------------------------------------------------------------
   // Bone methods
@@ -143,12 +165,29 @@ public:
   /// \sa CopyArmatureWidgetProperties()
   void PasteArmatureNodeProperties(vtkArmatureWidget* armatureWidget);
 
+  /*//--------------------------------------------------------------------------
+  // Armature Node methods
+  //--------------------------------------------------------------------------
+
+  /// Get the armature node callback command. Used to listen to
+  /// vtkArmatureWidget AddedBone and RemovedBone events.
+  vtkMRMLArmatureNodeCallback* GetArmatureNodeCallbackCommand();*/
+
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
 
   vtkMRMLArmatureNode(const vtkMRMLArmatureNode&); /// not implemented
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
+
+  //BTX
+  friend class vtkMRMLArmatureNodeCallback;
+  //ETX
+
+  vtkMRMLArmatureNodeCallback* Callback;
+
+  int Color[3];
+  double Opacity;
 
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
