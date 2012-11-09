@@ -108,6 +108,11 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(currentNodeChanged(vtkMRMLNode*)),
     q, SLOT(onTreeNodeSelected(vtkMRMLNode*)));
 
+    // -- Rest/Pose --
+  QObject::connect(this->ArmatureStateComboBox,
+    SIGNAL(currentIndexChanged(int)),
+    q, SLOT(updateCurrentMRMLArmatureNode()));
+
   // -- Positions --
   QObject::connect(this->HeadCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
@@ -544,6 +549,9 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
     }
 
   d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
+  bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
+  d->ArmatureStateComboBox->setCurrentIndex(d->ArmatureNode->GetWidgetState());
+  d->ArmatureStateComboBox->blockSignals(wasBlocked);
 }
 
 //-----------------------------------------------------------------------------
@@ -602,4 +610,21 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
     d->BoneShowParenthoodCheckBox->isChecked());
 
   d->BoneNode->EndModify(wasModifying);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+
+  if (!d->ArmatureNode)
+    {
+    return;
+    }
+
+  int wasModifying = d->ArmatureNode->StartModify();
+
+  d->ArmatureNode->SetWidgetState(d->ArmatureStateComboBox->currentIndex());
+
+  d->ArmatureNode->EndModify(wasModifying);
 }

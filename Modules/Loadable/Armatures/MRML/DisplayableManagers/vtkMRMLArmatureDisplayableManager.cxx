@@ -481,7 +481,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     this->ArmatureNodes.find(armatureNode)->second = armatureWidget;
     }
 
-  armatureNode->CopyArmatureWidgetProperties(armatureWidget);
+  armatureNode->PasteArmatureNodeProperties(armatureWidget);
 
   armatureWidget->SetEnabled(1);//armatureNode->GetWidgetVisible());
 }

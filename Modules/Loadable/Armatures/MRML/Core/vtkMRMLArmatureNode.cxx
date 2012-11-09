@@ -39,6 +39,11 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 {
   this->ArmatureProperties = vtkArmatureWidget::New();
   this->ArmatureProperties->CreateDefaultRepresentation();
+  this->ArmatureProperties->SetBonesRepresentation(
+    vtkArmatureWidget::DoubleCone);
+
+  this->WidgetState = vtkArmatureWidget::Rest;
+
   this->SetHideFromEditors(0);
 }
 
@@ -139,7 +144,13 @@ int vtkMRMLArmatureNode::GetBonesRepresentation()
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetWidgetState(int state)
 {
-  this->ArmatureProperties->SetWidgetState(state);
+  if (state == this->WidgetState)
+    {
+    return;
+    }
+
+  this->WidgetState = state;
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
@@ -191,7 +202,7 @@ void vtkMRMLArmatureNode
   //int wasModifying = this->StartModify(); // ? Probably not
   this->ArmatureProperties->SetBonesRepresentation(
     armatureWidget->GetBonesRepresentationType());
-  this->ArmatureProperties->SetWidgetState(armatureWidget->GetWidgetState());
+  this->WidgetState = armatureWidget->GetWidgetState();
   this->ArmatureProperties->SetShowAxes(
     armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(
@@ -205,7 +216,7 @@ void vtkMRMLArmatureNode
   //int wasModifying = this->StartModify(); // ? Probably not
   armatureWidget->SetBonesRepresentation(
     this->ArmatureProperties->GetBonesRepresentationType());
-  armatureWidget->SetWidgetState(this->ArmatureProperties->GetWidgetState());
+  armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());
   armatureWidget->SetShowParenthood(

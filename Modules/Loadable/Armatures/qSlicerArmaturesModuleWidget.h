@@ -96,6 +96,7 @@ protected slots:
   /// \sa updateWidgetFromArmatureNode(), updateWidgetFromBoneNode()
   void onTreeNodeSelected(vtkMRMLNode* node);
 
+  void updateCurrentMRMLArmatureNode();
   void updateCurrentMRMLBoneNode();
 
 protected:

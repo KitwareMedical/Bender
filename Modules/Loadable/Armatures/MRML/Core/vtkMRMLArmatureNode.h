@@ -151,6 +151,7 @@ protected:
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
 
   vtkArmatureWidget* ArmatureProperties;
+  int WidgetState;
 };
 
 //----------------------------------------------------------------------------
