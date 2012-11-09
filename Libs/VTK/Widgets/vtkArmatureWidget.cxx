@@ -178,6 +178,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
+  this->ShouldResetPoseToRest = true;
 }
 
 //----------------------------------------------------------------------------
@@ -384,8 +385,14 @@ void vtkArmatureWidget::SetWidgetState(int state)
       for (NodeIteratorType it = this->Bones->begin();
         it != this->Bones->end(); ++it)
         {
+        if (this->ShouldResetPoseToRest)
+          {
+          (*it)->Bone->ResetPoseToRest();
+          }
         (*it)->Bone->SetWidgetStateToPose();
         }
+
+      this->ShouldResetPoseToRest = false;
       break;
       }
     default:
@@ -632,6 +639,11 @@ void vtkArmatureWidget
   bone->SetShowAxes(this->ShowAxes);
   bone->SetShowParenthood(this->ShowParenthood);
 
+  if (this->ShouldResetPoseToRest)
+    {
+    bone->ResetPoseToRest();
+    }
+
   if (this->WidgetState == vtkArmatureWidget::Rest)
     {
     this->SetBoneWorldToParentRestTransform(bone, parent);
@@ -672,6 +684,18 @@ void vtkArmatureWidget
       this->InvokeEvent(vtkArmatureWidget::ReparentedBone, bone);
       this->Modified();
       }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::ResetPoseToRest()
+{
+  int oldState = this->WidgetState;
+  this->ShouldResetPoseToRest = true;
+  this->SetWidgetState(vtkArmatureWidget::Pose);
+  if(oldState == vtkArmatureWidget::Rest)
+    {
+    this->SetWidgetState(vtkArmatureWidget::Rest);
     }
 }
 
