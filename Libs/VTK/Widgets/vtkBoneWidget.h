@@ -257,6 +257,9 @@ public:
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
+  vtkGetQuaternionMacro(RestToPoseRotation, double);
+  //void SetRestToPoseRotation(double rotation[4]); //\TO DO
+
   // Description:
   // Pose mode methods to quickly create transforms.
   vtkSmartPointer<vtkTransform> CreateWorldToBonePoseTransform() const;
@@ -472,6 +475,11 @@ protected:
   //   * To hold the BoneRestToPoseRotation during interaction.
   vtkQuaterniond StartPoseRotation;
 
+  // - Pose To Rest Transform:
+  //   * Holds the rotation between the local rest tail
+  //     and the local pose tail.
+  vtkQuaterniond RestToPoseRotation;
+
   // To hold the old world position while interacting.
   // This enables to recompute the RestToPose rotation from scratch
   // while interacting.
@@ -552,6 +560,9 @@ protected:
   // Update the pose interaction variable
   void UpdatePoseIntercationsVariables();
 
+  // Update the transformation between the local rest tail and local pose head.
+  void UpdateRestToPoseRotation();
+
   //
   // Computation functions:
   //
@@ -572,8 +583,8 @@ protected:
   // Rotate the current tail on itself by a rotation of angle and axis.
   void RotateTail(double angle, double axis[3], double newTail[3]);
 
-  // Rebuild the worlds points to their positions in Rest or Pose mode.
-  void RebuildWorldPosePointsFromWorldRestPoints();
+  // Rebuild the pose mode's worlds points depending on the Rest points.
+  void RebuildPoseFromRest();
 
   // Init pose mode with rest values.
   bool ShouldInitializePoseMode;
