@@ -113,6 +113,20 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(currentIndexChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
 
+  // -- Armature Display --
+  QObject::connect(this->ArmatureRepresentationComboBox,
+    SIGNAL(currentIndexChanged(int)),
+    q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureColorPickerButton,
+    SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureOpacitySlider,
+    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureShowAxesComboBox,
+    SIGNAL(currentIndexChanged(int)),
+    q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureShowParenthoodCheckBox,
+    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+
   // -- Positions --
   QObject::connect(this->HeadCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
@@ -130,22 +144,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->DirectionCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onDirectionChanged(double*)));
-
-  // -- Display --
-  this->BoneRepresentationComboBox->setCurrentIndex(2);
-
-  QObject::connect(this->BoneNameLineEdit,
-    SIGNAL(textChanged(const QString&)), q, SLOT(updateCurrentMRMLBoneNode()));
-  QObject::connect(this->BoneRepresentationComboBox,
-    SIGNAL(currentIndexChanged(int)), q, SLOT(updateCurrentMRMLBoneNode()));
-  QObject::connect(this->BoneColorPickerButton,
-    SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLBoneNode()));
-  QObject::connect(this->BoneOpacitySlider,
-    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLBoneNode()));
-  QObject::connect(this->BoneShowAxesComboBox,
-    SIGNAL(currentIndexChanged(int)), q, SLOT(updateCurrentMRMLBoneNode()));
-  QObject::connect(this->BoneShowParenthoodCheckBox,
-    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLBoneNode()));
 }
 
 //-----------------------------------------------------------------------------
@@ -199,12 +197,12 @@ void qSlicerArmaturesModuleWidgetPrivate::blockPositionsSignals(bool block)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidgetPrivate::blockDisplaySignals(bool block)
+void qSlicerArmaturesModuleWidgetPrivate
+::blockArmatureDisplaySignals(bool block)
 {
-  this->BoneNameLineEdit->blockSignals(block);
-  this->BoneRepresentationComboBox->blockSignals(block);
-  this->BoneColorPickerButton->blockSignals(block);
-  this->BoneOpacitySlider->blockSignals(block);
+  this->ArmatureRepresentationComboBox->blockSignals(block);
+  this->ArmatureColorPickerButton->blockSignals(block);
+  this->ArmatureOpacitySlider->blockSignals(block);
 }
 
 //-----------------------------------------------------------------------------
@@ -228,7 +226,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   this->updateHierarchy(boneNode);
   this->updatePositions(boneNode);
-  this->updateDisplay(boneNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
+::updateArmatureWidget(vtkMRMLArmatureNode* armatureNode)
+{
+  this->updateArmatureDisplay(armatureNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -292,40 +296,40 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::updateDisplay(vtkMRMLBoneNode* boneNode)
+::updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode)
 {
-  if (boneNode)
+  if (armatureNode)
     {
-    this->blockDisplaySignals(true);
-    this->BoneNameLineEdit->setText(QString(boneNode->GetName()));
+    this->blockArmatureDisplaySignals(true);
 
-    this->BoneRepresentationComboBox->setCurrentIndex(
-      boneNode->GetBoneRepresentationType());
+    // -1 to compensate for the vtkArmatureWidget::None
+    this->ArmatureRepresentationComboBox->setCurrentIndex(
+      armatureNode->GetBonesRepresentation() - 1);
 
     int rgb[3];
-    boneNode->GetBoneColor(rgb);
-    this->BoneColorPickerButton->setColor(
+    armatureNode->GetColor(rgb);
+    this->ArmatureColorPickerButton->setColor(
       QColor::fromRgb(rgb[0], rgb[1], rgb[2]));
 
-    this->BoneOpacitySlider->setValue(boneNode->GetOpacity());
-    this->blockDisplaySignals(false);
+    this->ArmatureOpacitySlider->setValue(ArmatureNode->GetOpacity());
+    this->blockArmatureDisplaySignals(false);
     }
 
-  this->updateAdvancedDisplay(boneNode);
+  this->updateArmatureAdvancedDisplay(armatureNode);
 
-  this->BoneDisplayCollapsibleGroupBox->setEnabled(boneNode != 0);
+  this->ArmatureDisplayCollapsibleGroupBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::updateAdvancedDisplay(vtkMRMLBoneNode* boneNode)
+::updateArmatureAdvancedDisplay(vtkMRMLArmatureNode* armatureNode)
 {
-  if (boneNode)
+  if (armatureNode)
     {
-    this->BoneShowAxesComboBox->setCurrentIndex(
-      boneNode->GetShowAxes());
-    this->BoneShowParenthoodCheckBox->setChecked(
-      boneNode->GetShowParenthood());
+    this->ArmatureShowAxesComboBox->setCurrentIndex(
+      armatureNode->GetShowAxes());
+    this->ArmatureShowParenthoodCheckBox->setChecked(
+      armatureNode->GetShowParenthood());
     }
 }
 
@@ -552,6 +556,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
   d->ArmatureStateComboBox->setCurrentIndex(d->ArmatureNode->GetWidgetState());
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
+
+  d->updateArmatureWidget(d->ArmatureNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -578,41 +584,6 @@ void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
-{
-  Q_D(qSlicerArmaturesModuleWidget);
-
-  if (!d->BoneNode)
-    {
-    return;
-    }
-
-  int wasModifying = d->BoneNode->StartModify();
-
-  d->setCoordinatesToBoneNode(d->BoneNode);
-
-  d->BoneNode->SetName(d->BoneNameLineEdit->text().toStdString().c_str());
-
-  d->BoneNode->SetBoneRepresentationType(
-    d->BoneRepresentationComboBox->currentIndex());
-  int rgb[3];
-  rgb[0] = d->BoneColorPickerButton->color().red();
-  rgb[1] = d->BoneColorPickerButton->color().green();
-  rgb[2] = d->BoneColorPickerButton->color().blue();
-  //qDebug()<<"SetBoneColor: "<<rgb[0]<<" "<<rgb[1]<<" "<<rgb[2];
-  d->BoneNode->SetBoneColor(rgb);
-
-  d->BoneNode->SetOpacity(d->BoneOpacitySlider->value());
-
-  d->BoneNode->SetShowAxes(d->BoneShowAxesComboBox->currentIndex());
-
-  d->BoneNode->SetShowParenthood(
-    d->BoneShowParenthoodCheckBox->isChecked());
-
-  d->BoneNode->EndModify(wasModifying);
-}
-
-//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 {
   Q_D(qSlicerArmaturesModuleWidget);
@@ -626,5 +597,39 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetWidgetState(d->ArmatureStateComboBox->currentIndex());
 
+  // +1 to compensate for the vtkArmatureWidget::None
+  d->ArmatureNode->SetBonesRepresentation(
+    d->ArmatureRepresentationComboBox->currentIndex() + 1);
+
+  int rgb[3];
+  rgb[0] = d->ArmatureColorPickerButton->color().red();
+  rgb[1] = d->ArmatureColorPickerButton->color().green();
+  rgb[2] = d->ArmatureColorPickerButton->color().blue();
+  d->ArmatureNode->SetColor(rgb);
+
+  d->ArmatureNode->SetOpacity(d->ArmatureOpacitySlider->value());
+
+  d->ArmatureNode->SetShowAxes(d->ArmatureShowAxesComboBox->currentIndex());
+
+  d->ArmatureNode->SetShowParenthood(
+    d->ArmatureShowParenthoodCheckBox->isChecked());
+
   d->ArmatureNode->EndModify(wasModifying);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+
+  if (!d->BoneNode)
+    {
+    return;
+    }
+
+  int wasModifying = d->BoneNode->StartModify();
+
+  d->setCoordinatesToBoneNode(d->BoneNode);
+
+  d->BoneNode->EndModify(wasModifying);
 }

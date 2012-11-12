@@ -479,6 +479,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     // there is no one associated to the armatureNode yet
     armatureWidget = this->CreateArmatureWidget();
     this->ArmatureNodes.find(armatureNode)->second = armatureWidget;
+
     }
 
   armatureNode->PasteArmatureNodeProperties(armatureWidget);
@@ -624,6 +625,13 @@ void vtkMRMLArmatureDisplayableManager
         armatureWidget->UpdateBoneWithArmatureOptions(
           newBoneWidget,
           parentBoneWidget);
+        // For none armature properties
+        // Opacity
+        newBoneNode->SetOpacity(armatureNode->GetOpacity());
+        // Color
+        int armatureColor[3];
+        armatureNode->GetColor(armatureColor);
+        newBoneNode->SetBoneColor(armatureColor);
 
         armatureWidget->AddBone(newBoneWidget, parentBoneWidget);
         }
