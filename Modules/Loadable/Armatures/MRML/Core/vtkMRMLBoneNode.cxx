@@ -184,22 +184,19 @@ void vtkMRMLBoneNode::CreateBoneDisplayNode()
   this->AddAndObserveDisplayNodeID(boneDisplayNode->GetID());
 }
 
-//-- Length -----------------------------------------------------------------
 //---------------------------------------------------------------------------
 double vtkMRMLBoneNode::GetLength()
 {
   return this->BoneProperties->GetLength();
 }
 
-//-- Name -------------------------------------------------------------------
 //---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetName(vtkStdString name)
+void vtkMRMLBoneNode::SetName(const char* name)
 {
   this->BoneProperties->SetName(name);
   this->Superclass::SetName(name);
 }
 
-//-- State ------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWidgetState(int state)
 {
@@ -212,7 +209,6 @@ int vtkMRMLBoneNode::GetWidgetState()
   return this->BoneProperties->GetWidgetState();
 }
 
-//-- Representation ---------------------------------------------------------
 namespace
 {
 int FindBoneRepresentationType(vtkBoneRepresentation* rep)
@@ -277,7 +273,6 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
   this->Modified();
 }
 
-//-- Color -------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetBoneColor(int rgb[3])
 {
@@ -300,7 +295,6 @@ void vtkMRMLBoneNode::GetBoneColor(int rgb[3])
   rgb[2] = static_cast<int>(doubleRGB[2] * 255);
 }
 
-//-- Opacity ----------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetOpacity(double opacity)
 {
@@ -327,7 +321,6 @@ double vtkMRMLBoneNode::GetOpacity()
   return this->GetBoneRepresentation()->GetLineProperty()->GetOpacity();
 }
 
-//-- Distance ---------------------------------------------------------------
 //---------------------------------------------------------------------------
 double vtkMRMLBoneNode::GetDistance()
 {
@@ -344,7 +337,6 @@ double vtkMRMLBoneNode::GetDistance()
     this->BoneProperties->GetBoneRepresentation()->GetWorldTailPosition()));
 }
 
-//-- Roll -------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetRoll(double roll)
 {
@@ -357,7 +349,6 @@ double vtkMRMLBoneNode::GetRoll()
   return this->BoneProperties->GetRoll();
 }
 
-//-- World Positions -------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldHeadRest(const double* headPoint)
 {
@@ -426,7 +417,6 @@ void vtkMRMLBoneNode::GetWorldTailPose(double tail[3])
   this->BoneProperties->GetWorldTailPose(tail);
 }
 
-//-- Local Positions -------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetLocalHeadRest(const double* headPoint)
 {
@@ -495,7 +485,7 @@ void vtkMRMLBoneNode::GetLocalTailPose(double tail[3])
   this->BoneProperties->GetLocalTailPose(tail);
 }
 
-//-- Show Axes --------------------------------------------------------------
+//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetShowAxes(int axesVisibility)
 {
   this->BoneProperties->SetShowAxes(axesVisibility);
@@ -507,7 +497,6 @@ int vtkMRMLBoneNode::GetShowAxes()
   return this->BoneProperties->GetShowAxes();
 }
 
-//-- World to parent transforms ---------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldToParentRestRotation(const double* rotation)
 {
@@ -574,7 +563,6 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
   return this->BoneProperties->GetWorldToParentPoseTranslation();
 }
 
-//-- Parent to bone transforms ---------------------------------------------
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetParentToBoneRestRotation()
 {
@@ -599,7 +587,6 @@ double* vtkMRMLBoneNode::GetParentToBonePoseTranslation()
   return this->BoneProperties->GetParentToBonePoseTranslation();
 }
 
-//-- World to bone transforms -----------------------------------------------
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToBoneRestRotation()
 {
@@ -636,7 +623,6 @@ double* vtkMRMLBoneNode::GetWorldToBoneTailPoseTranslation()
   return this->BoneProperties->GetWorldToBoneTailPoseTranslation();
 }
 
-//-- Parenthood -------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetShowParenthood(int parenthood)
 {

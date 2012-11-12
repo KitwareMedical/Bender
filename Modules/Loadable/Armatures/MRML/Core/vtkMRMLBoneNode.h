@@ -99,15 +99,12 @@ public:
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
 
-  // -- Length ----------------------------------------------------------------
   /// Get the bone length.
   double GetLength();
 
-  // -- Name ----------------------------------------------------------------
-  /// Set/Get the bone roll.
-  void SetName(vtkStdString name);
+  /// Set the bone name.
+  virtual void SetName(const char* name);
 
-  // -- State ----------------------------------------------------------------
   /// Set/Get the bone roll.
   void SetWidgetState(int state);
   int GetWidgetState();
@@ -123,7 +120,6 @@ public:
     };
   //ETX
 
-  // -- Representation -------------------------------------------------------
   /// Set/Get the bone representation.
   void SetBoneRepresentation(vtkBoneRepresentation* rep);
   vtkBoneRepresentation* GetBoneRepresentation();
@@ -131,29 +127,24 @@ public:
   /// Helper function to set the representation.
   /// 1 for vtkCylinderBoneRepresentation, 2 for vtkDoubleConeBoneRepresentation,
   /// otherwise vtkBoneRepresentation.
-  void SetBoneRepresentationType(int type); // \TO LOGIC ?
+  void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
 
-  // -- Color ----------------------------------------------------------------
   /// Helper function to set/get the representation color.
   void SetBoneColor(int rgb[3]);
   void GetBoneColor(int rgb[3]);
 
-  // -- Opacity --------------------------------------------------------------
   /// Helper function to set/get the representation color.
   void SetOpacity(double opacity);
   double GetOpacity();
 
-  // -- Distance -------------------------------------------------------------
   /// Helper function to get the distance between head and tail
   double GetDistance();
 
-  // -- Roll -----------------------------------------------------------------
   /// Set/Get the bone roll.
   void SetRoll(double roll);
   double GetRoll();
 
-  //-- World Positions -------------------------------------------------------
   /// Set/Get the head/tail position in the world coordinates.
   /// \sa GetWorldHeadRest(), GetWorldTailRest()
   /// \sa GetWorldHeadPose(), GetWorldTailPose()
@@ -169,7 +160,6 @@ public:
   double* GetWorldTailPose();
   void GetWorldTailPose(double tail[3]);
 
-  //-- Local Positions -------------------------------------------------------
   /// Set/Get the local head/tail position in the parent coordinates.
   /// \sa GetLocalHeadRest(), GetLocalTailRest()
   /// \sa GetLocalHeadPose(), GetLocalTailPose()
@@ -185,12 +175,10 @@ public:
   double* GetLocalTailPose();
   void GetLocalTailPose(double tail[3]);
 
-  // -- Show Axes -----------------------------------------------------------
   /// Set/Get the bone axes visibility.
   void SetShowAxes(int axesVisibility);
   int GetShowAxes();
 
-  // -- World to parent transforms -------------------------------------------
   /// Set/Get the world to parent rotations.
   /// \sa GetWorldToParentRestRotation(), SetWorldToParentRestTranslation()
   /// \sa GetWorldToParentPoseRotation(), SetWorldToParentPoseTranslation()
@@ -207,7 +195,6 @@ public:
   double* GetWorldToParentRestTranslation();
   double* GetWorldToParentPoseTranslation();
 
-  // -- Parent to bone transforms --------------------------------------------
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
   double* GetParentToBoneRestRotation();
@@ -218,7 +205,6 @@ public:
   double* GetParentToBoneRestTranslation();
   double* GetParentToBonePoseTranslation();
 
-  // -- World to bone transforms --------------------------------------------
   /// Get the world to bone rotations.
   /// \sa GetWorldToBoneHeadRestTranslation()
   /// \sa GetWorldToBoneTailRestTranslation()
@@ -241,7 +227,6 @@ public:
   double* GetWorldToBoneHeadPoseTranslation();
   double* GetWorldToBoneTailPoseTranslation();
 
-  // -- Parenthood -----------------------------------------------------------
   /// Set/Get the bone parenthood.
   void SetShowParenthood(int parenthood);
   int GetShowParenthood();
