@@ -385,10 +385,6 @@ void vtkArmatureWidget::SetWidgetState(int state)
       for (NodeIteratorType it = this->Bones->begin();
         it != this->Bones->end(); ++it)
         {
-        if (this->ShouldResetPoseToRest)
-          {
-          (*it)->Bone->ResetPoseToRest();
-          }
         (*it)->Bone->SetWidgetStateToPose();
         }
 
@@ -639,11 +635,6 @@ void vtkArmatureWidget
   bone->SetShowAxes(this->ShowAxes);
   bone->SetShowParenthood(this->ShowParenthood);
 
-  if (this->ShouldResetPoseToRest)
-    {
-    bone->ResetPoseToRest();
-    }
-
   if (this->WidgetState == vtkArmatureWidget::Rest)
     {
     this->SetBoneWorldToParentRestTransform(bone, parent);
@@ -651,9 +642,15 @@ void vtkArmatureWidget
     }
   else
     {
+    if (this->ShouldResetPoseToRest)
+      {
+      bone->ResetPoseToRest();
+      }
+
     this->SetBoneWorldToParentPoseTransform(bone, parent);
     bone->SetWidgetStateToPose();
     }
+
 }
 
 //----------------------------------------------------------------------------
@@ -735,6 +732,12 @@ void vtkArmatureWidget
 void vtkArmatureWidget
 ::SetBoneWorldToParentPoseTransform(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
+  if (this->ShouldResetPoseToRest)
+    {
+    bone->ResetPoseToRest();
+    return;
+    }
+
   double parentWorldToBonePoseRotation[4] = {1.0, 0.0, 0.0, 0.0};
   double parentWorldToBonePoseTranslation[3] = {0.0, 0.0, 0.0};
   if (parent) // For all non-root elements
