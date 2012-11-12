@@ -199,7 +199,7 @@ void vtkMRMLArmatureNode::SetWidgetState(int state)
 //---------------------------------------------------------------------------
 int vtkMRMLArmatureNode::GetWidgetState()
 {
-  return this->ArmatureProperties->GetWidgetState();
+  return this->WidgetState;
 }
 
 //---------------------------------------------------------------------------
