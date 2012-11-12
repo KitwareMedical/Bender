@@ -19,23 +19,26 @@
 =========================================================================*/
 
 // Models includes
+#include "vtkSlicerAnnotationModuleLogic.h"
 #include "vtkSlicerModelsLogic.h"
 
 // Armatures includes
+#include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLBoneDisplayNode.h"
+#include "vtkMRMLBoneNode.h"
+#include "vtkMRMLSelectionNode.h"
 #include "vtkSlicerArmaturesLogic.h"
 
 // MRML includes
-#include <vtkMRMLModelNode.h>
+#include <vtkEventBroker.h>
 
 // VTK includes
 #include <vtkMath.h>
 #include <vtkNew.h>
-#include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
-#include <vtksys/SystemTools.hxx>
 
 // STD includes
 #include <cassert>
@@ -49,6 +52,7 @@ vtkStandardNewMacro(vtkSlicerArmaturesLogic);
 vtkSlicerArmaturesLogic::vtkSlicerArmaturesLogic()
 {
   this->ModelsLogic = 0;
+  this->AnnotationsLogic = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -60,6 +64,218 @@ vtkSlicerArmaturesLogic::~vtkSlicerArmaturesLogic()
 void vtkSlicerArmaturesLogic::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
+{
+  vtkIntArray *events = vtkIntArray::New();
+  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+  this->SetAndObserveMRMLSceneEventsInternal(newScene, events);
+  events->Delete();
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::ObserveMRMLScene()
+{
+  vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
+    this->GetMRMLScene()->GetNthNodeByClass(0, "vtkMRMLSelectionNode"));
+  if (selectionNode)
+    {
+    selectionNode->AddNewAnnotationIDToList(
+      "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
+    }
+
+  this->Superclass::ObserveMRMLScene();
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::RegisterNodes()
+{
+  assert(this->GetMRMLScene());
+
+  vtkNew<vtkMRMLArmatureNode> armatureNode;
+  this->GetMRMLScene()->RegisterNodeClass( armatureNode.GetPointer() );
+
+  vtkNew<vtkMRMLBoneNode> boneNode;
+  this->GetMRMLScene()->RegisterNodeClass( boneNode.GetPointer() );
+
+  vtkNew<vtkMRMLBoneDisplayNode> boneDisplayNode;
+  this->GetMRMLScene()->RegisterNodeClass( boneDisplayNode.GetPointer() );
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
+{
+  this->Superclass::OnMRMLSceneNodeAdded(node);
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode)
+    {
+    this->SetActiveArmature(armatureNode);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode)
+    {
+    this->SetActiveBone(boneNode);
+    }
+}
+
+//-----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* node)
+{
+  this->Superclass::OnMRMLSceneNodeRemoved(node);
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode && this->GetActiveArmature() == armatureNode)
+    {
+    this->SetActiveArmature(0);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode && this->GetActiveBone())
+    {
+    vtkMRMLBoneNode* parentBone = this->GetBoneParent(boneNode);
+    if (parentBone)
+      {
+      this->SetActiveBone(parentBone);
+      }
+    else
+      {
+      this->SetActiveArmature(this->GetBoneArmature(boneNode));
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic
+::SetAnnotationsLogic(vtkSlicerAnnotationModuleLogic* annotationLogic)
+{
+  if (this->AnnotationsLogic == annotationLogic)
+    {
+    return;
+    }
+
+  vtkEventBroker::GetInstance()->RemoveObservations(
+      this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+      this, this->GetMRMLLogicsCallbackCommand());
+
+  this->AnnotationsLogic = annotationLogic;
+
+  vtkEventBroker::GetInstance()->AddObservation(
+    this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+    this, this->GetMRMLLogicsCallbackCommand());
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic
+::ProcessMRMLLogicsEvents(vtkObject* caller, unsigned long event,
+                          void* callData)
+{
+  this->Superclass::ProcessMRMLLogicsEvents(caller, event, callData);
+  if (vtkSlicerAnnotationModuleLogic::SafeDownCast(caller))
+    {
+    assert(event == vtkCommand::ModifiedEvent);
+    this->Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetActiveArmature(vtkMRMLArmatureNode* armature)
+{
+  assert(this->AnnotationsLogic != 0);
+  if (this->GetActiveArmature() == armature)
+    {
+    return;
+    }
+  this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+    armature ? armature->GetID() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic::GetActiveArmature()
+{
+  assert(this->AnnotationsLogic != 0);
+  if (this->GetActiveBone())
+    {
+    return this->GetBoneArmature(this->GetActiveBone());
+    }
+  return vtkMRMLArmatureNode::SafeDownCast(
+    this->GetAnnotationsLogic()->GetActiveHierarchyNode());
+}
+
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetActiveBone(vtkMRMLBoneNode* bone)
+{
+  assert(this->AnnotationsLogic != 0);
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode = 0;
+  if (bone != 0)
+    {
+    hierarchyNode = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+    }
+  if (hierarchyNode == 0)
+    {
+    hierarchyNode = this->GetActiveArmature();
+    }
+  if (hierarchyNode == 0)
+    {
+    hierarchyNode = this->GetAnnotationsLogic()->GetActiveHierarchyNode();
+    }
+  this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+    hierarchyNode ? hierarchyNode->GetID() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetActiveBone()
+{
+  assert(this->AnnotationsLogic != 0);
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    this->GetAnnotationsLogic()->GetActiveHierarchyNode();
+  return vtkMRMLBoneNode::SafeDownCast(
+    hierarchyNode? hierarchyNode->GetDisplayableNode() : 0);
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
+::GetBoneArmature(vtkMRMLBoneNode* bone)
+{
+  if (bone == 0)
+    {
+    return 0;
+    }
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      hierarchyNode->GetParentNode());
+  vtkMRMLArmatureNode* armatureNode = 
+    vtkMRMLArmatureNode::SafeDownCast(parentHierarchyNode);
+  if (armatureNode == 0)
+    {
+    armatureNode = this->GetBoneArmature(
+      vtkMRMLBoneNode::SafeDownCast(parentHierarchyNode->GetDisplayableNode()));
+    }
+  return armatureNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetBoneParent(vtkMRMLBoneNode* bone)
+{
+  if (bone == 0)
+    {
+    return 0;
+    }
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+        bone->GetScene(), bone->GetID()));
+  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+      hierarchyNode->GetParentNode());
+  return vtkMRMLBoneNode::SafeDownCast(
+    parentHierarchyNode? parentHierarchyNode->GetDisplayableNode() : 0);
 }
 
 //----------------------------------------------------------------------------
@@ -78,121 +294,118 @@ vtkMRMLModelNode* vtkSlicerArmaturesLogic::AddArmatureFile(const char* fileName)
   points->SetDataTypeToDouble();
   armature->SetPoints(points.GetPointer());
   armature->Allocate(100);
-
-  vtkNew<vtkUnsignedCharArray> colors;
-  colors->SetNumberOfComponents(3);
-  colors->SetName("Colors");
-  armature->GetPointData()->SetScalars(colors.GetPointer());
-
   vtkXMLDataElement* armatureElement = armatureParser->GetRootElement();
-
-  double origin[3] = {0., 0., 0.};
-  armatureElement->GetVectorAttribute("location", 3, origin);
-
-  double scale[3] = {1.0, 1.0, 1.0};
-  armatureElement->GetVectorAttribute("scale", 3, scale);
-  double scaleMat[3][3];
-  vtkMath::Identity3x3(scaleMat);
-  scaleMat[0][0] = scale[0];
-  scaleMat[1][1] = scale[1];
-  scaleMat[2][2] = scale[2];
-
-  double orientationXYZW[4] = {0.0, 0.0, 0.0, 1.0};
+  double orientationXYZW[4];
   armatureElement->GetVectorAttribute("orientation", 4, orientationXYZW);
   double orientationWXYZ[4] = {orientationXYZW[3], orientationXYZW[0],
                                orientationXYZW[1], orientationXYZW[2]};
-  double mat[3][3];
-  vtkMath::QuaternionToMatrix3x3(orientationWXYZ, mat);
 
-  vtkMath::Multiply3x3(mat, scaleMat, mat);
-
+  double origin[3] = {0., 0., 0.};
   for (int child = 0; child < armatureElement->GetNumberOfNestedElements(); ++child)
     {
-    this->ReadBone(armatureElement->GetNestedElement(child), armature.GetPointer(),
-                   origin, mat);
+    this->ReadBone(armatureElement->GetNestedElement(child), armature.GetPointer(), origin, orientationWXYZ);
     }
-  vtkMRMLModelNode* modelNode= this->ModelsLogic->AddModel(armature.GetPointer());
-  std::string modelName = vtksys::SystemTools::GetFilenameName(fileName);
-  modelNode->SetName(modelName.c_str());
-  return modelNode;
+  return this->ModelsLogic->AddModel(armature.GetPointer());
 }
 
 //----------------------------------------------------------------------------
 void vtkSlicerArmaturesLogic::ReadBone(vtkXMLDataElement* boneElement,
                                        vtkPolyData* polyData,
                                        const double origin[3],
-                                       const double parentMatrix[3][3],
-                                       const double parentLength)
+                                       const double parentOrientation[4])
 {
-  double parentTransMatrix[3][3];
-  vtkMath::Transpose3x3(parentMatrix, parentTransMatrix);
+  double parentMatrix[3][3];
+  vtkMath::QuaternionToMatrix3x3(parentOrientation, parentMatrix);
 
-  double localOrientationXYZW[4] = {0., 0., 0., 1.};
-  boneElement->GetVectorAttribute("orientation", 4, localOrientationXYZW);
-  double localOrientationWXYZ[4] = {localOrientationXYZW[3], localOrientationXYZW[0],
-                                    localOrientationXYZW[1], localOrientationXYZW[2]};
-  double mat[3][3];
-  vtkMath::QuaternionToMatrix3x3(localOrientationWXYZ, mat);
-  vtkMath::Invert3x3(mat, mat);
-  vtkMath::Multiply3x3(mat, parentMatrix, mat);
+  double localHead[3] = {0., 0., 0.};
+  boneElement->GetVectorAttribute("head", 3, localHead);
+  double head[3] = {0., 0., 0.};
+  vtkMath::Multiply3x3(parentMatrix, localHead, head);
 
+  double parentPosedOrientation[4] =
+    {parentOrientation[0], parentOrientation[1],
+     parentOrientation[2], parentOrientation[3]};
   bool applyPose = true;
   if (applyPose)
     {
     vtkXMLDataElement * poseElement =
       boneElement->FindNestedElementWithName("pose");
-    double poseRotationXYZW[4] = {0., 0., 0., 0.};
-    poseElement->GetVectorAttribute("rotation", 4, poseRotationXYZW);
-    double poseRotationWXYZ[4] = {poseRotationXYZW[3], poseRotationXYZW[0],
-                                  poseRotationXYZW[1], poseRotationXYZW[2]};
-    double poseMat[3][3];
-    vtkMath::QuaternionToMatrix3x3(poseRotationWXYZ, poseMat);
-    vtkMath::Invert3x3(poseMat, poseMat);
-    vtkMath::Multiply3x3(poseMat, mat, mat);
+    if (poseElement)
+      {
+      this->ReadPose(poseElement, parentPosedOrientation, true);
+      }
     }
 
-  double localHead[3] = {0., 0., 0.};
-  boneElement->GetVectorAttribute("head", 3, localHead);
+#ifndef BEFORE
+  double parentPosedMatrix[3][3];
+  vtkMath::QuaternionToMatrix3x3(parentPosedOrientation, parentPosedMatrix);
 
-  double head[3] = {0., 0., 0.};
-  head[0] = localHead[0];
-  head[1] = localHead[1] + parentLength;
-  head[2] = localHead[2];
-  vtkMath::Multiply3x3(parentTransMatrix, head, head);
-  vtkMath::Add(origin, head, head);
-
-  double localTail[3] = {0., 0. ,0.};
+  double localTail[3] = {0., 0. ,0};
   boneElement->GetVectorAttribute("tail", 3, localTail);
-
   double tail[3] = {0., 0. ,0};
   vtkMath::Subtract(localTail, localHead, tail);
-  double length = vtkMath::Norm(tail);
+  vtkMath::Multiply3x3(parentPosedMatrix, tail, tail);
+  vtkMath::Add(localHead, tail, tail);
 
-  tail[0] = mat[1][0]; tail[1] = mat[1][1]; tail[2] = mat[1][2];
-  vtkMath::MultiplyScalar(tail, length);
-
-  vtkMath::Add(head, tail, tail);
+  vtkMath::Add(origin, head, head);
+  vtkMath::Add(origin, tail, tail);
 
   vtkIdType indexes[2];
   indexes[0] = polyData->GetPoints()->InsertNextPoint(head);
   indexes[1] = polyData->GetPoints()->InsertNextPoint(tail);
-  static unsigned char color[3] = {255, 255, 255};
-  unsigned char offset = 20;
-  polyData->GetPointData()->GetScalars("Colors")->InsertNextTuple3(
-    color[0], color[1], color[2]);
-  color[0] -= offset; color[1] -= offset; color[2] -= offset;
-  polyData->GetPointData()->GetScalars("Colors")->InsertNextTuple3(
-    color[0], color[1], color[2]);
-  color[0] -= offset; color[1] -= offset; color[2] -= offset;
 
   polyData->InsertNextCell(VTK_LINE, 2, indexes);
+#endif
 
+  double localOrientationXYZW[4] = {0., 0., 0., 1.};
+  boneElement->GetVectorAttribute("orientation", 4, localOrientationXYZW);
+  double localOrientationWXYZ[4] = {localOrientationXYZW[3], localOrientationXYZW[0],
+                                    localOrientationXYZW[1], localOrientationXYZW[2]};
+  double worldOrientation[4];
+  //vtkMath::MultiplyQuaternion(parentOrientation, localOrientationWXYZ, worldOrientation);
+  vtkMath::MultiplyQuaternion(parentPosedOrientation, localOrientationWXYZ, worldOrientation);
+  //vtkMath::MultiplyQuaternion(localOrientationWXYZ, parentOrientation, worldOrientation);
+  //vtkMath::MultiplyQuaternion(localOrientationWXYZ, parentPosedOrientation, worldOrientation);
+/*
+  vtkXMLDataElement * poseElement =
+    boneElement->FindNestedElementWithName("pose");
+  if (applyPose)
+    {
+    if (poseElement)
+      {
+      this->ReadPose(poseElement, worldOrientation, false);
+      }
+    }
+*/
+#ifdef BEFORE
+  double parentPosedMatrix[3][3];
+  vtkMath::QuaternionToMatrix3x3(worldOrientation, parentPosedMatrix);
+
+  double localTail[3] = {0., 0. ,0};
+  boneElement->GetVectorAttribute("tail", 3, localTail);
+  double tail[3] = {0., 0. ,0};
+  vtkMath::Subtract(localTail, localHead, tail);
+  vtkMath::Multiply3x3(parentPosedMatrix, tail, tail);
+  vtkMath::Add(localHead, tail, tail);
+
+  vtkMath::Add(origin, head, head);
+  vtkMath::Add(origin, tail, tail);
+
+  vtkIdType indexes[2];
+  indexes[0] = polyData->GetPoints()->InsertNextPoint(head);
+  indexes[1] = polyData->GetPoints()->InsertNextPoint(tail);
+
+  polyData->InsertNextCell(VTK_LINE, 2, indexes);
+#endif
+
+  //std::cout << "local quat: w=" << localOrientationWXYZ[0] << " x=" << localOrientationWXYZ[1] << " y=" << localOrientationWXYZ[2] << " z=" << localOrientationWXYZ[3] << std::endl;
+  //std::cout << "New quat: w=" << worldOrientation[0] << " x=" << worldOrientation[1] << " y=" << worldOrientation[2] << " z=" << worldOrientation[3] << std::endl;
   for (int child = 0; child < boneElement->GetNumberOfNestedElements(); ++child)
     {
     vtkXMLDataElement* childElement = boneElement->GetNestedElement(child);
     if (strcmp(childElement->GetName(),"bone") == 0)
       {
-      this->ReadBone(childElement, polyData, head, mat, length);
+      this->ReadBone(childElement, polyData, tail, worldOrientation);
       }
     else if (strcmp(childElement->GetName(),"pose") == 0)
       {
@@ -208,13 +421,13 @@ void vtkSlicerArmaturesLogic::ReadBone(vtkXMLDataElement* boneElement,
 
 //----------------------------------------------------------------------------
 void vtkSlicerArmaturesLogic::ReadPose(vtkXMLDataElement* poseElement,
-                                       double parentOrientation[4], bool preMult)
+                                       double parentOrientation[4], bool invert)
 {
   double poseRotationXYZW[4] = {0., 0., 0., 0.};
   poseElement->GetVectorAttribute("rotation", 4, poseRotationXYZW);
   double poseRotationWXYZ[4] = {poseRotationXYZW[3], poseRotationXYZW[0],
                                 poseRotationXYZW[1], poseRotationXYZW[2]};
-  if (preMult)
+  if (invert)
     {
     vtkMath::MultiplyQuaternion(poseRotationWXYZ, parentOrientation, parentOrientation);
     }

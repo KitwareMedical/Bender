@@ -6,34 +6,404 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>319</height>
+    <width>799</width>
+    <height>863</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Module Template</string>
+   <string>Armatures</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="ctkCollapsibleButton" name="CTKCollapsibleButton">
+  <layout class="QGridLayout" name="gridLayout_4">
+   <item row="0" column="0">
+    <widget class="ctkCheckBox" name="ArmatureVisibilityCheckBox">
      <property name="text">
-      <string>Display</string>
+      <string>Armature:</string>
      </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::StyledPanel</enum>
+     <property name="indicatorIcon">
+      <iconset>
+       <normaloff>:/Icons/VisibleOn.png</normaloff>
+       <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3"/>
+     <property name="indicatorIconSize">
+      <size>
+       <width>21</width>
+       <height>21</height>
+      </size>
+     </property>
     </widget>
    </item>
-   <item>
+   <item row="0" column="1">
+    <widget class="qMRMLNodeComboBox" name="ArmatureNodeComboBox">
+     <property name="nodeTypes">
+      <stringlist>
+       <string>vtkMRMLArmatureNode</string>
+      </stringlist>
+     </property>
+     <property name="renameEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="baseName">
+      <string>Armature</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="ArmatureStateLabel">
+     <property name="text">
+      <string>Armature Mode:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QComboBox" name="ArmatureStateComboBox">
+     <property name="editable">
+      <bool>false</bool>
+     </property>
+     <item>
+      <property name="text">
+       <string>Rest</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Pose</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="ctkCollapsibleButton" name="ArmatureDisplayCollapsibleButton">
+     <property name="text">
+      <string>Armature Display</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="ctkCollapsibleButton" name="BonesCollapsibleButton">
+     <property name="text">
+      <string>Bones</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="qMRMLAnnotationTreeView" name="BonesTreeView">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLArmatureNode</string>
+          <string>vtkMRMLBoneNode</string>
+         </stringlist>
+        </property>
+        <property name="showScene">
+         <bool>false</bool>
+        </property>
+        <property name="showRootNode">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="HierarchyCollapsibleGroupBox">
+        <property name="title">
+         <string>Hierarchy</string>
+        </property>
+        <property name="collapsed">
+         <bool>false</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="QLabel" name="ParentBoneLabel">
+           <property name="text">
+            <string>Bone Parent:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="qMRMLNodeComboBox" name="ParentBoneNodeComboBox">
+           <property name="nodeTypes">
+            <stringlist>
+             <string>vtkMRMLBoneNode</string>
+            </stringlist>
+           </property>
+           <property name="noneEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="LinkedToParentLabel">
+           <property name="text">
+            <string>Linked to Parent:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QCheckBox" name="LinkedToParentCheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="PositionsCollapsibleGroupBox">
+        <property name="title">
+         <string>Positions</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="0" column="0">
+          <widget class="QLabel" name="HeadLabel">
+           <property name="text">
+            <string>Head:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="TailLabel">
+           <property name="text">
+            <string>Tail:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1" colspan="2">
+          <widget class="ctkCoordinatesWidget" name="TailCoordinatesWidget"/>
+         </item>
+         <item row="0" column="1" colspan="2">
+          <widget class="ctkCoordinatesWidget" name="HeadCoordinatesWidget"/>
+         </item>
+         <item row="5" column="0" colspan="3">
+          <widget class="ctkCollapsibleGroupBox" name="AdvancedPositionsCollapsibleGroupBox">
+           <property name="title">
+            <string>Advanced</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QFormLayout" name="formLayout_6">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="BonePositionTypeLabel">
+              <property name="text">
+               <string>PositionType:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="BonePositionTypeComboBox">
+              <item>
+               <property name="text">
+                <string>Local</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Global</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="DirectionLabel">
+              <property name="text">
+               <string>Direction:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="ctkCoordinatesWidget" name="DirectionCoordinatesWidget">
+              <property name="normalized">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="DistanceDisplayLabel">
+           <property name="text">
+            <string>Distance:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="DistanceSpinBox">
+           <property name="maximum">
+            <double>999999999.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="BoneDisplayCollapsibleGroupBox">
+        <property name="title">
+         <string>Bone Display</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="BoneNameLabel">
+           <property name="text">
+            <string>Name:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="BoneRepresentationLabel">
+           <property name="text">
+            <string>Representation:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="BoneRepresentationComboBox">
+           <item>
+            <property name="text">
+             <string>Line</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cylinder</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Octohedron</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLineEdit" name="BoneNameLineEdit"/>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="BoneColorLabel">
+           <property name="text">
+            <string>Color:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="ctkColorPickerButton" name="BoneColorPickerButton">
+           <property name="color">
+            <color>
+             <red>241</red>
+             <green>214</green>
+             <blue>145</blue>
+            </color>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="BoneOpacityLabel">
+           <property name="text">
+            <string>Opacity:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="ctkSliderWidget" name="BoneOpacitySlider">
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0" colspan="2">
+          <widget class="ctkCollapsibleGroupBox" name="BoneDisplayAdvancedCollapsibleGroupBox">
+           <property name="title">
+            <string>Advanced</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QFormLayout" name="formLayout_5">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="BoneShowAxesLabel">
+              <property name="text">
+               <string>Show Axes:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="BoneShowAxesComboBox">
+              <item>
+               <property name="text">
+                <string>Hidden</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Rest Transform</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Pose Transform</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="ShowParenthoodLabel">
+              <property name="text">
+               <string>Show Parenthood:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="BoneShowParenthoodCheckBox">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+     <zorder>HierarchyCollapsibleGroupBox</zorder>
+     <zorder>BoneDisplayCollapsibleGroupBox</zorder>
+     <zorder>BonesTreeView</zorder>
+     <zorder>PositionsCollapsibleGroupBox</zorder>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>0</width>
-       <height>0</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
     </spacer>
@@ -42,10 +412,30 @@
  </widget>
  <customwidgets>
   <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLTreeView</class>
+   <extends>QTreeView</extends>
+   <header>qMRMLTreeView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLAnnotationTreeView</class>
+   <extends>qMRMLTreeView</extends>
+   <header>qMRMLAnnotationTreeView.h</header>
+  </customwidget>
+  <customwidget>
    <class>qSlicerWidget</class>
    <extends>QWidget</extends>
    <header>qSlicerWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>ctkCheckBox.h</header>
   </customwidget>
   <customwidget>
    <class>ctkCollapsibleButton</class>
@@ -53,7 +443,125 @@
    <header>ctkCollapsibleButton.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkColorPickerButton</class>
+   <extends>QPushButton</extends>
+   <header>ctkColorPickerButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkCoordinatesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>qSlicerArmaturesModule</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ParentBoneNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>292</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>396</x>
+     <y>291</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>ArmatureDisplayCollapsibleButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>187</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>BonesCollapsibleButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>353</x>
+     <y>28</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>282</x>
+     <y>115</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerArmaturesModule</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>45</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>408</x>
+     <y>27</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerArmaturesModule</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>BonesTreeView</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>421</x>
+     <y>164</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>163</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>BonesTreeView</receiver>
+   <slot>setRootNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>145</x>
+     <y>24</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>108</x>
+     <y>152</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

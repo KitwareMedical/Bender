@@ -79,7 +79,7 @@ QString qSlicerArmaturesIO::description()const
 //-----------------------------------------------------------------------------
 qSlicerIO::IOFileType qSlicerArmaturesIO::fileType()const
 {
-  return qSlicerIO::ModelFile;
+  return "ArmatureFile";
 }
 
 //-----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
     {
     return false;
     }
-  qDebug() << d->ArmaturesLogic->GetMRMLScene() << d->ArmaturesLogic->GetModelsLogic() << d->ArmaturesLogic->GetModelsLogic()->GetMRMLScene();
+  //qDebug() << d->ArmaturesLogic->GetMRMLScene() << d->ArmaturesLogic->GetModelsLogic() << d->ArmaturesLogic->GetModelsLogic()->GetMRMLScene();
   vtkMRMLModelNode* node = d->ArmaturesLogic->AddArmatureFile(
     fileName.toLatin1());
   if (!node)

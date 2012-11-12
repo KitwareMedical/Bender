@@ -220,14 +220,10 @@ def parse_armature( armature ):
   # prep for bone collection
   BoneUtil.static_bone_id = 0  # replaces global
   
-  location = make_vector(armature.location)
-  scale = make_vector(armature.scale)
   quat = make_fquat(armature.matrix_local.to_quaternion())
   res = '<armature '
   res += 'name=\"' + armature.name + '\"  '
   res += 'dataname=\"' + armature.data.name + '\" '
-  res += 'location=\"' + location.dumpAscii() + '\" '
-  res += 'scale=\"' + scale.dumpAscii() + '\" '
   res += 'orientation=\"' + quat.dumpAscii() + '\" '
   res += '>\n'
   # traverse bone chain
@@ -325,27 +321,7 @@ def recurse_bone( bone, armature, parent_id, parent_matrix, indent="" ):
 class BoneUtil:
   static_bone_id = 0 # static property to replace global
 
-  #sort the mesh center top list and not center at the last array. Base on order while select to merge mesh to make them center.
-def sortmesh(selectmesh):
-  print("MESH SORTING...")
-  centermesh = []
-  notcentermesh = []
-  for countm in range(len(selectmesh)):
-    if selectmesh[countm].location.x == 0 and selectmesh[countm].location.y == 0 and selectmesh[countm].location.z == 0:
-      centermesh.append(selectmesh[countm])
-    else:
-      notcentermesh.append(selectmesh[countm])
-  selectmesh = []
-  for countm in range(len(centermesh)):
-    selectmesh.append(centermesh[countm])
-  for countm in range(len(notcentermesh)):
-    selectmesh.append(notcentermesh[countm])
-  if len(selectmesh) == 1:
-    return selectmesh[0]
-  else:
-    return meshmerge(selectmesh)
-
-  #=========================================================================
+#=========================================================================
 # Locate the target armature and mesh for export
 # RETURNS armature, mesh
 #=========================================================================
@@ -431,14 +407,14 @@ def export(filepath):
   arm_armature, arm_mesh = find_armature_and_mesh()
   
   # check misc conditions
-  #if not (arm_armature.scale.x == arm_armature.scale.y == arm_armature.scale.z == 1):
-  #  raise Error("bad armature scale: armature object should have uniform scale of 1 (ALT-S)")
+  if not (arm_armature.scale.x == arm_armature.scale.y == arm_armature.scale.z == 1):
+    raise Error("bad armature scale: armature object should have uniform scale of 1 (ALT-S)")
   
   if not (arm_mesh.scale.x == arm_mesh.scale.y == arm_mesh.scale.z == 1):
     raise Error("bad mesh scale: mesh object should have uniform scale of 1 (ALT-S)")
   
-  #if not (arm_armature.location.x == arm_armature.location.y == arm_armature.location.z == 0):
-  #  raise Error("bad armature location: armature should be located at origin (ALT-G)")
+  if not (arm_armature.location.x == arm_armature.location.y == arm_armature.location.z == 0):
+    raise Error("bad armature location: armature should be located at origin (ALT-G)")
   
   if not (arm_mesh.location.x == arm_mesh.location.y == arm_mesh.location.z == 0):
     raise Error("bad mesh location: mesh should be located at origin (ALT-G)")
