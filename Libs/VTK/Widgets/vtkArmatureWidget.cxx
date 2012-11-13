@@ -316,12 +316,8 @@ void vtkArmatureWidget
   bone->Register(this);
 
   // Create bone
-  ArmatureTreeNode* newNode
-    = this->AddNewNodeToHierarchy(bone, parent, linkedWithParent);
+  this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
   this->AddBoneObservers(bone);
-
-  this->Bones->push_back(newNode);
-  newNode->Bone->SetDebugBoneID(this->Bones->size()); // Debug
 
   this->InvokeEvent(vtkArmatureWidget::AddedBone, bone);
   this->Modified();
@@ -668,10 +664,8 @@ void vtkArmatureWidget
     if ((*it)->Bone == bone)
       {
       // Create new node with bone and NEW parent
-      ArmatureTreeNode* newNode
-        = this->AddNewNodeToHierarchy(
-          bone, newParent, (*it)->HeadLinkedToParent);
-      this->Bones->push_back(newNode);
+      this->CreateAndAddNodeToHierarchy(
+        bone, newParent, (*it)->HeadLinkedToParent);
 
       // Remove old node
       this->RemoveNodeFromHierarchy(it - this->Bones->begin());
@@ -680,6 +674,7 @@ void vtkArmatureWidget
       this->SetBoneWorldToParentTransform(bone, newParent);
       this->InvokeEvent(vtkArmatureWidget::ReparentedBone, bone);
       this->Modified();
+      return;
       }
     }
 }
@@ -753,7 +748,7 @@ void vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
-ArmatureTreeNode* vtkArmatureWidget::AddNewNodeToHierarchy(
+void vtkArmatureWidget::CreateAndAddNodeToHierarchy(
   vtkBoneWidget* bone,
   vtkBoneWidget* newParent,
   bool linkedWithParent)
@@ -764,18 +759,14 @@ ArmatureTreeNode* vtkArmatureWidget::AddNewNodeToHierarchy(
     {
     this->TopLevelBones.push_back(bone);
     }
+  this->Bones->push_back(newNode);
 
-  if (! newParent || ! linkedWithParent)
-    {
-    newNode->HeadLinkedToParent = false;
-    }
-  else
+  bool shouldLinkWithParent = (newParent && linkedWithParent);
+  newNode->HeadLinkedToParent = shouldLinkWithParent;
+  if (shouldLinkWithParent)
     {
     bone->SetWorldHeadRest(newParent->GetWorldTailRest());
-    newNode->HeadLinkedToParent = true;
     }
-
-  return newNode;
 }
 
 //----------------------------------------------------------------------------

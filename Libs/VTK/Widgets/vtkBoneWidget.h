@@ -348,10 +348,6 @@ public:
   // @sa GetShowAxes() SetShowAxes()
   vtkAxesActor* GetAxesActor() { return this->AxesActor; };
 
-  // Debug functions
-  vtkSetMacro(DebugBoneID, unsigned int);
-  vtkGetMacro(DebugBoneID, unsigned int);
-
   // Description:
   // Rotation methods to move the tail. Those methods can be used in
   // rest or pose mode. Angle is in radians.
@@ -498,11 +494,6 @@ protected:
   // the axes may be subject  to change. This will call RebuildAxes().
   void RebuildAxes();
   void UpdateShowAxes();
-
-  // Debug:
-  // Usefull when debugging multiple bones
-  // (mainly when doing print statements).
-  unsigned int DebugBoneID;
 
   // Parentage line
   int ShowParenthood;
