@@ -103,6 +103,7 @@ public:
                                 vtkBoneWidget* boneWidget);
   void UpdateBoneNodes(vtkMRMLArmatureNode* armature);
   vtkMRMLBoneNode* GetBoneNode(vtkBoneWidget* boneWidget);
+  vtkMRMLBoneNode* GetBoneParentNode(vtkMRMLBoneNode* boneNode);
 
   // Widgets
   vtkArmatureWidget* CreateArmatureWidget();
@@ -153,6 +154,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   // We associate the node with the widget if an instantiation is called.
   armatureNode->AddObserver(vtkCommand::ModifiedEvent,
                            this->External->GetMRMLNodesCallbackCommand());
+
   // We add the armatureNode without instantiating the widget first.
   this->ArmatureNodes.insert(
     std::pair<vtkMRMLArmatureNode*, vtkArmatureWidget*>(
@@ -180,18 +182,42 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   this->BoneNodes.insert(
     std::pair<vtkMRMLBoneNode*, vtkBoneWidget*>(
       boneNode, static_cast<vtkBoneWidget*>(0)));
-
   // The bone widget is created here if needed.
   this->UpdateBoneWidgetFromNode(boneNode, 0);
 
-  /*if(this->ArmatureNodes.empty())
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode
+    = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+        vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneNode->GetScene(), boneNode->GetID()));
+
+  vtkMRMLArmatureNode* armatureNode = 0;
+  if (hierarchyNode && hierarchyNode->GetTopParentNode())
     {
-    vtkNew<vtkMRMLArmatureNode> newArmatureNode;
-    this->AddArmatureNode(newArmatureNode);
+    armatureNode = vtkMRMLArmatureNode::SafeDownCast(
+      hierarchyNode->GetTopParentNode());
+    }
 
+  vtkMRMLBoneNode* boneParentNode = this->GetBoneParentNode(boneNode);
 
-    }*/
+  vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
+  vtkBoneWidget* parentBoneWidget = this->GetBoneWidget(boneParentNode);
+  vtkArmatureWidget* armatureWidget = this->GetArmatureWidget(armatureNode);
 
+  if (armatureWidget && boneWidget && !armatureWidget->HasBone(boneWidget))
+    {
+    armatureWidget->UpdateBoneWithArmatureOptions(
+      boneWidget,
+      parentBoneWidget);
+    // For not armature properties
+    // Opacity
+    boneNode->SetOpacity(armatureNode->GetOpacity());
+    // Color
+    double armatureColor[3];
+    armatureNode->GetColor(armatureColor);
+    boneNode->SetBoneColor(armatureColor);
+
+    armatureWidget->AddBone(boneWidget, parentBoneWidget);
+    }
 }
 
 
@@ -364,6 +390,27 @@ vtkMRMLBoneNode* vtkMRMLArmatureDisplayableManager::vtkInternal
     }
 
   return boneNode;
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLBoneNode* vtkMRMLArmatureDisplayableManager::vtkInternal
+::GetBoneParentNode(vtkMRMLBoneNode* boneNode)
+{
+  if (boneNode)
+    {
+    vtkMRMLAnnotationHierarchyNode* hierarchyNode
+      = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+              boneNode->GetScene(), boneNode->GetID()));
+
+    if (hierarchyNode && hierarchyNode->GetParentNode())
+      {
+      return vtkMRMLBoneNode::SafeDownCast(
+        hierarchyNode->GetParentNode()->GetAssociatedNode());
+      }
+    }
+
+  return NULL;
 }
 
 //---------------------------------------------------------------------------
@@ -593,49 +640,6 @@ void vtkMRMLArmatureDisplayableManager
     {
     vtkMRMLBoneNode* newBoneNode = vtkMRMLBoneNode::SafeDownCast(nodeAdded);
     this->Internal->AddBoneNode(newBoneNode);
-
-    vtkMRMLAnnotationHierarchyNode* hierarchyNode
-      = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-          vtkMRMLHierarchyNode
-            ::GetAssociatedHierarchyNode(
-              newBoneNode->GetScene(), newBoneNode->GetID()));
-
-    if (hierarchyNode
-      && hierarchyNode->GetParentNode()
-      && hierarchyNode->GetTopParentNode())
-      {
-      vtkMRMLBoneNode* boneParentNode
-        = vtkMRMLBoneNode::SafeDownCast(
-            hierarchyNode->GetParentNode()->GetAssociatedNode());
-
-      vtkMRMLArmatureNode* armatureNode
-        = vtkMRMLArmatureNode::SafeDownCast(
-            hierarchyNode->GetTopParentNode());
-
-      vtkBoneWidget* newBoneWidget
-        = this->Internal->GetBoneWidget(newBoneNode);
-      vtkBoneWidget* parentBoneWidget
-        = this->Internal->GetBoneWidget(boneParentNode);
-      vtkArmatureWidget* armatureWidget
-        = this->Internal->GetArmatureWidget(armatureNode);
-
-      if (armatureWidget
-        && !armatureWidget->HasBone(newBoneWidget))
-        {
-        armatureWidget->UpdateBoneWithArmatureOptions(
-          newBoneWidget,
-          parentBoneWidget);
-        // For none armature properties
-        // Opacity
-        newBoneNode->SetOpacity(armatureNode->GetOpacity());
-        // Color
-        double armatureColor[3];
-        armatureNode->GetColor(armatureColor);
-        newBoneNode->SetBoneColor(armatureColor);
-
-        armatureWidget->AddBone(newBoneWidget, parentBoneWidget);
-        }
-      }
     }
 }
 
