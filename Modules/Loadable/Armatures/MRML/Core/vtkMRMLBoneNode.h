@@ -68,7 +68,7 @@ public:
   virtual void WriteXML(ostream& of, int indent);
 
   /// Copy the node's attributes to this object.
-  virtual void Copy(vtkMRMLNode *node) {Superclass::Copy(node);}
+  virtual void Copy(vtkMRMLNode *node);
 
   /// Update references from scene.
   virtual void UpdateScene(vtkMRMLScene *scene);

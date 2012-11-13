@@ -103,6 +103,23 @@ void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Copy(vtkMRMLNode* node)
+{
+  int wasModifying = this->StartModify();
+  this->Superclass::Copy(node);
+
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (!boneNode)
+    {
+    return;
+    }
+
+  boneNode->PasteBoneNodeProperties(this->BoneProperties);
+
+  this->EndModify(wasModifying);
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLBoneNode::ReadXMLAttributes(const char** atts)
 {
   int disabledModify = this->StartModify();
