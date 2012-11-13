@@ -542,7 +542,11 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
     {
     activeNode = d->logic()->GetActiveArmature();
     }
-  d->BonesTreeView->setCurrentNode(activeNode);
+
+  if (activeNode)
+    {
+    d->BonesTreeView->setCurrentNode(activeNode);
+    }
 }
 
 //-----------------------------------------------------------------------------

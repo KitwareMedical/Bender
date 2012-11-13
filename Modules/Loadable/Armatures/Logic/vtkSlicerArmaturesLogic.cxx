@@ -247,15 +247,21 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     vtkMRMLAnnotationHierarchyNode::SafeDownCast(
       vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
         bone->GetScene(), bone->GetID()));
-  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
-    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-      hierarchyNode->GetParentNode());
-  vtkMRMLArmatureNode* armatureNode = 
-    vtkMRMLArmatureNode::SafeDownCast(parentHierarchyNode);
-  if (armatureNode == 0)
+
+  vtkMRMLArmatureNode* armatureNode = 0;
+  if (hierarchyNode)
     {
-    armatureNode = this->GetBoneArmature(
-      vtkMRMLBoneNode::SafeDownCast(parentHierarchyNode->GetDisplayableNode()));
+    vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+      vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+        hierarchyNode->GetParentNode());
+
+    armatureNode = vtkMRMLArmatureNode::SafeDownCast(parentHierarchyNode);
+    if (armatureNode == 0)
+      {
+      armatureNode = this->GetBoneArmature(
+        vtkMRMLBoneNode::SafeDownCast(
+          parentHierarchyNode->GetDisplayableNode()));
+      }
     }
   return armatureNode;
 }
@@ -267,15 +273,24 @@ vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetBoneParent(vtkMRMLBoneNode* bone)
     {
     return 0;
     }
+
   vtkMRMLAnnotationHierarchyNode* hierarchyNode =
     vtkMRMLAnnotationHierarchyNode::SafeDownCast(
       vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
         bone->GetScene(), bone->GetID()));
-  vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
-    vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-      hierarchyNode->GetParentNode());
-  return vtkMRMLBoneNode::SafeDownCast(
-    parentHierarchyNode? parentHierarchyNode->GetDisplayableNode() : 0);
+
+  vtkMRMLBoneNode* boneNode = 0;
+  if (hierarchyNode)
+    {
+    vtkMRMLAnnotationHierarchyNode* parentHierarchyNode =
+      vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+        hierarchyNode->GetParentNode());
+
+    boneNode = vtkMRMLBoneNode::SafeDownCast(
+      parentHierarchyNode? parentHierarchyNode->GetDisplayableNode() : 0);
+    }
+
+  return boneNode;
 }
 
 //----------------------------------------------------------------------------

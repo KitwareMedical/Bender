@@ -300,6 +300,16 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     return;
     }
 
+  vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
+  for (ArmatureNodesLink::iterator it = this->ArmatureNodes.begin();
+    it != this->ArmatureNodes.end(); ++it)
+    {
+    if (it->second && it->second->HasBone(boneWidget))
+      {
+      it->second->RemoveBone(boneWidget);
+      }
+    }
+
   this->RemoveBoneNode(this->BoneNodes.find(boneNode));
 }
 
