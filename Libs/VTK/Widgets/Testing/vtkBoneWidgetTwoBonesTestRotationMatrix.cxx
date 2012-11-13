@@ -281,7 +281,7 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
         //Axes->SetUserTransform(transform);
         //}
-      if (key == "Control_L")
+      else if (key == "Control_L")
         {
         Armature->SetWidgetState( ! Armature->GetWidgetState() );
         }
@@ -294,6 +294,14 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
           }
         Armature->SetShowAxes(state);
         }
+
+      else if (key == "space")
+        {
+        std::cout<<"Changing Always on Top!"<<std::endl;
+
+        Armature->SetBonesAlwaysOnTop( ! Armature->GetBonesAlwaysOnTop());
+        }
+
       }
 
   vtkArmatureWidget* Armature;

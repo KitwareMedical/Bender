@@ -235,13 +235,20 @@ public:
   // Description:
   // Change the given bone parent to the new parent.
   // If the new parent is null, the bone is added to the top level bones.
-  // Sa AddBone(), RemoveBone, ArmatureEventType
+  // @sa AddBone(), RemoveBone, ArmatureEventType
   void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
 
   // Description:
   // Reset the pose positions to the initial rest position with no rotations
   // or translations.
   void ResetPoseToRest();
+
+  // Description:
+  // Set if the bones are seen on top of every object of the scene.
+  // This can be set even if the bones do not have any representation.
+  // @sa vtkBoneRepresentation
+  void SetBonesAlwaysOnTop(int onTop);
+  vtkGetMacro(BonesAlwaysOnTop, int);
 
 protected:
   vtkArmatureWidget();
@@ -267,6 +274,7 @@ protected:
   int ShowAxes;
   int ShowParenthood;
   bool ShouldResetPoseToRest;
+  int BonesAlwaysOnTop;
 
   // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);

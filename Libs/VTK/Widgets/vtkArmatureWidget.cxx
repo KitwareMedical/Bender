@@ -179,6 +179,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
   this->ShouldResetPoseToRest = true;
+  this->BonesAlwaysOnTop = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -502,6 +503,11 @@ void vtkArmatureWidget
       break;
       }
     }
+
+  if (bone->GetBoneRepresentation())
+    {
+    bone->GetBoneRepresentation()->SetAlwaysOnTop(this->BonesAlwaysOnTop);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -689,6 +695,28 @@ void vtkArmatureWidget::ResetPoseToRest()
     {
     this->SetWidgetState(vtkArmatureWidget::Rest);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
+{
+  if (onTop == this->BonesAlwaysOnTop)
+    {
+    return;
+    }
+  this->BonesAlwaysOnTop = onTop;
+
+  if (this->GetBonesRepresentationType() != vtkArmatureWidget::None)
+    {
+    for (NodeIteratorType it = this->Bones->begin();
+      it != this->Bones->end(); ++it)
+      {
+      (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
+        this->BonesAlwaysOnTop);
+      }
+    }
+
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
