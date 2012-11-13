@@ -300,12 +300,19 @@ void qSlicerArmaturesModuleWidgetPrivate
     this->ParentBoneNodeComboBox->setCurrentNode(
       this->ArmatureNode->GetParentBone(boneNode));
     this->ParentBoneNodeComboBox->blockSignals(wasBlocked);
+
+    wasBlocked = this->LinkedToParentCheckBox->blockSignals(true);
+    this->LinkedToParentCheckBox->setChecked(
+      this->BoneNode->GetBoneLinkedWithParent());
+    this->LinkedToParentCheckBox->blockSignals(false);
     }
 
-  this->ParentBoneNodeComboBox->setEnabled(this->ArmatureNode != 0);
-  this->LinkedToParentCheckBox->setEnabled(this->ArmatureNode != 0);
+  bool enable = this->BoneNode
+    && this->BoneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
 
-  this->HierarchyCollapsibleGroupBox->setEnabled(boneNode != 0);
+  this->ParentBoneNodeComboBox->setEnabled(enable);
+  this->LinkedToParentCheckBox->setEnabled(enable);
+  this->HierarchyCollapsibleGroupBox->setEnabled(enable);
 }
 
 //-----------------------------------------------------------------------------
@@ -329,11 +336,11 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
-      enableHeadWidget = true;
+      enableHeadWidget = ! boneNode->GetBoneLinkedWithParent();
       }
     else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
-      enableHeadWidget = true;
+      enableHeadWidget = ! boneNode->GetBoneLinkedWithParent();
       enableTailWidget = true;
       }
     }
@@ -497,7 +504,12 @@ void qSlicerArmaturesModuleWidgetPrivate
 void qSlicerArmaturesModuleWidgetPrivate
 ::onLinkedWithParentChanged(int linked)
 {
-  Q_UNUSED(linked);
+  if (!this->BoneNode)
+    {
+    return;
+    }
+
+  this->BoneNode->SetBoneLinkedWithParent(linked);
 }
 
 //-----------------------------------------------------------------------------
@@ -699,8 +711,8 @@ void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
     {
     this->qvtkReconnect(d->BoneNode, boneNode, vtkCommand::ModifiedEvent,
       this, SLOT(updateWidgetFromBoneNode()));
-    d->BoneNode = boneNode;
     }
+  d->BoneNode = boneNode;
 
   d->updateArmatureWidget(boneNode);
 }

@@ -91,6 +91,7 @@ public:
   void UpdateArmatureNodes();
 
   vtkMRMLArmatureNode* GetArmatureNode(vtkArmatureWidget* armatureWidget);
+  vtkMRMLArmatureNode* GetArmatureNode(vtkMRMLBoneNode* boneNode);
 
   // Bones
   void AddBoneNode(vtkMRMLBoneNode* bone);
@@ -185,18 +186,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   // The bone widget is created here if needed.
   this->UpdateBoneWidgetFromNode(boneNode, 0);
 
-  vtkMRMLAnnotationHierarchyNode* hierarchyNode
-    = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-        vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
-            boneNode->GetScene(), boneNode->GetID()));
-
-  vtkMRMLArmatureNode* armatureNode = 0;
-  if (hierarchyNode && hierarchyNode->GetTopParentNode())
-    {
-    armatureNode = vtkMRMLArmatureNode::SafeDownCast(
-      hierarchyNode->GetTopParentNode());
-    }
-
+  vtkMRMLArmatureNode* armatureNode = this->GetArmatureNode(boneNode);
   vtkMRMLBoneNode* boneParentNode = this->GetBoneParentNode(boneNode);
 
   vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
@@ -374,6 +364,30 @@ vtkMRMLArmatureNode* vtkMRMLArmatureDisplayableManager::vtkInternal
       armatureNode = it->first;
       break;
       }
+    }
+
+  return armatureNode;
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkMRMLArmatureDisplayableManager::vtkInternal
+::GetArmatureNode(vtkMRMLBoneNode* boneNode)
+{
+  if (!boneNode)
+    {
+    return 0;
+    }
+
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode
+    = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+        vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneNode->GetScene(), boneNode->GetID()));
+
+  vtkMRMLArmatureNode* armatureNode = 0;
+  if (hierarchyNode && hierarchyNode->GetTopParentNode())
+    {
+    armatureNode = vtkMRMLArmatureNode::SafeDownCast(
+      hierarchyNode->GetTopParentNode());
     }
 
   return armatureNode;
@@ -576,6 +590,18 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneWidget->AddObserver(vtkCommand::ModifiedEvent,
     this->External->GetWidgetsCallbackCommand());
 
+  vtkMRMLArmatureNode* armatureNode = this->GetArmatureNode(boneNode);
+  if (armatureNode)
+    {
+    vtkArmatureWidget* armatureWidget = this->GetArmatureWidget(armatureNode);
+
+    if (armatureWidget && armatureWidget->HasBone(boneWidget))
+      {
+      armatureWidget->SetBoneLinkedWithParent(boneWidget,
+        boneNode->GetBoneLinkedWithParent());
+      }
+    }
+
   bool visible = boneNode->GetVisible() &&
     (boneDisplayNode ?
      boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
@@ -589,6 +615,22 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 {
   int wasModifying = armatureNode->StartModify();
   armatureNode->CopyArmatureWidgetProperties(widget);
+
+  vtkNew<vtkCollection> bones;
+  armatureNode->GetAllBones(bones.GetPointer());
+  for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+    {
+    vtkMRMLBoneNode* boneNode =
+      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+    vtkBoneWidget* boneWidget = this->GetBoneWidget(boneNode);
+
+    if (boneNode && boneWidget && widget->HasBone(boneWidget))
+      {
+      boneNode->SetBoneLinkedWithParent(
+        widget->GetBoneLinkedWithParent(boneWidget));
+      }
+    }
+
   armatureNode->EndModify(wasModifying);
 }
 

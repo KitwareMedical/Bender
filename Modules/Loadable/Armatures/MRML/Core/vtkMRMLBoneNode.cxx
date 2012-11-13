@@ -80,6 +80,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
   this->BoneProperties = vtkBoneWidget::New();
   this->BoneProperties->SetDebugBoneID(255);
   this->BoneRepresentationType = 0;
+  this->LinkedWithParent = true;
 
   this->Callback->Node = this;
   this->BoneProperties->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
@@ -641,6 +642,24 @@ void vtkMRMLBoneNode::SetShowParenthood(int parenthood)
 int vtkMRMLBoneNode::GetShowParenthood()
 {
   return this->BoneProperties->GetShowParenthood();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetBoneLinkedWithParent(bool linked)
+{
+  if (linked == this->LinkedWithParent)
+    {
+    return;
+    }
+
+  this->LinkedWithParent = linked;
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+bool vtkMRMLBoneNode::GetBoneLinkedWithParent()
+{
+  return this->LinkedWithParent;
 }
 
 //---------------------------------------------------------------------------

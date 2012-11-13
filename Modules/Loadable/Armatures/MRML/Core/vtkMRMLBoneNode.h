@@ -231,6 +231,10 @@ public:
   void SetShowParenthood(int parenthood);
   int GetShowParenthood();
 
+  /// Set/Get if the bone is linked with its parent.
+  void SetBoneLinkedWithParent(bool parenthood);
+  bool GetBoneLinkedWithParent();
+
   //--------------------------------------------------------------------------
   // Helper methods
   //--------------------------------------------------------------------------
@@ -257,6 +261,7 @@ protected:
 
   vtkBoneWidget* BoneProperties;
   int BoneRepresentationType;
+  bool LinkedWithParent;
 };
 
 #endif
