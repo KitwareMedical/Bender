@@ -35,7 +35,7 @@
 #include <vtkProperty.h>
 #include <vtkRenderer.h>
 #include <vtkSmartPointer.h>
-#include <vtkTransformPolydataFilter.h>
+#include <vtkTransformPolyDataFilter.h>
 #include <vtkTubeFilter.h>
 #include <vtkWindow.h>
 
