@@ -78,7 +78,6 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
 {
   this->Callback = vtkMRMLBoneNodeCallback::New();
   this->BoneProperties = vtkBoneWidget::New();
-  this->BoneProperties->SetDebugBoneID(255);
   this->BoneRepresentationType = 0;
   this->LinkedWithParent = true;
 
