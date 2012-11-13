@@ -135,6 +135,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->LinkedToParentCheckBox,
     SIGNAL(stateChanged(int)),
     this, SLOT(onLinkedWithParentChanged(int))); //\ TO DO !
+
   // -- Positions --
   QObject::connect(this->HeadCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
@@ -257,6 +258,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 
   this->ParentBoneNodeComboBox->setEnabled(this->ArmatureNode != 0);
   this->LinkedToParentCheckBox->setEnabled(this->ArmatureNode != 0);
+
   this->HierarchyCollapsibleGroupBox->setEnabled(boneNode != 0);
 }
 
@@ -420,7 +422,29 @@ void qSlicerArmaturesModuleWidgetPrivate
 void qSlicerArmaturesModuleWidgetPrivate
 ::onParentNodeChanged(vtkMRMLNode* node)
 {
-  Q_UNUSED(node);
+  vtkMRMLBoneNode* newParentNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (this->BoneNode && newParentNode != this->BoneNode)
+    {
+    Q_Q(qSlicerArmaturesModuleWidget);
+    vtkMRMLBoneNode* boneToDelete = this->BoneNode;
+
+    if (newParentNode)
+      {
+      this->BonesTreeView->setCurrentNode(newParentNode);
+      }
+    else
+      {
+      this->BonesTreeView->setCurrentNode(this->ArmatureNode);
+      }
+
+    vtkNew<vtkMRMLBoneNode> copiedBoneNode;
+    copiedBoneNode->Initialize(q->mrmlScene());
+
+    copiedBoneNode->Copy(boneToDelete);
+    boneToDelete->RemoveAllDisplayNodeIDs();
+
+    q->mrmlScene()->RemoveNode(boneToDelete);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -430,6 +454,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   Q_UNUSED(linked);
 }
 
+//-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------
