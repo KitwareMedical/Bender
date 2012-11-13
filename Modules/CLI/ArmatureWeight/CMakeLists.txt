@@ -4,25 +4,20 @@ set(MODULE_NAME ArmatureWeight) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
-FIND_PACKAGE(Eigen3 REQUIRED) #requires FindEigen3.cmake to be in the source directory
-include_directories(${EIGEN3_INCLUDE_DIR})
 
-find_path(EIGENSPARSESOLVE_DIR REQUIRED)
-set(EIGENSPARSESOLVE_INCLUDES ${EIGENSPARSESOLVE_DIR}/src)
-set(EIGENSPARSESOLVE_LIBRARIES ${EIGENSPARSESOLVE_DIR}/build/libEigenSparseSolve.so)
-find_library(EIGENSPARSESOLVE_LIBRARIES REQUIRED)
+set(MODULE_INCLUDE_DIRECTORIES
+  ${Bender_SOURCE_DIR}/Libs/Common
+  ${Bender_SOURCE_DIR}/Libs/EigenWrapper
+  ${EIGEN3_INCLUDE_DIR}
+  )
 
-include_directories(${EIGENSPARSESOLVE_INCLUDES})
-
+set(MODULE_TARGET_LIBRARIES
+  BenderEigenWrapper
+  )
 
 SEMMacroBuildCLI(
   NAME ${MODULE_NAME}
   LOGO_HEADER ${Slicer_SOURCE_DIR}/Resources/ITKLogo.h
-  TARGET_LIBRARIES ${EIGENSPARSESOLVE_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
+  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
+  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
   )
-
-
-# if(BUILD_TESTING)
-#   add_subdirectory(Testing)
-# endif()
-

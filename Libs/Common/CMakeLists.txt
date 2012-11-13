@@ -18,29 +18,48 @@
 #
 #============================================================================
 
-
 cmake_minimum_required(VERSION 2.6)
 
-project(Bender)
+set(KIT Common)
+project(Bender${KIT})
+string(TOUPPER ${KIT} KIT_UPPER)
 
 #-----------------------------------------------------------------------------
-# Library mode: SHARED (default) or STATIC
-option(BUILD_SHARED_LIBS "Build Bender with shared libraries." ON)
-mark_as_advanced(BUILD_SHARED_LIBS)
+# Get VTK
+
+find_package(VTK REQUIRED)
+include(${VTK_USE_FILE})
 
 #-----------------------------------------------------------------------------
-# Set library type
+# Create library
 
-set(LIB_TYPE STATIC)
-if (BUILD_SHARED_LIBS)
-  set(LIB_TYPE SHARED)
-  set(BENDER_BUILD_SHARED_LIBS 1)
-endif (BUILD_SHARED_LIBS)
+include_directories(
+  ${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
+  )
+
+set(${KIT}_SRCS
+  WeightMap.cxx
+  WeightMapIO.cxx
+  )
+
+add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
+target_link_libraries(${PROJECT_NAME}
+  ${ITK_LIBRARIES} ${VTK_LIBRARIES}
+  )
 
 #-----------------------------------------------------------------------------
+# Configure export file
 
-add_subdirectory(Libs)
-add_subdirectory(Modules/CLI/ArmatureWeight)
-add_subdirectory(Modules/CLI/EvalWeight)
-add_subdirectory(Modules/CLI/PoseBody)
+set(MyLibraryExportDirective "BENDER_${KIT_UPPER}_EXPORT")
+set(MyExportHeaderPrefix ${PROJECT_NAME})
+set(MyLibName ${PROJECT_NAME})
+
+configure_file(
+  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
+  ${PROJECT_NAME}Export.h
+  )
+
+set(dynamicHeaders
+  "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Export.h")
 

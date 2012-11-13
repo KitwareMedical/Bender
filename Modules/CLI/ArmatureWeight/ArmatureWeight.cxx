@@ -14,31 +14,37 @@
      PURPOSE.  See the above copyright notices for more information.
 
 =========================================================================*/
-#include "itkImageFileWriter.h"
+#include "ArmatureWeightCLP.h"
+
+//-----------itk------------
+
 #include "itkImage.h"
-#include <itkStatisticsImageFilter.h>
+#include "itkImageFileWriter.h"
+#include "itkStatisticsImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkPluginUtilities.h"
-#include "ArmatureWeightCLP.h"
-#include <iostream>
 #include "itkImageRegionIteratorWithIndex.h"
-#include "itkBresenhamLine.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include <vector>
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkNew.h"
 #include "itkBresenhamLine.h"
 #include "itkMath.h"
 #include "itkIndex.h"
-#include "vtkTimerLog.h"
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
 #include "itkConnectedComponentImageFilter.h"
-#include <itkDanielssonDistanceMapImageFilter.h>
-#include "EigenSparseSolve.h"
+
+//-----------vtk------------
+#include "vtkNew.h"
+#include "vtkPolyDataReader.h"
+#include "vtkPolyDataWriter.h"
+#include "vtkPolyData.h"
+#include "vtkCellArray.h"
+#include "vtkTimerLog.h"
+
+//-----------standard------------
 #include <sstream>
+#include <vector>
+#include <iostream>
+
+//-----------Eigen wrapper------------
+
+#include "EigenSparseSolve.h"
 
 using namespace std;
 
@@ -53,6 +59,7 @@ typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
+bool DumpSegmentationImages = false;
 
 template<unsigned int dimension>
 class Neighborhood
@@ -322,16 +329,23 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
   typedef typename RealImageType::OffsetType OffsetType;
   OffsetType* offsets = nbrs.Offsets;
 
-  itk::ImageRegionIteratorWithIndex<RealImageType> it(heat,region);
+  std::vector<Pixel> interior;
+  for(itk::ImageRegionIteratorWithIndex<RealImageType> it(heat,region); !it.IsAtEnd(); ++it)
+    {
+    Pixel p = it.GetIndex();
+    if(shape.IsInterior(p))
+      {
+      interior.push_back(p);
+      }
+    }
+
+  cout<<"Smooth iteratively: ";
   for(int iteration=0; iteration<numIterations; iteration++)
     {
-    for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    cout<<". "<<flush;
+    for(typename std::vector<Pixel>::iterator pi = interior.begin(); pi!=interior.end(); pi++)
       {
-      Pixel p = it.GetIndex();
-      if(!shape.IsInterior(p))
-        {
-        continue;
-        }
+      Pixel p = *pi;
       Real sum=0.0;
       Real diag = 0.0;
       for(OffsetType* offset = offsets; offset!=offsets+2*RealImageType::ImageDimension; offset++)
@@ -339,14 +353,22 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
         Pixel q = p + *offset;
         if(shape.IsMember(q))
           {
+          assert(heat->GetPixel(q)>=0);
           sum+=heat->GetPixel(q);
           diag+=1.0;
           }
         }
-      assert(diag!=0.0);
-      heat->SetPixel(p, sum/diag);
+      if(diag==0.0)
+        {
+        cerr<<p<<" has no neighbor"<<endl;
+        }
+      else
+        {
+        heat->SetPixel(p, sum/diag);
+        }
       }
     }
+  cout<<endl;
 }
 
 void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the domain
@@ -643,17 +665,17 @@ public:
   std::vector<Voxel> Fixed;
   std::vector<WeightImage::Pointer> Weights;
 
-  void Init(const char* fname)
+  void Init(const char* fname, bool invertY)
   {
     vtkNew<vtkPolyDataReader> reader;
     reader->SetFileName(fname);
     reader->Update();
-    this->InitSkeleton(reader->GetOutput());
+    this->InitSkeleton(reader->GetOutput(), invertY);
 
     this->InitBones();
   }
 private:
-  void InitSkeleton(vtkPolyData* armPoly)
+  void InitSkeleton(vtkPolyData* armPoly, bool invertY)
   {
     vtkCellArray* armatureSegments = armPoly->GetLines();
 
@@ -671,9 +693,11 @@ private:
       armPoly->GetPoints()->GetPoint(a, ax);
       armPoly->GetPoints()->GetPoint(b, bx);
 
-      //Fix me! why is the vtk file inverted?
-      ax[1]*=-1;
-      bx[1]*=-1;
+      if(invertY)
+        {
+        ax[1]*=-1;
+        bx[1]*=-1;
+        }
 
       this->SkeletonVoxels.push_back(std::vector<Voxel>());
       std::vector<Voxel>& edgeVoxels(this->SkeletonVoxels.back());
@@ -688,12 +712,24 @@ private:
       edgeVoxels.pop_back();
       edgeVoxels.pop_back();
       CharType label = ArmatureType::GetEdgeLabel(edgeId);
+      int numOutside(0);
       for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); vi++)
         {
         if(this->BodyMap->GetPixel(*vi)!=0 && this->BodyPartition->GetPixel(*vi)==0)
           {
           this->BodyPartition->SetPixel(*vi, label);
           }
+        else
+          {
+          if(this->BodyMap->GetPixel(*vi)==0)
+            {
+            numOutside++;
+            }
+          }
+        }
+      if(numOutside>0)
+        {
+        cout<<"WARNING: armature edge "<<edgeId<<" has "<<numOutside<<" outside voxels out of "<<edgeVoxels.size()<<endl;
         }
 
       if(this->SkeletonVoxels.back().size()<2)
@@ -722,7 +758,10 @@ private:
 
     //Step 2:
     ComputeManhattanVoronoi<LabelImage>(this->BodyPartition,0,unknown);
-    WriteImage<LabelImage>(this->BodyPartition,"/home/leo/temp/bodypartition.mha");
+    if(DumpSegmentationImages)
+      {
+      WriteImage<LabelImage>(this->BodyPartition,"./bodypartition.mha");
+      }
   }
 
   void InitBones()
@@ -887,11 +926,11 @@ private:
       }
 
 //for debugging
-    if(1)
+    if(DumpSegmentationImages)
       {
-      WriteImage<LabelImage>(this->BonePartition,"/home/leo/temp/bonepartition.mha");
+      WriteImage<LabelImage>(this->BonePartition,"./bonepartition.mha");
           itk::ImageRegionIteratorWithIndex<LabelImage> boneIter(BonePartition,imDomain);
-      WriteImage<LabelImage>(BonePartition,"/home/leo/temp/bones.mha");
+      WriteImage<LabelImage>(BonePartition,"./bones.mha");
       std::vector<int> componentSize(this->GetMaxEdgeLabel()+1,0);
       for(boneIter.GoToBegin(); !boneIter.IsAtEnd(); ++boneIter)
         {
@@ -901,7 +940,7 @@ private:
       for(size_t i=0;i<componentSize.size();i++)
         {
         totalSize+=componentSize[i];
-        cout<<i-2<<": "<<componentSize[i]<<"\n";
+        cout<<i<<": "<<componentSize[i]<<"\n";
         }
       }
 
@@ -947,7 +986,7 @@ public:
 
     typedef itk::ImageFileWriter<CharImage> WriterType;
     WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( "/home/leo/temp/region.mha");
+    writer->SetFileName( "./region.mha");
     writer->SetInput(this->Domain);
     writer->SetUseCompression(1);
     writer->Update();
@@ -983,12 +1022,27 @@ public:
     cout<<"Domain bounding box: "<<bbMin<<" "<<bbMax<<endl;
   }
 
-  WeightImage::Pointer ComputeWeight(bool binaryWeight)
+  WeightImage::Pointer ComputeWeight(bool binaryWeight, int smoothingIterations)
   {
     cout<<"Compute weight for edge "<<this->Id<<" with label "<<(int)this->GetLabel()<<endl;
     WeightImage::Pointer weight = WeightImage::New();
     Allocate<LabelImage,WeightImage>(this->Armature.BodyMap, weight);
-    weight->FillBuffer(0.0);
+
+    int numBackground(0);
+    for(itk::ImageRegionIteratorWithIndex<LabelImage> it(this->Armature.BodyMap,this->Armature.BodyMap->GetLargestPossibleRegion());
+        !it.IsAtEnd(); ++it)
+      {
+      if(it.Get()>0)
+        {
+        weight->SetPixel(it.GetIndex(),0.0);
+        }
+      else
+        {
+        weight->SetPixel(it.GetIndex(),-1.0f);
+        numBackground++;
+        }
+      }
+    cout<<numBackground<<" background voxel"<<endl;
 
     if(binaryWeight)
       {
@@ -1005,7 +1059,7 @@ public:
       {
       DiffuseHeat(this->Domain, this->Armature.BonePartition, this->GetLabel(), weight);
       BodyDiffusionRegion diffusionRegion(this->Armature.BodyMap,this->Armature.BonePartition);
-      DiffuseHeatIteratively<WeightImage>(weight,diffusionRegion, 10);
+      DiffuseHeatIteratively<WeightImage>(weight,diffusionRegion, smoothingIterations);
       }
 
     return weight;
@@ -1018,19 +1072,86 @@ private:
   Region ROI;
 };
 
+inline int NumDigits(unsigned int a)
+{
+  int numDigits(0);
+  while(a>0)
+    {
+    a = a/10;
+    numDigits++;
+    }
+  return numDigits;
+}
+
+inline string ToFixedWidthNumber(unsigned int number, int n)
+{
+  stringstream str;
+  unsigned int a = number;
+  for(int i=0; i<n; i++, a/=10)
+    {
+    unsigned int b = a%10;
+    str<<b;
+    }
+  string astr = str.str();
+  std::reverse(astr.begin(),astr.end());
+  return astr;
+
+}
+
+void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
+{
+  Neighborhood<3> neighbors;
+  const VoxelOffset* offsets = neighbors.Offsets;
+
+  Region region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,region);
+  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    if(it.Get()>0)
+      {
+      Voxel p = it.GetIndex();
+      int numNeighbors(0);
+      for(int iOff=0; iOff<6; iOff++)
+        {
+        Voxel q = p + offsets[iOff];
+        if( region.IsInside(q) && labelMap->GetPixel(q)>0)
+          {
+          numNeighbors++;
+          }
+        }
+      if(numNeighbors==0)
+        {
+        cerr<<"Paint isolated voxel "<<p<<" to background"<<endl;
+        labelMap->SetPixel(p, 0);
+        }
+      }
+    }
+}
+
 int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
 
-  cout<<"Binary weight: "<<BinaryWeight<<endl;
+  if(BinaryWeight)
+    {
+    cout<<"Use binary weight: "<<endl;
+    }
+
+  if(InvertY)
+    {
+    cout<<"Y coordinate of the armature will be inverted"<<endl;
+    }
+
+  if(DumpDebugImages)
+    {
+    DumpSegmentationImages = true;
+    }
 
   //----------------------------
   // Read label map
   //----------------------------
   typedef itk::ImageFileReader<LabelImage>  ReaderType;
   typename ReaderType::Pointer labelMapReader = ReaderType::New();
-  itk::PluginFilterWatcher watchLabelMapReader(labelMapReader, "Read Label Map",
-                                        CLPProcessInformation);
   labelMapReader->SetFileName(RestLabelmap.c_str() );
   labelMapReader->Update();
 
@@ -1038,15 +1159,6 @@ int main( int argc, char * argv[] )
   typename StatisticsType::Pointer statistics = StatisticsType::New();
   statistics->SetInput( labelMapReader->GetOutput() );
   statistics->Update();
-  cout<<"Image statistics\n";
-
-  cout<<" min: "<<(int)statistics->GetMinimum()<<" max: "<<(int)statistics->GetMaximum()<<endl;
-
-  // typedef itk::Image<unsigned char, 3>  ThresholdImageType;
-  // typedef itk::BinaryThresholdImageFilter<InputImageType, ThresholdImageType>  ThresholdType;
-  // typename ThresholdType::Pointer threshold = ThresholdType::New();
-  // threshold->SetInput( labelMapReader->GetOutput() );
-
   //----------------------------
   // Print out some statistics
   //----------------------------
@@ -1068,48 +1180,41 @@ int main( int argc, char * argv[] )
       }
     }
   int totalVoxels = allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
-  cout<<"total voxels    :"<<totalVoxels<<endl;
-  cout<<"num body voxels : "<<numBodyVoxels<<endl;
-  cout<<"num bone voxels : "<<numBoneVoxels<<endl;
-  cout<<"Done"<<endl;
+
+  cout<<"Image statistics\n";
+  cout<<"  min: "<<(int)statistics->GetMinimum()<<" max: "<<(int)statistics->GetMaximum()<<endl;
+  cout<<"  total # voxels  : "<<totalVoxels<<endl;
+  cout<<"  num body voxels : "<<numBodyVoxels<<endl;
+  cout<<"  num bone voxels : "<<numBoneVoxels<<endl;
+
+  RemoveSingleVoxelIsland(labelMap);
 
   //----------------------------
   // Read armature information
   //----------------------------
   ArmatureType armature(labelMap);
-  armature.Init(ArmaturePoly.c_str());
+  armature.Init(ArmaturePoly.c_str(),InvertY);
+
+  if (LastEdge<0)
+    {
+    LastEdge = armature.GetNumberOfEdges()-1;
+    }
+  cout<<"Process armature edge from "<<FirstEdge<<" to "<<LastEdge<<endl;
 
   //--------------------------------------------
   // Compute the domain of reach armature part
   //--------------------------------------------
-  int numComponents = armature.GetNumberOfEdges();
-  int selectedEdge=DoOnly;
-  for(size_t i=0; i< static_cast<size_t>(numComponents); i++)
+  int numDigits = NumDigits(armature.GetNumberOfEdges());
+  for(int i=FirstEdge; i<=LastEdge; i++)
     {
-    if(selectedEdge>0 && static_cast<int>(i)!=selectedEdge)
-      {
-      continue;
-      }
     ArmatureEdge edge(armature,i);
     cout<<"Process armature edge "<<i<<" with label "<<(int)edge.GetLabel()<<endl;
-    edge.Initialize(BinaryWeight? 0 : 50);
-    WeightImage::Pointer weight = edge.ComputeWeight(BinaryWeight);
+    edge.Initialize(BinaryWeight? 0 : ExpansionDistance);
+    WeightImage::Pointer weight = edge.ComputeWeight(BinaryWeight,SmoothingIteration);
     std::stringstream filename;
-    filename<<"/home/leo/temp/weight_"<<i<<".mha";
+    filename<<WeightDirectory<<"/weight_"<<ToFixedWidthNumber(i,numDigits)<<".mha";
     WriteImage<WeightImage>(weight,filename.str().c_str());
     }
-
-
-
-
-  // typename WriterType::Pointer writer = WriterType::New();
-  // itk::PluginFilterWatcher watchWriter(writer,
-  //                                      "Write Volume",
-  //                                      CLPProcessInformation);
-  // writer->SetFileName( outputVolume.c_str() );
-  // writer->SetInput( filter->GetOutput() );
-  // writer->SetUseCompression(1);
-  // writer->Update();
 
   return EXIT_SUCCESS;
 }

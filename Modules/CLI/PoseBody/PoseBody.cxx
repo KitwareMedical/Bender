@@ -16,6 +16,10 @@
 =========================================================================*/
 #include "PoseBodyCLP.h"
 
+#include "WeightMap.h"
+#include "WeightMapMath.h"
+#include "WeightMapIO.h"
+
 #include "itkImageFileWriter.h"
 #include "itkImage.h"
 #include <itkStatisticsImageFilter.h>
@@ -27,7 +31,6 @@
 #include "itkMath.h"
 #include "itkIndex.h"
 #include "itkLinearInterpolateImageFunction.h"
-#include "itkVariableLengthVector.h"
 #include "itkMatrix.h"
 
 #include "vtkTimerLog.h"
@@ -48,59 +51,9 @@
 #include <vector>
 #include <limits>
 
+#include "dqconv.h"
 
-
-// Move me!
-//----------------------------------------------------------------------
-
-
-#include <math.h>
-
-// input: unit quaternion 'q0', translation vector 't'
-// output: unit dual quaternion 'dq'
-void QuatTrans2UDQ(const double q0[4], const double t[3],
-                  double dq[2][4])
-{
-   // non-dual part (just copy q0):
-   for (int i=0; i<4; i++) dq[0][i] = q0[i];
-   // dual part:
-   dq[1][0] = -0.5*(t[0]*q0[1] + t[1]*q0[2] + t[2]*q0[3]);
-   dq[1][1] = 0.5*( t[0]*q0[0] + t[1]*q0[3] - t[2]*q0[2]);
-   dq[1][2] = 0.5*(-t[0]*q0[3] + t[1]*q0[0] + t[2]*q0[1]);
-   dq[1][3] = 0.5*( t[0]*q0[2] - t[1]*q0[1] + t[2]*q0[0]);
-}
-
-// input: unit dual quaternion 'dq'
-// output: unit quaternion 'q0', translation vector 't'
-void UDQ2QuatTrans(const double dq[2][4],
-                  double q0[4], double t[3])
-{
-   // regular quaternion (just copy the non-dual part):
-   for (int i=0; i<4; i++) q0[i] = dq[0][i];
-   // translation vector:
-   t[0] = 2.0*(-dq[1][0]*dq[0][1] + dq[1][1]*dq[0][0] - dq[1][2]*dq[0][3] + dq[1][3]*dq[0][2]);
-   t[1] = 2.0*(-dq[1][0]*dq[0][2] + dq[1][1]*dq[0][3] + dq[1][2]*dq[0][0] - dq[1][3]*dq[0][1]);
-   t[2] = 2.0*(-dq[1][0]*dq[0][3] - dq[1][1]*dq[0][2] + dq[1][2]*dq[0][1] + dq[1][3]*dq[0][0]);
-}
-
-// input: dual quat. 'dq' with non-zero non-dual part
-// output: unit quaternion 'q0', translation vector 't'
-void DQ2QuatTrans(const double dq[2][4],
-                  double q0[4], double t[3])
-{
-   double len = 0.0;
-   for (int i=0; i<4; i++) len += dq[0][i] * dq[0][i];
-   len = sqrt(len);
-   for (int i=0; i<4; i++) q0[i] = dq[0][i] / len;
-   t[0] = 2.0*(-dq[1][0]*dq[0][1] + dq[1][1]*dq[0][0] - dq[1][2]*dq[0][3] + dq[1][3]*dq[0][2]) / len;
-   t[1] = 2.0*(-dq[1][0]*dq[0][2] + dq[1][1]*dq[0][3] + dq[1][2]*dq[0][0] - dq[1][3]*dq[0][1]) / len;
-   t[2] = 2.0*(-dq[1][0]*dq[0][3] - dq[1][1]*dq[0][2] + dq[1][2]*dq[0][1] + dq[1][3]*dq[0][0]) / len;
-}
-
-
-//----------------------------------------------------------------------
-
-
+typedef itk::Matrix<double,2,4> Mat24;
 
 using namespace std;
 
@@ -114,8 +67,6 @@ typedef itk::Image<bool, 3>  BoolImage;
 typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
-
-typedef itk::VariableLengthVector<float> WeightVector;
 
 typedef itk::Versor<double> Versor;
 typedef itk::Matrix<double,3,3> Mat33;
@@ -221,6 +172,19 @@ inline Mat33 ToRotationMatrix(const Vec4& R)
   return v.GetMatrix();
 }
 
+void ApplyQT(Vec4& q, Vec3& t, double* x)
+{
+  double R[3][3];
+  vtkMath::QuaternionToMatrix3x3(&q[0], R);
+
+  double Rx[3];
+  vtkMath::Multiply3x3(R, x, Rx);
+
+  for(unsigned int i=0; i<3; i++)
+    {
+    x[i] = Rx[i]+t[i];
+    }
+}
 
 struct RigidTransform
 {
@@ -263,6 +227,10 @@ struct RigidTransform
   void SetTranslation(double* t)
   {
     this->T = Vec3(t);
+  }
+  Vec3 GetTranslationComponent()
+  {
+    return ToRotationMatrix(this->R)*(-this->O) + this->O +T;
   }
   void Apply(const double in[3], double out[3]) const
   {
@@ -434,7 +402,7 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const std
 
 //-----------------------------------------------------------------------------
 
-void NormalizeWeight(WeightVector& v)
+void NormalizeWeight(WeightMap::WeightVector& v)
 {
   for(unsigned int i=0; i<v.Size();i++)
     {
@@ -480,29 +448,6 @@ public:
 };
 
 
-class Neighborhood27
-{
-public:
-  Neighborhood27()
-  {
-    int index=0;
-    for(unsigned int i=0; i<=2; i++)
-      {
-      for(unsigned int j=0; j<=2; j++)
-        {
-        for(unsigned int k=0; k<=2; k++,index++)
-          {
-          this->Offsets[index][0] = i;
-          this->Offsets[index][1] = j;
-          this->Offsets[index][2] = k;
-          }
-        }
-      }
-    assert(index==27);
-  }
-  VoxelOffset Offsets[27];
-};
-
 vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
 {
   vtkPolyData* polyData = 0;
@@ -530,119 +475,13 @@ vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
 //-----------------------------------------------------------------------------
 void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
 {
+  cout<<"Write polydata to "<<fileName<<endl;
   vtkNew<vtkPolyDataWriter> pdWriter;
   pdWriter->SetInput(polyData);
   pdWriter->SetFileName(fileName.c_str() );
   pdWriter->SetFileTypeToBinary();
   pdWriter->Update();
 }
-
-typedef unsigned char SiteIndex;
-#define MAX_SITE_INDEX 255
-struct WeightEntry
-{
-  SiteIndex Index;
-  float Value;
-
-  WeightEntry(): Index(MAX_SITE_INDEX), Value(0){}
-};
-
-class WeightMap
-{
-public:
-  typedef std::vector<SiteIndex> RowSizes;
-  typedef std::vector<WeightEntry> WeightEntries;
-
-  typedef std::vector<WeightEntries> WeightLUT; //for any j, WeightTable[...][j] correspond to
-  //the weights at a vixel
-
-  typedef itk::Image<size_t,3> WeightLUTIndex; //for each voxel v, WeightLUTIndex[v] index into the
-                                           //the "column" of WeightLUT
-
-  WeightMap():Cols(0)
-  {
-  }
-  void Init(const std::vector<Voxel>& voxels, const Region& region)
-  {
-    this->Cols = voxels.size();
-    this->RowSize.resize(this->Cols,0);
-
-    this->LUTIndex = WeightLUTIndex::New();
-    this->LUTIndex->SetRegions(region);
-    this->LUTIndex->Allocate();
-
-    itk::ImageRegionIterator<WeightLUTIndex> it(this->LUTIndex,region);
-    for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-      {
-      it.Set(std::numeric_limits<std::size_t>::max());
-      }
-
-    for(size_t j=0; j<voxels.size(); j++)
-      {
-      this->LUTIndex->SetPixel(voxels[j], j);
-      }
-  }
-
-  bool Insert(const Voxel& v, SiteIndex index, float value)
-  {
-    if(value<=0)
-      {
-      return false;
-      }
-    size_t j = this->LUTIndex->GetPixel(v);
-    assert(j<Cols);
-    size_t i = this->RowSize[j];
-    if (i>=LUT.size())
-      {
-      this->AddRow();
-      }
-    WeightEntry& weight = LUT[i][j];
-    weight.Index = index;
-    weight.Value = value;
-
-    this->RowSize[j]++;
-    return true;
-  }
-
-  void Get(const Voxel& v, WeightVector& values)
-  {
-    values.Fill(0);
-    size_t j = this->LUTIndex->GetPixel(v);
-    assert(j<Cols);
-
-    size_t rows = this->RowSize[j];
-
-    for(size_t i=0; i<rows; i++)
-      {
-      const WeightEntry& entry = LUT[i][j];
-      values[entry.Index] = entry.Value;
-
-      }
-  }
-
-  void AddRow()
-  {
-    LUT.push_back(WeightEntries());
-    WeightEntries& newRow = LUT.back();
-    newRow.resize(Cols);
-  }
-
-  void Print()
-  {
-    int numEntries(0);
-    for(RowSizes::iterator r=this->RowSize.begin();r!=this->RowSize.end();r++)
-      {
-      numEntries+=*r;
-      }
-    cout<<"Weight map "<<LUT.size()<<"x"<<Cols<<" has "<<numEntries<<" entries"<<endl;
-  }
-
-private:
-  WeightLUT LUT;
-  WeightLUTIndex::Pointer LUTIndex;
-  RowSizes RowSize;
-  size_t Cols;
-};
 
 void TestQuarternion()
 {
@@ -672,8 +511,6 @@ void TestQuarternion()
 void TestDualQuarternion()
 {
   Vec4 q = ComputeQuarternion(0,0,1,3.14/4);
-  cout<<q<<endl;
-
   Vec3 t;
   t[0] = 0.0;
   t[1] = 1.0;
@@ -682,18 +519,10 @@ void TestDualQuarternion()
   double dq[2][4];
   QuatTrans2UDQ(&q[0],&t[0],dq);
 
-
   Vec4 q1;
   Vec3 t1;
   DQ2QuatTrans(dq,&q1[0],&t1[0]);
-
-  cout<<q1<<endl;
-  cout<<t1<<endl;
-
-
 }
-
-
 
 void TestVersor()
 {
@@ -742,48 +571,8 @@ void TestTransformBlending()
       assert(x[i]==y[i]);
       }
     }
-
-  // vtkSmartPointer<vtkPolyData> cube;
-  // cube.TakeReference(ReadPolyData("/home/leo/temp/cube88.vtk"));
-
-  // vtkNew<vtkPoints> points0;
-  // points0->DeepCopy(cube->GetPoints());
-
-
-  // RigidTransform A;
-  // A.R[0] = 1; A.R[1] = 0; A.R[2] = 0; A.R[3] = 1;
-  // A.R.Normalize();
-  // cout<<A.R<<endl;
-  // RigidTransform B;
-  // vtkPoints* points =  cube->GetPoints();
-
-  // for(int i=0; i<points->GetNumberOfPoints(); i++)
-  //   {
-  //   double x[3],y[3];
-  //   points0->GetPoint(i,x);
-  //   double t= x[2] + 0.5;
-  //   assert(t>=0 && t<=1);
-
-  //   RigidTransform F;
-  //   F.R = t*A.R + (1-t)*B.R;
-  //   F.T = t*A.T + (1-t)*B.T;
-  //   F.R.Normalize();
-
-  //   F.Apply(x,y);
-  //   points->SetPoint(i,y);
-  //   }
-  // std::stringstream fname;
-  // fname<<"/home/leo/temp/cubetwisted.vtk";
-  // cout<<"TestTransformBlending wrote to "<<fname.str()<<endl;
-  // WritePolyData(cube,fname.str());
 }
-void TestVector()
-{
-  WeightVector a(3);
-  a.Fill(0);
-  a[1]=2;
-  a.Fill(1);
-}
+
 void TestInterpolation()
 {
   typedef itk::Image<float, 2>  ImageType;
@@ -859,145 +648,124 @@ void TestInterpolation()
 
 }
 
-BoolImage::Pointer CreateBodyDomain(LabelImage::Pointer bodyMap,bool expandOnce=true)
+void ComputeDomainVoxels(WeightImage::Pointer image //input
+                         ,vtkPoints* points //input
+                         ,std::vector<Voxel>& domainVoxels //output
+                         )
 {
-  Neighborhood27 neighbors;
-  VoxelOffset* offsets = neighbors.Offsets ;
+  CubeNeighborhood cubeNeighborhood;
+  VoxelOffset* offsets = cubeNeighborhood.Offsets;
 
-  Region region = bodyMap->GetLargestPossibleRegion();
   BoolImage::Pointer domain = BoolImage::New();
-  domain->SetRegions(region);
+  domain->SetRegions(image->GetLargestPossibleRegion());
   domain->Allocate();
   domain->FillBuffer(false);
-  itk::ImageRegionIteratorWithIndex<LabelImage> it(bodyMap,region);
-  int numBodyVoxels(0);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>0)
-      {
-      numBodyVoxels++;
-      Voxel p = it.GetIndex();
-      domain->SetPixel(p,true);
 
-      if(expandOnce)
+  for(int pi=0; pi<points->GetNumberOfPoints();pi++)
+    {
+    double xraw[3];
+    points->GetPoint(pi,xraw);
+
+    itk::Point<double,3> x(xraw);
+    itk::ContinuousIndex<double,3> coord;
+    image->TransformPhysicalPointToContinuousIndex(x, coord);
+
+    Voxel p;
+    p.CopyWithCast(coord);
+
+    for(int iOff=0; iOff<8; iOff++)
+      {
+      Voxel q = p + offsets[iOff];
+      if(!domain->GetPixel(q))
         {
-        p[0]--;
-        p[1]--;
-        p[2]--;
-        for(int iOff=0; iOff<27; iOff++)
-          {
-          Voxel q = p + offsets[iOff];
-          domain->SetPixel(q,true);
-          }
+        domain->SetPixel(q,true);
+        domainVoxels.push_back(q);
         }
       }
     }
-
-  cout<<numBodyVoxels<<" body voxels\n";
-  return domain;
-}
-
-void ReadWeights(std::string dirName,
-                 int numSites,
-                 LabelImage::Pointer bodyMap,
-                 WeightMap& weightMap, bool test=false)
-{
-  itk::ImageRegionIteratorWithIndex<LabelImage> it(bodyMap,bodyMap->GetLargestPossibleRegion());
-  typedef std::vector<Voxel> Voxels;
-  Voxels bodyVoxels;
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>0)
-      {
-      bodyVoxels.push_back(it.GetIndex());
-      }
-    }
-  cout<<bodyVoxels.size()<<" body domain voxels\n";
-  weightMap.Init(bodyVoxels,bodyMap->GetLargestPossibleRegion());
-
-  if(test)
-    {
-    assert(numSites==1);
-    }
-  for(int i=0; i<numSites; i++)
-    {
-    std::stringstream filename;
-    if(test)
-      {
-      filename<<dirName<<"/"<<"weight_test.mha";
-      }
-    else
-      {
-      filename<<dirName<<"/"<<"weight_"<<i<<".mha";
-      }
-    cout<<"Read weight: "<<filename.str()<<endl;
-
-    typedef itk::ImageFileReader<WeightImage>  ReaderType;
-    typename ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName(filename.str().c_str());
-    reader->Update();
-    WeightImage::Pointer weight_i =  reader->GetOutput();
-
-    int numInserted(0);
-    for(Voxels::iterator v_iter = bodyVoxels.begin(); v_iter!=bodyVoxels.end(); v_iter++)
-      {
-      const Voxel& v(*v_iter);
-      SiteIndex index = static_cast<SiteIndex>(i);
-      float value = weight_i->GetPixel(v);
-      bool inserted = weightMap.Insert(v,index,value);
-      numInserted+= inserted;
-      }
-    cout<<numInserted<<" inserted to weight map"<<endl;
-    weightMap.Print();
-    }
-  weightMap.Print();
-
 }
 
 int main( int argc, char * argv[] )
 {
-  TestDualQuarternion();
-  return 0;
+  //run some tests
+  TestTransformBlending();
+  TestVersor();
+  TestInterpolation();
 
   PARSE_ARGS;
 
-  Vec4 Q0;
-  SetToIdentityQuarternion(Q0);
-  TestTransformBlending();
-  TestVersor();
-//  TestQuarternion();
-  TestVector();
-  TestInterpolation();
 
-  typedef itk::ImageFileReader<LabelImage>  ReaderType;
-//  typedef itk::ImageFileWriter<OutputImageType> WriterType;
+  cout<<"Armature Y coordinate will be inverted\n";
+
+  if(LinearBlend)
+    {
+    cout<<"Use Linear Blend"<<endl;
+    }
+  else
+    {
+    cout<<"Use Dual Quaternion blend"<<endl;
+    }
+
+  //----------------------------
+  // Read the first weight image
+  // and all file names
+  //----------------------------
+  vector<string> fnames;
+  GetWeightFileNames(WeightDirectory, fnames);
+  int numSites = fnames.size();
+  if(numSites<1)
+    {
+    cerr<<"No weight file is found."<<endl;
+    return 1;
+    }
+
+  typedef itk::ImageFileReader<WeightImage>  ReaderType;
+  typename ReaderType::Pointer reader = ReaderType::New();
+  reader->SetFileName(fnames[0].c_str());
+  reader->Update();
+
+  WeightImage::Pointer weight0 =  reader->GetOutput();
+  Region weightRegion = weight0->GetLargestPossibleRegion();
+  cout<<"Weight volume description: "<<endl;
+  cout<<weightRegion<<endl;
+
+  int numForeGround(0);
+  for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
+    {
+    numForeGround+= it.Get()>=0;
+    }
+  cout<<numForeGround<<" foreground voxels"<<endl;
+
+  //----------------------------
+  // Read in the surface file
+  //----------------------------
+  vtkSmartPointer<vtkPolyData> inSurface;
+  inSurface.TakeReference(ReadPolyData(SurfaceInput.c_str(),false));
+
+  vtkPoints* inputPoints = inSurface->GetPoints();
+  int numPoints = inputPoints->GetNumberOfPoints();
+  std::vector<Voxel> domainVoxels;
+  ComputeDomainVoxels(weight0,inputPoints,domainVoxels);
+  cout<<numPoints<<" vertices, "<<domainVoxels.size()<<" voxels"<<endl;
 
 
   //----------------------------
-  // Read label map
+  // Read Weights
   //----------------------------
-  typename ReaderType::Pointer labelMapReader = ReaderType::New();
-  itk::PluginFilterWatcher watchLabelMapReader(labelMapReader, "Read Label Map",
-                                        CLPProcessInformation);
-  labelMapReader->SetFileName(RestLabelmap.c_str() );
-  labelMapReader->Update();
-  LabelImage::Pointer bodyMap = labelMapReader->GetOutput();
+  WeightMap weightMap;
+  ReadWeights(fnames,domainVoxels,weightMap);
 
   //----------------------------
   // Read armature
   //----------------------------
-  int numSites(0);
   std::vector<RigidTransform> transforms;
-
   vtkSmartPointer<vtkPolyData> armature;
   armature.TakeReference(ReadPolyData(ArmaturePoly.c_str(),false));
 
-  if(1)
+  if(0) //test whether the transform makes senses.
     {
-    WritePolyData(TransformArmature(armature,"Transforms",true),"/home/leo/temp/test.vtk");
+    WritePolyData(TransformArmature(armature,"Transforms",true),"./test.vtk");
     }
-
-
 
   vtkCellArray* armatureSegments = armature->GetLines();
   vtkCellData* armatureCellData = armature->GetCellData();
@@ -1021,43 +789,21 @@ int main( int argc, char * argv[] )
     }
 
   numSites = transforms.size();
-
-  if(1)
+  std::vector<Mat24> dqs;
+  for(size_t i=0; i<transforms.size(); i++)
     {
-    vtkSmartPointer<vtkPolyData> testArmature;
-    testArmature.TakeReference(ReadPolyData(ArmaturePoly.c_str(),true));
-    WritePolyData(TransformArmature(testArmature,transforms),"/home/leo/temp/test.vtk");
+    Mat24 dq;
+    RigidTransform& trans = transforms[i];
+    Vec3 T = trans.GetTranslationComponent();
+    QuatTrans2UDQ(&trans.R[0], &T[0], (double (*)[4]) &dq(0,0));
+    dqs.push_back(dq);
     }
 
   cout<<"Read "<<numSites<<" transforms"<<endl;
-  if(TestOne)
-    {
-    cout<<"Testing just one weight map. Transform is made up."<<endl;
-    numSites=1;
-    transforms.resize(1);
-    double rCenter[3] = {-82.1714, 42.9494, -865.9};
-    transforms[0].SetRotation(1,0,0,3.14/10);
-    transforms[0].SetRotationCenter(rCenter);
-    cout<<transforms[0].R<<endl;
-    }
 
   //----------------------------
-  // Read Weights
+  // Check surface points
   //----------------------------
-  WeightMap weightMap;
-  ReadWeights(WeightDirectory,numSites,bodyMap,weightMap,TestOne);
-
-  //----------------------------
-  // Read in the stl file
-  //----------------------------
-  vtkSmartPointer<vtkPolyData> inSurface;
-  inSurface.TakeReference(ReadPolyData(SurfaceInput.c_str(),false));
-
-  vtkPoints* inputPoints = inSurface->GetPoints();
-  int numPoints = inputPoints->GetNumberOfPoints();
-  cout<<numPoints<<" surface points\n";
-
-  // Check surface points.
   int numBad(0);
   int numInterior(0);
   CubeNeighborhood cubeNeighborhood;
@@ -1070,7 +816,7 @@ int main( int argc, char * argv[] )
     itk::Point<double,3> x(xraw);
 
     itk::ContinuousIndex<double,3> coord;
-    bodyMap->TransformPhysicalPointToContinuousIndex(x, coord);
+    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
 
     Voxel p;
     p.CopyWithCast(coord);
@@ -1080,7 +826,7 @@ int main( int argc, char * argv[] )
     for(int iOff=0; iOff<8; iOff++)
       {
       Voxel q = p + offsets[iOff];
-      if(bodyMap->GetPixel(q)>0)
+      if(weight0->GetPixel(q)>=0)
         {
         hasInside=true;
         }
@@ -1094,14 +840,13 @@ int main( int argc, char * argv[] )
     }
   if(numBad>0)
     {
-    cout<<numBad<<" bad surface vertices."<<endl;
-    cout<<numInterior<<" interior vertices."<<endl;
-    cout<<"Bad input. Quitting"<<endl;
-    return EXIT_FAILURE;
+    cout<<"WARNING: "<<numBad<<" bad surface vertices."<<endl;
     }
 
 
-  //Perform interpolation
+  //----------------------------
+  // Perform interpolation
+  //----------------------------
   vtkSmartPointer<vtkPolyData> outSurface = vtkSmartPointer<vtkPolyData>::New();
   outSurface->DeepCopy(inSurface);
   vtkPoints* outPoints = outSurface->GetPoints();
@@ -1126,9 +871,8 @@ int main( int argc, char * argv[] )
     assert(outData->GetArray(i)->GetNumberOfTuples()==numPoints);
     }
 
-  int stat_num_support(0);
-  WeightVector w_pi(numSites);
-  WeightVector w_corner(numSites);
+  WeightMap::WeightVector w_pi(numSites);
+  WeightMap::WeightVector w_corner(numSites);
   for(int pi=0; pi<inputPoints->GetNumberOfPoints();pi++)
     {
     double xraw[3];
@@ -1137,51 +881,20 @@ int main( int argc, char * argv[] )
     itk::Point<double,3> x(xraw);
 
     itk::ContinuousIndex<double,3> coord;
-    bodyMap->TransformPhysicalPointToContinuousIndex(x, coord);
+    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
 
-    Voxel m; //min index of the cell containing the point
-    m.CopyWithCast(coord);
-
-    w_pi.Fill(0);
-    assert(w_pi.GetNorm()==0);
-    //interpoalte the weight for vertex over the cube corner
-    if(1)
+    bool res = Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
+    if(!res)
       {
-      double cornerWSum(0);
-      for(unsigned int corner=0; corner<8; corner++)
-        {
-        //for each bit of index
-        unsigned int bit = corner;
-        double cornerW=1.0;
-        Voxel q;
-        for(int dim=0; dim<3; dim++)
-          {
-          bool upper = bit & 1;
-          bit>>=1;
-          float t = coord[dim] - static_cast<float>(m[dim]);
-          cornerW*= upper? t : 1-t;
-          q[dim] = m[dim]+ static_cast<int>(upper);
-          }
-        assert(cornerW>=0);
-        w_corner.Fill(0);
-        if(bodyMap->GetPixel(q)>0)
-          {
-          cornerWSum+=cornerW;
-          weightMap.Get(q, w_corner);
-          w_pi += cornerW*w_corner;
-          stat_num_support++;
-          }
-        else
-          {
-          }
-        }
-      assert(cornerWSum!=0.0);
-      w_pi*= 1.0/cornerWSum;
+      cerr<<"Lerp failed for "<<coord<<endl;
       }
-//    NormalizeWeight(w_pi);
-    for(int i=0; i<numSites;i++)
+    else
       {
-      surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
+//    NormalizeWeight(w_pi);
+      for(int i=0; i<numSites;i++)
+        {
+        surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
+        }
       }
 
     double wSum(0.0);
@@ -1191,8 +904,7 @@ int main( int argc, char * argv[] )
       }
 
     Vec3 y(0.0);
-    //linearly blending transforms
-    if(1)
+    if(LinearBlend)
       {
       assert(wSum>=0);
       for(int i=0; i<numSites;i++)
@@ -1203,36 +915,32 @@ int main( int argc, char * argv[] )
         Fi.Apply(xraw,yi);
         y+= w*Vec3(yi);
         }
-
-      // if(!normalize)
-      //   {
-      //   y+= (1.0-wSum)*Vec3(xraw);
-      //   }
       }
     else
       {
-      Vec4 R(0.0);
-      Vec3 T(0.0);
+      Mat24 dq;
+      dq.Fill(0.0);
       for(int i=0; i<numSites;i++)
         {
-        double w = w_pi[i];
-        const RigidTransform& Fi(transforms[i]);
-        R+=w*Fi.R;
-        Mat33 Ri = ToRotationMatrix(Fi.R);
-        Vec3 Ti = -1.0*(Ri*Fi.O)+Fi.O;
-        T+= w*Ti;
+        double w = w_pi[i]/wSum;
+        Mat24& dq_i(dqs[i]);
+        dq+= dq_i*w;
         }
-      R = (1-wSum)*Q0+R;
-      y = ToRotationMatrix(R)*Vec3(xraw)+T;
+      Vec4 q;
+      Vec3 t;
+      DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
+      y = Vec3(xraw);
+      ApplyQT(q,t,&y[0]);
       }
-
 
     outPoints->SetPoint(pi,y[0],y[1],y[2]);
 
     }
-  cout<< (double)stat_num_support/inputPoints->GetNumberOfPoints()<<" average support"<<endl;
 
-  WritePolyData(outSurface,"/home/leo/temp/posedSurface.vtk");
+  //----------------------------
+  // Write output
+  //----------------------------
+  WritePolyData(outSurface,"./posedSurface.vtk");
 
   return EXIT_SUCCESS;
 }

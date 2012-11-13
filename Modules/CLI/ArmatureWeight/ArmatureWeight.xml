@@ -19,6 +19,7 @@
       <index>0</index>
       <description><![CDATA[Labelmap volume in resting pose]]></description>
     </image>
+
     <file fileExtensions="*.vtk">
       <name>ArmaturePoly</name>
       <label>Armature</label>
@@ -27,31 +28,63 @@
       <description><![CDATA[Resting armature]]></description>
     </file>
 
-    <!-- <image> -->
-    <!--   <name>outputVolume</name> -->
-    <!--   <label>Output Volume</label> -->
-    <!--   <channel>output</channel> -->
-    <!--   <index>2</index> -->
-    <!--   <description><![CDATA[Volume1 + Volume2]]></description> -->
-    <!-- </image> -->
-  </parameters>
-  <parameters>
+    <boolean>
+      <name>InvertY</name>
+      <description><![CDATA[Whether to invert the y coordinate of the input armature]]></description>
+      <label>Invert Y Coordinates</label>
+      <longflag>--inverty</longflag>
+      <default>false</default>
+    </boolean>
+
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     <integer>
-      <name>DoOnly</name>
-      <label>Test only this armature edge</label>
-      <flag>-o</flag>
-      <longflag>--only</longflag>
-      <description><![CDATA[For Debugging only]]></description>
+      <name>FirstEdge</name>
+      <longflag>--first</longflag>
+      <description><![CDATA[The first egde to process]]></description>
+      <default>0</default>
+    </integer>
+
+    <integer>
+      <name>LastEdge</name>
+      <longflag>--last</longflag>
+      <description><![CDATA[The last egde to process (default -1 tells the program to use the largest possible)]]></description>
       <default>-1</default>
     </integer>
+
+    <directory>
+      <name>WeightDirectory</name>
+      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <longflag>--out</longflag>
+      <default>./</default>
+    </directory>
+
+    <integer>
+      <name>ExpansionDistance</name>
+      <longflag>--expansion</longflag>
+      <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
+      <default>20</default>
+    </integer>
+    <integer>
+      <name>SmoothingIteration</name>
+      <longflag>--smooth</longflag>
+      <description><![CDATA[Number of smoothing iterations. This is only necessary because we restrict the solving to a local region]]></description>
+      <default>10</default>
+    </integer>
+
     <boolean>
       <name>BinaryWeight</name>
       <label>Binary weight</label>
       <flag>-b</flag>
       <longflag>--binary</longflag>
-      <description><![CDATA[For Debugging only]]></description>
+      <description><![CDATA[Use binary weight. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>DumpDebugImages</name>
+      <longflag>--dump</longflag>
+      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
       <default>false</default>
     </boolean>
   </parameters>
