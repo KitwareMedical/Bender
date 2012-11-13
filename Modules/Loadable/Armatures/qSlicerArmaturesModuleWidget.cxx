@@ -306,10 +306,13 @@ void qSlicerArmaturesModuleWidgetPrivate
     this->ArmatureRepresentationComboBox->setCurrentIndex(
       armatureNode->GetBonesRepresentation() - 1);
 
-    int rgb[3];
+    double rgb[3];
     armatureNode->GetColor(rgb);
     this->ArmatureColorPickerButton->setColor(
-      QColor::fromRgb(rgb[0], rgb[1], rgb[2]));
+      QColor::fromRgb(
+        static_cast<int>(rgb[0] * 255.0),
+        static_cast<int>(rgb[1] * 255.0),
+        static_cast<int>(rgb[2] * 255.0)));
 
     this->ArmatureOpacitySlider->setValue(ArmatureNode->GetOpacity());
     this->blockArmatureDisplaySignals(false);
@@ -601,10 +604,13 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   d->ArmatureNode->SetBonesRepresentation(
     d->ArmatureRepresentationComboBox->currentIndex() + 1);
 
-  int rgb[3];
-  rgb[0] = d->ArmatureColorPickerButton->color().red();
-  rgb[1] = d->ArmatureColorPickerButton->color().green();
-  rgb[2] = d->ArmatureColorPickerButton->color().blue();
+  double rgb[3];
+  rgb[0] =
+    static_cast<double>(d->ArmatureColorPickerButton->color().red()) / 255.0;
+  rgb[1] =
+    static_cast<double>(d->ArmatureColorPickerButton->color().green()) / 255.0;
+  rgb[2] =
+    static_cast<double>(d->ArmatureColorPickerButton->color().blue()) / 255.0;
   d->ArmatureNode->SetColor(rgb);
 
   d->ArmatureNode->SetOpacity(d->ArmatureOpacitySlider->value());

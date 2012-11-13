@@ -629,7 +629,7 @@ void vtkMRMLArmatureDisplayableManager
         // Opacity
         newBoneNode->SetOpacity(armatureNode->GetOpacity());
         // Color
-        int armatureColor[3];
+        double armatureColor[3];
         armatureNode->GetColor(armatureColor);
         newBoneNode->SetBoneColor(armatureColor);
 

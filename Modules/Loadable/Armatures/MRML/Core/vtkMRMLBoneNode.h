@@ -136,8 +136,8 @@ public:
 
   // -- Color ----------------------------------------------------------------
   /// Helper function to set/get the representation color.
-  void SetBoneColor(int rgb[3]);
-  void GetBoneColor(int rgb[3]);
+  void SetBoneColor(double rgb[3]);
+  void GetBoneColor(double rgb[3]);
 
   // -- Opacity --------------------------------------------------------------
   /// Helper function to set/get the representation color.
