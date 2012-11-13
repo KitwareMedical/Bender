@@ -286,7 +286,7 @@ protected:
                                          vtkBoneWidget* parent);
 
   // Make a new map element corresponding to the bone and the parent.
-  ArmatureTreeNode* AddNewNodeToHierarchy(
+  void CreateAndAddNodeToHierarchy(
     vtkBoneWidget* bone, vtkBoneWidget* parent, bool linkedWithParent);
 
   // Remove the element according to the hierarchy.
