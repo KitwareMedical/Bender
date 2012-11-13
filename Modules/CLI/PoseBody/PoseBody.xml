@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering.Arithmetic</category>
+  <title>Pose body</title>
+  <description><![CDATA[Compute transform by linearly combining the armature edge transforms using pre-computed weights.]]></description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url> ?? </documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu</contributor>
+  <acknowledgements><![CDATA[Airforce]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>RestLabelmap</name>
+      <label>Rest Labelmap</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
+    </image>
+    <file fileExtensions="*.vtk">
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <channel>input</channel>
+      <index>1</index>
+      <description><![CDATA[Resting armature]]></description>
+    </file>
+    <image>
+      <name>WeightDirectory</name>
+      <label>Directories containing all the weights</label>
+      <channel>input</channel>
+      <index>2</index>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
+    </image>
+    <file fileExtensions="*.stl">
+      <name>SurfaceInput</name>
+      <label>Surface</label>
+      <channel>input</channel>
+      <index>3</index>
+      <description><![CDATA[Body Surface]]></description>
+    </file>
+  </parameters>
+
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    <boolean>
+      <name>TestOne</name>
+      <label>only one weight is used (weight.mha)</label>
+      <flag>-t</flag>
+      <longflag>--test</longflag>
+      <description><![CDATA[For Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+</executable>

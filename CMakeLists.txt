@@ -41,3 +41,4 @@ endif (BUILD_SHARED_LIBS)
 # Set important variables
 
 add_subdirectory(Libs)
+add_subdirectory(Modules/CLI/ArmatureWeight)

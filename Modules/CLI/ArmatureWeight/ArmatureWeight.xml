@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering.Arithmetic</category>
+  <title>Compute weights of armature edges</title>
+  <description><![CDATA[Compute weights of armature wedghes. Output one weight image per edge. Only the body voxels have weights.]]>
+  </description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url>http://slicer.org/slicerWiki/index.php/Documentation/4.1/Modules/Add</documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu</contributor>
+  <acknowledgements><![CDATA[Airforce]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>RestLabelmap</name>
+      <label>Rest Labelmap</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
+    </image>
+    <file fileExtensions="*.vtk">
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <channel>input</channel>
+      <index>1</index>
+      <description><![CDATA[Resting armature]]></description>
+    </file>
+
+    <!-- <image> -->
+    <!--   <name>outputVolume</name> -->
+    <!--   <label>Output Volume</label> -->
+    <!--   <channel>output</channel> -->
+    <!--   <index>2</index> -->
+    <!--   <description><![CDATA[Volume1 + Volume2]]></description> -->
+    <!-- </image> -->
+  </parameters>
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    <integer>
+      <name>DoOnly</name>
+      <label>Test only this armature edge</label>
+      <flag>-o</flag>
+      <longflag>--only</longflag>
+      <description><![CDATA[For Debugging only]]></description>
+      <default>-1</default>
+    </integer>
+    <boolean>
+      <name>BinaryWeight</name>
+      <label>Binary weight</label>
+      <flag>-b</flag>
+      <longflag>--binary</longflag>
+      <description><![CDATA[For Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+</executable>
