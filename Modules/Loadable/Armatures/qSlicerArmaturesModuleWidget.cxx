@@ -40,6 +40,7 @@
 #include <vtkSlicerAnnotationModuleLogic.h>
 
 // MRML includes
+#include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
 
@@ -77,6 +78,7 @@ void qSlicerArmaturesModuleWidgetPrivate
                    q, SLOT(setArmatureVisibility(bool)));
 
   // Bones
+  // Bone tree view
   this->BonesTreeView->annotationModel()->setAnnotationsAreParent(true);
   this->BonesTreeView->setLogic(this->logic()->GetAnnotationsLogic());
   this->BonesTreeView->annotationModel()->setNameColumn(0);
@@ -94,11 +96,19 @@ void qSlicerArmaturesModuleWidgetPrivate
                    SIGNAL(currentNodeChanged(vtkMRMLNode*)),
                    q, SLOT(setMRMLBoneNode(vtkMRMLNode*)));
 
+  // Bone tree view actions
   QAction* addBoneAction = new QAction("Add bone", this->BonesTreeView);
   this->BonesTreeView->prependNodeMenuAction(addBoneAction);
   this->BonesTreeView->prependSceneMenuAction(addBoneAction);
   QObject::connect(addBoneAction, SIGNAL(triggered()),
                    q, SLOT(addAndPlaceBone()));
+
+  QAction* deleteBonesAction =
+    new QAction("Delete bones", this->BonesTreeView);
+  this->BonesTreeView->appendNodeMenuAction(deleteBonesAction);
+  this->BonesTreeView->appendSceneMenuAction(deleteBonesAction);
+  QObject::connect(deleteBonesAction, SIGNAL(triggered()),
+                   q, SLOT(deleteBones()));
 
   // Logic
   q->qvtkConnect(this->logic(), vtkCommand::ModifiedEvent,
@@ -212,6 +222,42 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureRepresentationComboBox->blockSignals(block);
   this->ArmatureColorPickerButton->blockSignals(block);
   this->ArmatureOpacitySlider->blockSignals(block);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
+::deleteBoneChildren(vtkMRMLBoneNode* boneNode)
+{
+  if (!boneNode)
+    {
+    return;
+    }
+
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  vtkMRMLAnnotationHierarchyNode* hierarchyNode
+    = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+        vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneNode->GetScene(), boneNode->GetID()));
+
+  if (hierarchyNode)
+    {
+    std::vector<vtkMRMLHierarchyNode*> childrenNodes =
+      hierarchyNode->GetChildrenNodes();
+
+    for (std::vector<vtkMRMLHierarchyNode*>::iterator it
+        = childrenNodes.begin(); it != childrenNodes.end(); ++it)
+        {
+        vtkMRMLBoneNode* childrenNode =
+          vtkMRMLBoneNode::SafeDownCast((*it)->GetAssociatedNode());
+        if (childrenNode)
+          {
+          this->deleteBoneChildren(childrenNode);
+          }
+        }
+      }
+
+  q->mrmlScene()->RemoveNode(boneNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -587,6 +633,19 @@ void qSlicerArmaturesModuleWidget::addAndPlaceBone()
     }
   selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
   interactionNode->SwitchToSinglePlaceMode();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::deleteBones()
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+
+  if (!d->BoneNode)
+    {
+    return;
+    }
+
+  d->deleteBoneChildren(d->BoneNode);
 }
 
 //-----------------------------------------------------------------------------

@@ -80,6 +80,9 @@ public slots:
   /// Create a bone and start the mouse mode to place it.
   void addAndPlaceBone();
 
+  /// Delete the currently selected bone and all its children (if any).
+  void deleteBones();
+
 protected slots:
   /// Update the GUI from the armatures logic.
   void updateWidgetFromLogic();

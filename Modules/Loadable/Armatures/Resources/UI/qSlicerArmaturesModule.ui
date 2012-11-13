@@ -253,6 +253,9 @@
           <string>vtkMRMLBoneNode</string>
          </stringlist>
         </property>
+        <property name="deleteMenuActionVisible">
+         <bool>false</bool>
+        </property>
         <property name="showScene">
          <bool>false</bool>
         </property>

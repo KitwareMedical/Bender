@@ -57,6 +57,8 @@ public:
   void blockPositionsSignals(bool block);
   void blockArmatureDisplaySignals(bool block);
 
+  void deleteBoneChildren(vtkMRMLBoneNode* boneNode);
+
 public slots:
   // Calls all the update functions
   void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
