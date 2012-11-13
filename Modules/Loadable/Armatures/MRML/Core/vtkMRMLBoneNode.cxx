@@ -274,25 +274,16 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetBoneColor(int rgb[3])
+void vtkMRMLBoneNode::SetBoneColor(double rgb[3])
 {
-  double doubleRGB[3];
-  doubleRGB[0] = rgb[0]/255.0;
-  doubleRGB[1] = rgb[1]/255.0;
-  doubleRGB[2] = rgb[2]/255.0;
-
-  this->GetBoneRepresentation()->GetLineProperty()->SetColor(doubleRGB);
+  this->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
   this->Modified();
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLBoneNode::GetBoneColor(int rgb[3])
+void vtkMRMLBoneNode::GetBoneColor(double rgb[3])
 {
-  double doubleRGB[3];
-  this->GetBoneRepresentation()->GetLineProperty()->GetColor(doubleRGB);
-  rgb[0] = static_cast<int>(doubleRGB[0] * 255);
-  rgb[1] = static_cast<int>(doubleRGB[1] * 255);
-  rgb[2] = static_cast<int>(doubleRGB[2] * 255);
+  this->GetBoneRepresentation()->GetLineProperty()->GetColor(rgb);
 }
 
 //---------------------------------------------------------------------------

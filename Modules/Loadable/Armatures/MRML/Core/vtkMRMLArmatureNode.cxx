@@ -248,7 +248,7 @@ void vtkMRMLArmatureNode::SetOpacity(double opacity)
 
   this->Opacity = opacity;
 
-  // vv This should go to logic vv
+  // \todo This should go to logic
   vtkNew<vtkCollection> bones;
   this->GetAllBones(bones.GetPointer());
   for (int i = 0; i < bones->GetNumberOfItems();++i)
@@ -260,7 +260,7 @@ void vtkMRMLArmatureNode::SetOpacity(double opacity)
       boneNode->SetOpacity(this->Opacity);
       }
     }
-  // ^^ This should go to logic ^^
+  // end todo
 
   this->Modified();
 }
@@ -273,20 +273,16 @@ double vtkMRMLArmatureNode::GetOpacity()
 
 namespace
 {
-bool CompareColor(int rgb1[3], int rgb2[3])
+bool CompareColor(double rgb1[3], double rgb2[3])
 {
-  int diff[3];
-  for (int i=0; i<3; ++i)
-    {
-    diff[i] = rgb1[i] - rgb2[i];
-    }
-
-  return diff[0] == 0 && diff[1] == 0 && diff[2] == 0;
+  double diff[3];
+  vtkMath::Subtract(rgb1, rgb2, diff);
+  return vtkMath::Norm(diff) < 1e-4;
 }
 }// end namespace
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetColor(int rgb[3])
+void vtkMRMLArmatureNode::SetColor(double rgb[3])
 {
   if (CompareColor(this->Color, rgb))
     {
@@ -298,7 +294,7 @@ void vtkMRMLArmatureNode::SetColor(int rgb[3])
     this->Color[i] = rgb[i];
     }
 
-  // vv This should go to logic vv
+  // \todo This should go to logic
   vtkNew<vtkCollection> bones;
   this->GetAllBones(bones.GetPointer());
   for (int i = 0; i < bones->GetNumberOfItems();++i)
@@ -310,13 +306,13 @@ void vtkMRMLArmatureNode::SetColor(int rgb[3])
       boneNode->SetBoneColor(this->Color);
       }
     }
-  // ^^ This should go to logic ^^
+  // end todo
 
   this->Modified();
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::GetColor(int rgb[3])
+void vtkMRMLArmatureNode::GetColor(double rgb[3])
 {
   for (int i=0; i<3; ++i)
     {

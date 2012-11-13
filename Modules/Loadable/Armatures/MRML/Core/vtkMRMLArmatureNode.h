@@ -126,8 +126,8 @@ public:
   /// Set/Get the armature color.
   /// The armature color will be propagated to all its bones.
   /// \sa GetColor(), SetColor()
-  void SetColor(int rgb[3]);
-  void GetColor(int rgb[3]);
+  void SetColor(double rgb[3]);
+  void GetColor(double rgb[3]);
 
   /*/// Add a widget bone to the armature.
   /// \sa RemoveBone()
@@ -186,7 +186,7 @@ protected:
 
   vtkMRMLArmatureNodeCallback* Callback;
 
-  int Color[3];
+  double Color[3];
   double Opacity;
 
   vtkArmatureWidget* ArmatureProperties;
