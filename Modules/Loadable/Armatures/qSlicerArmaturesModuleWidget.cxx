@@ -127,6 +127,14 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureShowParenthoodCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
 
+  // -- Armature Hierarchy --
+  QObject::connect(this->ParentBoneNodeComboBox,
+    SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+    this, SLOT(onParentNodeChanged(vtkMRMLNode*))); //\ TO DO !
+
+  QObject::connect(this->LinkedToParentCheckBox,
+    SIGNAL(stateChanged(int)),
+    this, SLOT(onLinkedWithParentChanged(int))); //\ TO DO !
   // -- Positions --
   QObject::connect(this->HeadCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
@@ -239,6 +247,16 @@ void qSlicerArmaturesModuleWidgetPrivate
 void qSlicerArmaturesModuleWidgetPrivate
 ::updateHierarchy(vtkMRMLBoneNode* boneNode)
 {
+  if (this->ArmatureNode && boneNode)
+    {
+    bool wasBlocked = this->ParentBoneNodeComboBox->blockSignals(true);
+    this->ParentBoneNodeComboBox->setCurrentNode(
+      this->ArmatureNode->GetParentBone(boneNode));
+    this->ParentBoneNodeComboBox->blockSignals(wasBlocked);
+    }
+
+  this->ParentBoneNodeComboBox->setEnabled(this->ArmatureNode != 0);
+  this->LinkedToParentCheckBox->setEnabled(this->ArmatureNode != 0);
   this->HierarchyCollapsibleGroupBox->setEnabled(boneNode != 0);
 }
 
@@ -399,6 +417,19 @@ void qSlicerArmaturesModuleWidgetPrivate
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
+::onParentNodeChanged(vtkMRMLNode* node)
+{
+  Q_UNUSED(node);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
+::onLinkedWithParentChanged(int linked)
+{
+  Q_UNUSED(linked);
+}
+
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------

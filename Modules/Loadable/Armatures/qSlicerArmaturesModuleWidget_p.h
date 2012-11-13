@@ -82,6 +82,9 @@ protected slots:
   void onDistanceChanged(double newDistance);
   void onDirectionChanged(double* direction);
 
+  void onParentNodeChanged(vtkMRMLNode* node);
+  void onLinkedWithParentChanged(int linked);
+
 private:
   vtkMRMLArmatureNode* ArmatureNode;
   vtkMRMLBoneNode* BoneNode;
