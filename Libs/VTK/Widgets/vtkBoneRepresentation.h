@@ -109,6 +109,11 @@ public:
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
 
+  // Description:
+  // Helper function to set the opacity of all the bone representation
+  // actors (normal and selected).
+  virtual void SetOpacity(double opacity);
+
 protected:
   vtkBoneRepresentation();
   ~vtkBoneRepresentation();

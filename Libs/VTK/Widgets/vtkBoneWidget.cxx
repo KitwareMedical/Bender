@@ -964,6 +964,18 @@ void vtkBoneWidget::SetShowAxes(int show)
 }
 
 //----------------------------------------------------------------------------
+vtkAxesActor* vtkBoneWidget::GetAxesActor()
+{
+  return this->AxesActor;
+}
+
+//----------------------------------------------------------------------------
+vtkLineRepresentation* vtkBoneWidget::GetParenthoodRepresentation()
+{
+  return this->ParenthoodLink->GetLineRepresentation();
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneWidget::RotateTailX(double angle)
 {
   this->RotateTailWXYZ(angle, 1.0, 0.0, 0.0);

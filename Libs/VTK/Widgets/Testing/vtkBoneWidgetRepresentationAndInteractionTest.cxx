@@ -38,7 +38,8 @@
 #include <vtkTransformPolyDataFilter.h>
 #include <vtkTransform.h>
 #include <vtkAxesActor.h>
-
+#include <vtkPointHandleRepresentation3D.h>
+#include <vtkLineWidget2.h>
 
 #include <vtkInteractorStyleTrackballCamera.h>
 
@@ -93,7 +94,7 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
             simsIconRep->SetNumberOfSides(10);
             simsIconRep->SetRatio(0.2);
             simsIconRep->SetCapping(1);
-            simsIconRep->GetConesProperty()->SetOpacity(0.7);
+            simsIconRep->GetConesProperty()->SetOpacity(0.3);
             Widget->SetRepresentation(simsIconRep);
             }
         else if (vtkDoubleConeBoneRepresentation::SafeDownCast(rep)) // switch to line
@@ -108,9 +109,11 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
           vtkSmartPointer<vtkCylinderBoneRepresentation> cylinderRep = 
             vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
           cylinderRep->SetNumberOfSides(10);
-          cylinderRep->GetCylinderProperty()->SetOpacity(0.7);
+          cylinderRep->GetCylinderProperty()->SetOpacity(0.3);
           Widget->SetRepresentation(cylinderRep);
           }
+
+        Widget->GetBoneRepresentation()->GetLineProperty()->SetOpacity(0.3);
         }
       else if (key == "u")
         {
@@ -128,6 +131,17 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         {
         Axes->SetVisibility( !Axes->GetVisibility() );
         }
+      else if (key == "minus")
+        {
+        double op = Widget->GetBoneRepresentation()->GetLineProperty()->GetOpacity() - 0.1;
+        Widget->GetBoneRepresentation()->SetOpacity(op);
+        }
+      else if (key == "plus")
+        {
+        double op = Widget->GetBoneRepresentation()->GetLineProperty()->GetOpacity() + 0.1;
+        Widget->GetBoneRepresentation()->SetOpacity(op);
+        }
+
       }
 
   vtkAxesActor*  Axes;

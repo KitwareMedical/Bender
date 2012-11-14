@@ -223,6 +223,20 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneRepresentation::SetOpacity(double opacity)
+{
+  this->LineProperty->SetOpacity(opacity);
+  this->EndPointProperty->SetOpacity(opacity);
+  this->EndPoint2Property->SetOpacity(opacity);
+
+  this->SelectedLineProperty->SetOpacity(opacity);
+  this->SelectedEndPointProperty->SetOpacity(opacity);
+  this->SelectedEndPoint2Property->SetOpacity(opacity);
+
+  this->TextActor->GetProperty()->SetOpacity(opacity);
+}
+
+//----------------------------------------------------------------------------
 int vtkBoneRepresentation
 ::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
 {
