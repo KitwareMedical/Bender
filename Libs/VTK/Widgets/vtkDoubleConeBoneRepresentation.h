@@ -106,6 +106,11 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int HasTranslucentPolygonalGeometry();
 
+  // Description:
+  // Helper function to set the opacity of all the cones
+  // representation actors (normal and selected).
+  virtual void SetOpacity(double opacity);
+
 protected:
   vtkDoubleConeBoneRepresentation();
   ~vtkDoubleConeBoneRepresentation();

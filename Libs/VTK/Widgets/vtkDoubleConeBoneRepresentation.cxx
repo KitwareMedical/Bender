@@ -265,6 +265,14 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+void vtkDoubleConeBoneRepresentation::SetOpacity(double opacity)
+{
+  this->Superclass::SetOpacity(opacity);
+  this->ConesProperty->SetOpacity(opacity);
+  this->SelectedConesProperty->SetOpacity(opacity);
+}
+
+//----------------------------------------------------------------------------
 void vtkDoubleConeBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
