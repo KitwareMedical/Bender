@@ -83,6 +83,7 @@ class vtkAxesActor;
 class vtkBoneRepresentation;
 class vtkBoneWidgetCallback;
 class vtkHandleWidget;
+class vtkLineRepresentation;
 class vtkLineWidget2;
 class vtkPolyDataMapper;
 class vtkTransform;
@@ -346,7 +347,14 @@ public:
   // Get the Axes actor. This is meant for the user to modify the rendering
   // properties of the actor. The other properties must be left unchanged.
   // @sa GetShowAxes() SetShowAxes()
-  vtkAxesActor* GetAxesActor() { return this->AxesActor; };
+  vtkAxesActor* GetAxesActor();
+
+  // Description:
+  // Get the parenthood line representation. This is meant for the user to modify
+  // the rendering properties of the line.
+  // The other properties must be left unchanged.
+  // @sa GetShowParenthood() SetShowParenthood()
+  vtkLineRepresentation* GetParenthoodRepresentation();
 
   // Description:
   // Rotation methods to move the tail. Those methods can be used in
