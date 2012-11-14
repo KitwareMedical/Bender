@@ -159,7 +159,7 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="0" colspan="2">
+         <item row="4" column="0" colspan="2">
           <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
            <property name="title">
             <string>Advanced</string>
@@ -220,24 +220,25 @@
            </layout>
           </widget>
          </item>
+         <item row="3" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>X-Ray mode:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="BonesAlwaysOnTopCheckBox">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
      </layout>
     </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item row="3" column="0" colspan="2">
     <widget class="ctkCollapsibleButton" name="BonesCollapsibleButton">
@@ -407,6 +408,19 @@
      <zorder>BonesTreeView</zorder>
      <zorder>PositionsCollapsibleGroupBox</zorder>
     </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

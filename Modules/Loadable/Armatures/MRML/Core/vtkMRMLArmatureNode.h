@@ -129,6 +129,11 @@ public:
   void SetColor(double rgb[3]);
   void GetColor(double rgb[3]);
 
+  /// Set/Get the armature display property bones always on top.
+  /// \sa GetBonesAlwaysOnTop(), SetBonesAlwaysOnTop()
+  void SetBonesAlwaysOnTop(int onTop);
+  int GetBonesAlwaysOnTop();
+
   /*/// Add a widget bone to the armature.
   /// \sa RemoveBone()
   void AddBone(vtkBoneWidget* bone,

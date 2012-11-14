@@ -136,6 +136,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureShowParenthoodCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->BonesAlwaysOnTopCheckBox,
+    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -222,6 +224,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureRepresentationComboBox->blockSignals(block);
   this->ArmatureColorPickerButton->blockSignals(block);
   this->ArmatureOpacitySlider->blockSignals(block);
+  this->BonesAlwaysOnTopCheckBox->blockSignals(block);
 }
 
 //-----------------------------------------------------------------------------
@@ -388,6 +391,9 @@ void qSlicerArmaturesModuleWidgetPrivate
         static_cast<int>(rgb[2] * 255.0)));
 
     this->ArmatureOpacitySlider->setValue(ArmatureNode->GetOpacity());
+
+    this->BonesAlwaysOnTopCheckBox->setChecked(ArmatureNode->GetBonesAlwaysOnTop());
+
     this->blockArmatureDisplaySignals(false);
     }
 
@@ -750,6 +756,9 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
+
+  d->ArmatureNode->SetBonesAlwaysOnTop(
+    d->BonesAlwaysOnTopCheckBox->isChecked());
 
   d->ArmatureNode->EndModify(wasModifying);
 }

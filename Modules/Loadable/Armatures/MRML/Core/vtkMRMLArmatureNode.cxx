@@ -319,6 +319,19 @@ void vtkMRMLArmatureNode::GetColor(double rgb[3])
     rgb[i] = this->Color[i];
     }
 }
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetBonesAlwaysOnTop(int onTop)
+{
+  this->ArmatureProperties->SetBonesAlwaysOnTop(onTop);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
+{
+  return this->ArmatureProperties->GetBonesAlwaysOnTop();
+}
+
 /*
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
@@ -387,6 +400,8 @@ void vtkMRMLArmatureNode
     armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(
     armatureWidget->GetShowParenthood());
+  this->ArmatureProperties->SetBonesAlwaysOnTop(
+    armatureWidget->GetBonesAlwaysOnTop());
 
   // Armature does not have a "real" representation so far
   // -> So no Color or Opacity properties
@@ -404,6 +419,8 @@ void vtkMRMLArmatureNode
     this->ArmatureProperties->GetShowAxes());
   armatureWidget->SetShowParenthood(
     this->ArmatureProperties->GetShowParenthood());
+  armatureWidget->SetBonesAlwaysOnTop(
+    this->ArmatureProperties->GetBonesAlwaysOnTop());
 
   vtkNew<vtkCollection> bones;
   this->GetAllBones(bones.GetPointer());
