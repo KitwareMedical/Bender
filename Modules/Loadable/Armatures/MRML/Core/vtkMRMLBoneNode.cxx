@@ -306,20 +306,7 @@ void vtkMRMLBoneNode::GetBoneColor(double rgb[3])
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetOpacity(double opacity)
 {
-  if (this->BoneRepresentationType == 1)
-    {
-    vtkCylinderBoneRepresentation* rep
-      = vtkCylinderBoneRepresentation::SafeDownCast(this->GetBoneRepresentation());
-    rep->GetCylinderProperty()->SetOpacity(opacity);
-    }
-  else if (this->BoneRepresentationType  == 2)
-    {
-    vtkDoubleConeBoneRepresentation* rep
-      = vtkDoubleConeBoneRepresentation::SafeDownCast(this->GetBoneRepresentation());
-    rep->GetConesProperty()->SetOpacity(opacity);
-    }
-
-  this->GetBoneRepresentation()->GetLineProperty()->SetOpacity(opacity);
+  this->GetBoneRepresentation()->SetOpacity(opacity);
   this->Modified();
 }
 
@@ -762,7 +749,6 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       = vtkCylinderBoneRepresentation::SafeDownCast(
         boneWidget->GetBoneRepresentation());
     rep->GetCylinderProperty()->SetColor(rgb);
-    rep->GetCylinderProperty()->SetOpacity(this->GetOpacity());
     }
   else if (this->BoneRepresentationType == 2)
     {
@@ -770,11 +756,17 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       = vtkDoubleConeBoneRepresentation::SafeDownCast(
         boneWidget->GetBoneRepresentation());
     rep->GetConesProperty()->SetColor(rgb);
-    rep->GetConesProperty()->SetOpacity(this->GetOpacity());
     }
 
   boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
-  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetOpacity(this->GetOpacity());
+  boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
+  //And the parenthood line:
+  boneWidget->GetParenthoodRepresentation()->GetLineProperty()->SetOpacity(
+    this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPointProperty()
+    ->SetOpacity(this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPoint2Property()
+    ->SetOpacity(this->GetOpacity());
 
   // -- State --
   boneWidget->SetWidgetState(this->BoneProperties->GetWidgetState());
