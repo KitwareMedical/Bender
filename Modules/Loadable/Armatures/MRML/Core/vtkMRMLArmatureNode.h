@@ -191,9 +191,6 @@ protected:
 
   vtkMRMLArmatureNodeCallback* Callback;
 
-  double Color[3];
-  double Opacity;
-
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
 };

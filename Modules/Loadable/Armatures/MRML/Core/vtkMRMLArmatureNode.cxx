@@ -27,6 +27,7 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
+#include <vtkArmatureRepresentation.h>
 #include <vtkArmatureWidget.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
@@ -79,11 +80,11 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->SetHideFromEditors(0);
   this->Callback = vtkMRMLArmatureNodeCallback::New();
 
-  for (int i = 0; i<3; ++i)
-    {
-    this->Color[i] = 0;
-    }
-  this->Opacity = 1.0;
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetColor(0.0, 0.0, 0.0);
+
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetOpacity(1.0);
 
   this->Callback->Node = this;
   this->ArmatureProperties->AddObserver(vtkCommand::ModifiedEvent,
@@ -241,83 +242,31 @@ bool vtkMRMLArmatureNode::GetVisibility()
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetOpacity(double opacity)
 {
-  if (vtkMathUtilities::FuzzyCompare(this->Opacity, opacity))
-    {
-    return;
-    }
-
-  this->Opacity = opacity;
-
-  // \todo This should go to logic
-  vtkNew<vtkCollection> bones;
-  this->GetAllBones(bones.GetPointer());
-  for (int i = 0; i < bones->GetNumberOfItems();++i)
-    {
-    vtkMRMLBoneNode* boneNode
-      = vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
-    if (boneNode)
-      {
-      boneNode->SetOpacity(this->Opacity);
-      }
-    }
-  // end todo
-
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetOpacity(opacity);
   this->Modified();
 }
 
 //---------------------------------------------------------------------------
 double vtkMRMLArmatureNode::GetOpacity()
 {
-  return this->Opacity;
+  return this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->GetOpacity();
 }
-
-namespace
-{
-bool CompareColor(double rgb1[3], double rgb2[3])
-{
-  double diff[3];
-  vtkMath::Subtract(rgb1, rgb2, diff);
-  return vtkMath::Norm(diff) < 1e-4;
-}
-}// end namespace
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetColor(double rgb[3])
 {
-  if (CompareColor(this->Color, rgb))
-    {
-    return;
-    }
-
-  for (int i=0; i<3; ++i)
-    {
-    this->Color[i] = rgb[i];
-    }
-
-  // \todo This should go to logic
-  vtkNew<vtkCollection> bones;
-  this->GetAllBones(bones.GetPointer());
-  for (int i = 0; i < bones->GetNumberOfItems();++i)
-    {
-    vtkMRMLBoneNode* boneNode =
-      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
-    if (boneNode)
-      {
-      boneNode->SetBoneColor(this->Color);
-      }
-    }
-  // end todo
-
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetColor(rgb);
   this->Modified();
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::GetColor(double rgb[3])
 {
-  for (int i=0; i<3; ++i)
-    {
-    rgb[i] = this->Color[i];
-    }
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->GetColor(rgb);
 }
 
 //---------------------------------------------------------------------------
@@ -392,6 +341,11 @@ bool vtkMRMLArmatureNode::GetBoneLinkedWithParent(vtkBoneWidget* bone)
 void vtkMRMLArmatureNode
 ::CopyArmatureWidgetProperties(vtkArmatureWidget* armatureWidget)
 {
+  if (!armatureWidget)
+    {
+    return;
+    }
+
   //int wasModifying = this->StartModify(); // ? Probably not
   this->ArmatureProperties->SetBonesRepresentation(
     armatureWidget->GetBonesRepresentationType());
@@ -403,14 +357,23 @@ void vtkMRMLArmatureNode
   this->ArmatureProperties->SetBonesAlwaysOnTop(
     armatureWidget->GetBonesAlwaysOnTop());
 
-  // Armature does not have a "real" representation so far
-  // -> So no Color or Opacity properties
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetOpacity(
+    armatureWidget->GetArmatureRepresentation()->GetProperty()->GetOpacity());
+  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
+    ->SetColor(
+    armatureWidget->GetArmatureRepresentation()->GetProperty()->GetColor());
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
 ::PasteArmatureNodeProperties(vtkArmatureWidget* armatureWidget)
 {
+  if (!armatureWidget)
+    {
+    return;
+    }
+
   //int wasModifying = this->StartModify(); // ? Probably not
   armatureWidget->SetBonesRepresentation(
     this->ArmatureProperties->GetBonesRepresentationType());

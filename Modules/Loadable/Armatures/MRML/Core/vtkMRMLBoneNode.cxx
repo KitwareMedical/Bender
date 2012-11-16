@@ -651,6 +651,11 @@ bool vtkMRMLBoneNode::GetBoneLinkedWithParent()
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 {
+  if (!boneWidget)
+    {
+    return;
+    }
+
   // -- World coordinates --
   this->BoneProperties->SetWorldHeadRest(boneWidget->GetWorldHeadRest());
   this->BoneProperties->SetWorldTailRest(boneWidget->GetWorldTailRest());
@@ -688,11 +693,19 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 
   // -- Name --
   this->SetName(boneWidget->GetName());
+
+  // -- Selected --
+  this->SetSelected(boneWidget->GetBoneSelected());
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 {
+  if (!boneWidget)
+    {
+    return;
+    }
+
   // -- Representation, part 1 --
   if (FindBoneRepresentationType(boneWidget->GetBoneRepresentation()) != 
       this->BoneRepresentationType)
