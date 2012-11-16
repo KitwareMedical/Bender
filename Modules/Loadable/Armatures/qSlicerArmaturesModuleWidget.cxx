@@ -167,6 +167,12 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->DirectionCoordinatesWidget,
     SIGNAL(coordinatesChanged(double*)),
     this, SLOT(onDirectionChanged(double*)));
+
+  // The parent bone node combox isn't working perfectly.
+  // Hide it meanwhile.
+  // \todo Fix this !
+  this->ParentBoneNodeComboBox->setHidden(true);
+  this->ParentBoneLabel->setHidden(true);
 }
 
 //-----------------------------------------------------------------------------
