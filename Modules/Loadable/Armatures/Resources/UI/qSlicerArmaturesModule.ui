@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>781</width>
-    <height>705</height>
+    <height>807</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,9 @@
       <widget class="ctkCheckBox" name="ArmatureVisibilityCheckBox">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Change the visibility of the current armature and all its bones. </string>
        </property>
        <property name="text">
         <string>Armature:</string>
@@ -42,6 +45,9 @@
      </item>
      <item row="0" column="1">
       <widget class="qMRMLNodeComboBox" name="ArmatureNodeComboBox">
+       <property name="toolTip">
+        <string>Select the current armature.</string>
+       </property>
        <property name="nodeTypes">
         <stringlist>
          <string>vtkMRMLArmatureNode</string>
@@ -55,17 +61,13 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="ArmatureStateLabel">
-       <property name="text">
-        <string>Armature Mode:</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="1">
       <widget class="QComboBox" name="ArmatureStateComboBox">
        <property name="enabled">
         <bool>false</bool>
+       </property>
+       <property name="toolTip">
+        <string>Set the armature mode. Edit the bones in rest mode. Animate them in pose mode.</string>
        </property>
        <property name="editable">
         <bool>false</bool>
@@ -80,6 +82,13 @@
          <string>Pose</string>
         </property>
        </item>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="ArmatureStateLabel">
+       <property name="text">
+        <string>Armature Mode:</string>
+       </property>
       </widget>
      </item>
     </layout>
@@ -114,6 +123,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>Change the bones representation.</string>
+           </property>
            <property name="currentIndex">
             <number>2</number>
            </property>
@@ -146,6 +158,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>Change the bones normal color.</string>
+           </property>
            <property name="color">
             <color>
              <red>241</red>
@@ -166,6 +181,9 @@
           <widget class="ctkSliderWidget" name="ArmatureOpacitySlider">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the bones opacity.</string>
            </property>
            <property name="singleStep">
             <double>0.010000000000000</double>
@@ -205,6 +223,9 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>Show the direction axes of the bones.</string>
+              </property>
               <item>
                <property name="text">
                 <string>Hidden</string>
@@ -234,6 +255,9 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>Show the bones parent location.</string>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -260,6 +284,9 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>In x-ray mode, the bones are overlayed on top of every object of the scene.</string>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -279,6 +306,9 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="qMRMLAnnotationTreeView" name="BonesTreeView">
+        <property name="toolTip">
+         <string>Add, rename, select and remove bones.</string>
+        </property>
         <property name="nodeTypes">
          <stringlist>
           <string>vtkMRMLArmatureNode</string>
@@ -314,6 +344,9 @@
          </item>
          <item row="0" column="1">
           <widget class="qMRMLNodeComboBox" name="ParentBoneNodeComboBox">
+           <property name="toolTip">
+            <string>Reparent the selected bone.</string>
+           </property>
            <property name="nodeTypes">
             <stringlist>
              <string>vtkMRMLBoneNode</string>
@@ -335,6 +368,9 @@
           <widget class="QCheckBox" name="LinkedToParentCheckBox">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Set if the bone's head is linked with its parent's tail.</string>
            </property>
            <property name="text">
             <string/>
@@ -369,12 +405,18 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="toolTip">
+            <string>The selected bone current tail position.</string>
+           </property>
           </widget>
          </item>
          <item row="0" column="1" colspan="2">
           <widget class="ctkCoordinatesWidget" name="HeadCoordinatesWidget">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>The selected bone current head position.</string>
            </property>
           </widget>
          </item>
@@ -393,7 +435,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="BonePositionTypeLabel">
               <property name="text">
-               <string>PositionType:</string>
+               <string>Position Type:</string>
               </property>
              </widget>
             </item>
@@ -401,6 +443,9 @@
              <widget class="QComboBox" name="BonePositionTypeComboBox">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Change if the bones coordinates are their world coordinate or their coordinate in their parent's referential.</string>
               </property>
               <item>
                <property name="text">
@@ -426,6 +471,9 @@
               <property name="enabled">
                <bool>false</bool>
               </property>
+              <property name="toolTip">
+               <string>The current bone normalized directionnal vector.</string>
+              </property>
               <property name="normalized">
                <bool>true</bool>
               </property>
@@ -445,6 +493,9 @@
           <widget class="QDoubleSpinBox" name="LengthSpinBox">
            <property name="enabled">
             <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>The selected bone current length.</string>
            </property>
            <property name="maximum">
             <double>999999999.000000000000000</double>
