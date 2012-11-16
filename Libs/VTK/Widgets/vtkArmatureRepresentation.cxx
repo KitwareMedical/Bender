@@ -24,6 +24,7 @@
 // VTK includes
 #include <vtkCamera.h>
 #include <vtkObjectFactory.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 
@@ -32,11 +33,13 @@ vtkStandardNewMacro(vtkArmatureRepresentation);
 //----------------------------------------------------------------------------
 vtkArmatureRepresentation::vtkArmatureRepresentation()
 {
+  this->Property = vtkProperty::New();
 }
 
 //----------------------------------------------------------------------------
 vtkArmatureRepresentation::~vtkArmatureRepresentation()
 {
+  this->Property->Delete();
 }
 
 //----------------------------------------------------------------------
