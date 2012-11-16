@@ -233,6 +233,20 @@ void vtkCylinderBoneRepresentation::SetOpacity(double opacity)
 }
 
 //----------------------------------------------------------------------------
+void vtkCylinderBoneRepresentation::Highlight(int highlight)
+{
+  this->Superclass::Highlight(highlight);
+  if (highlight)
+    {
+    this->CylinderActor->SetProperty(this->SelectedCylinderProperty);
+    }
+  else
+    {
+    this->CylinderActor->SetProperty(this->CylinderProperty);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCylinderBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

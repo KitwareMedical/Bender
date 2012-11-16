@@ -101,6 +101,10 @@ public:
   // representation actors (normal and selected).
   virtual void SetOpacity(double opacity);
 
+  // Description:
+  // Helper method to highlight the line, the cylinder and the endpoints.
+  virtual void Highlight(int highlight);
+
 protected:
   vtkCylinderBoneRepresentation();
   ~vtkCylinderBoneRepresentation();
