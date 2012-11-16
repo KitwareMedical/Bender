@@ -105,6 +105,19 @@ void vtkSlicerArmaturesLogic::RegisterNodes()
   this->GetMRMLScene()->RegisterNodeClass( boneDisplayNode.GetPointer() );
 }
 
+//----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::ProcessMRMLSceneEvents(vtkObject* caller,
+                                    unsigned long event,
+                                    void * callData)
+{
+  this->Superclass::ProcessMRMLSceneEvents(caller, event, callData);
+  if (event == vtkMRMLScene::NodeAboutToBeRemovedEvent)
+    {
+    vtkMRMLNode* node = vtkMRMLNode::SafeDownCast(caller);
+    this->OnMRMLSceneNodeAboutToBeRemoved(node);
+    }
+}
+
 //-----------------------------------------------------------------------------
 void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 {
@@ -122,7 +135,7 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
 }
 
 //-----------------------------------------------------------------------------
-void vtkSlicerArmaturesLogic::OnMRMLSceneNodeRemoved(vtkMRMLNode* node)
+void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node)
 {
   this->Superclass::OnMRMLSceneNodeRemoved(node);
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
