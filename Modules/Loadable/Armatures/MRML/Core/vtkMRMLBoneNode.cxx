@@ -291,32 +291,6 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetBoneColor(double rgb[3])
-{
-  this->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLBoneNode::GetBoneColor(double rgb[3])
-{
-  this->GetBoneRepresentation()->GetLineProperty()->GetColor(rgb);
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetOpacity(double opacity)
-{
-  this->GetBoneRepresentation()->SetOpacity(opacity);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-double vtkMRMLBoneNode::GetOpacity()
-{
-  return this->GetBoneRepresentation()->GetLineProperty()->GetOpacity();
-}
-
-//---------------------------------------------------------------------------
 double vtkMRMLBoneNode::GetDistance()
 {
   if (this->BoneProperties->GetWidgetState() == vtkBoneWidget::PlaceHead
@@ -752,34 +726,6 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 
   // -- Parenthood -- 
   boneWidget->SetShowParenthood(this->BoneProperties->GetShowParenthood());
-
-  // -- Representation, part 2 --
-  double rgb[3];
-  this->GetBoneRepresentation()->GetLineProperty()->GetColor(rgb);
-  if (this->BoneRepresentationType == 1)
-    {
-    vtkCylinderBoneRepresentation* rep
-      = vtkCylinderBoneRepresentation::SafeDownCast(
-        boneWidget->GetBoneRepresentation());
-    rep->GetCylinderProperty()->SetColor(rgb);
-    }
-  else if (this->BoneRepresentationType == 2)
-    {
-    vtkDoubleConeBoneRepresentation* rep
-      = vtkDoubleConeBoneRepresentation::SafeDownCast(
-        boneWidget->GetBoneRepresentation());
-    rep->GetConesProperty()->SetColor(rgb);
-    }
-
-  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
-  boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
-  //And the parenthood line:
-  boneWidget->GetParenthoodRepresentation()->GetLineProperty()->SetOpacity(
-    this->GetOpacity());
-  boneWidget->GetParenthoodRepresentation()->GetEndPointProperty()
-    ->SetOpacity(this->GetOpacity());
-  boneWidget->GetParenthoodRepresentation()->GetEndPoint2Property()
-    ->SetOpacity(this->GetOpacity());
 
   // -- State --
   boneWidget->SetWidgetState(this->BoneProperties->GetWidgetState());

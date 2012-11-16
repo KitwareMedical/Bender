@@ -385,6 +385,11 @@ void vtkMRMLArmatureNode
   armatureWidget->SetBonesAlwaysOnTop(
     this->ArmatureProperties->GetBonesAlwaysOnTop());
 
+  double color[3];
+  this->GetColor(color);
+
+  // Update it now because the display node does not listens to
+  // widget representation change.
   vtkNew<vtkCollection> bones;
   this->GetAllBones(bones.GetPointer());
   for (int i = 0; i < bones->GetNumberOfItems();++i)
@@ -393,8 +398,12 @@ void vtkMRMLArmatureNode
       vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
     if (boneNode)
       {
-      boneNode->SetBoneColor(this->Color);
-      boneNode->SetOpacity(this->Opacity);
+      vtkMRMLBoneDisplayNode* boneDisplayNode = boneNode->GetBoneDisplayNode();
+      if (boneDisplayNode)
+        {
+        boneDisplayNode->SetColor(color);
+        boneDisplayNode->SetOpacity(this->GetOpacity());
+        }
       }
     }
 }

@@ -52,6 +52,10 @@ protected:
                                     unsigned long event,
                                     void *callData);
 
+  /// WidgetCallback is a static function to relay modified events from the nodes
+  virtual void ProcessMRMLNodesEvents(vtkObject *caller,
+    unsigned long event, void *callData);
+
   virtual void UnobserveMRMLScene();
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);

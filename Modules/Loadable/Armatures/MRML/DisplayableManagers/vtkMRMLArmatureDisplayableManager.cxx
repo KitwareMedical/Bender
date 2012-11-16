@@ -102,9 +102,14 @@ public:
                                 vtkBoneWidget* widget);
   void UpdateBoneWidgetFromNode(vtkMRMLBoneNode* boneNode,
                                 vtkBoneWidget* boneWidget);
+
   void UpdateBoneNodes(vtkMRMLArmatureNode* armature);
   vtkMRMLBoneNode* GetBoneNode(vtkBoneWidget* boneWidget);
   vtkMRMLBoneNode* GetBoneParentNode(vtkMRMLBoneNode* boneNode);
+
+  // Display
+  void UpdateBoneDisplayNodeFromWidget(vtkMRMLBoneDisplayNode* boneDisplayNode,
+                                       vtkBoneWidget* widget);
 
   // Widgets
   vtkArmatureWidget* CreateArmatureWidget();
@@ -115,6 +120,7 @@ public:
   ArmatureNodesLink ArmatureNodes;
   BoneNodesLink BoneNodes;
   vtkMRMLArmatureDisplayableManager* External;
+  bool IgnoreFirstBuggyEvent;
 };
 
 //---------------------------------------------------------------------------
@@ -125,6 +131,7 @@ vtkMRMLArmatureDisplayableManager::vtkInternal
 ::vtkInternal(vtkMRMLArmatureDisplayableManager* external)
 {
   this->External = external;
+  this->IgnoreFirstBuggyEvent = true;
 }
 
 //---------------------------------------------------------------------------
@@ -164,7 +171,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   this->UpdateArmatureWidgetFromNode(armatureNode, 0);
 }
 
-
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::AddBoneNode(vtkMRMLBoneNode* boneNode)
@@ -179,6 +185,11 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   // We associate the node with the widget if an instantiation is called.
   boneNode->AddObserver(vtkCommand::ModifiedEvent,
                         this->External->GetMRMLNodesCallbackCommand());
+
+  // Also observe the events emited by the displayable node.
+  boneNode->AddObserver(vtkMRMLDisplayableNode::DisplayModifiedEvent,
+                        this->External->GetMRMLNodesCallbackCommand());
+
   // We add the boneNode without instantiating the widget first.
   this->BoneNodes.insert(
     std::pair<vtkMRMLBoneNode*, vtkBoneWidget*>(
@@ -198,18 +209,19 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     armatureWidget->UpdateBoneWithArmatureOptions(
       boneWidget,
       parentBoneWidget);
-    // For not armature properties
-    // Opacity
-    boneNode->SetOpacity(armatureNode->GetOpacity());
-    // Color
-    double armatureColor[3];
-    armatureNode->GetColor(armatureColor);
-    boneNode->SetBoneColor(armatureColor);
+    // For not armature widget properties HACKISH
+    if (boneWidget->GetBoneRepresentation())
+      {
+      boneWidget->GetBoneRepresentation()->SetOpacity(
+        armatureNode->GetOpacity());
+      double rgb[3];
+      armatureNode->GetColor(rgb);
+      boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
+      }
 
     armatureWidget->AddBone(boneWidget, parentBoneWidget);
     }
 }
-
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::vtkInternal
@@ -284,7 +296,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::RemoveBoneNode(vtkMRMLBoneNode* boneNode)
-{
+ {
   if (!boneNode)
     {
     return;
@@ -500,10 +512,9 @@ vtkBoneWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
                           this->External->GetWidgetsCallbackCommand());
   boneWidget->AddObserver(vtkCommand::UpdateEvent,
                           this->External->GetWidgetsCallbackCommand());
-  // Need ModifiedEvent because the bone can be modified by the armature too
-  // (And the node need to reflect that).
-  boneWidget->AddObserver(vtkCommand::ModifiedEvent,
-                          this->External->GetWidgetsCallbackCommand());
+
+  boneWidget->GetBoneRepresentation()->AddObserver(vtkCommand::ModifiedEvent,
+    this->External->GetWidgetsCallbackCommand());
 
   return boneWidget;
 }
@@ -550,7 +561,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     // there is no one associated to the armatureNode yet
     armatureWidget = this->CreateArmatureWidget();
     this->ArmatureNodes.find(armatureNode)->second = armatureWidget;
-
     }
 
   armatureNode->PasteArmatureNodeProperties(armatureWidget);
@@ -587,6 +597,10 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneWidget->RemoveObservers(vtkCommand::ModifiedEvent,
     this->External->GetWidgetsCallbackCommand());
   boneNode->PasteBoneNodeProperties(boneWidget);
+  if (boneDisplayNode)
+    {
+    boneDisplayNode->PasteBoneDisplayNodeProperties(boneWidget);
+    }
   boneWidget->AddObserver(vtkCommand::ModifiedEvent,
     this->External->GetWidgetsCallbackCommand());
 
@@ -639,9 +653,29 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::UpdateBoneNodeFromWidget(vtkMRMLBoneNode* boneNode,
                            vtkBoneWidget* widget)
 {
+  if (!boneNode)
+    {
+    return;
+    }
   int wasModifying = boneNode->StartModify();
   boneNode->CopyBoneWidgetProperties(widget);
   boneNode->EndModify(wasModifying);
+
+  this->UpdateBoneDisplayNodeFromWidget(boneNode->GetBoneDisplayNode(), widget);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager::vtkInternal
+::UpdateBoneDisplayNodeFromWidget(vtkMRMLBoneDisplayNode* boneDisplayNode,
+                                  vtkBoneWidget* widget)
+{
+  if (!boneDisplayNode)
+    {
+    return;
+    }
+  int wasModifying = boneDisplayNode->StartModify();
+  boneDisplayNode->CopyBoneWidgetDisplayProperties(widget);
+  boneDisplayNode->EndModify(wasModifying);
 }
 
 //---------------------------------------------------------------------------
@@ -768,6 +802,54 @@ void vtkMRMLArmatureDisplayableManager
       }
     this->Internal->UpdateBoneNodeFromWidget(boneNode, boneWidget);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager
+::ProcessMRMLNodesEvents(vtkObject *caller,
+                         unsigned long event,
+                         void* callData)
+{
+  if (event == vtkMRMLDisplayableNode::DisplayModifiedEvent)
+    {
+    vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(caller);
+    vtkBoneWidget* boneWidget = this->Internal->GetBoneWidget(boneNode);
+
+    if (!callData)
+      {
+      vtkMRMLBoneDisplayNode* displayBoneNode =
+          boneNode->GetBoneDisplayNode();
+      if (displayBoneNode && boneWidget)
+        {
+        int wasModifying = displayBoneNode->StartModify();
+        double normalColor[3];
+        boneWidget->GetBoneRepresentation()->GetLineProperty()->GetColor(normalColor);
+        displayBoneNode->SetColor(normalColor);
+        displayBoneNode->CopyBoneWidgetDisplayProperties(boneWidget);
+        displayBoneNode->SetSelected(true);
+        displayBoneNode->EndModify(wasModifying);
+        }
+      }
+    else
+      {
+      // This hackish code is here to prevent the update of the widget
+      // by the display node before the display node was initialized.
+      // Normally, an event with empty calldata is fired as the first event
+      // when the display node is created. However an undesired "normal"
+      // event is fired before. We just ignore it.
+      if (this->Internal->IgnoreFirstBuggyEvent)
+        {
+        this->Internal->IgnoreFirstBuggyEvent = false;
+        return;
+        }
+      // Normal event, the display node was changed, so update the widget.
+      this->Internal->UpdateBoneWidgetFromNode(boneNode, boneWidget);
+      }
+
+    this->RequestRender();
+    }
+
+  this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
 }
 
 //---------------------------------------------------------------------------

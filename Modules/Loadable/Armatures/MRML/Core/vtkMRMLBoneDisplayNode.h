@@ -27,6 +27,8 @@
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 
+class vtkBoneWidget;
+
 /// \ingroup Bender_MRML
 /// \brief Annotation to represent a bone.
 ///
@@ -67,10 +69,17 @@ public:
                                  unsigned long event,
                                  void* callData);
 
-
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
+
+  /// Copy the properties of the widget into the node
+  /// \sa PasteBoneDisplayNodeProperties()
+  void CopyBoneWidgetDisplayProperties(vtkBoneWidget* boneWidget);
+
+  /// Paste the properties of the node into the widget
+  /// \sa CopyBoneWidgetDisplayProperties()
+  void PasteBoneDisplayNodeProperties(vtkBoneWidget* boneWidget);
 
 protected:
   vtkMRMLBoneDisplayNode();

@@ -29,9 +29,10 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
-class vtkMRMLBoneDisplayNode;
 class vtkBoneRepresentation;
 class vtkBoneWidget;
+class vtkMRMLBoneDisplayNode;
+class vtkMRMLDisplayNode;
 
 /// \ingroup Bender_MRML
 /// \brief Annotation to design and edit a bone.
@@ -129,14 +130,6 @@ public:
   /// otherwise vtkBoneRepresentation.
   void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
-
-  /// Helper function to set/get the representation color.
-  void SetBoneColor(double rgb[3]);
-  void GetBoneColor(double rgb[3]);
-
-  /// Helper function to set/get the representation color.
-  void SetOpacity(double opacity);
-  double GetOpacity();
 
   /// Helper function to get the distance between head and tail
   double GetDistance();

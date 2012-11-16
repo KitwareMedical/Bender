@@ -23,6 +23,13 @@
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkProperty.h>
+
+// Bender includes
+#include <vtkCylinderBoneRepresentation.h>
+#include <vtkDoubleConeBoneRepresentation.h>
+#include <vtkBoneRepresentation.h>
+#include <vtkBoneWidget.h>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
@@ -91,4 +98,73 @@ void vtkMRMLBoneDisplayNode::ProcessMRMLEvents(vtkObject* caller,
 void vtkMRMLBoneDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode
+::CopyBoneWidgetDisplayProperties(vtkBoneWidget* boneWidget)
+{
+  if (!boneWidget)
+    {
+    return;
+    }
+
+  // -- Color --
+  // Color is never updated from the widget because the widget selected color
+  // and normal color aren't synched with the node colors.
+
+  // -- Opacity --
+  this->SetOpacity(
+    boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode
+::PasteBoneDisplayNodeProperties(vtkBoneWidget* boneWidget)
+{
+  if (!boneWidget)
+    {
+    return;
+    }
+
+  // -- Color --
+  double color[3];
+  if (this->GetSelected())
+    {
+    this->GetSelectedColor(color);
+    }
+  else
+    {
+    this->GetColor(color);
+    }
+
+  vtkCylinderBoneRepresentation* cylinderRep =
+    vtkCylinderBoneRepresentation::SafeDownCast(
+      boneWidget->GetBoneRepresentation());
+  if (cylinderRep)
+    {
+    cylinderRep->GetCylinderProperty()->SetColor(color);
+    cylinderRep->GetSelectedCylinderProperty()->SetColor(color);
+    }
+  vtkDoubleConeBoneRepresentation* doubleConeRep =
+    vtkDoubleConeBoneRepresentation::SafeDownCast(
+      boneWidget->GetBoneRepresentation());
+  if (doubleConeRep)
+    {
+    doubleConeRep->GetConesProperty()->SetColor(color);
+    doubleConeRep->GetSelectedConesProperty()->SetColor(color);
+    }
+  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(color);
+  boneWidget->GetBoneRepresentation()->GetSelectedLineProperty()
+    ->SetColor(color);
+
+  // -- Opacity --
+  boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
+  //And the parenthood line:
+  boneWidget->GetParenthoodRepresentation()->GetLineProperty()->SetOpacity(
+    this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPointProperty()
+    ->SetOpacity(this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPoint2Property()
+    ->SetOpacity(this->GetOpacity());
 }
