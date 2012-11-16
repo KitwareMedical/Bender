@@ -662,6 +662,13 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneNode->EndModify(wasModifying);
 
   this->UpdateBoneDisplayNodeFromWidget(boneNode->GetBoneDisplayNode(), widget);
+
+  vtkMRMLArmatureNode* armatureNode = this->GetArmatureNode(boneNode);
+  if (armatureNode && boneNode->GetSelected())
+    {
+    armatureNode->InvokeEvent(
+      vtkMRMLArmatureNode::ArmatureBoneModified, boneNode->GetID());
+    }
 }
 
 //---------------------------------------------------------------------------

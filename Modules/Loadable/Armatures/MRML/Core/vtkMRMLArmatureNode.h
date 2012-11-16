@@ -26,6 +26,10 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+
+// VTK includes
+#include "vtkCommand.h"
+
 class vtkMRMLBoneNode;
 
 class vtkArmatureWidget;
@@ -143,6 +147,13 @@ public:
   /// \sa GetColor(), SetColor()
   void SetBoneLinkedWithParent(vtkBoneWidget* bone, bool linked);
   bool GetBoneLinkedWithParent(vtkBoneWidget* bone);*/
+
+  //BTX
+  enum MRMLArmatureNode
+    {
+    ArmatureBoneModified = vtkCommand::UserEvent + 1
+    };
+  //ETX
 
   //--------------------------------------------------------------------------
   // Bone methods

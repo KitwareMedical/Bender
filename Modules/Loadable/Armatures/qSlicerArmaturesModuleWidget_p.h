@@ -29,6 +29,7 @@
 class qSlicerWidget;
 class vtkMRMLArmatureNode;
 class vtkMRMLBoneNode;
+class vtkObject;
 class vtkSlicerArmaturesLogic;
 
 //------------------------------------------------------------------------------
@@ -78,6 +79,8 @@ public slots:
   void setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode);
   void setCoordinatesToBoneNode(vtkMRMLBoneNode* boneNode);
 
+  void selectBoneNode(vtkObject*, void*);
+
 protected slots:
 
   void onPositionTypeChanged();
@@ -86,6 +89,10 @@ protected slots:
 
   void onParentNodeChanged(vtkMRMLNode* node);
   void onLinkedWithParentChanged(int linked);
+
+protected:
+  // Select/Unselect the current bone node.
+  void selectCurrentBoneDisplayNode(int select);
 
 private:
   vtkMRMLArmatureNode* ArmatureNode;

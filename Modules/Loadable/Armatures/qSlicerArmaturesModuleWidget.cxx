@@ -40,6 +40,7 @@
 #include <vtkSlicerAnnotationModuleLogic.h>
 
 // MRML includes
+#include <vtkMRMLBoneDisplayNode.h>
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
@@ -306,12 +307,12 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     wasBlocked = this->LinkedToParentCheckBox->blockSignals(true);
     this->LinkedToParentCheckBox->setChecked(
-      this->BoneNode->GetBoneLinkedWithParent());
+      boneNode->GetBoneLinkedWithParent());
     this->LinkedToParentCheckBox->blockSignals(false);
     }
 
-  bool enable = this->BoneNode
-    && this->BoneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
+  bool enable = boneNode
+    && boneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
 
   this->ParentBoneNodeComboBox->setEnabled(enable);
   this->LinkedToParentCheckBox->setEnabled(enable);
@@ -441,6 +442,24 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
+::selectBoneNode(vtkObject* sender, void* callData)
+{
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  char* nodeID = reinterpret_cast<char*>(callData);
+  if (nodeID)
+    {
+    vtkMRMLBoneNode* boneNode =
+      vtkMRMLBoneNode::SafeDownCast(q->mrmlScene()->GetNodeByID(nodeID));
+    if (boneNode && boneNode->GetSelected())
+      {
+      this->BonesTreeView->setCurrentNode(boneNode);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
 ::setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode)
 {
   double head[3] = {0.0, 0.0, 0.0};
@@ -507,8 +526,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidgetPrivate
-::onLinkedWithParentChanged(int linked)
+void qSlicerArmaturesModuleWidgetPrivate::onLinkedWithParentChanged(int linked)
 {
   if (!this->BoneNode)
     {
@@ -516,6 +534,21 @@ void qSlicerArmaturesModuleWidgetPrivate
     }
 
   this->BoneNode->SetBoneLinkedWithParent(linked);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int select)
+{
+  if (!this->BoneNode)
+    {
+    return;
+    }
+
+  vtkMRMLBoneDisplayNode* displayNode = this->BoneNode->GetBoneDisplayNode();
+  if (displayNode)
+    {
+    displayNode->SetSelected(select);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -548,6 +581,9 @@ void qSlicerArmaturesModuleWidget
   Q_D(qSlicerArmaturesModuleWidget);
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
     vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromArmatureNode()));
+  this->qvtkReconnect(d->ArmatureNode, armatureNode,
+    vtkMRMLArmatureNode::ArmatureBoneModified,
+    d, SLOT(selectBoneNode(vtkObject*, void*)));
   d->ArmatureNode = armatureNode;
 
   d->logic()->SetActiveArmature(armatureNode);
@@ -718,9 +754,12 @@ void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
     this->qvtkReconnect(d->BoneNode, boneNode, vtkCommand::ModifiedEvent,
       this, SLOT(updateWidgetFromBoneNode()));
     }
-  d->BoneNode = boneNode;
 
   d->updateArmatureWidget(boneNode);
+
+  d->selectCurrentBoneDisplayNode(0); // Unselect previous bone node
+  d->BoneNode = boneNode; // Update bone node
+  d->selectCurrentBoneDisplayNode(1); // Select new bone node
 }
 
 //-----------------------------------------------------------------------------
