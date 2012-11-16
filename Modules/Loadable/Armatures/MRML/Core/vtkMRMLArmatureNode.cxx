@@ -81,7 +81,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->Callback = vtkMRMLArmatureNodeCallback::New();
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
-    ->SetColor(0.0, 0.0, 0.0);
+    ->SetColor(67.0 / 255.0, 75.0/255.0, 89.0/255.0); //Slicer's bone color.
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(1.0);
