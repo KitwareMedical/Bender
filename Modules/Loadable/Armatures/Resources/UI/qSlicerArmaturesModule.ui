@@ -98,6 +98,9 @@
          </item>
          <item row="0" column="1">
           <widget class="QComboBox" name="ArmatureRepresentationComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="currentIndex">
             <number>2</number>
            </property>
@@ -127,6 +130,9 @@
          </item>
          <item row="1" column="1">
           <widget class="ctkColorPickerButton" name="ArmatureColorPickerButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="color">
             <color>
              <red>241</red>
@@ -145,6 +151,9 @@
          </item>
          <item row="2" column="1">
           <widget class="ctkSliderWidget" name="ArmatureOpacitySlider">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="singleStep">
             <double>0.010000000000000</double>
            </property>
@@ -180,6 +189,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="ArmatureShowAxesComboBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>Hidden</string>
@@ -206,6 +218,9 @@
             </item>
             <item row="1" column="1">
              <widget class="QCheckBox" name="ArmatureShowParenthoodCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string/>
               </property>
@@ -229,6 +244,9 @@
          </item>
          <item row="3" column="1">
           <widget class="QCheckBox" name="BonesAlwaysOnTopCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -302,6 +320,9 @@
          </item>
          <item row="1" column="1">
           <widget class="QCheckBox" name="LinkedToParentCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -331,10 +352,18 @@
           </widget>
          </item>
          <item row="1" column="1" colspan="2">
-          <widget class="ctkCoordinatesWidget" name="TailCoordinatesWidget"/>
+          <widget class="ctkCoordinatesWidget" name="TailCoordinatesWidget">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="0" column="1" colspan="2">
-          <widget class="ctkCoordinatesWidget" name="HeadCoordinatesWidget"/>
+          <widget class="ctkCoordinatesWidget" name="HeadCoordinatesWidget">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+          </widget>
          </item>
          <item row="5" column="0" colspan="3">
           <widget class="ctkCollapsibleGroupBox" name="AdvancedPositionsCollapsibleGroupBox">
@@ -357,6 +386,9 @@
             </item>
             <item row="0" column="1">
              <widget class="QComboBox" name="BonePositionTypeComboBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <item>
                <property name="text">
                 <string>Local</string>
@@ -378,6 +410,9 @@
             </item>
             <item row="1" column="1">
              <widget class="ctkCoordinatesWidget" name="DirectionCoordinatesWidget">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="normalized">
                <bool>true</bool>
               </property>
@@ -395,6 +430,9 @@
          </item>
          <item row="2" column="2">
           <widget class="QDoubleSpinBox" name="LengthSpinBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
            <property name="maximum">
             <double>999999999.000000000000000</double>
            </property>
@@ -492,40 +530,8 @@
      <y>292</y>
     </hint>
     <hint type="destinationlabel">
-     <x>396</x>
-     <y>291</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ArmatureNodeComboBox</sender>
-   <signal>currentNodeChanged(bool)</signal>
-   <receiver>ArmatureDisplayCollapsibleButton</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>24</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>187</x>
-     <y>98</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ArmatureNodeComboBox</sender>
-   <signal>currentNodeChanged(bool)</signal>
-   <receiver>BonesCollapsibleButton</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>353</x>
-     <y>28</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>282</x>
-     <y>115</y>
+     <x>512</x>
+     <y>470</y>
     </hint>
    </hints>
   </connection>
@@ -556,8 +562,8 @@
      <y>164</y>
     </hint>
     <hint type="destinationlabel">
-     <x>390</x>
-     <y>163</y>
+     <x>408</x>
+     <y>421</y>
     </hint>
    </hints>
   </connection>
@@ -572,8 +578,8 @@
      <y>24</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>152</y>
+     <x>126</x>
+     <y>421</y>
     </hint>
    </hints>
   </connection>

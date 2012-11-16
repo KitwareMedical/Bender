@@ -292,6 +292,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureWidget(vtkMRMLArmatureNode* armatureNode)
 {
   this->updateArmatureDisplay(armatureNode);
+  this->BonesTreeView->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -316,7 +317,6 @@ void qSlicerArmaturesModuleWidgetPrivate
 
   this->ParentBoneNodeComboBox->setEnabled(enable);
   this->LinkedToParentCheckBox->setEnabled(enable);
-  this->HierarchyCollapsibleGroupBox->setEnabled(enable);
 }
 
 //-----------------------------------------------------------------------------
@@ -359,8 +359,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->DirectionCoordinatesWidget->setEnabled(enableTailWidget);
 
   this->updateAdvancedPositions(boneNode);
-
-  this->PositionsCollapsibleGroupBox->setEnabled(boneNode != 0);
   this->blockPositionsSignals(false);
 }
 
@@ -400,7 +398,10 @@ void qSlicerArmaturesModuleWidgetPrivate
 
   this->updateArmatureAdvancedDisplay(armatureNode);
 
-  this->ArmatureDisplayCollapsibleGroupBox->setEnabled(armatureNode != 0);
+  this->ArmatureRepresentationComboBox->setEnabled(armatureNode != 0);
+  this->ArmatureColorPickerButton->setEnabled(armatureNode != 0);
+  this->ArmatureOpacitySlider->setEnabled(armatureNode != 0);
+  this->BonesAlwaysOnTopCheckBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -414,6 +415,9 @@ void qSlicerArmaturesModuleWidgetPrivate
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
     }
+
+  this->ArmatureShowAxesComboBox->setEnabled(armatureNode != 0);
+  this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
