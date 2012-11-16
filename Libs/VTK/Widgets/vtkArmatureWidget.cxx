@@ -137,9 +137,18 @@ public:
         ArmatureTreeNode* node = ArmatureWidget->GetNode(bone);
         if (node && node->HeadLinkedToParent && node->Parent)
           {
-          double parentTail[3];
-          node->Parent->Bone->GetCurrentWorldTail(parentTail);
-          node->Bone->SetWorldHeadRest(parentTail);
+          if (node->Bone->GetBoneSelected() != vtkBoneWidget::LineSelected)
+            {
+            double parentTail[3];
+            node->Parent->Bone->GetWorldTailRest(parentTail);
+            node->Bone->SetWorldHeadRest(parentTail);
+            }
+          if (node->Bone->GetBoneSelected() == vtkBoneWidget::LineSelected)
+            {
+            double head[3];
+            node->Bone->GetWorldHeadRest(head);
+            node->Parent->Bone->SetWorldTailRest(head);
+            }
           }
 
         ArmatureWidget->UpdateChildrenWidgetStateToRest(node);
@@ -602,7 +611,7 @@ void vtkArmatureWidget
   if (node && node->HeadLinkedToParent != linked)
     {
     node->HeadLinkedToParent = linked;
-    if (node->Parent)
+    if (node->Parent && linked)
       {
       node->Bone->SetWorldHeadRest(node->Parent->Bone->GetWorldTailRest());
       }

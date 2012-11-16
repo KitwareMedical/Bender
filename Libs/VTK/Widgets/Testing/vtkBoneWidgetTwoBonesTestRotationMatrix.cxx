@@ -372,30 +372,30 @@ rotationAxis -0.866354 0 0.49943*/
   arm->SetRepresentation(armRep);
   //arm->CreateDefaultRepresentation();
 
-  vtkBoneWidget* forearm = armature->CreateBone(arm, 20.0, 0.0, 0.0);
+  vtkBoneWidget* forearm = armature->CreateBone(arm, 20.0, 0.0, 0.0, "forearm");
   armature->AddBone(forearm, arm);
   vtkSmartPointer<vtkDoubleConeBoneRepresentation> forearmRep =
     vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
   forearm->SetRepresentation(forearmRep);
   forearmRep->GetConesProperty()->SetOpacity(0.4);
 
-  vtkBoneWidget* thumb = armature->CreateBone(forearm, 20.0, 4.0, 0.0);
+  vtkBoneWidget* thumb = armature->CreateBone(forearm, 20.0, 4.0, 0.0, "thumb");
   armature->AddBone(thumb, forearm);
   thumb->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* indexFinger = armature->CreateBone(forearm, 22.0, 2.0, 0.0);
+  vtkBoneWidget* indexFinger = armature->CreateBone(forearm, 22.0, 2.0, 0.0, "index finger");
   armature->AddBone(indexFinger, forearm);
   indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0);
+  vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0, "middle finger");
   armature->AddBone(middleFinger, forearm);
   middleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* ringFinger = armature->CreateBone(forearm, 22.0, -1.0, 0.0);
+  vtkBoneWidget* ringFinger = armature->CreateBone(forearm, 22.0, -1.0, 0.0, "ring finger");
   armature->AddBone(ringFinger, forearm);
   ringFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* littleFinger = armature->CreateBone(forearm, 22.0, -2.0, 0.0);
+  vtkBoneWidget* littleFinger = armature->CreateBone(forearm, 22.0, -2.0, 0.0, "little finger");
   armature->AddBone(littleFinger, forearm);
   littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
@@ -406,7 +406,7 @@ rotationAxis -0.866354 0 0.49943*/
   renderWindowInteractor->SetInteractorStyle(style);
   style->Armature = armature;
 
-  vtkActor* CylinderActor = vtkActor::New();
+/*  vtkActor* CylinderActor = vtkActor::New();
   vtkPolyDataMapper* CylinderMapper = vtkPolyDataMapper::New();
   vtkTubeFilter* CylinderGenerator= vtkTubeFilter::New();
 
@@ -424,7 +424,7 @@ rotationAxis -0.866354 0 0.49943*/
   CylinderActor->SetMapper(CylinderMapper);
 
   renderer->AddActor(CylinderActor);
-
+*/
   vtkSmartPointer<vtkAxesActor> axes =
     vtkSmartPointer<vtkAxesActor>::New();
 
@@ -440,7 +440,7 @@ rotationAxis -0.866354 0 0.49943*/
   renderWindow->Render();
   armature->On();
 
-  vtkActor* CylinderActor2 = vtkActor::New();
+  /*vtkActor* CylinderActor2 = vtkActor::New();
   vtkPolyDataMapper* CylinderMapper2 = vtkPolyDataMapper::New();
   vtkTubeFilter* CylinderGenerator2 = vtkTubeFilter::New();
   // Define cylinde properties
@@ -456,7 +456,7 @@ rotationAxis -0.866354 0 0.49943*/
   CylinderMapper2->SetInput(CylinderGenerator2->GetOutput());
   CylinderActor2->SetMapper(CylinderMapper2);
 
-  renderer->AddActor(CylinderActor2);
+  renderer->AddActor(CylinderActor2);*/
 
 
   // Begin mouse interaction
