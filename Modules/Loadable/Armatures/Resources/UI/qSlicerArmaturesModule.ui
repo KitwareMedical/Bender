@@ -7,71 +7,78 @@
     <x>0</x>
     <y>0</y>
     <width>781</width>
-    <height>842</height>
+    <height>705</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Armatures</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
-   <item row="0" column="0">
-    <widget class="ctkCheckBox" name="ArmatureVisibilityCheckBox">
-     <property name="text">
-      <string>Armature:</string>
+  <layout class="QFormLayout" name="formLayout">
+   <item row="0" column="0" colspan="2">
+    <layout class="QFormLayout" name="ArmatureTopLayout">
+     <property name="margin">
+      <number>9</number>
      </property>
-     <property name="indicatorIcon">
-      <iconset>
-       <normaloff>:/Icons/VisibleOn.png</normaloff>
-       <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
-     </property>
-     <property name="indicatorIconSize">
-      <size>
-       <width>21</width>
-       <height>21</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="qMRMLNodeComboBox" name="ArmatureNodeComboBox">
-     <property name="nodeTypes">
-      <stringlist>
-       <string>vtkMRMLArmatureNode</string>
-      </stringlist>
-     </property>
-     <property name="renameEnabled">
-      <bool>true</bool>
-     </property>
-     <property name="baseName">
-      <string>Armature</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="ArmatureStateLabel">
-     <property name="text">
-      <string>Armature Mode:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QComboBox" name="ArmatureStateComboBox">
-     <property name="editable">
-      <bool>false</bool>
-     </property>
-     <item>
-      <property name="text">
-       <string>Rest</string>
-      </property>
+     <item row="0" column="0">
+      <widget class="ctkCheckBox" name="ArmatureVisibilityCheckBox">
+       <property name="text">
+        <string>Armature:</string>
+       </property>
+       <property name="indicatorIcon">
+        <iconset>
+         <normaloff>:/Icons/VisibleOn.png</normaloff>
+         <normalon>:/Icons/VisibleOff.png</normalon>:/Icons/VisibleOn.png</iconset>
+       </property>
+       <property name="indicatorIconSize">
+        <size>
+         <width>21</width>
+         <height>21</height>
+        </size>
+       </property>
+      </widget>
      </item>
-     <item>
-      <property name="text">
-       <string>Pose</string>
-      </property>
+     <item row="0" column="1">
+      <widget class="qMRMLNodeComboBox" name="ArmatureNodeComboBox">
+       <property name="nodeTypes">
+        <stringlist>
+         <string>vtkMRMLArmatureNode</string>
+        </stringlist>
+       </property>
+       <property name="renameEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="baseName">
+        <string>Armature</string>
+       </property>
+      </widget>
      </item>
-    </widget>
+     <item row="1" column="0">
+      <widget class="QLabel" name="ArmatureStateLabel">
+       <property name="text">
+        <string>Armature Mode:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="ArmatureStateComboBox">
+       <property name="editable">
+        <bool>false</bool>
+       </property>
+       <item>
+        <property name="text">
+         <string>Rest</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Pose</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item row="1" column="0" colspan="2">
     <widget class="ctkCollapsibleButton" name="ArmatureDisplayCollapsibleButton">
      <property name="cursor">
       <cursorShape>ArrowCursor</cursorShape>
@@ -258,7 +265,7 @@
      </layout>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="ctkCollapsibleButton" name="BonesCollapsibleButton">
      <property name="text">
       <string>Bones</string>
@@ -447,7 +454,7 @@
      <zorder>PositionsCollapsibleGroupBox</zorder>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item row="3" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
