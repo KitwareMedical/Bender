@@ -728,6 +728,9 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
+  d->ArmatureVisibilityCheckBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
+
   if (!d->ArmatureNode)
     {
     return;
