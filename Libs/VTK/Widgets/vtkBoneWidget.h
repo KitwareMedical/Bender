@@ -377,6 +377,10 @@ public:
   // the rest positions and transformations.
   void ResetPoseToRest();
 
+  // Description:
+  // Get the selection state of the widget.
+  vtkGetMacro(BoneSelected, int);
+
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
