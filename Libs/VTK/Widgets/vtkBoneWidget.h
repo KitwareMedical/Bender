@@ -381,6 +381,18 @@ public:
   // Get the selection state of the widget.
   vtkGetMacro(BoneSelected, int);
 
+  // Description:
+  // The differents selection state of the widget.
+  //BTX
+  enum WidgetSelectedState
+    {
+    NotSelected = 0,
+    HeadSelected,
+    TailSelected,
+    LineSelected
+    };
+  //ETX
+
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
@@ -391,15 +403,6 @@ protected:
   // The different states of the widget.
   int WidgetState;
   int BoneSelected;
-  //BTX
-  enum WidgetSelectedState
-    {
-    NotSelected = 0,
-    HeadSelected,
-    TailSelected,
-    LineSelected
-    };
-  //ETX
 
   // Callback interface to capture events when placing the widget.
   static void StartSelectAction(vtkAbstractWidget*);
