@@ -40,7 +40,3 @@ endif (BUILD_SHARED_LIBS)
 #-----------------------------------------------------------------------------
 
 add_subdirectory(Libs)
-add_subdirectory(Modules/CLI/ArmatureWeight)
-add_subdirectory(Modules/CLI/EvalWeight)
-add_subdirectory(Modules/CLI/PoseBody)
-

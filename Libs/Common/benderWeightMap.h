@@ -23,17 +23,20 @@
 
 // .NAME WeightMap - sparse representation over weight vectors over a volume
 // .SECTION General Description
-// This is a sparse representation for a vector-image of weights. Only
+// This is a sparse representation for an image of vector-weights. Only
 // non-zero entries are represented.
 
 #include <itkImage.h>
-#include "itkVariableLengthVector.h"
+#include <itkVariableLengthVector.h>
 #include <vector>
 #include <limits>
+#include "BenderCommonExport.h"
 
-class WeightMap
+namespace bender
 {
-public:
+class BENDER_COMMON_EXPORT WeightMap
+{
+ public:
   typedef unsigned char SiteIndex;
   struct WeightEntry
   {
@@ -50,10 +53,10 @@ public:
   typedef itk::VariableLengthVector<float> WeightVector;
 
   typedef std::vector<WeightEntries> WeightLUT; //for any j, WeightTable[...][j] correspond to
-                                                //the weights at a vixel
+  //the weights at a vixel
 
   typedef itk::Image<size_t,3> WeightLUTIndex; //for each voxel v, WeightLUTIndex[v] index into the
-                                               //the "column" of WeightLUT
+  //the "column" of WeightLUT
 
 
   WeightMap();
@@ -61,18 +64,14 @@ public:
   bool Insert(const Voxel& v, SiteIndex index, float value);
   void Get(const Voxel& v, WeightVector& values) const;
   void AddRow();
-  void Print();
+  void Print() const;
 
-private:
+ private:
   WeightLUT LUT;
   WeightLUTIndex::Pointer LUTIndex;
   RowSizes RowSize;
   size_t Cols;
 };
-
+};
 
 #endif
-
-
-
-

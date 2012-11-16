@@ -16,42 +16,41 @@
 =========================================================================*/
 #include "PoseBodyCLP.h"
 
-#include "WeightMap.h"
-#include "WeightMapMath.h"
-#include "WeightMapIO.h"
+#include "dqconv.h"
+#include "benderWeightMap.h"
+#include "benderWeightMapIO.h"
+#include "benderWeightMapMath.h"
 
-#include "itkImageFileWriter.h"
-#include "itkImage.h"
+#include <itkImageFileWriter.h>
+#include <itkImage.h>
 #include <itkStatisticsImageFilter.h>
-#include "itkPluginUtilities.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "itkContinuousIndex.h"
-#include "itkMath.h"
-#include "itkIndex.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkMatrix.h"
+#include <itkPluginUtilities.h>
+#include <itkImageRegionIteratorWithIndex.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <itkContinuousIndex.h>
+#include <itkMath.h>
+#include <itkIndex.h>
+#include <itkLinearInterpolateImageFunction.h>
+#include <itkMatrix.h>
 
-#include "vtkTimerLog.h"
-#include "vtkSTLReader.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkNew.h"
-#include "vtkSmartPointer.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
-#include "vtkCubeSource.h"
-#include "itkVersor.h"
+#include <vtkTimerLog.h>
+#include <vtkSTLReader.h>
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
+#include <vtkNew.h>
+#include <vtkSmartPointer.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
+#include <vtkFloatArray.h>
+#include <vtkMath.h>
+#include <vtkCubeSource.h>
+#include <itkVersor.h>
 
 #include <sstream>
 #include <iostream>
 #include <vector>
 #include <limits>
-
-#include "dqconv.h"
 
 typedef itk::Matrix<double,2,4> Mat24;
 
@@ -87,13 +86,14 @@ template<class T>
 void PrintVector(T* a, int n)
 {
   cout<<"[";
-  for(int i=0; i<n; i++)
+  for(int i=0; i<n; ++i)
     {
     cout<<a[i]<<(i==n-1?"": ", ");
     }
   cout<<"]"<<endl;
 }
 
+//-------------------------------------------------------------------------------
 void PrintVTKQuarternion(double* a)
 {
   cout<<"[ ";
@@ -101,6 +101,7 @@ void PrintVTKQuarternion(double* a)
   cout<<" ]"<<endl;
 }
 
+//-------------------------------------------------------------------------------
 Vec4 ComputeQuarternion(double axisX,
                         double axisY,
                         double axisZ,
@@ -116,6 +117,7 @@ Vec4 ComputeQuarternion(double axisX,
   return R;
 }
 
+//-------------------------------------------------------------------------------
 void InterpolateQuaternion(double qa[4], double qb[4], double t, double qm[4])
 {
 
@@ -151,12 +153,13 @@ void InterpolateQuaternion(double qa[4], double qb[4], double t, double qm[4])
 }
 
 
+//-------------------------------------------------------------------------------
 Mat33 ToItkMatrix(double M[3][3])
 {
   Mat33 itkM;
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; j++)
+    for(int j=0; j<3; ++j)
       {
       itkM(i,j)  = M[i][j];
       }
@@ -165,6 +168,7 @@ Mat33 ToItkMatrix(double M[3][3])
   return itkM;
 }
 
+//-------------------------------------------------------------------------------
 inline Mat33 ToRotationMatrix(const Vec4& R)
 {
   Versor v;
@@ -172,6 +176,7 @@ inline Mat33 ToRotationMatrix(const Vec4& R)
   return v.GetMatrix();
 }
 
+//-------------------------------------------------------------------------------
 void ApplyQT(Vec4& q, Vec3& t, double* x)
 {
   double R[3][3];
@@ -180,12 +185,13 @@ void ApplyQT(Vec4& q, Vec3& t, double* x)
   double Rx[3];
   vtkMath::Multiply3x3(R, x, Rx);
 
-  for(unsigned int i=0; i<3; i++)
+  for(unsigned int i=0; i<3; ++i)
     {
     x[i] = Rx[i]+t[i];
     }
 }
 
+//-------------------------------------------------------------------------------
 struct RigidTransform
 {
   Vec3 O;
@@ -242,6 +248,7 @@ struct RigidTransform
   }
 };
 
+//-------------------------------------------------------------------------------
 void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* arrayName, const double* rcenter, RigidTransform& F,bool invertY =true)
 {
   double A[12];
@@ -251,15 +258,15 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* a
   double T[3];
   double RCenter[3];
   int iA(0);
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; j++,iA++)
+    for(int j=0; j<3; ++j,++iA)
       {
       R[j][i] = A[iA];
       }
     }
 
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; ++i)
     {
     T[i] = A[i+9];
     RCenter[i] = rcenter[i];
@@ -267,9 +274,9 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* a
 
   if(invertY)
     {
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
       {
-      for(int j=0; j<3; j++)
+      for(int j=0; j<3; ++j)
         {
         if( (i==1 || j==1) && i!=j)
           {
@@ -286,6 +293,7 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* a
   F.SetTranslation(T);
 }
 
+//-------------------------------------------------------------------------------
 vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const char* arrayName, bool invertY)
 {
   vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
@@ -309,8 +317,8 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
 
     Mat33 R;
     int iA(0);
-    for(int i=0; i<3; i++)
-      for(int j=0; j<3; j++,iA++)
+    for(int i=0; i<3; ++i)
+      for(int j=0; j<3; ++j,++iA)
         {
         R(i,j) = A[iA];
         }
@@ -324,8 +332,8 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
     if(invertY)
       {
       //    Mat33 flipY;
-      for(int i=0; i<3; i++)
-        for(int j=0; j<3; j++)
+      for(int i=0; i<3; ++i)
+        for(int j=0; j<3; ++j)
           {
           if( (i==1 || j==1) && i!=j)
             {
@@ -362,12 +370,13 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
     cout<<"Set point "<<b<<" to "<<Vec3(bx1)<<endl;
     outPoints->SetPoint(b,&bx1[0]);
 
-    edgeId++;
+    ++edgeId;
     }
   return output;
 }
 
 
+//-------------------------------------------------------------------------------
 vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const std::vector<RigidTransform>& transforms)
 {
   vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
@@ -395,47 +404,23 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const std
 
     outPoints->SetPoint(a,ax1);
     outPoints->SetPoint(b,bx1);
-    edgeId++;
+    ++edgeId;
     }
   return output;
 }
 
-//-----------------------------------------------------------------------------
-
-void NormalizeWeight(WeightMap::WeightVector& v)
-{
-  for(unsigned int i=0; i<v.Size();i++)
-    {
-    assert(v[i]>=0);
-    if(v[i]<0.001)
-      {
-      v[i]=0;
-      }
-    }
-
-  float s(0);
-  for(unsigned int i=0; i<v.Size();i++)
-    {
-    assert(v[i]>=0);
-    s+=v[i];
-    }
-  s = s!=0 ? 1.0/s : 0;
-  for(unsigned int i=0; i<v.Size();i++)
-    {
-    v[i]*=s;
-    }
-}
+//-------------------------------------------------------------------------------
 class CubeNeighborhood
 {
 public:
   CubeNeighborhood()
   {
     int index=0;
-    for(unsigned int i=0; i<=1; i++)
+    for(unsigned int i=0; i<=1; ++i)
       {
-      for(unsigned int j=0; j<=1; j++)
+      for(unsigned int j=0; j<=1; ++j)
         {
-        for(unsigned int k=0; k<=1; k++,index++)
+        for(unsigned int k=0; k<=1; ++k,++index)
           {
           this->Offsets[index][0] = i;
           this->Offsets[index][1] = j;
@@ -448,6 +433,7 @@ public:
 };
 
 
+//-------------------------------------------------------------------------------
 vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
 {
   vtkPolyData* polyData = 0;
@@ -461,7 +447,7 @@ vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
   if(invertY)
     {
     cout<<"Invert y coordinate\n";
-    for(int i=0; i<points->GetNumberOfPoints();i++)
+    for(int i=0; i<points->GetNumberOfPoints();++i)
       {
       double x[3];
       points->GetPoint(i,x);
@@ -483,6 +469,7 @@ void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
   pdWriter->Update();
 }
 
+//-------------------------------------------------------------------------------
 void TestQuarternion()
 {
 
@@ -492,9 +479,9 @@ void TestQuarternion()
   vtkMath::Matrix3x3ToQuaternion(A, AQuat);
   vtkMath::QuaternionToMatrix3x3(AQuat, A1);
 
-  for(int i=0; i<3; i++)
+  for(int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; j++)
+    for(int j=0; j<3; ++j)
       {
       assert(fabs(A1[i][j]-A[i][j])<0.001);
       }
@@ -508,6 +495,7 @@ void TestQuarternion()
 }
 
 
+//-------------------------------------------------------------------------------
 void TestDualQuarternion()
 {
   Vec4 q = ComputeQuarternion(0,0,1,3.14/4);
@@ -524,6 +512,7 @@ void TestDualQuarternion()
   DQ2QuatTrans(dq,&q1[0],&t1[0]);
 }
 
+//-------------------------------------------------------------------------------
 void TestVersor()
 {
   double A[3][3] = {{1., 0., 0.},{0., 1., 0.},{0., 0., 1.}};
@@ -555,6 +544,7 @@ void TestVersor()
 
 }
 
+//-------------------------------------------------------------------------------
 void TestTransformBlending()
 {
   if(1)
@@ -566,13 +556,14 @@ void TestTransformBlending()
     double x[3] = {1,2,3};
     double y[3];
     A.Apply(x,y);
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
       {
       assert(x[i]==y[i]);
       }
     }
 }
 
+//-------------------------------------------------------------------------------
 void TestInterpolation()
 {
   typedef itk::Image<float, 2>  ImageType;
@@ -611,7 +602,7 @@ void TestInterpolation()
 
   ImageType::IndexType baseIndex;
   float distance[2];
-  for(int dim = 0; dim < 2; dim++ )
+  for(int dim = 0; dim < 2; ++dim )
     {
     baseIndex[dim] = itk::Math::Floor<ImageType::IndexValueType>( coord[dim] );
     distance[dim] = coord[dim] - static_cast<float >( baseIndex[dim] );
@@ -626,13 +617,13 @@ void TestInterpolation()
 
   //for each cube vertex
   double value = 0;
-  for(unsigned int index=0; index<4; index++)
+  for(unsigned int index=0; index<4; ++index)
     {
     //for each bit of index
     unsigned int bit = index;
     double w=1.0;
     ImageType::IndexType ij;
-    for(int dim=0; dim<2; dim++)
+    for(int dim=0; dim<2; ++dim)
       {
       bool upper = bit & 1;
       bit>>=1;
@@ -648,6 +639,7 @@ void TestInterpolation()
 
 }
 
+//-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
                          ,vtkPoints* points //input
                          ,std::vector<Voxel>& domainVoxels //output
@@ -661,7 +653,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();pi++)
+  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -673,7 +665,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     Voxel p;
     p.CopyWithCast(coord);
 
-    for(int iOff=0; iOff<8; iOff++)
+    for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
       if(!domain->GetPixel(q))
@@ -685,8 +677,10 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     }
 }
 
+//-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
+  typedef bender::WeightMap WeightMap;
   //run some tests
   TestTransformBlending();
   TestVersor();
@@ -711,7 +705,7 @@ int main( int argc, char * argv[] )
   // and all file names
   //----------------------------
   vector<string> fnames;
-  GetWeightFileNames(WeightDirectory, fnames);
+  bender::GetWeightFileNames(WeightDirectory, fnames);
   int numSites = fnames.size();
   if(numSites<1)
     {
@@ -753,7 +747,7 @@ int main( int argc, char * argv[] )
   // Read Weights
   //----------------------------
   WeightMap weightMap;
-  ReadWeights(fnames,domainVoxels,weightMap);
+  bender::ReadWeights(fnames,domainVoxels,weightMap);
 
   //----------------------------
   // Read armature
@@ -785,12 +779,12 @@ int main( int argc, char * argv[] )
     RigidTransform transform;
     GetArmatureTransform(armature, edgeId, "Transforms", ax, transform,true);
     transforms.push_back(transform);
-    edgeId++;
+    ++edgeId;
     }
 
   numSites = transforms.size();
   std::vector<Mat24> dqs;
-  for(size_t i=0; i<transforms.size(); i++)
+  for(size_t i=0; i<transforms.size(); ++i)
     {
     Mat24 dq;
     RigidTransform& trans = transforms[i];
@@ -808,7 +802,7 @@ int main( int argc, char * argv[] )
   int numInterior(0);
   CubeNeighborhood cubeNeighborhood;
   VoxelOffset* offsets = cubeNeighborhood.Offsets ;
-  for(int pi=0; pi<numPoints;pi++)
+  for(int pi=0; pi<numPoints;++pi)
     {
     double xraw[3];
     inputPoints->GetPoint(pi,xraw);
@@ -823,7 +817,7 @@ int main( int argc, char * argv[] )
 
     bool hasInside(false);
     bool hasOutside(false);
-    for(int iOff=0; iOff<8; iOff++)
+    for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
       if(weight0->GetPixel(q)>=0)
@@ -853,12 +847,12 @@ int main( int argc, char * argv[] )
   vtkPointData* outData = outSurface->GetPointData();
   outData->Initialize();
   std::vector<vtkFloatArray*> surfaceVertexWeights;
-  for(int i=0; i<numSites; i++)
+  for(int i=0; i<numSites; ++i)
     {
     vtkFloatArray* arr = vtkFloatArray::New();
     arr->SetNumberOfTuples(numPoints);
     arr->SetNumberOfComponents(1);
-    for(vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); j++)
+    for(vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); ++j)
       {
       arr->SetValue(j,0.0);
       }
@@ -873,7 +867,7 @@ int main( int argc, char * argv[] )
 
   WeightMap::WeightVector w_pi(numSites);
   WeightMap::WeightVector w_corner(numSites);
-  for(int pi=0; pi<inputPoints->GetNumberOfPoints();pi++)
+  for(int pi=0; pi<inputPoints->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     inputPoints->GetPoint(pi,xraw);
@@ -883,7 +877,7 @@ int main( int argc, char * argv[] )
     itk::ContinuousIndex<double,3> coord;
     weight0->TransformPhysicalPointToContinuousIndex(x, coord);
 
-    bool res = Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
+    bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
       cerr<<"Lerp failed for "<<coord<<endl;
@@ -891,14 +885,14 @@ int main( int argc, char * argv[] )
     else
       {
 //    NormalizeWeight(w_pi);
-      for(int i=0; i<numSites;i++)
+      for(int i=0; i<numSites;++i)
         {
         surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
         }
       }
 
     double wSum(0.0);
-    for(int i=0; i<numSites;i++)
+    for(int i=0; i<numSites;++i)
       {
       wSum+=w_pi[i];
       }
@@ -907,7 +901,7 @@ int main( int argc, char * argv[] )
     if(LinearBlend)
       {
       assert(wSum>=0);
-      for(int i=0; i<numSites;i++)
+      for(int i=0; i<numSites;++i)
         {
         double w = w_pi[i]/wSum;
         const RigidTransform& Fi(transforms[i]);
@@ -920,7 +914,7 @@ int main( int argc, char * argv[] )
       {
       Mat24 dq;
       dq.Fill(0.0);
-      for(int i=0; i<numSites;i++)
+      for(int i=0; i<numSites;++i)
         {
         double w = w_pi[i]/wSum;
         Mat24& dq_i(dqs[i]);
@@ -940,7 +934,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   // Write output
   //----------------------------
-  WritePolyData(outSurface,"./posedSurface.vtk");
+  WritePolyData(outSurface,OutputSurface);
 
   return EXIT_SUCCESS;
 }

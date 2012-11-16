@@ -18,13 +18,18 @@
 
 =========================================================================*/
 
-#include "WeightMap.h"
+#include "benderWeightMap.h"
 #include <itkImageRegionIterator.h>
 #include <iostream>
-
+#include <numeric>
+namespace bender
+{
+//-------------------------------------------------------------------------------
 WeightMap::WeightMap():Cols(0)
 {
 }
+
+//-------------------------------------------------------------------------------
 void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
 {
   this->Cols = voxels.size();
@@ -40,12 +45,13 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
     it.Set(std::numeric_limits<std::size_t>::max());
     }
 
-  for(size_t j=0; j<voxels.size(); j++)
+  for(size_t j=0; j<voxels.size(); ++j)
     {
     this->LUTIndex->SetPixel(voxels[j], j);
     }
 }
 
+//-------------------------------------------------------------------------------
 bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
 {
   if(value<=0)
@@ -59,7 +65,7 @@ bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
     {
     this->AddRow();
     }
-  WeightEntry& weight = LUT[i][j];
+  WeightEntry& weight = this->LUT[i][j];
   weight.Index = index;
   weight.Value = value;
 
@@ -67,39 +73,34 @@ bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
   return true;
 }
 
+//-------------------------------------------------------------------------------
 void WeightMap::Get(const Voxel& v, WeightVector& values) const
 {
   values.Fill(0);
   size_t j = this->LUTIndex->GetPixel(v);
   assert(j<Cols);
 
-  size_t rows = this->RowSize[j];
-
-  for(size_t i=0; i<rows; i++)
+  const size_t rows = this->RowSize[j];
+  for(size_t i=0; i<rows; ++i)
     {
-    const WeightEntry& entry = LUT[i][j];
+    const WeightEntry& entry = this->LUT[i][j];
     values[entry.Index] = entry.Value;
 
     }
 }
 
+//-------------------------------------------------------------------------------
 void WeightMap::AddRow()
 {
-  LUT.push_back(WeightEntries());
-  WeightEntries& newRow = LUT.back();
-  newRow.resize(Cols);
+  this->LUT.push_back(WeightEntries(this->Cols));
 }
 
-void WeightMap::Print()
+//-------------------------------------------------------------------------------
+void WeightMap::Print() const
 {
-  int numEntries(0);
-  for(RowSizes::iterator r=this->RowSize.begin();r!=this->RowSize.end();r++)
-    {
-    numEntries+=*r;
-    }
-  std::cout<<"Weight map "<<LUT.size()<<"x"<<Cols<<" has "<<numEntries<<" entries"<<std::endl;
+  int numEntries = std::accumulate(this->RowSize.begin(), this->RowSize.end(),0);
+  std::cout<<"Weight map "<<this->LUT.size()<<"x"<<Cols<<" has "<<numEntries<<" entries"<<std::endl;
 }
-
-
+};
 
 

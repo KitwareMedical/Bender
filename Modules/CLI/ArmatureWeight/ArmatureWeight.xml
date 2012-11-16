@@ -7,8 +7,8 @@
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url>http://slicer.org/slicerWiki/index.php/Documentation/4.1/Modules/Add</documentation-url>
   <license/>
-  <contributor>Yuanxin Liu</contributor>
-  <acknowledgements><![CDATA[Airforce]]></acknowledgements>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
@@ -20,13 +20,13 @@
       <description><![CDATA[Labelmap volume in resting pose]]></description>
     </image>
 
-    <file fileExtensions="*.vtk">
+    <geometry fileExtensions="*.vtk">
       <name>ArmaturePoly</name>
       <label>Armature</label>
       <channel>input</channel>
       <index>1</index>
       <description><![CDATA[Resting armature]]></description>
-    </file>
+    </geometry>
 
     <boolean>
       <name>InvertY</name>

@@ -18,21 +18,27 @@
 
 =========================================================================*/
 
-#include "WeightMapIO.h"
-#include "itkImageRegion.h"
-#include "itkImageFileReader.h"
-#include "itkDirectory.h"
+#include "benderWeightMapIO.h"
 
+#include <itkImageRegion.h>
+#include <itkImageFileReader.h>
+#include <itkDirectory.h>
+
+
+using namespace bender;
 using namespace std;
 typedef itk::ImageRegion<3> Region;
 typedef itk::Image<float, 3>  WeightImage;
 
-void GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames)
+namespace bender
+{
+//----------------------------------------------------------------------------
+  void GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames)
 {
   fnames.clear();
   itk::Directory::Pointer dir = itk::Directory::New();
   dir->Load(dirName.c_str());
-  for(unsigned int i=0; i<dir->GetNumberOfFiles(); i++)
+  for(unsigned int i=0; i<dir->GetNumberOfFiles(); ++i)
     {
     std::string name = dir->GetFile(i);
     if(strstr(name.c_str(), ".mha"))
@@ -47,6 +53,7 @@ void GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fn
   sort(fnames.begin(), fnames.end());
 }
 
+//-------------------------------------------------------------------------------
 //create a weight map from a series of files
 int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::Voxel>& bodyVoxels, WeightMap& weightMap)
 {
@@ -55,7 +62,7 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
   int numSites = fnames.size();
 
   int numInserted(0);
-  for(size_t i=0; i<fnames.size(); i++)
+  for(size_t i=0; i<fnames.size(); ++i)
     {
     cout<<"Read "<<fnames[i]<<endl;
 
@@ -77,7 +84,7 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
       }
     else
       {
-      for(Voxels::const_iterator v_iter = bodyVoxels.begin(); v_iter!=bodyVoxels.end(); v_iter++)
+      for(Voxels::const_iterator v_iter = bodyVoxels.begin(); v_iter!=bodyVoxels.end(); ++v_iter)
         {
         const WeightMap::Voxel& v(*v_iter);
         WeightMap::SiteIndex index = static_cast<WeightMap::SiteIndex>(i);
@@ -91,6 +98,6 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
     }
   return numSites;
 }
-
+};
 
 

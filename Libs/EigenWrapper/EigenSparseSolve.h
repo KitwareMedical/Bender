@@ -3,9 +3,11 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include "BenderEigenWrapperExport.h"
 
 typedef Eigen::SparseMatrix<float> SpMat;
 
-Eigen::VectorXf Solve(SpMat& A,  Eigen::VectorXf& b);
+//Solve a sparse matrix.  Just wrap around Eignen
+Eigen::VectorXf BENDER_EIGENWRAPPER_EXPORT Solve(SpMat& A,  Eigen::VectorXf& b);
 
 #endif

@@ -6,8 +6,8 @@
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url> ?? </documentation-url>
   <license/>
-  <contributor>Yuanxin Liu</contributor>
-  <acknowledgements><![CDATA[Airforce]]></acknowledgements>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <image>
@@ -15,23 +15,30 @@
       <label>Directories containing all the weights</label>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
     </image>
     <description><![CDATA[Input/output parameters]]></description>
-    <file fileExtensions="*.vtk">
+    <geometry fileExtensions="*.vtk">
       <name>ArmaturePoly</name>
       <label>Armature</label>
       <channel>input</channel>
       <index>1</index>
       <description><![CDATA[Resting armature]]></description>
-    </file>
-    <file fileExtensions="*.stl">
+    </geometry>
+    <geometry fileExtensions="*.stl">
       <name>SurfaceInput</name>
       <label>Surface</label>
       <channel>input</channel>
       <index>2</index>
       <description><![CDATA[Body Surface]]></description>
-    </file>
+    </geometry>
+    <geometry>
+      <name>OutputSurface</name>
+      <label>Surface output file</label>
+      <channel>output</channel>
+      <index>3</index>
+      <description><![CDATA[Output surface]]></description>
+    </geometry>
   </parameters>
 
   <parameters>

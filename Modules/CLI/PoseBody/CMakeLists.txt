@@ -4,8 +4,12 @@ set(MODULE_NAME PoseBody) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
+find_package(ITK REQUIRED)
+find_package(VTK REQUIRED)
+
 set(MODULE_INCLUDE_DIRECTORIES
-  ${Bender_SOURCE_DIR}/Libs/Common
+  ${BenderCommon_SOURCE_DIR}
+  ${BenderCommon_BINARY_DIR}
   )
 
 set(MODULE_TARGET_LIBRARIES

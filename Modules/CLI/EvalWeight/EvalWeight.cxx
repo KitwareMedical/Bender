@@ -17,37 +17,37 @@
 #include "EvalWeightCLP.h"
 
 //------- Bender-----------
-#include "WeightMap.h"
-#include "WeightMapMath.h"
-#include "WeightMapIO.h"
+#include "benderWeightMap.h"
+#include "benderWeightMapMath.h"
+#include "benderWeightMapIO.h"
 
 //--------ITK --------------
-#include "itkImageFileWriter.h"
-#include "itkImage.h"
-#include "itkPluginUtilities.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "itkContinuousIndex.h"
-#include "itkMath.h"
-#include "itkIndex.h"
-#include "itkMatrix.h"
-#include "itkVariableLengthVector.h"
-#include "itkDirectory.h"
+#include <itkImageFileWriter.h>
+#include <itkImage.h>
+#include <itkPluginUtilities.h>
+#include <itkImageRegionIteratorWithIndex.h>
+#include <itkContinuousIndex.h>
+#include <itkMath.h>
+#include <itkIndex.h>
+#include <itkMatrix.h>
+#include <itkVariableLengthVector.h>
+#include <itkDirectory.h>
 
 //--------VTK --------------
-#include "vtkTimerLog.h"
-#include "vtkSTLReader.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkNew.h"
-#include "vtkSmartPointer.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkFloatArray.h"
-#include "vtkMath.h"
-#include "vtkPolyDataReader.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "vtksys/SystemTools.hxx"
+#include <vtkTimerLog.h>
+#include <vtkSTLReader.h>
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
+#include <vtkNew.h>
+#include <vtkSmartPointer.h>
+#include <vtkPointData.h>
+#include <vtkCellData.h>
+#include <vtkFloatArray.h>
+#include <vtkMath.h>
+#include <vtkPolyDataReader.h>
+#include <vtkXMLPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtksys/SystemTools.hxx>
 
 //--------standard-------------
 #include <sstream>
@@ -67,28 +67,30 @@ typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
 
+//-------------------------------------------------------------------------------
 template<class T>
 void PrintVector(T* a, int n)
 {
   cout<<"[";
-  for(int i=0; i<n; i++)
+  for(int i=0; i<n; ++i)
     {
     cout<<a[i]<<(i==n-1?"": ", ");
     }
   cout<<"]"<<endl;
 }
 
+//-------------------------------------------------------------------------------
 class CubeNeighborhood
 {
 public:
   CubeNeighborhood()
   {
     int index=0;
-    for(unsigned int i=0; i<=1; i++)
+    for(unsigned int i=0; i<=1; ++i)
       {
-      for(unsigned int j=0; j<=1; j++)
+      for(unsigned int j=0; j<=1; ++j)
         {
-        for(unsigned int k=0; k<=1; k++,index++)
+        for(unsigned int k=0; k<=1; ++k,++index)
           {
           this->Offsets[index][0] = i;
           this->Offsets[index][1] = j;
@@ -100,6 +102,7 @@ public:
   VoxelOffset Offsets[8];
 };
 
+//-------------------------------------------------------------------------------
 vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
 {
   vtkPolyData* polyData = 0;
@@ -149,7 +152,7 @@ vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
   if(invertY)
     {
     vtkPoints* points = polyData->GetPoints();
-    for(int i=0; i<points->GetNumberOfPoints();i++)
+    for(int i=0; i<points->GetNumberOfPoints();++i)
       {
       double x[3];
       points->GetPoint(i,x);
@@ -162,6 +165,7 @@ vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
 }
 
 
+//-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
                          ,vtkPoints* points //input
                          ,std::vector<Voxel>& domainVoxels //output
@@ -175,7 +179,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();pi++)
+  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -187,7 +191,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     Voxel p;
     p.CopyWithCast(coord);
 
-    for(int iOff=0; iOff<8; iOff++)
+    for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
       if(!domain->GetPixel(q))
@@ -211,11 +215,11 @@ void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
 }
 
 
-
-
+//-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
+  typedef bender::WeightMap WeightMap;
 
   cout<<"Evaluate weight in  "<<WeightDirectory<<endl;
   cout<<"Evaluating surface: "<<InputSurface<<endl;
@@ -230,7 +234,7 @@ int main( int argc, char * argv[] )
   // and all file names
   //----------------------------
   vector<string> fnames;
-  GetWeightFileNames(WeightDirectory, fnames);
+  bender::GetWeightFileNames(WeightDirectory, fnames);
   int numSites = fnames.size();
   if(numSites<1)
     {
@@ -271,7 +275,7 @@ int main( int argc, char * argv[] )
   // Read Weights
   //----------------------------
   WeightMap weightMap;
-  ReadWeights(fnames,domainVoxels,weightMap);
+  bender::ReadWeights(fnames,domainVoxels,weightMap);
 
   //----------------------------
   //Perform interpolation
@@ -279,12 +283,12 @@ int main( int argc, char * argv[] )
   vtkPointData* pointData = surface->GetPointData();
   pointData->Initialize();
   std::vector<vtkFloatArray*> surfaceVertexWeights;
-  for(int i=0; i<numSites; i++)
+  for(int i=0; i<numSites; ++i)
     {
     vtkFloatArray* arr = vtkFloatArray::New();
     arr->SetNumberOfTuples(numPoints);
     arr->SetNumberOfComponents(1);
-    for(vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); j++)
+    for(vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); ++j)
       {
       arr->SetValue(j,0.0);
       }
@@ -300,7 +304,7 @@ int main( int argc, char * argv[] )
   int numZeros(0);
   WeightMap::WeightVector w_pi(numSites);
   WeightMap::WeightVector w_corner(numSites);
-  for(int pi=0; pi<points->GetNumberOfPoints();pi++)
+  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -308,7 +312,7 @@ int main( int argc, char * argv[] )
     itk::Point<double,3> x(xraw);
     itk::ContinuousIndex<double,3> coord;
     weight0->TransformPhysicalPointToContinuousIndex(x, coord);
-    bool res = Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
+    bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
       cerr<<"Lerp failed for "<<coord<<endl;
@@ -316,7 +320,7 @@ int main( int argc, char * argv[] )
     else
       {
       numZeros+=w_pi.GetNorm()==0;
-      for(int i=0; i<numSites;i++)
+      for(int i=0; i<numSites;++i)
         {
         surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
         }

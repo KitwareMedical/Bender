@@ -20,14 +20,17 @@
 #ifndef __WeightMapIO_h
 #define __WeightMapIO_h
 
-#include "WeightMap.h"
+#include "benderWeightMap.h"
 #include <string>
 #include <vector>
 
-//Get the weight files from a directory
-void GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames);
+namespace bender
+{
+// Get the weight files from a directory
+void BENDER_COMMON_EXPORT GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames);
 
-//create a weight map from a series of files
-int ReadWeights(const std::vector<std::string>& fnames,  const std::vector<WeightMap::Voxel>& bodyVoxels,  WeightMap& weightMap);
+// Create a weight map from a series of files
+int BENDER_COMMON_EXPORT ReadWeights(const std::vector<std::string>& fnames,  const std::vector<bender::WeightMap::Voxel>& bodyVoxels, bender::WeightMap& weightMap);
+};
 
 #endif

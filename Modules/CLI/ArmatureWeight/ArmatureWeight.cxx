@@ -18,29 +18,30 @@
 
 //-----------itk------------
 
-#include "itkImage.h"
-#include "itkImageFileWriter.h"
-#include "itkStatisticsImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkPluginUtilities.h"
-#include "itkImageRegionIteratorWithIndex.h"
-#include "itkBresenhamLine.h"
-#include "itkMath.h"
-#include "itkIndex.h"
-#include "itkConnectedComponentImageFilter.h"
+#include <itkImage.h>
+#include <itkImageFileWriter.h>
+#include <itkStatisticsImageFilter.h>
+#include <itkBinaryThresholdImageFilter.h>
+#include <itkPluginUtilities.h>
+#include <itkImageRegionIteratorWithIndex.h>
+#include <itkBresenhamLine.h>
+#include <itkMath.h>
+#include <itkIndex.h>
+#include <itkConnectedComponentImageFilter.h>
 
 //-----------vtk------------
-#include "vtkNew.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "vtkPolyData.h"
-#include "vtkCellArray.h"
-#include "vtkTimerLog.h"
+#include <vtkNew.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
+#include <vtkTimerLog.h>
 
 //-----------standard------------
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <iomanip>
 
 //-----------Eigen wrapper------------
 
@@ -61,17 +62,18 @@ typedef itk::ImageRegion<3> Region;
 
 bool DumpSegmentationImages = false;
 
+//-------------------------------------------------------------------------------
 template<unsigned int dimension>
 class Neighborhood
 {
 public:
   Neighborhood()
   {
-    for(unsigned int i=0; i<dimension; i++)
+    for(unsigned int i=0; i<dimension; ++i)
       {
       int lo = 2*i;
       int hi = 2*i+1;
-      for(unsigned int j=0; j<dimension; j++)
+      for(unsigned int j=0; j<dimension; ++j)
         {
         this->Offsets[lo][j] = j==i? -1 : 0;
         this->Offsets[hi][j] = j==i?  1 : 0;
@@ -82,6 +84,7 @@ public:
 };
 
 
+//-------------------------------------------------------------------------------
 //a 3D shape defined by a set of pixels
 template<unsigned int dimension>
 class PixelShape
@@ -96,6 +99,7 @@ public:
   virtual bool IsInterior(Pixel p) const=0;
 };
 
+//-------------------------------------------------------------------------------
 class BodyDiffusionRegion: public PixelShape<3>
 {
 public:
@@ -130,6 +134,7 @@ private:
   Region ImRegion;
 };
 
+//-------------------------------------------------------------------------------
 template<class InImage, class OutImage>
 void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 {
@@ -139,6 +144,7 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
   out->Allocate();
 }
 
+//-------------------------------------------------------------------------------
 template <class ImageType>
 void WriteImage(typename ImageType::Pointer image,const char* fname)
 {
@@ -151,6 +157,7 @@ void WriteImage(typename ImageType::Pointer image,const char* fname)
   writer->Update();
 }
 
+//-------------------------------------------------------------------------------
 template <class ImageType>
 void WriteImageRegion(typename ImageType::Pointer image, typename ImageType::PixelType value, const char* fname)
 {
@@ -176,6 +183,7 @@ void WriteImageRegion(typename ImageType::Pointer image, typename ImageType::Pix
 
 }
 
+//-------------------------------------------------------------------------------
 template <class ImageType>
 void Rasterize(const double* a, const double* b, const typename ImageType::Pointer image,
                std::vector<typename ImageType::IndexType>& outputPixels)
@@ -185,7 +193,7 @@ void Rasterize(const double* a, const double* b, const typename ImageType::Point
   typedef typename itk::Point<float, ImageType::ImageDimension> PointType;
   PointType pa,pb;
   unsigned int dimension =ImageType::ImageDimension;
-  for(unsigned int i=0; i<dimension; i++)
+  for(unsigned int i=0; i<dimension; ++i)
     {
     pa[i] = a[i];
     pb[i] = b[i];
@@ -207,7 +215,7 @@ void Rasterize(const double* a, const double* b, const typename ImageType::Point
   Bresenham bresLine;
   DirType dir;
   unsigned int maxSteps(0);
-  for(unsigned int i=0; i<dimension; i++)
+  for(unsigned int i=0; i<dimension; ++i)
     {
     dir[i]=b[i]-a[i];
     maxSteps+= (int)fabs(dir[i]);
@@ -216,7 +224,7 @@ void Rasterize(const double* a, const double* b, const typename ImageType::Point
   float len = dir.GetNorm();
   typename Bresenham::OffsetArray line = bresLine.BuildLine(dir,maxSteps);
   outputPixels.clear();
-  for(size_t i=0; i<line.size();i++)
+  for(size_t i=0; i<line.size();++i)
     {
     Pixel pIndex = Ia+line[i];
     PointType p;
@@ -230,7 +238,7 @@ void Rasterize(const double* a, const double* b, const typename ImageType::Point
     }
 }
 
-
+//-------------------------------------------------------------------------------
 template<class InputImageType>
 void ComputeManhattanVoronoi(typename InputImageType::Pointer siteMap,
                              typename InputImageType::PixelType background,
@@ -266,11 +274,11 @@ void ComputeManhattanVoronoi(typename InputImageType::Pointer siteMap,
       break;
       }
     PixelVector newBd;
-    for(typename PixelVector::iterator i = bd.begin(); i!=bd.end();i++)
+    for(typename PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
       {
       PixelValue siteLabel = siteMap->GetPixel(*i);
       Pixel pIndex = *i;
-      for(int iOff=0; iOff<2*InputImageType::ImageDimension; iOff++)
+      for(int iOff=0; iOff<2*InputImageType::ImageDimension; ++iOff)
         {
         Pixel qIndex = pIndex + offsets[iOff];
         if( allRegion.IsInside(qIndex) && siteMap->GetPixel(qIndex)==unknown)
@@ -284,6 +292,7 @@ void ComputeManhattanVoronoi(typename InputImageType::Pointer siteMap,
     }
 }
 
+//-------------------------------------------------------------------------------
 template<class T>
 inline int NumConnectedComponents(typename T::Pointer domain)
 {
@@ -296,6 +305,7 @@ inline int NumConnectedComponents(typename T::Pointer domain)
   return connectedComponents->GetObjectCount();
 }
 
+//-------------------------------------------------------------------------------
 template<class T>
 inline int NumConnectedComponents(typename T::Pointer image, typename T::PixelType value)
 {
@@ -316,6 +326,7 @@ inline int NumConnectedComponents(typename T::Pointer image, typename T::PixelTy
 
 }
 
+//-------------------------------------------------------------------------------
 template<class RealImageType>
 void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
                             const PixelShape<RealImageType::ImageDimension>& shape,
@@ -340,15 +351,15 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
     }
 
   cout<<"Smooth iteratively: ";
-  for(int iteration=0; iteration<numIterations; iteration++)
+  for(int iteration=0; iteration<numIterations; ++iteration)
     {
     cout<<". "<<flush;
-    for(typename std::vector<Pixel>::iterator pi = interior.begin(); pi!=interior.end(); pi++)
+    for(typename std::vector<Pixel>::iterator pi = interior.begin(); pi!=interior.end(); ++pi)
       {
       Pixel p = *pi;
       Real sum=0.0;
       Real diag = 0.0;
-      for(OffsetType* offset = offsets; offset!=offsets+2*RealImageType::ImageDimension; offset++)
+      for(OffsetType* offset = offsets; offset!=offsets+2*RealImageType::ImageDimension; ++offset)
         {
         Pixel q = p + *offset;
         if(shape.IsMember(q))
@@ -371,6 +382,7 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
   cout<<endl;
 }
 
+//-------------------------------------------------------------------------------
 void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the domain
                  LabelImage::Pointer sourceMap, //a label image that defines the heat sources
                  LabelType hotSourceLabel, //any source voxel with this label will be assigned weight 1
@@ -388,11 +400,11 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
     {
     if(it.Get()>0)
       {
-      n++;
+      ++n;
       LabelType label = sourceMap->GetPixel(it.GetIndex());
       if(label==0) //interior
         {
-        m++;
+        ++m;
         }
       else
         {
@@ -421,14 +433,14 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
         {
         imageIndex[i1] = voxel;
         matrixIndex->SetPixel(voxel, i1);
-        i1++;
+        ++i1;
         }
       else
         {
         assert(i2<n);
         imageIndex[i2] = voxel;
         matrixIndex->SetPixel(voxel,i2);
-        i2++;
+        ++i2;
         }
       }
     else
@@ -445,10 +457,10 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
     {
     typedef Eigen::Triplet<float> SpMatEntry;
     std::vector<SpMatEntry> entryA, entryB;
-    for(int i=0; i<m; i++)
+    for(int i=0; i<m; ++i)
       {
       float Aii(0);
-      for(int ii =0; ii<6; ii++)
+      for(int ii =0; ii<6; ++ii)
         {
         Voxel voxel = imageIndex[i]+offsets[ii];
         if(imDomain.IsInside(voxel) && domain->GetPixel(voxel)!=0)
@@ -473,7 +485,7 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
 
   Eigen::VectorXf xB(n-m);
   int numOnes=0;
-  for(int i=0,i0=m; i<n-m; i++,i0++)
+  for(int i=0,i0=m; i<n-m; ++i,++i0)
     {
     Voxel voxel = imageIndex[i0];
     LabelType label = sourceMap->GetPixel(voxel);
@@ -514,19 +526,20 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
   std::cout << "Simple heat diffusion of size "<<m<<", solve time: " << timer->GetElapsedTime() << std::endl;
 
   //set the interior pixels by xI
-  for(int i=0; i<m; i++)
+  for(int i=0; i<m; ++i)
     {
     Voxel voxel = imageIndex[i];
     heat->SetPixel(voxel, xI[i]);
     }
   //set the boundary pixels by xB
-  for(int i=m; i<n; i++)
+  for(int i=m; i<n; ++i)
     {
     heat->SetPixel(imageIndex[i],xB[i-m]);
     }
 
 }
 
+//-------------------------------------------------------------------------------
 int Expand(const std::vector<Voxel>& seeds,
            CharImage::Pointer domain, int distance,
            LabelImage::Pointer labelMap, unsigned short foreGroundMin,
@@ -541,21 +554,21 @@ int Expand(const std::vector<Voxel>& seeds,
   typedef std::vector<Voxel> PixelVector;
   PixelVector bd = seeds;
   int regionSize(0);
-  for(PixelVector::iterator i = bd.begin(); i!=bd.end();i++)
+  for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
     {
     if(labelMap->GetPixel(*i)>=foreGroundMin)
       {
       domain->SetPixel(*i,seedLabel);
-      regionSize++;
+      ++regionSize;
       }
     }
-  for(int dist=2; dist<=distance; dist++)
+  for(int dist=2; dist<=distance; ++dist)
     {
     PixelVector newBd;
-    for(PixelVector::iterator i = bd.begin(); i!=bd.end();i++)
+    for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
       {
       Voxel pIndex = *i;
-      for(int iOff=0; iOff<6; iOff++)
+      for(int iOff=0; iOff<6; ++iOff)
         {
         const VoxelOffset& offset = offsets[iOff];
         Voxel qIndex = pIndex + offset;
@@ -563,7 +576,7 @@ int Expand(const std::vector<Voxel>& seeds,
               && labelMap->GetPixel(qIndex)>=foreGroundMin
               && domain->GetPixel(qIndex)==0)
           {
-          regionSize++;
+          ++regionSize;
           newBd.push_back(qIndex);
           domain->SetPixel(qIndex,domainLabel);
           }
@@ -574,6 +587,7 @@ int Expand(const std::vector<Voxel>& seeds,
   return regionSize;
 }
 
+//-------------------------------------------------------------------------------
 int Expand(const LabelImage::Pointer labelMap,
            LabelType label,
            LabelType forGroundMin,
@@ -603,13 +617,13 @@ int Expand(const LabelImage::Pointer labelMap,
         }
       }
     }
-  for(int dist=2; dist<=distance; dist++)
+  for(int dist=2; dist<=distance; ++dist)
     {
     PixelVector newBd;
-    for(PixelVector::iterator i = bd.begin(); i!=bd.end();i++)
+    for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
       {
       Voxel pIndex = *i;
-      for(int iOff=0; iOff<6; iOff++)
+      for(int iOff=0; iOff<6; ++iOff)
         {
         const VoxelOffset& offset = offsets[iOff];
         Voxel qIndex = pIndex + offset;
@@ -617,7 +631,7 @@ int Expand(const LabelImage::Pointer labelMap,
            && labelMap->GetPixel(qIndex)>=forGroundMin
            && domain->GetPixel(qIndex)==0)
           {
-          regionSize++;
+          ++regionSize;
           newBd.push_back(qIndex);
           domain->SetPixel(qIndex,domainLabel);
           }
@@ -628,7 +642,7 @@ int Expand(const LabelImage::Pointer labelMap,
   return regionSize;
 }
 
-
+//-------------------------------------------------------------------------------
 class ArmatureType
 {
 public:
@@ -705,7 +719,7 @@ private:
 
       //XXX we really need to make sure that the rasterized edge is a connected component
       //just a hack here
-      for(size_t i=0; i<edgeVoxels.size()-2; i++)
+      for(size_t i=0; i<edgeVoxels.size()-2; ++i)
         {
         edgeVoxels[i] = edgeVoxels[i+1];
         }
@@ -713,7 +727,7 @@ private:
       edgeVoxels.pop_back();
       CharType label = ArmatureType::GetEdgeLabel(edgeId);
       int numOutside(0);
-      for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); vi++)
+      for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); ++vi)
         {
         if(this->BodyMap->GetPixel(*vi)!=0 && this->BodyPartition->GetPixel(*vi)==0)
           {
@@ -723,7 +737,7 @@ private:
           {
           if(this->BodyMap->GetPixel(*vi)==0)
             {
-            numOutside++;
+            ++numOutside;
             }
           }
         }
@@ -736,7 +750,7 @@ private:
         {
         cout<<"WARNING: edge "<<edgeId<<" is very small"<<endl;
         }
-      edgeId++;
+      ++edgeId;
       }
 
     //Compute the voronoi of the skeleton
@@ -836,7 +850,7 @@ private:
         }
 
       //verify that seeds are valid
-      for(std::vector<Voxel>::iterator i=boneSeeds.begin();i!=boneSeeds.end();i++)
+      for(std::vector<Voxel>::iterator i=boneSeeds.begin();i!=boneSeeds.end();++i)
         {
         assert((*i)!=invalidVoxel);
         }
@@ -844,7 +858,7 @@ private:
       //compute a map from the old to the new labels:
       //  newLabels[oldLabel] is the new label
       std::vector<LabelType> newLabels(numBones+1,0);
-      for(std::vector<Voxel>::iterator seedIter=boneSeeds.begin();seedIter!=boneSeeds.end();seedIter++)
+      for(std::vector<Voxel>::iterator seedIter=boneSeeds.begin();seedIter!=boneSeeds.end();++seedIter)
         {
         Voxel seed = *seedIter;
         LabelType seedLabel = boneComponents->GetPixel(seed);
@@ -858,11 +872,11 @@ private:
         while(!bd.empty())
           {
           Voxel p = bd.back();  bd.pop_back();
-          numVisited++;
+          ++numVisited;
           CharType edgeLabel = this->BodyPartition->GetPixel(p);
           regionSize[static_cast<size_t>(edgeLabel)]++;
           visited->SetPixel(p,true);
-          for(int i=0; i<6; i++)
+          for(int i=0; i<6; ++i)
             {
             Voxel q = p + offsets[i];
             if( imDomain.IsInside(q) &&
@@ -877,7 +891,7 @@ private:
         LabelType newLabel=0;
         int maxSize(0);
         bool printLabels(false);
-        for(size_t i=0; i<regionSize.size();i++)
+        for(size_t i=0; i<regionSize.size();++i)
           {
           if(regionSize[6]>0)
             {
@@ -894,7 +908,7 @@ private:
           {
           cout<<"Visited: "<<numVisited<<endl;
           cout<<"Edges for bone: "<<seedLabel<<" ";
-          for(size_t i=0; i<regionSize.size();i++)
+          for(size_t i=0; i<regionSize.size();++i)
             {
             if(regionSize[i]!=0)
               {
@@ -914,7 +928,7 @@ private:
         boneComponentIter.Set(newLabel);
         }
 
-      for(int i=0; i<this->GetNumberOfEdges(); i++)
+      for(int i=0; i<this->GetNumberOfEdges(); ++i)
         {
         LabelType edgeLabel = static_cast<LabelType>(this->GetEdgeLabel(i));
         if(std::find(newLabels.begin(), newLabels.end(),edgeLabel)==newLabels.end())
@@ -937,7 +951,7 @@ private:
         componentSize[boneIter.Get()]++;
         }
       int totalSize=0;
-      for(size_t i=0;i<componentSize.size();i++)
+      for(size_t i=0;i<componentSize.size();++i)
         {
         totalSize+=componentSize[i];
         cout<<i<<": "<<componentSize[i]<<"\n";
@@ -948,6 +962,7 @@ private:
 };
 
 
+//-------------------------------------------------------------------------------
 class ArmatureEdge
 {
 public:
@@ -974,7 +989,7 @@ public:
       if(this->Armature.BodyPartition->GetPixel(it.GetIndex())==label)
         {
         it.Set(ArmatureType::DomainLabel);
-        regionSize++;
+        ++regionSize;
         }
       }
     cout<<"Voronoi region size: "<<regionSize<<endl;
@@ -995,7 +1010,7 @@ public:
     cout<<"Region size after expanding "<<expansionDistance<<" : "<<regionSize<<endl;
 
     Voxel bbMin, bbMax;
-    for(int i=0; i<3; i++)
+    for(int i=0; i<3; ++i)
       {
       bbMin[i] = imDomain.GetSize()[i]-1;
       bbMax[i] = 0;
@@ -1007,7 +1022,7 @@ public:
         {
         continue;
         }
-      for(int i=0; i<3; i++)
+      for(int i=0; i<3; ++i)
         {
         if(p[i]<bbMin[i])
           {
@@ -1039,7 +1054,7 @@ public:
       else
         {
         weight->SetPixel(it.GetIndex(),-1.0f);
-        numBackground++;
+        ++numBackground;
         }
       }
     cout<<numBackground<<" background voxel"<<endl;
@@ -1072,32 +1087,19 @@ private:
   Region ROI;
 };
 
+//-------------------------------------------------------------------------------
 inline int NumDigits(unsigned int a)
 {
   int numDigits(0);
   while(a>0)
     {
     a = a/10;
-    numDigits++;
+    ++numDigits;
     }
   return numDigits;
 }
 
-inline string ToFixedWidthNumber(unsigned int number, int n)
-{
-  stringstream str;
-  unsigned int a = number;
-  for(int i=0; i<n; i++, a/=10)
-    {
-    unsigned int b = a%10;
-    str<<b;
-    }
-  string astr = str.str();
-  std::reverse(astr.begin(),astr.end());
-  return astr;
-
-}
-
+//-------------------------------------------------------------------------------
 void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
 {
   Neighborhood<3> neighbors;
@@ -1111,12 +1113,12 @@ void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
       {
       Voxel p = it.GetIndex();
       int numNeighbors(0);
-      for(int iOff=0; iOff<6; iOff++)
+      for(int iOff=0; iOff<6; ++iOff)
         {
         Voxel q = p + offsets[iOff];
         if( region.IsInside(q) && labelMap->GetPixel(q)>0)
           {
-          numNeighbors++;
+          ++numNeighbors;
           }
         }
       if(numNeighbors==0)
@@ -1128,6 +1130,7 @@ void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
     }
 }
 
+//-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
@@ -1172,11 +1175,11 @@ int main( int argc, char * argv[] )
     {
     if(it.Get()>bodyIntensity)
       {
-      numBodyVoxels++;
+      ++numBodyVoxels;
       }
     if(it.Get()>boneIntensity)
       {
-      numBoneVoxels++;
+      ++numBoneVoxels;
       }
     }
   int totalVoxels = allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
@@ -1205,14 +1208,14 @@ int main( int argc, char * argv[] )
   // Compute the domain of reach armature part
   //--------------------------------------------
   int numDigits = NumDigits(armature.GetNumberOfEdges());
-  for(int i=FirstEdge; i<=LastEdge; i++)
+  for(int i=FirstEdge; i<=LastEdge; ++i)
     {
     ArmatureEdge edge(armature,i);
     cout<<"Process armature edge "<<i<<" with label "<<(int)edge.GetLabel()<<endl;
     edge.Initialize(BinaryWeight? 0 : ExpansionDistance);
     WeightImage::Pointer weight = edge.ComputeWeight(BinaryWeight,SmoothingIteration);
     std::stringstream filename;
-    filename<<WeightDirectory<<"/weight_"<<ToFixedWidthNumber(i,numDigits)<<".mha";
+    filename<<WeightDirectory<<"/weight_"<<setfill('0')<<setw(numDigits)<<i<<".mha";
     WriteImage<WeightImage>(weight,filename.str().c_str());
     }
 
