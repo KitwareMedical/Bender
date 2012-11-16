@@ -90,6 +90,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->BonesTreeView->annotationModel()->setEditColumn(-1);
   this->BonesTreeView->annotationModel()->setValueColumn(-1);
   this->BonesTreeView->annotationModel()->setTextColumn(-1);
+  this->BonesTreeView->annotationModel()->setVisibilityColumn(-1);
 
   this->BonesTreeView->setHeaderHidden(true);
 
