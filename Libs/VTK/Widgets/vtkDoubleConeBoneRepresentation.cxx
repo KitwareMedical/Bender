@@ -273,6 +273,20 @@ void vtkDoubleConeBoneRepresentation::SetOpacity(double opacity)
 }
 
 //----------------------------------------------------------------------------
+void vtkDoubleConeBoneRepresentation::Highlight(int highlight)
+{
+  this->Superclass::Highlight(highlight);
+  if (highlight)
+    {
+    this->ConesActor->SetProperty(this->SelectedConesProperty);
+    }
+  else
+    {
+    this->ConesActor->SetProperty(this->ConesProperty);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkDoubleConeBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
