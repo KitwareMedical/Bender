@@ -72,7 +72,13 @@ qSlicerArmaturesModule::qSlicerArmaturesModule(QObject* _parent)
 //-----------------------------------------------------------------------------
 QStringList qSlicerArmaturesModule::categories()const
 {
-  return QStringList() << "Developer Tools";
+  return QStringList() << "" << "Segmentation";
+}
+
+//-----------------------------------------------------------------------------
+int qSlicerArmaturesModule::index()const
+{
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
