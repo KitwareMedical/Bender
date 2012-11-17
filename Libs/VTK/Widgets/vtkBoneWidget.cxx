@@ -1967,22 +1967,7 @@ void vtkBoneWidget::SetWidgetSelectedState(int selectionState)
     }
 
   this->BoneSelected = selectionState;
-  if (selectionState == vtkBoneWidget::HeadSelected)
-    {
-    this->GetBoneRepresentation()->GetHeadRepresentation()->Highlight(1);
-    }
-  else if (selectionState == vtkBoneWidget::TailSelected)
-    {
-    this->GetBoneRepresentation()->GetTailRepresentation()->Highlight(1);
-    }
-  else if (selectionState == vtkBoneWidget::LineSelected)
-    {
-    this->GetBoneRepresentation()->Highlight(1);
-    }
-  else
-    {
-    this->GetBoneRepresentation()->Highlight(0);
-    }
+  this->GetBoneRepresentation()->Highlight(selectionState);
 
   this->Modified();
 }
