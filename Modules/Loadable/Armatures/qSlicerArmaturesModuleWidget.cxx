@@ -173,6 +173,12 @@ void qSlicerArmaturesModuleWidgetPrivate
   // \todo Fix this !
   this->ParentBoneNodeComboBox->setHidden(true);
   this->ParentBoneLabel->setHidden(true);
+
+  // The bone axes have a weird sizing.
+  // Hide it meanwhile.
+  // \todo Fix this !
+  this->ArmatureShowAxesComboBox->setHidden(true);
+  this->ArmatureShowAxesLabel->setHidden(true);
 }
 
 //-----------------------------------------------------------------------------
