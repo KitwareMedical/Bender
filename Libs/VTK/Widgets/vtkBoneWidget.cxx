@@ -1162,6 +1162,8 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
   else if (self->WidgetState == vtkBoneWidget::Rest
     && self->BoneSelected != vtkBoneWidget::NotSelected)
     {
+    self->InvokeEvent(vtkCommand::MouseMoveEvent,NULL); //handles observe this
+
     if (self->BoneSelected == vtkBoneWidget::HeadSelected)
       {
       self->SetDisplayHeadRestPosition(e);
@@ -1961,14 +1963,13 @@ void vtkBoneWidget::InitializePoseMode()
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetWidgetSelectedState(int selectionState)
 {
-  if (!this->GetBoneRepresentation())
+  if (!this->GetBoneRepresentation() || selectionState == this->BoneSelected)
     {
     return;
     }
 
   this->BoneSelected = selectionState;
   this->GetBoneRepresentation()->Highlight(selectionState);
-
   this->Modified();
 }
 
