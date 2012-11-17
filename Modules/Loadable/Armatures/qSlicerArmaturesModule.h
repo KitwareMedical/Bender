@@ -58,6 +58,9 @@ public:
   /// Return the categories for the module
   virtual QStringList categories()const;
 
+  /// Return the index of the module in the list
+  virtual int index()const;
+
   /// Return the dependencies for the module
   virtual QStringList dependencies()const;
 

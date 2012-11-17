@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file alias="Icons/Small/DesktopIcon.png">Icons/Small/Bender-DesktopIcon.png</file>
+    <file alias="Icons/Medium/DesktopIcon.png">Icons/Medium/Bender-DesktopIcon.png</file>
+    <file alias="Icons/Large/DesktopIcon.png">Icons/Large/Bender-DesktopIcon.png</file>
+    <file alias="Icons/XLarge/DesktopIcon.png">Icons/XLarge/Bender-DesktopIcon.png</file>
+    <file alias="SplashScreen.png">Images/BenderSplashScreen.png</file>
+    <file alias="Logo.png">Images/BenderLogo.png</file>
+    <file alias="ModuleHome.png">Images/BenderModuleHome.png</file>
+    <file>Icons/open.png</file>
+    <file>Icons/save.png</file>
+  </qresource>
+</RCC>
