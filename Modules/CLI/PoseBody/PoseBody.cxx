@@ -714,7 +714,7 @@ int main( int argc, char * argv[] )
     }
 
   typedef itk::ImageFileReader<WeightImage>  ReaderType;
-  typename ReaderType::Pointer reader = ReaderType::New();
+  ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName(fnames[0].c_str());
   reader->Update();
 
