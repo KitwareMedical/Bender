@@ -94,6 +94,28 @@ void vtkMRMLBoneDisplayNode::ProcessMRMLEvents(vtkObject* caller,
   this->Superclass::ProcessMRMLEvents(caller, event, callData);
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode::SetColor(double color[3])
+{
+  this->SetColor(color[0], color[1], color[2]);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode::SetColor(double r, double g, double b)
+{
+  this->Superclass::SetColor(r, g, b);
+
+  double h, s, v;
+  vtkMath::RGBToHSV(r, g, b, &h, &s, &v);
+  v *= 1.5; // enlight
+  vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
+  this->SetSelectedColor(r, g, b);
+
+  v *= 1.2; // enlight
+  vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
+  this->SetWidgetInteractionColor(r, g, b);
+}
+
 //----------------------------------------------------------------------------
 void vtkMRMLBoneDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
 {
@@ -137,6 +159,8 @@ void vtkMRMLBoneDisplayNode
     {
     this->GetColor(color);
     }
+  double interactionColor[3];
+  this->GetWidgetInteractionColor(interactionColor);
 
   vtkCylinderBoneRepresentation* cylinderRep =
     vtkCylinderBoneRepresentation::SafeDownCast(
@@ -144,7 +168,7 @@ void vtkMRMLBoneDisplayNode
   if (cylinderRep)
     {
     cylinderRep->GetCylinderProperty()->SetColor(color);
-    cylinderRep->GetSelectedCylinderProperty()->SetColor(color);
+    cylinderRep->GetSelectedCylinderProperty()->SetColor(interactionColor);
     }
   vtkDoubleConeBoneRepresentation* doubleConeRep =
     vtkDoubleConeBoneRepresentation::SafeDownCast(
@@ -152,11 +176,11 @@ void vtkMRMLBoneDisplayNode
   if (doubleConeRep)
     {
     doubleConeRep->GetConesProperty()->SetColor(color);
-    doubleConeRep->GetSelectedConesProperty()->SetColor(color);
+    doubleConeRep->GetSelectedConesProperty()->SetColor(interactionColor);
     }
   boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(color);
   boneWidget->GetBoneRepresentation()->GetSelectedLineProperty()
-    ->SetColor(color);
+    ->SetColor(interactionColor);
 
   // -- Opacity --
   boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
