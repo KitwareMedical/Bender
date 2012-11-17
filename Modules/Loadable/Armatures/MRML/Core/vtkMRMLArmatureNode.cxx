@@ -86,6 +86,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(1.0);
 
+  this->ShouldResetPoseMode = 0;
+
   this->Callback->Node = this;
   this->ArmatureProperties->AddObserver(vtkCommand::ModifiedEvent,
     this->Callback);
@@ -338,6 +340,13 @@ bool vtkMRMLArmatureNode::GetBoneLinkedWithParent(vtkBoneWidget* bone)
 }*/
 
 //---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::ResetPoseMode()
+{
+  this->ShouldResetPoseMode = 1;
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
 ::CopyArmatureWidgetProperties(vtkArmatureWidget* armatureWidget)
 {
@@ -406,4 +415,11 @@ void vtkMRMLArmatureNode
         }
       }
     }
+
+  if (ShouldResetPoseMode)
+    {
+    this->ShouldResetPoseMode = 0;
+    armatureWidget->ResetPoseToRest();
+    }
+
 }

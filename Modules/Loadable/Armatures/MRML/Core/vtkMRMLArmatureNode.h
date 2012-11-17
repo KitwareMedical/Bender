@@ -189,6 +189,9 @@ public:
   /// vtkArmatureWidget AddedBone and RemovedBone events.
   vtkMRMLArmatureNodeCallback* GetArmatureNodeCallbackCommand();*/
 
+  /// Reset the pose mode to the rest positions.
+  void ResetPoseMode();
+
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
@@ -204,6 +207,7 @@ protected:
 
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
+  int ShouldResetPoseMode;
 };
 
 //----------------------------------------------------------------------------

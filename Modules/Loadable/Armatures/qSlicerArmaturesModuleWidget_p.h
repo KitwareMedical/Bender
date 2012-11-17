@@ -86,6 +86,7 @@ protected slots:
   void onPositionTypeChanged();
   void onDistanceChanged(double newDistance);
   void onDirectionChanged(double* direction);
+  void onResetPoseClicked();
 
   void onParentNodeChanged(vtkMRMLNode* node);
   void onLinkedWithParentChanged(int linked);

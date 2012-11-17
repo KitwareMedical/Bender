@@ -140,6 +140,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->BonesAlwaysOnTopCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureRestPoseModeButton,
+    SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -293,6 +295,17 @@ void qSlicerArmaturesModuleWidgetPrivate
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::onResetPoseClicked()
+{
+  if (! this->ArmatureNode)
+    {
+    return;
+    }
+
+  this->ArmatureNode->ResetPoseMode();
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureWidget(vtkMRMLBoneNode* boneNode)
 {
@@ -415,6 +428,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureColorPickerButton->setEnabled(armatureNode != 0);
   this->ArmatureOpacitySlider->setEnabled(armatureNode != 0);
   this->BonesAlwaysOnTopCheckBox->setEnabled(armatureNode != 0);
+  this->ArmatureRestPoseModeButton->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------

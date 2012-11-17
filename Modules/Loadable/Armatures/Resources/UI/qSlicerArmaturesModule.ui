@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>781</width>
+    <width>798</width>
     <height>807</height>
    </rect>
   </property>
@@ -118,34 +118,6 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QComboBox" name="ArmatureRepresentationComboBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Change the bones representation.</string>
-           </property>
-           <property name="currentIndex">
-            <number>2</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Line</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Cylinder</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Octohedron</string>
-            </property>
-           </item>
-          </widget>
-         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="ArmatureColorLabel">
            <property name="text">
@@ -153,7 +125,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="1" column="1" colspan="3">
           <widget class="ctkColorPickerButton" name="ArmatureColorPickerButton">
            <property name="enabled">
             <bool>false</bool>
@@ -177,7 +149,7 @@
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
+         <item row="2" column="1" colspan="3">
           <widget class="ctkSliderWidget" name="ArmatureOpacitySlider">
            <property name="enabled">
             <bool>false</bool>
@@ -199,7 +171,7 @@
            </property>
           </widget>
          </item>
-         <item row="4" column="0" colspan="2">
+         <item row="5" column="0" colspan="4">
           <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
            <property name="title">
             <string>Advanced</string>
@@ -273,13 +245,13 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="BonesAlwaysOnTopLabel">
            <property name="text">
             <string>X-Ray mode:</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="1">
+         <item row="3" column="1" colspan="3">
           <widget class="QCheckBox" name="BonesAlwaysOnTopCheckBox">
            <property name="enabled">
             <bool>false</bool>
@@ -289,6 +261,48 @@
            </property>
            <property name="text">
             <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1" colspan="3">
+          <widget class="QComboBox" name="ArmatureRepresentationComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the bones representation.</string>
+           </property>
+           <property name="currentIndex">
+            <number>2</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Line</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cylinder</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Octohedron</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QLabel" name="ResetPoseLabel">
+           <property name="text">
+            <string>Reset Pose:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1" colspan="3">
+          <widget class="QPushButton" name="ArmatureRestPoseModeButton">
+           <property name="text">
+            <string>Reset</string>
            </property>
           </widget>
          </item>
@@ -426,7 +440,7 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="3">
+         <item row="4" column="0" colspan="3">
           <widget class="ctkCollapsibleGroupBox" name="AdvancedPositionsCollapsibleGroupBox">
            <property name="title">
             <string>Advanced</string>
