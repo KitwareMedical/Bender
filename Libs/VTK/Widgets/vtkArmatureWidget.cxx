@@ -699,7 +699,14 @@ void vtkArmatureWidget::ResetPoseToRest()
 {
   int oldState = this->WidgetState;
   this->ShouldResetPoseToRest = true;
+
+  if (this->WidgetState == vtkArmatureWidget::Pose)
+    {
+    this->SetWidgetState(vtkArmatureWidget::Rest);
+    }
+
   this->SetWidgetState(vtkArmatureWidget::Pose);
+
   if(oldState == vtkArmatureWidget::Rest)
     {
     this->SetWidgetState(vtkArmatureWidget::Rest);
