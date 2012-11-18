@@ -18,6 +18,7 @@ set(${KIT}_SRCS
 
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}
+  ${Bender_LIBRARIES}
   vtkBender${MODULE_NAME}ModuleMRMLCore
   vtkSlicerModelsModuleLogic
   vtkSlicerAnnotationsModuleLogic

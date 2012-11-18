@@ -305,6 +305,11 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
     include(SlicerBlockCTKAppLauncherSettings)
     set(splash_image_path ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/${SlicerApp_APPLICATION_NAME}SplashScreen.png)
 
+    set(BenderApp_LIBRARY_PATHS_BUILD ${SLICER_LIBRARY_PATHS_BUILD})
+    foreach(Bender_LIBRARY_DIR ${Bender_LIBRARY_DIRS})
+      list(APPEND BenderApp_LIBRARY_PATHS_BUILD ${Bender_LIBRARY_DIR}/<CMAKE_CFG_INTDIR>)
+    endforeach()
+
     ctkAppLauncherConfigure(
       TARGET ${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
       APPLICATION_INSTALL_SUBDIR ${Slicer_INSTALL_BIN_DIR}
@@ -317,7 +322,7 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
       NOSPLASH_ARGS "--no-splash,--help,--version,--home,--program-path,--no-main-window"
       EXTRA_APPLICATION_TO_LAUNCH_BUILD ${extraApplicationToLaunchListForBuildTree}
       DESTINATION_DIR ${Slicer_BINARY_DIR}
-      LIBRARY_PATHS_BUILD "${SLICER_LIBRARY_PATHS_BUILD}"
+      LIBRARY_PATHS_BUILD "${BenderApp_LIBRARY_PATHS_BUILD}"
       PATHS_BUILD "${SLICER_PATHS_BUILD}"
       ENVVARS_BUILD "${SLICER_ENVVARS_BUILD}"
       LIBRARY_PATHS_INSTALLED "${SLICER_LIBRARY_PATHS_INSTALLED}"

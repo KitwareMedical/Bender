@@ -8,9 +8,7 @@ set(${KIT}_EXPORT_DIRECTIVE
 set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkSlicerAnnotationsModuleMRML_SOURCE_DIR}
   ${vtkSlicerAnnotationsModuleMRML_BINARY_DIR}
-  ${vtkBenderWidgets_SOURCE_DIR}
-  ${vtkBenderWidgets_BINARY_DIR}
-  ${vtkBenderCommonMath_SOURCE_DIR}
+  ${Bender_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
@@ -23,9 +21,8 @@ set(${KIT}_SRCS
   )
 
 set(${KIT}_TARGET_LIBRARIES
-  #${MRML_LIBRARIES}
-  vtkBenderWidgets
   vtkSlicerAnnotationsModuleMRML
+  ${Bender_LIBRARIES}
   )
 
 #-----------------------------------------------------------------------------

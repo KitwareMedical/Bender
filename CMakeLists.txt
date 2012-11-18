@@ -48,11 +48,15 @@ set(CMAKE_MODULE_PATH  ${${kit}_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
 # Library mode: SHARED (default) or STATIC
-#option(BUILD_SHARED_LIBS "Build Bender with shared libraries." ON)
-#mark_as_advanced(BUILD_SHARED_LIBS)
-#set(${kit}_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(${kit}_BUILD_SHARED_LIBS ON)
-set(LIB_TYPE SHARED)
+if(NOT DEFINED BUILD_SHARED_LIBS)
+  option(BUILD_SHARED_LIBS "Build Bender with shared libraries." ON)
+  mark_as_advanced(BUILD_SHARED_LIBS)
+endif()
+set(${kit}_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
 
 #-----------------------------------------------------------------------------
 # Set a default build type if none was specified
@@ -92,15 +96,9 @@ benderMacroExtractRepositoryInfo(VAR_PREFIX ${kit}) # Used to configure ${kit}Ve
 if (${kit}_WC_LAST_CHANGED_DATE)
   string(REGEX REPLACE ".*([0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]).*" "\\1"
     ${kit}_BUILDDATE "${${kit}_WC_LAST_CHANGED_DATE}")
-  if(NOT DEFINED ${kit}_VERSION_TWEAK)
-    # if it's not a release, use the date as a tweak
-    set(${kit}_VERSION_TWEAK "${(${kit}_BUILDDATE}")
-  endif()
+  set(${kit}_VERSION_UID "${(${kit}_BUILDDATE}")
 else()
-  if(NOT DEFINED ${kit}_VERSION_TWEAK)
-    # if it's not a release, use the date as a tweak
-    set(${kit}_VERSION_TWEAK "${${kit}_WC_REVISION}")
-  endif()
+  set(${kit}_VERSION_UID "${${kit}_WC_REVISION}")
 endif()
 
 set(${kit}_VERSION "${${kit}_VERSION_MAJOR}.${${kit}_VERSION_MINOR}")
@@ -108,8 +106,8 @@ set(${kit}_VERSION_FULL "${${kit}_VERSION}.${${kit}_VERSION_PATCH}")
 if(${kit}_VERSION_RC)
   set(${kit}_VERSION_FULL "${${kit}_VERSION_FULL}-rc${${kit}_VERSION_RC}")
 endif()
-if(${kit}_VERSION_TWEAK GREATER 0)
-  set(${kit}_VERSION_FULL "${${kit}_VERSION_FULL}-${${kit}_VERSION_TWEAK}")
+if(NOT DEFINED ${kit}_VERSION_TWEAK)
+  set(${kit}_VERSION_FULL "${${kit}_VERSION_FULL}-${${kit}_VERSION_UID}")
 endif()
 
 #-----------------------------------------------------------------------------
@@ -130,24 +128,38 @@ endif()
 # --------------------------------------------------------------------------
 # Configure and install headers
 # --------------------------------------------------------------------------
-set(${kit}_INCLUDE_DIRS)
-
 configure_file(
   ${${kit}_CMAKE_DIR}/benderVersionConfigure.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/benderVersionConfigure.h
   )
-list(APPEND ${kit}_INCLUDE_DIRS
+set_property(GLOBAL APPEND PROPERTY ${kit}_INCLUDE_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 
 # --------------------------------------------------------------------------
 # Sub projects
 # --------------------------------------------------------------------------
+include(BenderExportLibrary)
 
+enable_testing()
+add_subdirectory(Libs)
+
+#
+# The following variables have been set by each sub directory project.
+# They are used to configure ${kit}Config.cmake.in.
+get_property(${kit}_LIBRARIES GLOBAL PROPERTY ${kit}_LIBRARIES)
+list(REMOVE_DUPLICATES ${kit}_LIBRARIES)
+
+get_property(${kit}_INCLUDE_DIRS GLOBAL PROPERTY ${kit}_INCLUDE_DIRS)
+list(REMOVE_DUPLICATES ${kit}_INCLUDE_DIRS)
+
+get_property(${kit}_LIBRARY_DIRS GLOBAL PROPERTY ${kit}_LIBRARY_DIRS)
+list(REMOVE_DUPLICATES ${kit}_LIBRARY_DIRS)
 
 # --------------------------------------------------------------------------
 # Install project
 # --------------------------------------------------------------------------
+
 configure_file(
   ${${kit}_CMAKE_DIR}/${kit}Config.cmake.in
   ${CMAKE_CURRENT_BINARY_DIR}/${kit}Config.cmake

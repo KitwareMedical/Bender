@@ -5,6 +5,9 @@ set(MODULE_TITLE "Armatures")
 
 string(TOUPPER ${MODULE_NAME} MODULE_NAME_UPPER)
 
+find_package(Bender REQUIRED)
+include(${Bender_USE_FILE})
+
 #-----------------------------------------------------------------------------
 add_subdirectory(MRML)
 add_subdirectory(Logic)
