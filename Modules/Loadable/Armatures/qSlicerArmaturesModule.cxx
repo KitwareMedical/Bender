@@ -97,15 +97,22 @@ QString qSlicerArmaturesModule::helpText()const
 //-----------------------------------------------------------------------------
 QString qSlicerArmaturesModule::acknowledgementText()const
 {
-  return "This work was supported by AFRL";
+  QString acknowledgement = tr(
+    "<center><table border=\"0\"><tr>"
+    "<td><img src=\":AFRL-100.png\" "
+    "alt\"Air Force Research Laboratory\"></td>"
+    "</tr></table></center>"
+    "This work is supported by Air Force Research Laboratory (AFRL)");
+  return acknowledgement;
 }
 
 //-----------------------------------------------------------------------------
 QStringList qSlicerArmaturesModule::contributors()const
 {
   QStringList moduleContributors;
-  moduleContributors << QString("Julien Finet (Kitware)")
-    << QString("Johan Andruejol (Kitware)");
+  moduleContributors
+    << QString("Johan Andruejol (Kitware)")
+    << QString("Julien Finet (Kitware)");
   return moduleContributors;
 }
 

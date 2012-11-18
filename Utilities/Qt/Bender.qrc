@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+  <qresource>
+    <file alias="AFRL.svg">../Logos/AFRL.svg</file>
+    <file alias="AFRL.png">../Logos/AFRL.png</file>
+    <file alias="AFRL-100.png">../Logos/AFRL-100.png</file>
+  </qresource>
+</RCC>

@@ -73,6 +73,7 @@ set(MODULE_TARGET_LIBRARIES
 
 set(MODULE_RESOURCES
   Resources/qSlicerArmaturesModule.qrc
+  ${Bender_SOURCE_DIR}/Utilities/Qt/Bender.qrc
   )
 
 #-----------------------------------------------------------------------------
