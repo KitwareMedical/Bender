@@ -24,7 +24,7 @@
 #! Doing so allows to keep the external project dependency system happy.
 #!
 #! \ingroup CMakeUtilities
-macro(benderMacroEmptyExternalProject proj dependencies)
+macro(bender_empty_external_project proj dependencies)
 
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}

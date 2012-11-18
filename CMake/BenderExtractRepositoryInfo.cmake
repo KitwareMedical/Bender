@@ -44,7 +44,7 @@
 #
 
 #
-# benderMacroExtractRepositoryInfo(VAR_PREFIX <var-prefix> [SOURCE_DIR <dir>])
+# bender_extract_repository_info(VAR_PREFIX <var-prefix> [SOURCE_DIR <dir>])
 #
 # If no SOURCE_DIR is provided, it will default to CMAKE_CURRENT_SOURCE_DIR.
 #
@@ -70,7 +70,7 @@
 #  <var-prefix>_WC_INFO
 #
 
-macro(benderMacroExtractRepositoryInfo)
+macro(bender_extract_repository_info)
   include(CMakeParseArguments)
   set(options)
   set(oneValueArgs VAR_PREFIX SOURCE_DIR)

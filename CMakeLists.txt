@@ -22,7 +22,7 @@ cmake_minimum_required(VERSION 2.8.2)
 
 #-----------------------------------------------------------------------------
 # Must be called before "project"
-include(CMake/benderOSXVariables.cmake)
+include(CMake/BenderOSXVariables.cmake)
 
 #-----------------------------------------------------------------------------
 #
@@ -90,8 +90,8 @@ set(${kit}_VERSION_PATCH 0)
 #set(${kit}_VERSION_TWEAK 0)
 #set(${kit}_VERSION_RC 1)
 
-include(benderMacroExtractRepositoryInfo)
-benderMacroExtractRepositoryInfo(VAR_PREFIX ${kit}) # Used to configure ${kit}VersionConfigure.h.in
+include(BenderExtractRepositoryInfo)
+bender_extract_repository_info(VAR_PREFIX ${kit}) # Used to configure ${kit}VersionConfigure.h.in
 
 if (${kit}_WC_LAST_CHANGED_DATE)
   string(REGEX REPLACE ".*([0-9][0-9][0-9][0-9]\\-[0-9][0-9]\\-[0-9][0-9]).*" "\\1"
