@@ -18,7 +18,7 @@
 #
 #============================================================================
 
-macro(benderMacroCheckExternalProjectDependency proj)
+macro(bender_check_external_project_dependency proj)
   # Set indent variable if needed
   if(NOT DEFINED __indent)
     set(__indent "")

@@ -47,8 +47,8 @@ endif()
 # Enable and setup External project global properties
 #
 include(ExternalProject)
-include(benderMacroEmptyExternalProject)
-include(benderMacroCheckExternalProjectDependency)
+include(BenderEmptyExternalProject)
+include(BenderCheckExternalProjectDependency)
 
 #SET(ep_base "${CMAKE_BINARY_DIR}/SuperBuild")
 #SET_PROPERTY(DIRECTORY PROPERTY EP_BASE ${ep_base})
@@ -109,7 +109,7 @@ if(APPLE)
     -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
 endif()
 
-benderMacroCheckExternalProjectDependency(Bender)
+bender_check_external_project_dependency(Bender)
 
 #-----------------------------------------------------------------------------
 # Bender Configure

@@ -60,11 +60,12 @@ set(${KIT}_SRCS
   vtkDoubleConeBoneRepresentation.h
   )
 
-add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
+add_library(${PROJECT_NAME} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   ${OPENGL_LIBRARIES}
   )
+bender_export_library()
 
 #-----------------------------------------------------------------------------
 # Configure export file
@@ -83,6 +84,4 @@ set(dynamicHeaders
 
 #-----------------------------------------------------------------------------
 # Add testing
-enable_testing()
-
 add_subdirectory(Testing)

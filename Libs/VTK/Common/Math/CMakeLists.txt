@@ -53,6 +53,8 @@ set(${KIT}_SRCS
 #  ${VTK_LIBRARIES}
 #  )
 #set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
+bender_export_library()
+
 
 #-----------------------------------------------------------------------------
 # Configure export file

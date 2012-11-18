@@ -39,7 +39,7 @@ endif()
 set(${proj}_DEPENDENCIES "")
 
 # Include dependent projects if any
-benderMacroCheckExternalProjectDependency(${proj})
+bender_check_external_project_dependency(${proj})
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -115,7 +115,7 @@ if(NOT DEFINED ${proj}_DIR)
 else()
   # The project is provided using ${proj}_DIR, nevertheless since other project may depend on ${proj},
   # let's add an 'empty' one
-  #benderMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
+  #bender_empty_external_project(${proj} "${${proj}_DEPENDENCIES}")
 endif()
 
 #list(APPEND Bender_SUPERBUILD_EP_ARGS -${proj}_DIR:PATH=${${proj}_DIR})
