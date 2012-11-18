@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering.Arithmetic</category>
+  <title>Evaluate weight</title>
+  <description><![CDATA[Evaluate weights.]]></description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url> ?? </documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <directory>
+      <name>WeightDirectory</name>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <label>Weight Directory</label>
+      <default>./</default>
+    </directory>
+    <geometry>
+      <name>InputSurface</name>
+      <label>Surface vertices to evaluate at</label>
+      <channel>input</channel>
+      <index>1</index>
+      <description><![CDATA[Sample the weight at these surface vertices]]></description>
+      <default></default>
+    </geometry>
+    <geometry>
+      <name>OutputSurface</name>
+      <label>Surface output file</label>
+      <channel>output</channel>
+      <description><![CDATA[Output surface]]></description>
+      <default>output.vtk</default>
+    </geometry>
+    <boolean>
+      <name>InvertY</name>
+      <description><![CDATA[Whether to invert the y coordinate of the input surface]]></description>
+      <label>Invert Y Coordinates</label>
+      <longflag>--inverty</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+</executable>
+
