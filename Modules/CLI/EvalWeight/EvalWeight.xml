@@ -2,7 +2,7 @@
 <executable>
   <category>Filtering.Arithmetic</category>
   <title>Evaluate weight</title>
-  <description><![CDATA[Evaluate weights.]]></description>
+  <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url> ?? </documentation-url>
   <license/>
@@ -15,7 +15,7 @@
       <name>WeightDirectory</name>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <description><![CDATA[The directory that contains the weight files, which are expected to be in *.mha format and have the same image dimensions.]]></description>
       <label>Weight Directory</label>
       <default>./</default>
     </directory>
@@ -24,14 +24,14 @@
       <label>Surface vertices to evaluate at</label>
       <channel>input</channel>
       <index>1</index>
-      <description><![CDATA[Sample the weight at these surface vertices]]></description>
+      <description><![CDATA[The weight vectors will be evaluated at these surface vertices]]></description>
       <default></default>
     </geometry>
     <geometry>
       <name>OutputSurface</name>
       <label>Surface output file</label>
       <channel>output</channel>
-      <description><![CDATA[Output surface]]></description>
+      <description><![CDATA[Output surface in VTK format. The weight vectors are stored as point data.]]></description>
       <default>output.vtk</default>
     </geometry>
     <boolean>
