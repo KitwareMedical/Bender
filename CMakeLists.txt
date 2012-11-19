@@ -54,9 +54,13 @@ if(NOT DEFINED BUILD_SHARED_LIBS)
 endif()
 set(${kit}_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/bin)
+set(${kit}_INSTALL_BIN_DIR "bin")
+set(${kit}_INSTALL_LIB_DIR "bin")
+set(${kit}_INSTALL_INCLUDE_DIR "include")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/${${kit}_INSTALL_BIN_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/${${kit}_INSTALL_LIB_DIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${${kit}_BINARY_DIR}/${${kit}_INSTALL_LIB_DIR})
 
 #-----------------------------------------------------------------------------
 # Set a default build type if none was specified
