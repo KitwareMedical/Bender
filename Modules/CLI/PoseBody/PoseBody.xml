@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Filtering.Arithmetic</category>
+  <category></category>
+  <index>3</index>
   <title>Pose Body</title>
   <description><![CDATA[Compute transform by linearly combining the armature edge transforms using pre-computed weights.]]></description>
   <version>0.1.0.$Revision$(alpha)</version>

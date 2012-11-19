@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Filtering.Arithmetic</category>
+  <category></category>
+  <index>1</index>
   <title>Armature Weight</title>
   <description><![CDATA[Compute weights of armature wedghes. Output one weight image per edge. Only the body voxels have weights.]]>
   </description>

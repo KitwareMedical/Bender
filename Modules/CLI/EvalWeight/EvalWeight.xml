@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>Filtering.Arithmetic</category>
+  <category></category>
+  <index>2</index>
   <title>Evaluate Weight</title>
   <description><![CDATA[Evaluate weights.]]></description>
   <version>0.1.0.$Revision$(alpha)</version>

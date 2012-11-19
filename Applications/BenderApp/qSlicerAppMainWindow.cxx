@@ -424,7 +424,7 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   // [Ninja]
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
-  this->FavoriteModules << "Armatures" << "Data" << "Volumes" << "Transforms" << "VolumeRendering";
+  this->FavoriteModules << "Armatures" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "Volumes" << "VolumeRendering" << "Models";
   this->DefaultModule = "Armatures";
   // [/Ninja]
 
@@ -443,7 +443,7 @@ void qSlicerAppMainWindowPrivate::overwriteSettings()
   Q_Q(qSlicerAppMainWindow);
 
   // Logo
- this->logoLabel->setPixmap(QPixmap(QString::fromUtf8(":/ModuleHome.png")));
+  this->logoLabel->setPixmap(QPixmap(QString::fromUtf8(":/ModuleHome.png")));
 
   // Main menu
   //this->menubar->setVisible(false);
@@ -997,11 +997,14 @@ void qSlicerAppMainWindow::onModuleLoaded(const QString& moduleName)
 
   // Module ToolBar
   QAction * action = module->action();
-  if (!action || action->icon().isNull())
+  if (!action) // || action->icon().isNull())
     {
     return;
     }
-
+  if (action->icon().isNull())
+    {
+    action->setIcon(QIcon(":Icons/Medium/DesktopIcon.png"));
+    }
   Q_ASSERT(action->data().toString() == module->name());
   Q_ASSERT(action->text() == module->title());
 
