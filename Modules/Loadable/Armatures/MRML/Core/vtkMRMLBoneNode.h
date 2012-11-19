@@ -228,6 +228,10 @@ public:
   void SetBoneLinkedWithParent(bool parenthood);
   bool GetBoneLinkedWithParent();
 
+  /// Set/Get if the bone has parent or not.
+  vtkSetMacro(HasParent, bool);
+  vtkGetMacro(HasParent, bool);
+
   //--------------------------------------------------------------------------
   // Helper methods
   //--------------------------------------------------------------------------
@@ -255,6 +259,7 @@ protected:
   vtkBoneWidget* BoneProperties;
   int BoneRepresentationType;
   bool LinkedWithParent;
+  bool HasParent;
 };
 
 #endif

@@ -389,8 +389,6 @@ void vtkMRMLArmatureNode
   armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());
-  armatureWidget->SetShowParenthood(
-    this->ArmatureProperties->GetShowParenthood());
   armatureWidget->SetBonesAlwaysOnTop(
     this->ArmatureProperties->GetBonesAlwaysOnTop());
 
@@ -407,6 +405,10 @@ void vtkMRMLArmatureNode
       vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
     if (boneNode)
       {
+      boneNode->SetShowParenthood(
+        this->ArmatureProperties->GetShowParenthood()
+        && boneNode->GetHasParent());
+
       vtkMRMLBoneDisplayNode* boneDisplayNode = boneNode->GetBoneDisplayNode();
       if (boneDisplayNode)
         {

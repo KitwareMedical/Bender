@@ -218,6 +218,8 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
       armatureNode->GetColor(rgb);
       boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
       }
+    boneWidget->SetShowParenthood(parentBoneWidget != 0);
+    boneNode->SetHasParent(parentBoneWidget != 0);
 
     armatureWidget->AddBone(boneWidget, parentBoneWidget);
     }
@@ -642,6 +644,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
       {
       boneNode->SetBoneLinkedWithParent(
         widget->GetBoneLinkedWithParent(boneWidget));
+      boneNode->SetHasParent(widget->GetBoneParent(boneWidget) != 0);
       }
     }
 

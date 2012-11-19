@@ -80,6 +80,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
   this->BoneProperties = vtkBoneWidget::New();
   this->BoneRepresentationType = 0;
   this->LinkedWithParent = true;
+  this->HasParent = false;
 
   this->Callback->Node = this;
   this->BoneProperties->AddObserver(vtkCommand::ModifiedEvent, this->Callback);

@@ -333,6 +333,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     this->ParentBoneNodeComboBox->blockSignals(wasBlocked);
 
     wasBlocked = this->LinkedToParentCheckBox->blockSignals(true);
+    this->LinkedToParentCheckBox->setCheckable(boneNode->GetHasParent());
     this->LinkedToParentCheckBox->setChecked(
       boneNode->GetBoneLinkedWithParent());
     this->LinkedToParentCheckBox->blockSignals(false);
@@ -366,11 +367,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
-      enableHeadWidget = ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = boneNode->GetHasParent()
+        && ! boneNode->GetBoneLinkedWithParent();
       }
     else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
-      enableHeadWidget = ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = boneNode->GetHasParent()
+        || ! boneNode->GetBoneLinkedWithParent();
       enableTailWidget = true;
       }
     }
