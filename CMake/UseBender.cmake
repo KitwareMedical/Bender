@@ -40,4 +40,9 @@ if(NOT Bender_USE_FILE_INCLUDED)
     set(QT_QMAKE_EXECUTABLE ${Bender_QT_QMAKE_EXECUTABLE})
   endif()
 
+  # TODO: Make it more robust to Eigen name (EIGEN, Eigen3...)
+  string(REPLACE "Eigen-build" "Eigen" EIGEN3_INCLUDE_DIR ${Eigen_DIR})
+  find_package(Eigen3)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+
 endif()

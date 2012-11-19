@@ -18,10 +18,16 @@
 
 =========================================================================*/
 
+// Bender includes
 #include "benderWeightMap.h"
+
+// ITK includes
 #include <itkImageRegionIterator.h>
+
+// STD includes
 #include <iostream>
 #include <numeric>
+
 namespace bender
 {
 //-------------------------------------------------------------------------------

@@ -17,10 +17,14 @@
   limitations under the License.
 
 =========================================================================*/
+
 #ifndef __WeightMapIO_h
 #define __WeightMapIO_h
 
+// Bender includes
 #include "benderWeightMap.h"
+
+// STD includes
 #include <string>
 #include <vector>
 

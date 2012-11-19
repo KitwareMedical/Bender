@@ -18,5 +18,18 @@
 #
 #============================================================================
 
-add_subdirectory(CLI)
-add_subdirectory(Loadable)
+# List all the modules (ordered by dependencies) to build by Slicer
+set(modules
+  ArmatureWeight
+  EvalWeight
+  PoseBody
+  )
+
+set(Bender_MODULES)
+
+foreach(module ${modules})
+  list(APPEND Bender_MODULES
+    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
+endforeach()
+
+set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})

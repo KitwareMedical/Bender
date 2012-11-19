@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>Filtering.Arithmetic</category>
-  <title>Compute weights of armature edges</title>
+  <title>Armature Weight</title>
   <description><![CDATA[Compute weights of armature wedghes. Output one weight image per edge. Only the body voxels have weights.]]>
   </description>
   <version>0.1.0.$Revision$(alpha)</version>
@@ -15,66 +15,79 @@
     <image>
       <name>RestLabelmap</name>
       <label>Rest Labelmap</label>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
     </image>
 
-    <geometry fileExtensions="*.vtk">
+    <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Armature</label>
+      <description><![CDATA[Resting armature]]></description>
       <channel>input</channel>
       <index>1</index>
-      <description><![CDATA[Resting armature]]></description>
     </geometry>
 
     <boolean>
       <name>InvertY</name>
+      <label>Invert Armature Y Coordinates</label>
       <description><![CDATA[Whether to invert the y coordinate of the input armature]]></description>
-      <label>Invert Y Coordinates</label>
       <longflag>--inverty</longflag>
       <default>false</default>
     </boolean>
 
+    <directory>
+      <name>WeightDirectory</name>
+      <label>Weight Output Directory</label>
+      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+      <default>./</default>
+    </directory>
+
+  </parameters>
+
+  <parameters>
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     <integer>
       <name>FirstEdge</name>
+      <label>Start Edge</label>
+      <description><![CDATA[The first armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the lower bone index here.]]></description>
       <longflag>--first</longflag>
-      <description><![CDATA[The first egde to process]]></description>
       <default>0</default>
     </integer>
 
     <integer>
       <name>LastEdge</name>
+      <description><![CDATA[The last armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the higher bone index here. Special value -1 means the last bone.]]></description>
+      <label>End edge</label>
       <longflag>--last</longflag>
-      <description><![CDATA[The last egde to process (default -1 tells the program to use the largest possible)]]></description>
       <default>-1</default>
     </integer>
-
-    <directory>
-      <name>WeightDirectory</name>
-      <description><![CDATA[The directory to contain the weight files.]]></description>
-      <longflag>--out</longflag>
-      <default>./</default>
-    </directory>
 
     <integer>
       <name>ExpansionDistance</name>
       <longflag>--expansion</longflag>
+      <label>Expansion Distance</label>
       <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
       <default>20</default>
     </integer>
     <integer>
       <name>SmoothingIteration</name>
       <longflag>--smooth</longflag>
+      <label>Smoothing Iteration Number</label>
       <description><![CDATA[Number of smoothing iterations. This is only necessary because we restrict the solving to a local region]]></description>
       <default>10</default>
     </integer>
 
+  </parameters>
+  <parameters>
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
     <boolean>
       <name>BinaryWeight</name>
-      <label>Binary weight</label>
+      <label>Use Binary Weight</label>
       <flag>-b</flag>
       <longflag>--binary</longflag>
       <description><![CDATA[Use binary weight. for Debugging only]]></description>
@@ -83,6 +96,7 @@
 
     <boolean>
       <name>DumpDebugImages</name>
+      <label>Dump Intermediate Images</label>
       <longflag>--dump</longflag>
       <description><![CDATA[Dump debugging images. for Debugging only]]></description>
       <default>false</default>

@@ -42,12 +42,11 @@ set(${KIT}_SRCS
   EigenSparseSolve.cxx
   )
 
-add_library(${PROJECT_NAME} ${LIB_TYPE} ${${KIT}_SRCS})
+add_library(${PROJECT_NAME} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${ITK_LIBRARIES} ${VTK_LIBRARIES}
   )
-
-
+bender_export_library()
 
 #-----------------------------------------------------------------------------
 # Configure export file
@@ -64,8 +63,6 @@ configure_file(
 set(dynamicHeaders
   "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Export.h")
 
-# #-----------------------------------------------------------------------------
-# # Add testing
-# enable_testing()
-
+#-----------------------------------------------------------------------------
+# Add testing
 # add_subdirectory(Testing)

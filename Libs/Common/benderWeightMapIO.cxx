@@ -18,15 +18,16 @@
 
 =========================================================================*/
 
+// Bender includes
 #include "benderWeightMapIO.h"
 
+// ITK includes
 #include <itkImageRegion.h>
 #include <itkImageFileReader.h>
 #include <itkDirectory.h>
 
-
 using namespace bender;
-using namespace std;
+
 typedef itk::ImageRegion<3> Region;
 typedef itk::Image<float, 3>  WeightImage;
 
@@ -50,12 +51,12 @@ namespace bender
       }
     }
 
-  sort(fnames.begin(), fnames.end());
+  std::sort(fnames.begin(), fnames.end());
 }
 
 //-------------------------------------------------------------------------------
 //create a weight map from a series of files
-int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::Voxel>& bodyVoxels, WeightMap& weightMap)
+int ReadWeights(const std::vector<std::string>& fnames, const std::vector<WeightMap::Voxel>& bodyVoxels, WeightMap& weightMap)
 {
   typedef std::vector<WeightMap::Voxel> Voxels;
   Region region;
@@ -64,10 +65,10 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
   int numInserted(0);
   for(size_t i=0; i<fnames.size(); ++i)
     {
-    cout<<"Read "<<fnames[i]<<endl;
+    std::cout << "Read " << fnames[i] << std::endl;
 
     typedef itk::ImageFileReader<WeightImage>  ReaderType;
-    typename ReaderType::Pointer reader = ReaderType::New();
+    ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(fnames[i].c_str());
     reader->Update();
     WeightImage::Pointer weight_i =  reader->GetOutput();
@@ -80,7 +81,7 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
 
     if(weight_i->GetLargestPossibleRegion()!=region)
       {
-      cerr<<"WARNING: "<<fnames[i]<<" skipped"<<endl;
+      std::cerr << "WARNING: " << fnames[i] << " skipped" << std::endl;
       }
     else
       {
@@ -92,7 +93,7 @@ int ReadWeights(const std::vector<string>& fnames, const std::vector<WeightMap::
         bool inserted = weightMap.Insert(v,index,value);
         numInserted+= inserted;
         }
-      cout<<numInserted<<" inserted to weight map"<<endl;
+      std::cout << numInserted << " inserted to weight map" << std::endl;
       weightMap.Print();
       }
     }

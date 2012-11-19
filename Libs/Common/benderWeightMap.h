@@ -26,11 +26,16 @@
 // This is a sparse representation for an image of vector-weights. Only
 // non-zero entries are represented.
 
+// Bender includes
+#include "BenderCommonExport.h"
+
+// ITK includes
 #include <itkImage.h>
 #include <itkVariableLengthVector.h>
+
+// STD includes
 #include <vector>
 #include <limits>
-#include "BenderCommonExport.h"
 
 namespace bender
 {

@@ -1,23 +1,30 @@
 /*=========================================================================
 
-  Program:   Insight Segmentation & Registration Toolkit
-  Module:    $HeadURL$
-  Language:  C++
-  Date:      $Date$
-  Version:   $Revision$
+  Program: Bender
 
-  Copyright (c) Insight Software Consortium. All rights reserved.
-  See ITKCopyright.txt or http://www.itk.org/HTML/Copyright.htm for details.
+  Copyright (c) Kitware Inc.
 
-     This software is distributed WITHOUT ANY WARRANTY; without even
-     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-     PURPOSE.  See the above copyright notices for more information.
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
 
 =========================================================================*/
+
+// Bender includes
 #include "ArmatureWeightCLP.h"
 
-//-----------itk------------
+// Eigen includes
+#include "EigenSparseSolve.h"
 
+// ITK includes
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkStatisticsImageFilter.h>
@@ -29,7 +36,7 @@
 #include <itkIndex.h>
 #include <itkConnectedComponentImageFilter.h>
 
-//-----------vtk------------
+// VTK includes
 #include <vtkNew.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
@@ -37,17 +44,11 @@
 #include <vtkCellArray.h>
 #include <vtkTimerLog.h>
 
-//-----------standard------------
+// STD includes
 #include <sstream>
 #include <vector>
 #include <iostream>
 #include <iomanip>
-
-//-----------Eigen wrapper------------
-
-#include "EigenSparseSolve.h"
-
-using namespace std;
 
 typedef unsigned char CharType;
 typedef unsigned short LabelType;
@@ -148,7 +149,7 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 template <class ImageType>
 void WriteImage(typename ImageType::Pointer image,const char* fname)
 {
-  cout<<"Write image to "<<fname<<endl;
+  std::cout << "Write image to "<<fname << std::endl;
   typedef typename itk::ImageFileWriter<ImageType> WriterType;
   typename WriterType::Pointer writer = WriterType::New();
   writer->SetFileName(fname);
@@ -350,10 +351,10 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
       }
     }
 
-  cout<<"Smooth iteratively: ";
+  std::cout << "Smooth iteratively: ";
   for(int iteration=0; iteration<numIterations; ++iteration)
     {
-    cout<<". "<<flush;
+    std::cout << ". " << std::flush;
     for(typename std::vector<Pixel>::iterator pi = interior.begin(); pi!=interior.end(); ++pi)
       {
       Pixel p = *pi;
@@ -371,7 +372,7 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
         }
       if(diag==0.0)
         {
-        cerr<<p<<" has no neighbor"<<endl;
+        cerr<<p<<" has no neighbor" << std::endl;
         }
       else
         {
@@ -379,7 +380,7 @@ void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
         }
       }
     }
-  cout<<endl;
+  std::cout << endl;
 }
 
 //-------------------------------------------------------------------------------
@@ -415,8 +416,8 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
         }
       }
     }
-  cout<<"Problem dimension: "<<m<<" x "<<n<<endl;
-  cout<<"num hot: "<<numHotSource<<endl;
+  std::cout << "Problem dimension: "<<m<<" x "<<n << std::endl;
+  std::cout << "num hot: "<<numHotSource << std::endl;
 
   typedef itk::Image<int, 3> ImageIndexMap;
   ImageIndexMap::Pointer matrixIndex = ImageIndexMap::New();
@@ -743,12 +744,12 @@ private:
         }
       if(numOutside>0)
         {
-        cout<<"WARNING: armature edge "<<edgeId<<" has "<<numOutside<<" outside voxels out of "<<edgeVoxels.size()<<endl;
+        std::cout << "WARNING: armature edge "<<edgeId<<" has "<<numOutside<<" outside voxels out of "<<edgeVoxels.size() << std::endl;
         }
 
       if(this->SkeletonVoxels.back().size()<2)
         {
-        cout<<"WARNING: edge "<<edgeId<<" is very small"<<endl;
+        std::cout << "WARNING: edge "<<edgeId<<" is very small" << std::endl;
         }
       ++edgeId;
       }
@@ -906,16 +907,16 @@ private:
         newLabels[seedLabel] = newLabel;
         if(printLabels)
           {
-          cout<<"Visited: "<<numVisited<<endl;
-          cout<<"Edges for bone: "<<seedLabel<<" ";
+          std::cout << "Visited: "<<numVisited << std::endl;
+          std::cout << "Edges for bone: "<<seedLabel<<" ";
           for(size_t i=0; i<regionSize.size();++i)
             {
             if(regionSize[i]!=0)
               {
-              cout<<i<<" ";
+              std::cout << i<<" ";
               }
             }
-          cout<<endl;
+          std::cout << endl;
           }
 
         }
@@ -933,7 +934,7 @@ private:
         LabelType edgeLabel = static_cast<LabelType>(this->GetEdgeLabel(i));
         if(std::find(newLabels.begin(), newLabels.end(),edgeLabel)==newLabels.end())
           {
-          cout<<"No bones belong to edge "<<i<<" with label "<<edgeLabel<<endl;
+          std::cout << "No bones belong to edge "<<i<<" with label "<<edgeLabel << std::endl;
           }
         }
       BonePartition = boneComponents;
@@ -954,7 +955,7 @@ private:
       for(size_t i=0;i<componentSize.size();++i)
         {
         totalSize+=componentSize[i];
-        cout<<i<<": "<<componentSize[i]<<"\n";
+        std::cout << i<<": "<<componentSize[i]<<"\n";
         }
       }
 
@@ -992,7 +993,7 @@ public:
         ++regionSize;
         }
       }
-    cout<<"Voronoi region size: "<<regionSize<<endl;
+    std::cout << "Voronoi region size: "<<regionSize << std::endl;
     assert(NumConnectedComponents<CharImage>(this->Domain)==1);
 
     LabelType unknown = ArmatureType::GetEdgeLabel(-1);
@@ -1007,7 +1008,7 @@ public:
     writer->Update();
 
     //Debug
-    cout<<"Region size after expanding "<<expansionDistance<<" : "<<regionSize<<endl;
+    std::cout << "Region size after expanding "<<expansionDistance<<" : "<<regionSize << std::endl;
 
     Voxel bbMin, bbMax;
     for(int i=0; i<3; ++i)
@@ -1034,12 +1035,12 @@ public:
           }
         }
       }
-    cout<<"Domain bounding box: "<<bbMin<<" "<<bbMax<<endl;
+    std::cout << "Domain bounding box: "<<bbMin<<" "<<bbMax << std::endl;
   }
 
   WeightImage::Pointer ComputeWeight(bool binaryWeight, int smoothingIterations)
   {
-    cout<<"Compute weight for edge "<<this->Id<<" with label "<<(int)this->GetLabel()<<endl;
+    std::cout << "Compute weight for edge "<<this->Id<<" with label "<<(int)this->GetLabel() << std::endl;
     WeightImage::Pointer weight = WeightImage::New();
     Allocate<LabelImage,WeightImage>(this->Armature.BodyMap, weight);
 
@@ -1057,7 +1058,7 @@ public:
         ++numBackground;
         }
       }
-    cout<<numBackground<<" background voxel"<<endl;
+    std::cout << numBackground<<" background voxel" << std::endl;
 
     if(binaryWeight)
       {
@@ -1123,7 +1124,7 @@ void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
         }
       if(numNeighbors==0)
         {
-        cerr<<"Paint isolated voxel "<<p<<" to background"<<endl;
+        cerr<<"Paint isolated voxel "<<p<<" to background" << std::endl;
         labelMap->SetPixel(p, 0);
         }
       }
@@ -1137,12 +1138,12 @@ int main( int argc, char * argv[] )
 
   if(BinaryWeight)
     {
-    cout<<"Use binary weight: "<<endl;
+    std::cout << "Use binary weight: " << std::endl;
     }
 
   if(InvertY)
     {
-    cout<<"Y coordinate of the armature will be inverted"<<endl;
+    std::cout << "Y coordinate of the armature will be inverted" << std::endl;
     }
 
   if(DumpDebugImages)
@@ -1154,18 +1155,19 @@ int main( int argc, char * argv[] )
   // Read label map
   //----------------------------
   typedef itk::ImageFileReader<LabelImage>  ReaderType;
-  typename ReaderType::Pointer labelMapReader = ReaderType::New();
+  ReaderType::Pointer labelMapReader = ReaderType::New();
   labelMapReader->SetFileName(RestLabelmap.c_str() );
   labelMapReader->Update();
 
   typedef itk::StatisticsImageFilter<LabelImage>  StatisticsType;
-  typename StatisticsType::Pointer statistics = StatisticsType::New();
+  StatisticsType::Pointer statistics = StatisticsType::New();
   statistics->SetInput( labelMapReader->GetOutput() );
   statistics->Update();
+
   //----------------------------
   // Print out some statistics
   //----------------------------
-  typename LabelImage::Pointer labelMap = labelMapReader->GetOutput();
+  LabelImage::Pointer labelMap = labelMapReader->GetOutput();
   Region allRegion = labelMap->GetLargestPossibleRegion();
   itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,labelMap->GetLargestPossibleRegion());
   LabelType bodyIntensity = 1;
@@ -1184,11 +1186,11 @@ int main( int argc, char * argv[] )
     }
   int totalVoxels = allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
 
-  cout<<"Image statistics\n";
-  cout<<"  min: "<<(int)statistics->GetMinimum()<<" max: "<<(int)statistics->GetMaximum()<<endl;
-  cout<<"  total # voxels  : "<<totalVoxels<<endl;
-  cout<<"  num body voxels : "<<numBodyVoxels<<endl;
-  cout<<"  num bone voxels : "<<numBoneVoxels<<endl;
+  std::cout << "Image statistics\n";
+  std::cout << "  min: "<<(int)statistics->GetMinimum()<<" max: "<<(int)statistics->GetMaximum() << std::endl;
+  std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
+  std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
+  std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
 
   RemoveSingleVoxelIsland(labelMap);
 
@@ -1202,7 +1204,7 @@ int main( int argc, char * argv[] )
     {
     LastEdge = armature.GetNumberOfEdges()-1;
     }
-  cout<<"Process armature edge from "<<FirstEdge<<" to "<<LastEdge<<endl;
+  std::cout << "Process armature edge from "<<FirstEdge<<" to "<<LastEdge << std::endl;
 
   //--------------------------------------------
   // Compute the domain of reach armature part
@@ -1211,7 +1213,7 @@ int main( int argc, char * argv[] )
   for(int i=FirstEdge; i<=LastEdge; ++i)
     {
     ArmatureEdge edge(armature,i);
-    cout<<"Process armature edge "<<i<<" with label "<<(int)edge.GetLabel()<<endl;
+    std::cout << "Process armature edge "<<i<<" with label "<<(int)edge.GetLabel() << std::endl;
     edge.Initialize(BinaryWeight? 0 : ExpansionDistance);
     WeightImage::Pointer weight = edge.ComputeWeight(BinaryWeight,SmoothingIteration);
     std::stringstream filename;

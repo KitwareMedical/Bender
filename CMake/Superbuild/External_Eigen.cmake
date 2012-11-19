@@ -19,9 +19,9 @@
 #============================================================================
 
 #
-# Slicer
+# Eigen
 #
-set(proj Bender)
+set(proj Eigen)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -36,7 +36,7 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
 endif()
 
 # Set dependency list
-set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen)
+set(${proj}_DEPENDENCIES "")
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
@@ -59,35 +59,15 @@ if(NOT DEFINED ${proj}_DIR)
 
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
-    SOURCE_DIR ${Bender_SOURCE_DIR}
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    DOWNLOAD_COMMAND ""
-    CMAKE_GENERATOR ${gen}
+    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/eigen.git"
+    GIT_TAG "f2f9e1c3885b69708a99fdad4e9a755fc85118e4"
+    UPDATE_COMMAND ""
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
     INSTALL_COMMAND ""
-    CMAKE_ARGS
-      ${ctk_superbuild_boolean_args}
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      -DBender_SUPERBUILD:BOOL=OFF
-      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DDOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY:PATH=${DOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY}
-      -DBender_INSTALL_BIN_DIR:STRING=${Slicer_INSTALL_BIN_DIR}
-      -DBender_INSTALL_LIB_DIR:STRING=${Slicer_INSTALL_LIB_DIR}
-      -DBender_INSTALL_INCLUDE_DIR:STRING=${Bender_INSTALL_INCLUDE_DIR}
-      #-DBender_INSTALL_DOC_DIR:STRING=${Bender_INSTALL_DOC_DIR}
-      #-DDOXYGEN_EXECUTABLE:FILEPATH=${DOXYGEN_EXECUTABLE}
-      -DBender_BUILD_SHARED_LIBS:BOOL=${Bender_BUILD_SHARED_LIBS}
-      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
-      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
-      -DBender_EXTERNAL_LIBRARY_DIRS:STRING=${Bender_EXTERNAL_LIBRARY_DIRS}
-      #-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-      -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
-      -DVTK_DIR:PATH=${VTK_DIR}
-      -DITK_DIR:PATH=${ITK_DIR}
-      -DEIGEN3_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/Eigen
-      #${dependency_args}
+    CMAKE_GENERATOR ${gen}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )

@@ -17,9 +17,11 @@
   limitations under the License.
 
 =========================================================================*/
+
 #ifndef __WeightMapMath_h
 #define __WeightMapMath_h
 
+// Bender includes
 #include "benderWeightMap.h"
 
 namespace bender

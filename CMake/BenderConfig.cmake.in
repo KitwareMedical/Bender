@@ -45,6 +45,7 @@ set(Bender_VERSION_FULL @Bender_VERSION_FULL@)
 # The location of the UseBender.cmake file.
 set(Bender_CMAKE_DIR "@Bender_CMAKE_DIR@")
 set(Bender_USE_FILE "${Bender_CMAKE_DIR}/UseBender.cmake")
+set(Bender_SOURCE_DIR "@Bender_SOURCE_DIR@")
 
 # Targets to link with
 set(Bender_LIBRARIES "@Bender_LIBRARIES@")
