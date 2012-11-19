@@ -3,7 +3,8 @@
   <category></category>
   <index>3</index>
   <title>Pose Body</title>
-  <description><![CDATA[Compute transform by linearly combining the armature edge transforms using pre-computed weights.]]></description>
+  <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
+  <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending. ]]></description>
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url> ?? </documentation-url>
   <license/>
@@ -24,14 +25,14 @@
       <label>Armature</label>
       <channel>input</channel>
       <index>1</index>
-      <description><![CDATA[Resting armature]]></description>
+      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
     </geometry>
     <geometry fileExtensions=".stl">
       <name>SurfaceInput</name>
       <label>Surface</label>
       <channel>input</channel>
       <index>2</index>
-      <description><![CDATA[Body Surface]]></description>
+      <description><![CDATA[Input Surface to be posed.]]></description>
     </geometry>
     <geometry fileExtensions=".stl">
       <name>OutputSurface</name>
@@ -49,7 +50,7 @@
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
-      <description><![CDATA[Blend transform matrices linearly, which will result in non-rigid transforms]]></description>
+      <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
       <default>false</default>
     </boolean>
   </parameters>

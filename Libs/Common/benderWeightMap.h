@@ -23,8 +23,12 @@
 
 // .NAME WeightMap - sparse representation over weight vectors over a volume
 // .SECTION General Description
-// This is a sparse representation for an image of vector-weights. Only
-// non-zero entries are represented.
+// WeightMap represents a field of weight vectors over a volume. Compared
+// with a dense representation, e.g. storing a set of weight images., this is
+// sparse in two ways:
+// -  Not all voxel weights are stored, only a set of chosen voxels.
+// -  Define the "support" of a voxel by the number of non-zero weights at the voxel.
+//    Then, for each voxel, the storage we spend is at most the max support over the volume.
 
 // Bender includes
 #include "BenderCommonExport.h"
