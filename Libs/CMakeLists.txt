@@ -18,4 +18,6 @@
 #
 #============================================================================
 
+add_subdirectory(Common)
+add_subdirectory(EigenWrapper)
 add_subdirectory(VTK)

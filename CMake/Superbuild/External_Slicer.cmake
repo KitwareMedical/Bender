@@ -41,6 +41,8 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen")
+
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 set(proj ${${proj_filename}_proj})
@@ -59,17 +61,29 @@ if(NOT DEFINED ${proj}_DIR)
   endif()
 
   get_property(Bender_MODULES GLOBAL PROPERTY Bender_MODULES)
+  set(Bender_MODULES_LIST)
+  foreach(module ${Bender_MODULES})
+    if(Bender_MODULES_LIST)
+      set(Bender_MODULES_LIST "${Bender_MODULES_LIST}^^${module}")
+    else()
+      set(Bender_MODULES_LIST ${module})
+    endif()
+  endforeach()
+  # \todo
+  #string(REPLACE ";" "\\^\\^" Bender_MODULES_LIST ${Bender_MODULES})
+  #string(REPLACE ";" "^^" ${proj}_INTERNAL_DEPENDENCIES_LIST ${${proj}_INTERNAL_DEPENDENCIES})
 
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
-    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/bender.git"
-    GIT_TAG "5764ef1007571816a6ee4be32a7e278d9fa42c9f"
+    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/slicer.git"
+    GIT_TAG "c92a8d6e0a64b1224466fa1d4b02ab2a94642f4b"
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
+    LIST_SEPARATOR &&
     CMAKE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
@@ -85,9 +99,9 @@ if(NOT DEFINED ${proj}_DIR)
       -D${proj}_USE_GIT_PROTOCOL:BOOL=${BENDER_USE_GIT_PROTOCOL}
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
       -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
-      -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=Bender
+      -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}
       -DSlicer_ADDITIONAL_EXTERNAL_PROJECT_DIR:PATH=${Bender_SUPERBUILD_DIR}
-      -DBender_SOURCE_DIR:PATH=${Bender_SOURCE_DIR}
+      -DBender_SOURCE_DIR:PATH=${Bender_SOURCE_DIR} # needed by External_Bender.cmake
       -DSlicer_MAIN_PROJECT:STRING=BenderApp
       -DBenderApp_APPLICATION_NAME:STRING=Bender
       -DSlicer_APPLICATIONS_DIR:PATH=${Bender_SOURCE_DIR}/Applications
@@ -107,7 +121,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_OpenIGTLinkIF:BOOL=OFF
       -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
       -DSlicer_BUILD_Extensions:BOOL=OFF
-      -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${Bender_MODULES}
+      -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${Bender_MODULES_LIST}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )

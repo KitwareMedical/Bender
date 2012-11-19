@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category></category>
+  <index>1</index>
+  <title>Armature Weight</title>
+  <description><![CDATA[ Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
+  </description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url></documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>RestLabelmap</name>
+      <label>Rest Labelmap</label>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </image>
+
+    <geometry fileExtensions=".vtk">
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <description><![CDATA[Resting armature]]></description>
+      <channel>input</channel>
+      <index>1</index>
+    </geometry>
+
+    <boolean>
+      <name>InvertY</name>
+      <label>Invert Armature Y Coordinates</label>
+      <description><![CDATA[Whether to invert the y coordinate of the input armature]]></description>
+      <longflag>--inverty</longflag>
+      <default>false</default>
+    </boolean>
+
+    <directory>
+      <name>WeightDirectory</name>
+      <label>Weight Output Directory</label>
+      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+      <default>./</default>
+    </directory>
+
+  </parameters>
+
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    <integer>
+      <name>FirstEdge</name>
+      <label>Start Edge</label>
+      <description><![CDATA[The first armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the lower bone index here.]]></description>
+      <longflag>--first</longflag>
+      <default>0</default>
+    </integer>
+
+    <integer>
+      <name>LastEdge</name>
+      <description><![CDATA[The last armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the higher bone index here. Special value -1 means the last bone.]]></description>
+      <label>End edge</label>
+      <longflag>--last</longflag>
+      <default>-1</default>
+    </integer>
+
+    <integer>
+      <name>ExpansionDistance</name>
+      <longflag>--expansion</longflag>
+      <label>Expansion Distance</label>
+      <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
+      <default>20</default>
+    </integer>
+    <integer>
+      <name>SmoothingIteration</name>
+      <longflag>--smooth</longflag>
+      <label>Smoothing Iteration Number</label>
+      <description><![CDATA[Number of smoothing iterations. This is only necessary because we restrict the solving to a local region]]></description>
+      <default>10</default>
+    </integer>
+
+  </parameters>
+  <parameters>
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+    <boolean>
+      <name>BinaryWeight</name>
+      <label>Use Binary Weight</label>
+      <flag>-b</flag>
+      <longflag>--binary</longflag>
+      <description><![CDATA[Use binary weight. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>DumpDebugImages</name>
+      <label>Dump Intermediate Images</label>
+      <longflag>--dump</longflag>
+      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+</executable>

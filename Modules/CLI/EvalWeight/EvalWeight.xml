@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category></category>
+  <index>2</index>
+  <title>Evaluate Weight</title>
+  <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url></documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <directory>
+      <name>WeightDirectory</name>
+      <label>Weight Directory</label>
+      <description><![CDATA[The directory to contain the weight files, which are expected to be in *.mha format and have the same image dimensions.]]></description>
+      <channel>input</channel>
+      <index>0</index>
+      <default>./</default>
+    </directory>
+    <geometry type="model" fileExtensions=".vtk">
+      <name>InputSurface</name>
+      <label>Surface vertices to evaluate at</label>
+      <description><![CDATA[The weight vectors will be evaluated at these surface vertices]]></description>
+      <channel>input</channel>
+      <index>1</index>
+      <default></default>
+    </geometry>
+    <geometry type="model" fileExtensions=".vtk">
+      <name>OutputSurface</name>
+      <label>Surface output file</label>
+      <description><![CDATA[Output surface in VTK format. The weight vectors are stored as point data.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+      <default></default>
+    </geometry>
+    <boolean>
+      <name>InvertY</name>
+      <label>Invert Y Coordinates</label>
+      <description><![CDATA[Whether to invert the y coordinate of the input surface]]></description>
+      <longflag>--inverty</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+</executable>
+

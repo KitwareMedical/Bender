@@ -29,6 +29,7 @@
 class vtkMRMLBoneDisplayNode;
 class vtkBoneRepresentation;
 class vtkBoneWidget;
+class vtkMRMLBoneNodeCallback;
 
 /// \ingroup Bender_MRML
 /// \brief Annotation to design and edit a bone.

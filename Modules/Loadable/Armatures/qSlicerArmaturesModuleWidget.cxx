@@ -20,7 +20,7 @@
 
 // Qt includes
 #include <QDebug>
-#include <QVector3d>
+#include <QVector3D>
 
 // Armatures includes
 #include "qSlicerArmaturesModuleWidget.h"
