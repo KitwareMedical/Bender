@@ -84,7 +84,21 @@ qSlicerArmaturesModule::~qSlicerArmaturesModule()
 QString qSlicerArmaturesModule::helpText()const
 {
   QString help =
-    "The module is for armature and bone animation.";
+  "<p>The Armature Module creates, edit and animate armature and bone widget"
+  " annotations that support forward kinematic.</p>"
+  "<p>A bone is defined by its head (start point) and its tail (end point)."
+  " Multiples bones can be gathered in an armature structure that handles the"
+  " interaction between the bones. </p>"
+  "<p>An armature has two modes:"
+  "<li>In <b>Rest</b> mode, the bones can be added, removed and edited.</li>"
+  "<li>In <b>Pose</b> mode, the bones can animated. In this mode,"
+  " the user can only rotate the bones in the camera plane.</p>"
+  "<p>The module has three panels that allow the user to interact with the"
+  " armature or the bones.<br>The panel ''Armature'' allows to modify"
+  " properties on all the bones of the armature.<br> The panel ''Bones''"
+  " contains the structure of the selected armatures with all its bones.<br>"
+  " Finally the last panel allows to modify the properties of the currently"
+  " selected bone.</p>";
   return help;
 }
 
