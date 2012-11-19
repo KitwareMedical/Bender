@@ -78,8 +78,8 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
-    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/bender.git"
-    GIT_TAG "5764ef1007571816a6ee4be32a7e278d9fa42c9f"
+    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/slicer.git"
+    GIT_TAG "c92a8d6e0a64b1224466fa1d4b02ab2a94642f4b"
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
