@@ -9,5 +9,8 @@
     <file alias="ModuleHome.png">Images/BenderModuleHome.png</file>
     <file>Icons/open.png</file>
     <file>Icons/save.png</file>
+    <file alias="ArmatureWeight.png">Icons/Medium/ArmatureWeight-32.png</file>
+    <file alias="EvalWeight.png">Icons/Medium/EvalWeight-32.png</file>
+    <file alias="PoseBody.png">Icons/Medium/PoseBody-32.png</file>
   </qresource>
 </RCC>
