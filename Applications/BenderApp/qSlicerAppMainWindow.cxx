@@ -513,6 +513,9 @@ void qSlicerAppMainWindowPrivate::overwriteSettings()
     this->LayoutManager->sliceWidget(sliceViewName)->sliceController()
       ->setMoreButtonVisible(false);
     }
+
+  this->ModuleSelectorToolBar->modulesMenu()->setCurrentModule(
+    this->DefaultModule);
 }
 // [/Ninja]
 
@@ -1032,11 +1035,6 @@ void qSlicerAppMainWindow::onModuleLoaded(const QString& moduleName)
       }
     d->ModuleToolBar->insertAction(beforeAction, action);
     action->setParent(d->ModuleToolBar);
-    }
-  if (d->DefaultModule == module->name())
-    {
-    qDebug() << "!!!!!!!!!";
-    QTimer::singleShot(0, action, SLOT(trigger()));
     }
 }
 
