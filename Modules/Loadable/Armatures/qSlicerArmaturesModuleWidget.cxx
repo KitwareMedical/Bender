@@ -385,6 +385,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->HeadCoordinatesWidget->setEnabled(enableHeadWidget);
   this->TailCoordinatesWidget->setEnabled(enableTailWidget);
   this->LengthSpinBox->setEnabled(enableTailWidget);
+  this->BonePositionTypeComboBox->setEnabled(enableTailWidget);
   this->DirectionCoordinatesWidget->setEnabled(enableTailWidget);
 
   this->updateAdvancedPositions(boneNode);
