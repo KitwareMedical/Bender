@@ -78,6 +78,10 @@ public:
   vtkSetVector3Macro(WidgetInteractionColor, double);
   vtkGetVector3Macro(WidgetInteractionColor, double);
 
+  /// Set/Get if the widget should be initialized or not.
+  vtkSetMacro(ShouldBeInitialized, bool);
+  vtkGetMacro(ShouldBeInitialized, bool);
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -95,6 +99,7 @@ protected:
   ~vtkMRMLBoneDisplayNode();
 
   double WidgetInteractionColor[3];
+  bool ShouldBeInitialized;
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented

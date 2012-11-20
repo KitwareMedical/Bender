@@ -120,7 +120,6 @@ public:
   ArmatureNodesLink ArmatureNodes;
   BoneNodesLink BoneNodes;
   vtkMRMLArmatureDisplayableManager* External;
-  bool IgnoreFirstBuggyEvent;
 };
 
 //---------------------------------------------------------------------------
@@ -131,7 +130,6 @@ vtkMRMLArmatureDisplayableManager::vtkInternal
 ::vtkInternal(vtkMRMLArmatureDisplayableManager* external)
 {
   this->External = external;
-  this->IgnoreFirstBuggyEvent = true;
 }
 
 //---------------------------------------------------------------------------
@@ -601,6 +599,22 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneNode->PasteBoneNodeProperties(boneWidget);
   if (boneDisplayNode)
     {
+    if (boneDisplayNode->GetShouldBeInitialized())
+      {
+      // This hackish code is here to prevent the update of the widget
+      // by the display node before the display node was initialized.
+      int wasModifying = boneDisplayNode->StartModify();
+      double normalColor[3];
+      boneWidget->GetBoneRepresentation()->GetLineProperty()
+        ->GetColor(normalColor);
+      boneDisplayNode->SetColor(normalColor);
+
+      boneDisplayNode->CopyBoneWidgetDisplayProperties(boneWidget);
+      boneDisplayNode->SetSelected(true);
+      boneDisplayNode->SetShouldBeInitialized(false);
+      boneDisplayNode->EndModify(wasModifying);
+      }
+
     boneDisplayNode->PasteBoneDisplayNodeProperties(boneWidget);
     }
   boneWidget->AddObserver(vtkCommand::ModifiedEvent,
@@ -825,37 +839,7 @@ void vtkMRMLArmatureDisplayableManager
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(caller);
     vtkBoneWidget* boneWidget = this->Internal->GetBoneWidget(boneNode);
 
-    if (!callData)
-      {
-      vtkMRMLBoneDisplayNode* displayBoneNode =
-          boneNode->GetBoneDisplayNode();
-      if (displayBoneNode && boneWidget)
-        {
-        int wasModifying = displayBoneNode->StartModify();
-        double normalColor[3];
-        boneWidget->GetBoneRepresentation()->GetLineProperty()->GetColor(normalColor);
-        displayBoneNode->SetColor(normalColor);
-        displayBoneNode->CopyBoneWidgetDisplayProperties(boneWidget);
-        displayBoneNode->SetSelected(true);
-        displayBoneNode->EndModify(wasModifying);
-        }
-      }
-    else
-      {
-      // This hackish code is here to prevent the update of the widget
-      // by the display node before the display node was initialized.
-      // Normally, an event with empty calldata is fired as the first event
-      // when the display node is created. However an undesired "normal"
-      // event is fired before. We just ignore it.
-      if (this->Internal->IgnoreFirstBuggyEvent)
-        {
-        this->Internal->IgnoreFirstBuggyEvent = false;
-        return;
-        }
-      // Normal event, the display node was changed, so update the widget.
-      this->Internal->UpdateBoneWidgetFromNode(boneNode, boneWidget);
-      }
-
+    this->Internal->UpdateBoneWidgetFromNode(boneNode, boneWidget);
     this->RequestRender();
     }
 

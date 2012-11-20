@@ -38,6 +38,7 @@ vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
 vtkMRMLBoneDisplayNode::vtkMRMLBoneDisplayNode()
 {
   this->SetVisibility(1);
+  this->ShouldBeInitialized = true;
 }
 
 //----------------------------------------------------------------------------
