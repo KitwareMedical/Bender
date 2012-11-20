@@ -69,6 +69,15 @@ endif()
 # Use this value where semi-colons are needed in ep_add args:
 set(sep "^^")
 
+# With CMake 2.8.9 or later, the UPDATE_COMMAND is required for updates to occur.
+# For earlier versions, we nullify the update state to prevent updates and
+# undesirable rebuild.
+if(CMAKE_VERSION VERSION_LESS 2.8.9)
+  set(bender_external_update UPDATE_COMMAND "")
+else()
+  set(bender_external_update LOG_UPDATE 1)
+endif()
+
 #-----------------------------------------------------------------------------
 # Include external projects
 #
