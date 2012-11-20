@@ -270,7 +270,7 @@ int SlicerAppMain(int argc, char* argv[])
   QApplication::setStyle("plastique");
   // [/Bender]
 
-  QCoreApplication::setApplicationVersion(Bender_VERSION);
+  QCoreApplication::setApplicationVersion(Bender_VERSION_FULL);
   //vtkObject::SetGlobalWarningDisplay(false);
   QApplication::setDesktopSettingsAware(false);
 
@@ -329,6 +329,7 @@ int SlicerAppMain(int argc, char* argv[])
   if (enableMainWindow)
     {
     window.reset(new qSlicerAppMainWindow);
+    window->setWindowTitle(window->windowTitle()+ " " + Bender_VERSION);
     }
 
   // Load all available modules
