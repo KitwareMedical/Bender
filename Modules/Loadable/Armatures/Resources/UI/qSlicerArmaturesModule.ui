@@ -524,6 +524,9 @@
               <property name="normalized">
                <bool>true</bool>
               </property>
+              <property name="singleStep">
+               <double>0.001</double>
+              </property>
              </widget>
             </item>
            </layout>
