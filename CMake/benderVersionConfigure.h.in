@@ -27,5 +27,6 @@
 #cmakedefine Bender_VERSION_TWEAK //!< optional
 #cmakedefine Bender_VERSION_RC //!< optional
 #define Bender_VERSION "@Bender_VERSION@"
+#define Bender_VERSION_FULL "@Bender_VERSION_FULL@"
 
 #endif // __benderVersionConfigure_h

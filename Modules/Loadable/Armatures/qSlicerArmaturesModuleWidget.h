@@ -80,22 +80,26 @@ public slots:
   /// Create a bone and start the mouse mode to place it.
   void addAndPlaceBone();
 
+  /// Delete the currently selected bone and all its children (if any).
+  void deleteBones();
+
 protected slots:
   /// Update the GUI from the armatures logic.
   void updateWidgetFromLogic();
 
   /// Update the GUI from the \a the current armature node.
-  /// \sa onMRMLArmatureNodeModified()
-  void onMRMLArmatureNodeModified();
+  /// \sa updateWidgetFromBoneNode()
+  void updateWidgetFromArmatureNode();
 
   /// Update the GUI from the \a the current bone node.
-  /// \sa onMRMLArmatureNodeModified()
-  void onMRMLBoneNodeModified();
+  /// \sa updateWidgetFromArmatureNode()
+  void updateWidgetFromBoneNode();
 
   /// Update the GUI for the \a selected node.
-  /// \sa onMRMLArmatureNodeModified()
+  /// \sa updateWidgetFromArmatureNode(), updateWidgetFromBoneNode()
   void onTreeNodeSelected(vtkMRMLNode* node);
 
+  void updateCurrentMRMLArmatureNode();
   void updateCurrentMRMLBoneNode();
 
 protected:

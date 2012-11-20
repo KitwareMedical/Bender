@@ -34,6 +34,7 @@
 #include "vtkBenderWidgetsExport.h"
 
 class vtkPointHandleRepresentation3D;
+class vtkProperty;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureRepresentation
   : public vtkWidgetRepresentation
@@ -50,9 +51,16 @@ public:
 
   virtual void BuildRepresentation();
 
+  // Description:
+  // Get the armature property. Any change to these properties will
+  // be propagated all the bones of the widget.
+  vtkGetMacro(Property, vtkProperty*);
+
 protected:
   vtkArmatureRepresentation();
   ~vtkArmatureRepresentation();
+
+  vtkProperty* Property;
 
 private:
   vtkArmatureRepresentation(const vtkArmatureRepresentation&);  //Not implemented

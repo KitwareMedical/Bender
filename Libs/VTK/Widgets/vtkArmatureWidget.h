@@ -27,13 +27,11 @@
 // of bones (vtkBoneWidget). Most importantly, it allows the user to create
 // a skeleton of bones and manages all the necessaries callback to be able to
 // animate it properly.
-// Each bone is associated with an unique ID, a name, one parent and children.
+// Each bone is associated with an unique ID, an unique parent and children.
 // A given bone can have any number of children.
 //
 // .SECTION Options
 // All the options applied to the armature are applied to all its bones.
-// The bone can be accessed directly too through their names or the associated
-// id.
 //
 // .SECTION See Also
 // vtkArmatureRepresentation, vtkBoneWidget
@@ -43,6 +41,7 @@
 
 // VTK includes
 #include <vtkAbstractWidget.h>
+#include <vtkCommand.h>
 #include <vtkStdString.h>
 
 #include <vector>
@@ -120,7 +119,7 @@ public:
   // Add a bone to the armature with the given parent. If the parent
   // is NULL, then the bone is considered to be root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
+  // @sa FindBoneChildren(), ArmatureEventType, ReparentBone()
   void AddBone(vtkBoneWidget* bone,
     vtkBoneWidget* parent=0,
     bool linkedWithParent = true);
@@ -133,8 +132,8 @@ public:
   // In the case of the root bone, the first child (if any) is chosen as the
   // new root. All the other children are linked to the new root.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() GetBoneParent()
-  // @sa FindBoneChildren()
-  // @sa GetBoneLinkedWithParent()
+  // @sa FindBoneChildren(), ReparentBone()
+  // @sa GetBoneLinkedWithParent(), ArmatureEventType
   bool RemoveBone(vtkBoneWidget* bone);
 
   // Description:
@@ -156,19 +155,8 @@ public:
   vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
 
   // Description:
-  // Set the bone's name. Return false string if no bone is found.
-  // @sa GetBoneName()
-  bool SetBoneName(vtkBoneWidget* bone, const vtkStdString& name);
-
-  // Description:
-  // Get the bone's name. Return an empty string if no bone is found.
-  // @sa SetBoneName()
-  vtkStdString GetBoneName(vtkBoneWidget* bone);
-
-  // Description:
   // Get a bone using its name. This will return the first bone with
-  // the given name or null if no bone is found.
-  // @sa GetBoneIdByName() SetBoneName() GetBoneName()
+  // the given name or null if no bone matching the name is found.
   vtkBoneWidget* GetBoneByName(const vtkStdString& name);
 
   // Description:
@@ -214,17 +202,53 @@ public:
   void SetWidgetState(int state);
   vtkGetMacro(WidgetState, int);
 
-  // Description
+  // Description:
   // Set/get if the debug axes are visible or not.
-  // @sa vtkBoneWidget::AxesVisibilityType
-  void SetAxesVisibility (int AxesVisibility);
-  vtkGetMacro(AxesVisibility, int);
+  // @sa vtkBoneWidget::ShowAxesType
+  void SetShowAxes (int show);
+  vtkGetMacro(ShowAxes, int);
 
-  // Description
+  // Description:
   // Show/Hide the a line between the bones and their
   // origin. True by default.
   void SetShowParenthood(int parenthood);
   vtkGetMacro(ShowParenthood, int);
+
+  // Description:
+  // Updates a bone with all the current options of the vtkArmatureWidget.
+  void UpdateBoneWithArmatureOptions(vtkBoneWidget* bone,
+    vtkBoneWidget* parent);
+
+  // Description:
+  // Event fired when adding/removing bones.
+  // A pointer to the bone added/removed is passed in the data.
+  // Note: the pointer emited can point to empty data.
+  //BTX
+  enum ArmatureEventType
+    {
+    AddedBone = vtkCommand::UserEvent+1,
+    RemovedBone,
+    ReparentedBone
+    };
+  //ETX
+
+  // Description:
+  // Change the given bone parent to the new parent.
+  // If the new parent is null, the bone is added to the top level bones.
+  // @sa AddBone(), RemoveBone, ArmatureEventType
+  void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
+
+  // Description:
+  // Reset the pose positions to the initial rest position with no rotations
+  // or translations.
+  void ResetPoseToRest();
+
+  // Description:
+  // Set if the bones are seen on top of every object of the scene.
+  // This can be set even if the bones do not have any representation.
+  // @sa vtkBoneRepresentation
+  void SetBonesAlwaysOnTop(int onTop);
+  vtkGetMacro(BonesAlwaysOnTop, int);
 
 protected:
   vtkArmatureWidget();
@@ -247,11 +271,14 @@ protected:
   // Bone Properties
   int BonesRepresentationType;
   int WidgetState;
-  int AxesVisibility;
+  int ShowAxes;
   int ShowParenthood;
+  bool ShouldResetPoseToRest;
+  int BonesAlwaysOnTop;
 
-  // Add all the necessaries observers to a bone
+  // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);
+  void RemoveBoneObservers(vtkBoneWidget* bone);
 
   // Helper functions to propagate change
   void UpdateChildren(ArmatureTreeNode* parentNode);
@@ -259,16 +286,25 @@ protected:
   void UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode);
 
   // Set the bone world to parent rest or pose transform correctly
+  void SetBoneWorldToParentTransform(vtkBoneWidget* bone,
+                                     vtkBoneWidget* parent);
   void SetBoneWorldToParentRestTransform(vtkBoneWidget* bone,
                                          vtkBoneWidget* parent);
   void SetBoneWorldToParentPoseTransform(vtkBoneWidget* bone,
                                          vtkBoneWidget* parent);
 
-  ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
+  // Make a new map element corresponding to the bone and the parent.
+  void CreateAndAddNodeToHierarchy(
+    vtkBoneWidget* bone, vtkBoneWidget* parent, bool linkedWithParent);
 
-  // Uodates a bone with all the current options of the vtkArmatureWidget.
-  void UpdateBoneWithArmatureOptions(
-    vtkBoneWidget* bone, vtkBoneWidget* parent);
+  // Remove the element according to the hierarchy.
+  // Deleting the node from the bone's vector and the bone itself
+  // must still be performed.
+  void RemoveNodeFromHierarchy(int nodePosition);
+
+  // Returns the corresponding bone.
+  // Null if it does not exist in the bone vector.
+  ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
 
   // Set the representation type for a given bone.
   void SetBoneRepresentation(vtkBoneWidget* bone, int representationType);

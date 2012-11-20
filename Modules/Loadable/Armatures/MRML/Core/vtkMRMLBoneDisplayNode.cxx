@@ -23,6 +23,13 @@
 
 // VTK includes
 #include <vtkObjectFactory.h>
+#include <vtkProperty.h>
+
+// Bender includes
+#include <vtkCylinderBoneRepresentation.h>
+#include <vtkDoubleConeBoneRepresentation.h>
+#include <vtkBoneRepresentation.h>
+#include <vtkBoneWidget.h>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
@@ -87,8 +94,101 @@ void vtkMRMLBoneDisplayNode::ProcessMRMLEvents(vtkObject* caller,
   this->Superclass::ProcessMRMLEvents(caller, event, callData);
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode::SetColor(double color[3])
+{
+  this->SetColor(color[0], color[1], color[2]);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode::SetColor(double r, double g, double b)
+{
+  this->Superclass::SetColor(r, g, b);
+
+  double h, s, v;
+  vtkMath::RGBToHSV(r, g, b, &h, &s, &v);
+  v *= 1.5; // enlight
+  vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
+  this->SetSelectedColor(r, g, b);
+
+  v *= 1.2; // enlight
+  vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
+  this->SetWidgetInteractionColor(r, g, b);
+}
+
 //----------------------------------------------------------------------------
 void vtkMRMLBoneDisplayNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode
+::CopyBoneWidgetDisplayProperties(vtkBoneWidget* boneWidget)
+{
+  if (!boneWidget)
+    {
+    return;
+    }
+
+  // -- Color --
+  // Color is never updated from the widget because the widget selected color
+  // and normal color aren't synched with the node colors.
+
+  // -- Opacity --
+  this->SetOpacity(
+    boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneDisplayNode
+::PasteBoneDisplayNodeProperties(vtkBoneWidget* boneWidget)
+{
+  if (!boneWidget)
+    {
+    return;
+    }
+
+  // -- Color --
+  double color[3];
+  if (this->GetSelected())
+    {
+    this->GetSelectedColor(color);
+    }
+  else
+    {
+    this->GetColor(color);
+    }
+  double interactionColor[3];
+  this->GetWidgetInteractionColor(interactionColor);
+
+  vtkCylinderBoneRepresentation* cylinderRep =
+    vtkCylinderBoneRepresentation::SafeDownCast(
+      boneWidget->GetBoneRepresentation());
+  if (cylinderRep)
+    {
+    cylinderRep->GetCylinderProperty()->SetColor(color);
+    cylinderRep->GetSelectedCylinderProperty()->SetColor(interactionColor);
+    }
+  vtkDoubleConeBoneRepresentation* doubleConeRep =
+    vtkDoubleConeBoneRepresentation::SafeDownCast(
+      boneWidget->GetBoneRepresentation());
+  if (doubleConeRep)
+    {
+    doubleConeRep->GetConesProperty()->SetColor(color);
+    doubleConeRep->GetSelectedConesProperty()->SetColor(interactionColor);
+    }
+  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(color);
+  boneWidget->GetBoneRepresentation()->GetSelectedLineProperty()
+    ->SetColor(interactionColor);
+
+  // -- Opacity --
+  boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
+  //And the parenthood line:
+  boneWidget->GetParenthoodRepresentation()->GetLineProperty()->SetOpacity(
+    this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPointProperty()
+    ->SetOpacity(this->GetOpacity());
+  boneWidget->GetParenthoodRepresentation()->GetEndPoint2Property()
+    ->SetOpacity(this->GetOpacity());
 }

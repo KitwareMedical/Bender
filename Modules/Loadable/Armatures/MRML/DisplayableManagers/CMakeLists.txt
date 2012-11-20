@@ -30,7 +30,7 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${vtkBenderWidgets_BINARY_DIR}
   ${vtkSlicerAnnotationsModuleMRMLDisplayableManager_SOURCE_DIR}
   ${vtkSlicerAnnotationsModuleMRMLDisplayableManager_BINARY_DIR}
-  ${vtkBenderCommonMath_SOURCE_DIR}
+  ${vtkBenderCommon_SOURCE_DIR}
   )
 
 set(displayable_manager_SRCS

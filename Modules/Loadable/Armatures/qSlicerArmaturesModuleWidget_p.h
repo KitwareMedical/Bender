@@ -29,6 +29,7 @@
 class qSlicerWidget;
 class vtkMRMLArmatureNode;
 class vtkMRMLBoneNode;
+class vtkObject;
 class vtkSlicerArmaturesLogic;
 
 //------------------------------------------------------------------------------
@@ -52,12 +53,22 @@ public:
   vtkSlicerArmaturesLogic* logic() const;
   virtual void setupUi(qSlicerWidget* armatureModuleWidget);
 
-  double distance();
   QVector3D direction();
 
   void blockPositionsSignals(bool block);
+  void blockArmatureDisplaySignals(bool block);
+
+  void deleteBoneChildren(vtkMRMLBoneNode* boneNode);
 
 public slots:
+  // Calls all the update functions
+  void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
+  void updateArmatureWidget(vtkMRMLArmatureNode* armatureNode);
+
+  // Display positions functions
+  void updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode);
+  void updateArmatureAdvancedDisplay(vtkMRMLArmatureNode* armatureNode);
+
   // Hierarchy update functions
   void updateHierarchy(vtkMRMLBoneNode* boneNode);
 
@@ -65,18 +76,24 @@ public slots:
   void updatePositions(vtkMRMLBoneNode* boneNode);
   void updateAdvancedPositions(vtkMRMLBoneNode* boneNode);
 
-  // Display positions functions
-  void updateDisplay(vtkMRMLBoneNode* boneNode);
-  void updateAdvancedDisplay(vtkMRMLBoneNode* boneNode);
-
   void setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode);
   void setCoordinatesToBoneNode(vtkMRMLBoneNode* boneNode);
+
+  void selectBoneNode(vtkObject*, void*);
 
 protected slots:
 
   void onPositionTypeChanged();
   void onDistanceChanged(double newDistance);
   void onDirectionChanged(double* direction);
+  void onResetPoseClicked();
+
+  void onParentNodeChanged(vtkMRMLNode* node);
+  void onLinkedWithParentChanged(int linked);
+
+protected:
+  // Select/Unselect the current bone node.
+  void selectCurrentBoneDisplayNode(int select);
 
 private:
   vtkMRMLArmatureNode* ArmatureNode;

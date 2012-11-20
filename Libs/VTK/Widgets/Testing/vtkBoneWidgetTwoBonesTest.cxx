@@ -148,7 +148,6 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
   fatherBoneWidget->GetBoneRepresentation()->GetHeadRepresentation()->GetProperty()->SetColor(0.0, 1.0, 1.0);
   fatherBoneWidget->GetBoneRepresentation()->GetTailRepresentation()->GetProperty()->SetColor(0.0, 0.0, 1.0);
   fatherBoneWidget->SetWidgetStateToRest();
-  fatherBoneWidget->SetDebugBoneID(0);
 
   //Test RestTransform matrix
   double axis[3], expectedAngle, expectedAxis[3], angle;
@@ -281,7 +280,7 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
 //  sonBoneWidget->SetBoneParent(fatherBoneWidget);
   sonBoneWidget->GetBoneRepresentation()->GetHeadRepresentation()->GetProperty()->SetColor(0.0, 1.0, 1.0);
   sonBoneWidget->GetBoneRepresentation()->GetTailRepresentation()->GetProperty()->SetColor(0.0, 0.0, 1.0);
-  sonBoneWidget->SetDebugBoneID(1);
+
   //Test son
   //RestTransform
   expectedAngle = vtkMath::Pi() / 2.0;

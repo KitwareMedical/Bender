@@ -61,8 +61,7 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/eigen.git"
-    GIT_TAG "f2f9e1c3885b69708a99fdad4e9a755fc85118e4"
+    URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
