@@ -72,7 +72,7 @@ qSlicerArmaturesModule::qSlicerArmaturesModule(QObject* _parent)
 //-----------------------------------------------------------------------------
 QStringList qSlicerArmaturesModule::categories()const
 {
-  return QStringList() << "" << "Segmentation";
+  return QStringList() << "" << "Segmentation.Bender";
 }
 
 //-----------------------------------------------------------------------------
@@ -90,20 +90,19 @@ qSlicerArmaturesModule::~qSlicerArmaturesModule()
 QString qSlicerArmaturesModule::helpText()const
 {
   QString help =
-  "<p>The Armature Module creates, edit and animate armature and bone widget"
-  " annotations that support forward kinematic.</p>"
+  "<p>The Armatures module creates, edits and animates(poses) bone armatures"
+  " using forward kinematic.</p>"
   "<p>A bone is defined by its head (start point) and its tail (end point)."
-  " Multiples bones can be gathered in an armature structure that handles the"
-  " interaction between the bones. </p>"
+  " Bones are organized in an armature structure that handles"
+  " interaction between bones. </p>"
   "<p>An armature has two modes:"
-  "<li>In <b>Rest</b> mode, the bones can be added, removed and edited.</li>"
-  "<li>In <b>Pose</b> mode, the bones can animated. In this mode,"
-  " the user can only rotate the bones in the camera plane.</p>"
-  "<p>The module has three panels that allow the user to interact with the"
-  " armature or the bones.<br>The panel ''Armature'' allows to modify"
-  " properties on all the bones of the armature.<br> The panel ''Bones''"
-  " contains the structure of the selected armatures with all its bones.<br>"
-  " Finally the last panel allows to modify the properties of the currently"
+  "<li><b>Rest</b> mode: bones are added, edited or removed.</li>"
+  "<li><b>Pose</b> mode: bones are animated. In this mode,"
+  " the user can only rotate the bones around its head.</p>"
+  "<p>The module is split in three parts:<br>The panel ''Armature'' controls the"
+  " properties of all the bones of the armature.<br> The panel ''Bones''"
+  " lists the bones hierarchy of the current armature.<br>"
+  " The last panel controls the properties of the currently"
   " selected bone.</p>";
   return help;
 }
