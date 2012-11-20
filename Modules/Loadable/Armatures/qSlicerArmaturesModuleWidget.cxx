@@ -367,13 +367,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        && ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       }
     else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        || ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       enableTailWidget = true;
       }
     }
