@@ -69,6 +69,10 @@ public:
   virtual void SetDisplayTailPosition(double pos[3]);
 
   // Description:
+  // Methods to return the distance between the head and the tail.
+  virtual double GetLength();
+
+  // Description:
   // Enum that mirrors the enums in vtkLineRepresentation with appropriate
   // names for the bone animation. They manage the state of the widget.
   //BTX
@@ -104,6 +108,11 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
+
+  // Description:
+  // Helper function to set the opacity of all the bone representation
+  // actors (normal and selected).
+  virtual void SetOpacity(double opacity);
 
 protected:
   vtkBoneRepresentation();

@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(KIT CommonMath)
+set(KIT Common)
 project(vtkBender${KIT})
 string(TOUPPER ${KIT} KIT_UPPER)
 
@@ -41,10 +41,10 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   )
- 
+
 set(${KIT}_SRCS
-  vtkQuaternion.txx
   vtkQuaternion.h
+  vtkQuaternion.txx
   vtkTuple.h
   )
 

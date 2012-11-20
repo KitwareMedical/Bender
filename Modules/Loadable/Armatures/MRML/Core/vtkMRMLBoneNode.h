@@ -21,15 +21,20 @@
 #ifndef __vtkMRMLBoneNode_h
 #define __vtkMRMLBoneNode_h
 
+// VTK includes
+#include <vtkStdString.h>
+
 // Slicer includes
 #include "vtkMRMLAnnotationNode.h"
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
-class vtkMRMLBoneDisplayNode;
 class vtkBoneRepresentation;
 class vtkBoneWidget;
+
+class vtkMRMLBoneDisplayNode;
 class vtkMRMLBoneNodeCallback;
+class vtkMRMLDisplayNode;
 
 /// \ingroup Bender_MRML
 /// \brief Annotation to design and edit a bone.
@@ -66,7 +71,7 @@ public:
   virtual void WriteXML(ostream& of, int indent);
 
   /// Copy the node's attributes to this object.
-  virtual void Copy(vtkMRMLNode *node) {Superclass::Copy(node);}
+  virtual void Copy(vtkMRMLNode *node);
 
   /// Update references from scene.
   virtual void UpdateScene(vtkMRMLScene *scene);
@@ -97,12 +102,27 @@ public:
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
 
-  // -- State ----------------------------------------------------------------
+  /// Get the bone length.
+  double GetLength();
+
+  /// Set the bone name.
+  virtual void SetName(const char* name);
+
   /// Set/Get the bone roll.
-  void SetWidgetState(int state); // need to update vtkBoneWidgets
+  void SetWidgetState(int state);
   int GetWidgetState();
 
-  // -- Representation -------------------------------------------------------
+  /// Mirroring the vtkBoneWidget widget states.
+  //BTX
+  enum WidgetStateType
+    {
+    PlaceHead = 0,
+    PlaceTail,
+    Rest,
+    Pose
+    };
+  //ETX
+
   /// Set/Get the bone representation.
   void SetBoneRepresentation(vtkBoneRepresentation* rep);
   vtkBoneRepresentation* GetBoneRepresentation();
@@ -110,29 +130,16 @@ public:
   /// Helper function to set the representation.
   /// 1 for vtkCylinderBoneRepresentation, 2 for vtkDoubleConeBoneRepresentation,
   /// otherwise vtkBoneRepresentation.
-  void SetBoneRepresentationType(int type); // \TO LOGIC ?
+  void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
 
-  // -- Color ----------------------------------------------------------------
-  /// Helper function to set/get the representation color.
-  void SetBoneColor(int rgb[3]);
-  void GetBoneColor(int rgb[3]);
-
-  // -- Opacity --------------------------------------------------------------
-  /// Helper function to set/get the representation color.
-  void SetOpacity(double opacity);
-  double GetOpacity();
-
-  // -- Distance -------------------------------------------------------------
   /// Helper function to get the distance between head and tail
   double GetDistance();
 
-  // -- Roll -----------------------------------------------------------------
   /// Set/Get the bone roll.
   void SetRoll(double roll);
   double GetRoll();
 
-  //-- World Positions -------------------------------------------------------
   /// Set/Get the head/tail position in the world coordinates.
   /// \sa GetWorldHeadRest(), GetWorldTailRest()
   /// \sa GetWorldHeadPose(), GetWorldTailPose()
@@ -140,11 +147,14 @@ public:
   void SetWorldHeadRest(const double* headPoint);
   void SetWorldTailRest(const double* tailPoint);
   double* GetWorldHeadRest();
+  void GetWorldHeadRest(double head[3]);
   double* GetWorldHeadPose();
+  void GetWorldHeadPose(double head[3]);
   double* GetWorldTailRest();
+  void GetWorldTailRest(double tail[3]);
   double* GetWorldTailPose();
+  void GetWorldTailPose(double tail[3]);
 
-  //-- Local Positions -------------------------------------------------------
   /// Set/Get the local head/tail position in the parent coordinates.
   /// \sa GetLocalHeadRest(), GetLocalTailRest()
   /// \sa GetLocalHeadPose(), GetLocalTailPose()
@@ -152,16 +162,18 @@ public:
   void SetLocalHeadRest(const double* tailPoint);
   void SetLocalTailRest(const double* tailPoint);
   double* GetLocalHeadRest();
+  void GetLocalHeadRest(double head[3]);
   double* GetLocalTailRest();
+  void GetLocalHeadPose(double head[3]);
   double* GetLocalHeadPose();
+  void GetLocalTailRest(double tail[3]);
   double* GetLocalTailPose();
+  void GetLocalTailPose(double tail[3]);
 
-  // -- Axes visibility ------------------------------------------------------
   /// Set/Get the bone axes visibility.
-  void SetAxesVisibility(int axesVisibility);
-  int GetAxesVisibility();
+  void SetShowAxes(int axesVisibility);
+  int GetShowAxes();
 
-  // -- World to parent transforms -------------------------------------------
   /// Set/Get the world to parent rotations.
   /// \sa GetWorldToParentRestRotation(), SetWorldToParentRestTranslation()
   /// \sa GetWorldToParentPoseRotation(), SetWorldToParentPoseTranslation()
@@ -178,7 +190,6 @@ public:
   double* GetWorldToParentRestTranslation();
   double* GetWorldToParentPoseTranslation();
 
-  // -- Parent to bone transforms --------------------------------------------
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
   double* GetParentToBoneRestRotation();
@@ -189,7 +200,6 @@ public:
   double* GetParentToBoneRestTranslation();
   double* GetParentToBonePoseTranslation();
 
-  // -- World to bone transforms --------------------------------------------
   /// Get the world to bone rotations.
   /// \sa GetWorldToBoneHeadRestTranslation()
   /// \sa GetWorldToBoneTailRestTranslation()
@@ -212,10 +222,17 @@ public:
   double* GetWorldToBoneHeadPoseTranslation();
   double* GetWorldToBoneTailPoseTranslation();
 
-  // -- Parenthood -----------------------------------------------------------
   /// Set/Get the bone parenthood.
   void SetShowParenthood(int parenthood);
   int GetShowParenthood();
+
+  /// Set/Get if the bone is linked with its parent.
+  void SetBoneLinkedWithParent(bool parenthood);
+  bool GetBoneLinkedWithParent();
+
+  /// Set/Get if the bone has parent or not.
+  vtkSetMacro(HasParent, bool);
+  vtkGetMacro(HasParent, bool);
 
   //--------------------------------------------------------------------------
   // Helper methods
@@ -243,6 +260,8 @@ protected:
 
   vtkBoneWidget* BoneProperties;
   int BoneRepresentationType;
+  bool LinkedWithParent;
+  bool HasParent;
 };
 
 #endif

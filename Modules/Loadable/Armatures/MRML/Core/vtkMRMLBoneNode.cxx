@@ -78,8 +78,9 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
 {
   this->Callback = vtkMRMLBoneNodeCallback::New();
   this->BoneProperties = vtkBoneWidget::New();
-  this->BoneProperties->SetDebugBoneID(255);
   this->BoneRepresentationType = 0;
+  this->LinkedWithParent = true;
+  this->HasParent = false;
 
   this->Callback->Node = this;
   this->BoneProperties->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
@@ -100,6 +101,23 @@ void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
 {
   this->Superclass::WriteXML(of, nIndent);
   // of << indent << " ctrlPtsNumberingScheme=\"" << this->NumberingScheme << "\"";
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Copy(vtkMRMLNode* node)
+{
+  int wasModifying = this->StartModify();
+  this->Superclass::Copy(node);
+
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (!boneNode)
+    {
+    return;
+    }
+
+  boneNode->PasteBoneNodeProperties(this->BoneProperties);
+
+  this->EndModify(wasModifying);
 }
 
 //----------------------------------------------------------------------------
@@ -184,11 +202,23 @@ void vtkMRMLBoneNode::CreateBoneDisplayNode()
   this->AddAndObserveDisplayNodeID(boneDisplayNode->GetID());
 }
 
-//-- State ------------------------------------------------------------------
+//---------------------------------------------------------------------------
+double vtkMRMLBoneNode::GetLength()
+{
+  return this->BoneProperties->GetLength();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetName(const char* name)
+{
+  this->BoneProperties->SetName(name);
+  this->Superclass::SetName(name);
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWidgetState(int state)
 {
-  //this->BoneProperties->SetWidgetState(state); // \TO DO
+  this->BoneProperties->SetWidgetState(state);
 }
 
 //---------------------------------------------------------------------------
@@ -197,7 +227,6 @@ int vtkMRMLBoneNode::GetWidgetState()
   return this->BoneProperties->GetWidgetState();
 }
 
-//-- Representation ---------------------------------------------------------
 namespace
 {
 int FindBoneRepresentationType(vtkBoneRepresentation* rep)
@@ -232,6 +261,11 @@ vtkBoneRepresentation* vtkMRMLBoneNode::GetBoneRepresentation()
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
 {
+  if (type == this->BoneRepresentationType)
+    {
+    return;
+    }
+
   if (type == 1)
     {
     vtkCylinderBoneRepresentation* rep
@@ -257,57 +291,6 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
   this->Modified();
 }
 
-//-- Color -------------------------------------------------------------------
-//---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetBoneColor(int rgb[3])
-{
-  double doubleRGB[3];
-  doubleRGB[0] = rgb[0]/255.0;
-  doubleRGB[1] = rgb[1]/255.0;
-  doubleRGB[2] = rgb[2]/255.0;
-
-  this->GetBoneRepresentation()->GetLineProperty()->SetColor(doubleRGB);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLBoneNode::GetBoneColor(int rgb[3])
-{
-  double doubleRGB[3];
-  this->GetBoneRepresentation()->GetLineProperty()->GetColor(doubleRGB);
-  rgb[0] = static_cast<int>(doubleRGB[0] * 255);
-  rgb[1] = static_cast<int>(doubleRGB[1] * 255);
-  rgb[2] = static_cast<int>(doubleRGB[2] * 255);
-}
-
-//-- Opacity ----------------------------------------------------------------
-//---------------------------------------------------------------------------
-void vtkMRMLBoneNode::SetOpacity(double opacity)
-{
-  if (this->BoneRepresentationType == 1)
-    {
-    vtkCylinderBoneRepresentation* rep
-      = vtkCylinderBoneRepresentation::SafeDownCast(this->GetBoneRepresentation());
-    rep->GetCylinderProperty()->SetOpacity(opacity);
-    }
-  else if (this->BoneRepresentationType  == 2)
-    {
-    vtkDoubleConeBoneRepresentation* rep
-      = vtkDoubleConeBoneRepresentation::SafeDownCast(this->GetBoneRepresentation());
-    rep->GetConesProperty()->SetOpacity(opacity);
-    }
-
-  this->GetBoneRepresentation()->GetLineProperty()->SetOpacity(opacity);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-double vtkMRMLBoneNode::GetOpacity()
-{
-  return this->GetBoneRepresentation()->GetLineProperty()->GetOpacity();
-}
-
-//-- Distance ---------------------------------------------------------------
 //---------------------------------------------------------------------------
 double vtkMRMLBoneNode::GetDistance()
 {
@@ -324,7 +307,6 @@ double vtkMRMLBoneNode::GetDistance()
     this->BoneProperties->GetBoneRepresentation()->GetWorldTailPosition()));
 }
 
-//-- Roll -------------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetRoll(double roll)
 {
@@ -337,7 +319,6 @@ double vtkMRMLBoneNode::GetRoll()
   return this->BoneProperties->GetRoll();
 }
 
-//-- World Positions -------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldHeadRest(const double* headPoint)
 {
@@ -355,9 +336,21 @@ double* vtkMRMLBoneNode::GetWorldHeadRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldHeadRest(double head[3])
+{
+  this->BoneProperties->GetWorldHeadRest(head);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldHeadPose()
 {
   return this->BoneProperties->GetWorldHeadPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldHeadPose(double head[3])
+{
+  this->BoneProperties->GetWorldHeadPose(head);
 }
 
 //---------------------------------------------------------------------------
@@ -377,12 +370,23 @@ double* vtkMRMLBoneNode::GetWorldTailRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldTailRest(double tail[3])
+{
+  this->BoneProperties->GetWorldTailRest(tail);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldTailPose()
 {
   return this->BoneProperties->GetWorldTailPose();
 }
 
-//-- Local Positions -------------------------------------------------------
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldTailPose(double tail[3])
+{
+  this->BoneProperties->GetWorldTailPose(tail);
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetLocalHeadRest(const double* headPoint)
 {
@@ -410,9 +414,21 @@ double* vtkMRMLBoneNode::GetLocalHeadRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalHeadRest(double head[3])
+{
+  this->BoneProperties->GetLocalHeadRest(head);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetLocalHeadPose()
 {
   return this->BoneProperties->GetLocalHeadPose();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalHeadPose(double head[3])
+{
+  this->BoneProperties->GetLocalHeadPose(head);
 }
 
 //---------------------------------------------------------------------------
@@ -422,24 +438,35 @@ double* vtkMRMLBoneNode::GetLocalTailRest()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalTailRest(double tail[3])
+{
+  this->BoneProperties->GetLocalTailRest(tail);
+}
+
+//---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetLocalTailPose()
 {
   return this->BoneProperties->GetLocalTailPose();
 }
 
-//-- Axes Visibility ---------------------------------------------------------
-void vtkMRMLBoneNode::SetAxesVisibility(int axesVisibility)
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetLocalTailPose(double tail[3])
 {
-  this->BoneProperties->SetAxesVisibility(axesVisibility);
+  this->BoneProperties->GetLocalTailPose(tail);
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLBoneNode::GetAxesVisibility()
+void vtkMRMLBoneNode::SetShowAxes(int axesVisibility)
 {
-  return this->BoneProperties->GetAxesVisibility();
+  this->BoneProperties->SetShowAxes(axesVisibility);
 }
 
-//-- World to parent transforms ---------------------------------------------
+//---------------------------------------------------------------------------
+int vtkMRMLBoneNode::GetShowAxes()
+{
+  return this->BoneProperties->GetShowAxes();
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldToParentRestRotation(const double* rotation)
 {
@@ -506,7 +533,6 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
   return this->BoneProperties->GetWorldToParentPoseTranslation();
 }
 
-//-- Parent to bone transforms ---------------------------------------------
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetParentToBoneRestRotation()
 {
@@ -531,7 +557,6 @@ double* vtkMRMLBoneNode::GetParentToBonePoseTranslation()
   return this->BoneProperties->GetParentToBonePoseTranslation();
 }
 
-//-- World to bone transforms -----------------------------------------------
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToBoneRestRotation()
 {
@@ -568,7 +593,6 @@ double* vtkMRMLBoneNode::GetWorldToBoneTailPoseTranslation()
   return this->BoneProperties->GetWorldToBoneTailPoseTranslation();
 }
 
-//-- Parenthood -------------------------------------------------------------
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetShowParenthood(int parenthood)
 {
@@ -582,15 +606,34 @@ int vtkMRMLBoneNode::GetShowParenthood()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetBoneLinkedWithParent(bool linked)
+{
+  if (linked == this->LinkedWithParent)
+    {
+    return;
+    }
+
+  this->LinkedWithParent = linked;
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+bool vtkMRMLBoneNode::GetBoneLinkedWithParent()
+{
+  return this->LinkedWithParent;
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 {
+  if (!boneWidget)
+    {
+    return;
+    }
+
   // -- World coordinates --
   this->BoneProperties->SetWorldHeadRest(boneWidget->GetWorldHeadRest());
   this->BoneProperties->SetWorldTailRest(boneWidget->GetWorldTailRest());
-
-  // -- Local coordinates ==
-  this->BoneProperties->SetLocalHeadRest(boneWidget->GetLocalHeadRest());
-  this->BoneProperties->SetLocalTailRest(boneWidget->GetLocalTailRest());
 
   // -- World to parent transforms
   this->BoneProperties->SetWorldToParentRestRotation(
@@ -602,8 +645,12 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
   this->BoneProperties->SetWorldToParentPoseTranslation(
     boneWidget->GetWorldToParentPoseTranslation());
 
+  // -- Local coordinates --
+  // No Update for local coordinates, they already are up-to-date since we set
+  // the world coordinates and the world to parent transforms
+
   // -- Axes -- 
-  this->BoneProperties->SetAxesVisibility(boneWidget->GetAxesVisibility());
+  this->BoneProperties->SetShowAxes(boneWidget->GetShowAxes());
 
   // -- Parenthood -- 
   this->BoneProperties->SetShowParenthood(boneWidget->GetShowParenthood());
@@ -617,14 +664,23 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
 
   // -- State --
-  //this->BoneProperties->SetWidgetState(boneWidget->GetWidgeState()); // \TO DO
+  this->BoneProperties->SetWidgetState(boneWidget->GetWidgetState());
 
-  this->Modified();
+  // -- Name --
+  this->SetName(boneWidget->GetName());
+
+  // -- Selected --
+  this->SetSelected(boneWidget->GetBoneSelected());
 }
 
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 {
+  if (!boneWidget)
+    {
+    return;
+    }
+
   // -- Representation, part 1 --
   if (FindBoneRepresentationType(boneWidget->GetBoneRepresentation()) != 
       this->BoneRepresentationType)
@@ -652,10 +708,6 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
   boneWidget->SetWorldHeadRest(this->BoneProperties->GetWorldHeadRest());
   boneWidget->SetWorldTailRest(this->BoneProperties->GetWorldTailRest());
 
-  // -- Local coordinates ==
-  boneWidget->SetLocalHeadRest(this->BoneProperties->GetLocalHeadRest());
-  boneWidget->SetLocalTailRest(this->BoneProperties->GetLocalTailRest());
-
   // -- World to parent transforms
   boneWidget->SetWorldToParentRestRotation(
     this->BoneProperties->GetWorldToParentRestRotation());
@@ -666,37 +718,19 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
   boneWidget->SetWorldToParentPoseTranslation(
     this->BoneProperties->GetWorldToParentPoseTranslation());
 
+  // -- Local coordinates --
+  // No Update for local coordinates, they already are up-to-date since we set
+  // the world coordinates and the world to parent transforms
+
   // -- Axes -- 
-  boneWidget->SetAxesVisibility(this->BoneProperties->GetAxesVisibility());
+  boneWidget->SetShowAxes(this->BoneProperties->GetShowAxes());
 
   // -- Parenthood -- 
   boneWidget->SetShowParenthood(this->BoneProperties->GetShowParenthood());
 
-  // -- Representation, part 2 --
-  double rgb[3];
-  this->GetBoneRepresentation()->GetLineProperty()->GetColor(rgb);
-  if (this->BoneRepresentationType == 1)
-    {
-    vtkCylinderBoneRepresentation* rep
-      = vtkCylinderBoneRepresentation::SafeDownCast(
-        boneWidget->GetBoneRepresentation());
-    rep->GetCylinderProperty()->SetColor(rgb);
-    rep->GetCylinderProperty()->SetOpacity(this->GetOpacity());
-    }
-  else if (this->BoneRepresentationType == 2)
-    {
-    vtkDoubleConeBoneRepresentation* rep
-      = vtkDoubleConeBoneRepresentation::SafeDownCast(
-        boneWidget->GetBoneRepresentation());
-    rep->GetConesProperty()->SetColor(rgb);
-    rep->GetConesProperty()->SetOpacity(this->GetOpacity());
-    }
-
-  //std::cout<<"RGB: "<<rgb[0]<<" "<<rgb[1]<<" "<<rgb[2]<<std::endl;
-
-  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
-  boneWidget->GetBoneRepresentation()->GetLineProperty()->SetOpacity(this->GetOpacity());
-
   // -- State --
-  //boneWidget->SetWidgetState(this->BoneProperties->GetWidgeState()); // \TO DO
+  boneWidget->SetWidgetState(this->BoneProperties->GetWidgetState());
+
+  // -- Name --
+  boneWidget->SetName(this->BoneProperties->GetName());
 }

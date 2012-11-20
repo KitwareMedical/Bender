@@ -18,5 +18,5 @@
 #
 #============================================================================
 
-add_subdirectory(Common/Math)
+add_subdirectory(Common)
 add_subdirectory(Widgets)

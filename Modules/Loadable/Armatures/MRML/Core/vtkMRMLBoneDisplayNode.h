@@ -27,6 +27,8 @@
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 
+class vtkBoneWidget;
+
 /// \ingroup Bender_MRML
 /// \brief Annotation to represent a bone.
 ///
@@ -67,14 +69,32 @@ public:
                                  unsigned long event,
                                  void* callData);
 
+  /// Reimplement the SetColor so the new color automatically defines
+  /// the selected color and the widget interaction color.
+  virtual void SetColor(double color[3]);
+  virtual void SetColor(double r, double g, double b);
+
+  /// Set/Get the color of the widget when interacting.
+  vtkSetVector3Macro(WidgetInteractionColor, double);
+  vtkGetVector3Macro(WidgetInteractionColor, double);
 
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
 
+  /// Copy the properties of the widget into the node
+  /// \sa PasteBoneDisplayNodeProperties()
+  void CopyBoneWidgetDisplayProperties(vtkBoneWidget* boneWidget);
+
+  /// Paste the properties of the node into the widget
+  /// \sa CopyBoneWidgetDisplayProperties()
+  void PasteBoneDisplayNodeProperties(vtkBoneWidget* boneWidget);
+
 protected:
   vtkMRMLBoneDisplayNode();
   ~vtkMRMLBoneDisplayNode();
+
+  double WidgetInteractionColor[3];
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented

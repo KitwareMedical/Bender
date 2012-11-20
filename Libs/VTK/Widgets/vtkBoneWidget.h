@@ -83,6 +83,7 @@ class vtkAxesActor;
 class vtkBoneRepresentation;
 class vtkBoneWidgetCallback;
 class vtkHandleWidget;
+class vtkLineRepresentation;
 class vtkLineWidget2;
 class vtkPolyDataMapper;
 class vtkTransform;
@@ -100,8 +101,8 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set/Get a bone's name
-  vtkSetMacro(Name,vtkStdString);
+  // Set/Get a bone's name. Default is an empty string.
+  vtkSetMacro(Name, vtkStdString);
   vtkGetMacro(Name, vtkStdString);
 
   // Description:
@@ -257,6 +258,9 @@ public:
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
+  vtkGetQuaternionMacro(RestToPoseRotation, double);
+  //void SetRestToPoseRotation(double rotation[4]); //\TO DO
+
   // Description:
   // Pose mode methods to quickly create transforms.
   vtkSmartPointer<vtkTransform> CreateWorldToBonePoseTransform() const;
@@ -313,34 +317,44 @@ public:
   vtkGetVector3Macro(LocalHeadPose, double);
   vtkGetVector3Macro(LocalTailPose, double);
 
+  // Description:
+  // Get the distance between the current head and tail.
+  double GetLength();
+
   // Description
   // Set/get if the debug axes are visible or not.
   // Nothing:  Show nothing
   // ShowRestTransform: The debug axes will output the rest transform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
   // @sa GetAxesActor().
-  vtkGetMacro(AxesVisibility, int);
-  void SetAxesVisibility (int axesVisibility);
+  vtkGetMacro(ShowAxes, int);
+  void SetShowAxes(int show);
 
   // Description:
   // Hidden:  Hide the axes.
   // ShowRestTransform: The debug axes will output the RestTransform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
   //BTX
-  enum AxesVisibilityType {Hidden = 0,
-                           ShowRestTransform,
-                           ShowPoseTransform,
-                          };
+  enum ShowAxesType
+    {
+    Hidden = 0,
+    ShowRestTransform,
+    ShowPoseTransform,
+    };
+  //ETX
 
   // Description:
   // Get the Axes actor. This is meant for the user to modify the rendering
   // properties of the actor. The other properties must be left unchanged.
-  // @sa GetAxesVisibility() SetAxesVisibility()
-  vtkAxesActor* GetAxesActor() { return this->AxesActor; };
+  // @sa GetShowAxes() SetShowAxes()
+  vtkAxesActor* GetAxesActor();
 
-  // Debug functions
-  vtkSetMacro(DebugBoneID, unsigned int);
-  vtkGetMacro(DebugBoneID, unsigned int);
+  // Description:
+  // Get the parenthood line representation. This is meant for the user to modify
+  // the rendering properties of the line.
+  // The other properties must be left unchanged.
+  // @sa GetShowParenthood() SetShowParenthood()
+  vtkLineRepresentation* GetParenthoodRepresentation();
 
   // Description:
   // Rotation methods to move the tail. Those methods can be used in
@@ -363,16 +377,12 @@ public:
   // the rest positions and transformations.
   void ResetPoseToRest();
 
-protected:
-  vtkBoneWidget();
-  ~vtkBoneWidget();
+  // Description:
+  // Get the selection state of the widget.
+  vtkGetMacro(BoneSelected, int);
 
-  // Bone Name
-  vtkStdString Name;
-
-  // The different states of the widget.
-  int WidgetState;
-  int BoneSelected;
+  // Description:
+  // The differents selection state of the widget.
   //BTX
   enum WidgetSelectedState
     {
@@ -383,8 +393,19 @@ protected:
     };
   //ETX
 
+protected:
+  vtkBoneWidget();
+  ~vtkBoneWidget();
+
+  // Bone Name
+  vtkStdString Name;
+
+  // The different states of the widget.
+  int WidgetState;
+  int BoneSelected;
+
   // Callback interface to capture events when placing the widget.
-  static void AddPointAction(vtkAbstractWidget*);
+  static void StartSelectAction(vtkAbstractWidget*);
   static void MoveAction(vtkAbstractWidget*);
   static void EndSelectAction(vtkAbstractWidget*);
 
@@ -465,6 +486,11 @@ protected:
   //   * To hold the BoneRestToPoseRotation during interaction.
   vtkQuaterniond StartPoseRotation;
 
+  // - Pose To Rest Transform:
+  //   * Holds the rotation between the local rest tail
+  //     and the local pose tail.
+  vtkQuaterniond RestToPoseRotation;
+
   // To hold the old world position while interacting.
   // This enables to recompute the RestToPose rotation from scratch
   // while interacting.
@@ -473,21 +499,16 @@ protected:
 
   // Axes variables:
   // For an easier debug and understanding.
-  int AxesVisibility;
+  int ShowAxes;
   vtkAxesActor* AxesActor;
   double AxesSize;
 
   // Helper methods to change the axes orientation and origin
-  // with respect to the AxesVisibility variable and the bone's transforms.
+  // with respect to the ShowAxes variable and the bone's transforms.
   // Note: RebuildParentageLink() is yo be called when the visibility of
   // the axes may be subject  to change. This will call RebuildAxes().
   void RebuildAxes();
-  void UpdateAxesVisibility(); 
-
-  // Debug:
-  // Usefull when debugging multiple bones
-  // (mainly when doing print statements).
-  unsigned int DebugBoneID;
+  void UpdateShowAxes();
 
   // Parentage line
   int ShowParenthood;
@@ -545,6 +566,9 @@ protected:
   // Update the pose interaction variable
   void UpdatePoseIntercationsVariables();
 
+  // Update the transformation between the local rest tail and local pose head.
+  void UpdateRestToPoseRotation();
+
   //
   // Computation functions:
   //
@@ -565,8 +589,8 @@ protected:
   // Rotate the current tail on itself by a rotation of angle and axis.
   void RotateTail(double angle, double axis[3], double newTail[3]);
 
-  // Rebuild the worlds points to their positions in Rest or Pose mode.
-  void RebuildWorldPosePointsFromWorldRestPoints();
+  // Rebuild the pose mode's worlds points depending on the Rest points.
+  void RebuildPoseFromRest();
 
   // Init pose mode with rest values.
   bool ShouldInitializePoseMode;

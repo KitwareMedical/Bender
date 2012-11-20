@@ -225,6 +225,28 @@ int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+void vtkCylinderBoneRepresentation::SetOpacity(double opacity)
+{
+  this->Superclass::SetOpacity(opacity);
+  this->CylinderProperty->SetOpacity(opacity);
+  this->SelectedCylinderProperty->SetOpacity(opacity);
+}
+
+//----------------------------------------------------------------------------
+void vtkCylinderBoneRepresentation::Highlight(int highlight)
+{
+  this->Superclass::Highlight(highlight);
+  if (highlight)
+    {
+    this->CylinderActor->SetProperty(this->SelectedCylinderProperty);
+    }
+  else
+    {
+    this->CylinderActor->SetProperty(this->CylinderProperty);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCylinderBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);

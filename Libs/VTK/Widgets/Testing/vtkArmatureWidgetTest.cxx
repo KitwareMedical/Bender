@@ -93,12 +93,12 @@ class ArmatureTestKeyPressInteractorStyle : public vtkInteractorStyleTrackballCa
         }
       else if (key == "Tab")
         {
-        int state = Armature->GetAxesVisibility() + 1;
+        int state = Armature->GetShowAxes() + 1;
         if (state > vtkBoneWidget::ShowPoseTransform)
           {
           state = 0;
           }
-        Armature->SetAxesVisibility(state);
+        Armature->SetShowAxes(state);
         }
       }
 
@@ -211,6 +211,12 @@ int vtkArmatureWidgetTest(int, char *[])
     std::cerr<<"Parenthood for bone should be active"<<std::endl;
     return EXIT_FAILURE;
     }
+
+
+  vtkBoneWidget* bone = vtkBoneWidget::New();
+  arm->UpdateBoneWithArmatureOptions(bone, finalChild);
+  arm->AddBone(bone, finalChild);
+  bone->Delete();
 
   // Setup callbacks
   vtkSmartPointer<ArmatureTestKeyPressInteractorStyle> style =

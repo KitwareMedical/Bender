@@ -97,12 +97,15 @@ public:
   /// \sa vtkMRMLScene::RegisterNodeClass()
   virtual void RegisterNodes();
 
-  virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
-  virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
-
 protected:
   vtkSlicerArmaturesLogic();
   virtual ~vtkSlicerArmaturesLogic();
+
+  virtual void ProcessMRMLSceneEvents(vtkObject* caller,
+                                      unsigned long event,
+                                      void * callData);
+  virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
+  virtual void OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node);
 
   virtual void ProcessMRMLLogicsEvents(vtkObject* caller, unsigned long event,
                                        void* callData);

@@ -42,7 +42,7 @@ find_package(OpenGL)
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${vtkBenderCommonMath_SOURCE_DIR}
+  ${vtkBenderCommon_SOURCE_DIR}
   )
 
 set(${KIT}_SRCS

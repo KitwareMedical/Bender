@@ -26,9 +26,14 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+
+// VTK includes
+#include "vtkCommand.h"
+
 class vtkMRMLBoneNode;
 
 class vtkArmatureWidget;
+class vtkBoneWidget;
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -98,11 +103,11 @@ public:
   int GetWidgetState();
 
   /// Set the bones debug axes visibility.
-  /// \sa GetAxesVisibility()
-  void SetAxesVisibility(int axesVisibility);
+  /// \sa GetShowAxes()
+  void SetShowAxes(int axesVisibility);
   /// Get the bones debug axes visibility.
-  /// \sa SetAxesVisibility()
-  int GetAxesVisibility();
+  /// \sa SetShowAxes()
+  int GetShowAxes();
 
   /// Show the a line between the bones and their origin.
   /// \sa GetShowParenthood()
@@ -116,6 +121,39 @@ public:
   void SetVisibility(bool visible);
   bool GetVisibility();
 
+  /// Set/Get the armature opacity.
+  /// The armature opacity will be propagated to all its bones.
+  /// \sa GetOpacity(), SetOpacity()
+  void SetOpacity(double opacity);
+  double GetOpacity();
+
+  /// Set/Get the armature color.
+  /// The armature color will be propagated to all its bones.
+  /// \sa GetColor(), SetColor()
+  void SetColor(double rgb[3]);
+  void GetColor(double rgb[3]);
+
+  /// Set/Get the armature display property bones always on top.
+  /// \sa GetBonesAlwaysOnTop(), SetBonesAlwaysOnTop()
+  void SetBonesAlwaysOnTop(int onTop);
+  int GetBonesAlwaysOnTop();
+
+  /*/// Add a widget bone to the armature.
+  /// \sa RemoveBone()
+  void AddBone(vtkBoneWidget* bone,
+    vtkBoneWidget* boneParent = 0, bool linkedWithParent = true);*/
+
+  /*/// Set/Get the bone is linked with its parents or not.
+  /// \sa GetColor(), SetColor()
+  void SetBoneLinkedWithParent(vtkBoneWidget* bone, bool linked);
+  bool GetBoneLinkedWithParent(vtkBoneWidget* bone);*/
+
+  //BTX
+  enum MRMLArmatureNode
+    {
+    ArmatureBoneModified = vtkCommand::UserEvent + 1
+    };
+  //ETX
 
   //--------------------------------------------------------------------------
   // Bone methods
@@ -143,6 +181,17 @@ public:
   /// \sa CopyArmatureWidgetProperties()
   void PasteArmatureNodeProperties(vtkArmatureWidget* armatureWidget);
 
+  /*//--------------------------------------------------------------------------
+  // Armature Node methods
+  //--------------------------------------------------------------------------
+
+  /// Get the armature node callback command. Used to listen to
+  /// vtkArmatureWidget AddedBone and RemovedBone events.
+  vtkMRMLArmatureNodeCallback* GetArmatureNodeCallbackCommand();*/
+
+  /// Reset the pose mode to the rest positions.
+  void ResetPoseMode();
+
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
@@ -150,7 +199,15 @@ protected:
   vtkMRMLArmatureNode(const vtkMRMLArmatureNode&); /// not implemented
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
 
+  //BTX
+  friend class vtkMRMLArmatureNodeCallback;
+  //ETX
+
+  vtkMRMLArmatureNodeCallback* Callback;
+
   vtkArmatureWidget* ArmatureProperties;
+  int WidgetState;
+  int ShouldResetPoseMode;
 };
 
 //----------------------------------------------------------------------------

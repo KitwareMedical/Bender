@@ -234,7 +234,7 @@ T vtkQuaternion<T>::GetRotationAngleAndAxis(T axis[3]) const
     }
   else
     {
-    axis[0] = 0.0;
+    axis[0] = 1.0;
     axis[1] = 0.0;
     axis[2] = 0.0;
     }

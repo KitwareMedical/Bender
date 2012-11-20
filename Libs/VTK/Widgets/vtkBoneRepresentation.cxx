@@ -128,6 +128,13 @@ void vtkBoneRepresentation::SetDisplayTailPosition(double x[3])
 }
 
 //----------------------------------------------------------------------------
+double vtkBoneRepresentation::GetLength()
+{
+  return this->Superclass::GetDistance();
+}
+
+
+//----------------------------------------------------------------------------
 vtkPointHandleRepresentation3D* vtkBoneRepresentation::GetHeadRepresentation()
 {
   return this->GetPoint1Representation();
@@ -213,6 +220,20 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
     }
 
   return count;
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::SetOpacity(double opacity)
+{
+  this->LineProperty->SetOpacity(opacity);
+  this->EndPointProperty->SetOpacity(opacity);
+  this->EndPoint2Property->SetOpacity(opacity);
+
+  this->SelectedLineProperty->SetOpacity(opacity);
+  this->SelectedEndPointProperty->SetOpacity(opacity);
+  this->SelectedEndPoint2Property->SetOpacity(opacity);
+
+  this->TextActor->GetProperty()->SetOpacity(opacity);
 }
 
 //----------------------------------------------------------------------------
