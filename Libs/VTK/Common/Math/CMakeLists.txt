@@ -55,6 +55,11 @@ set(${KIT}_SRCS
 #set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 bender_export_library()
 
+#install(TARGETS ${PROJECT_NAME}
+#  RUNTIME DESTINATION ${Bender_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries
+#  LIBRARY DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries
+#  ARCHIVE DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT Development
+#  )
 
 #-----------------------------------------------------------------------------
 # Configure export file
