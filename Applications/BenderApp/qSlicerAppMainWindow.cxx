@@ -109,6 +109,7 @@ public:
   qSlicerModuleSelectorToolBar*   ModuleSelectorToolBar;
   QStringList                     FavoriteModules;
   QString                         DefaultModule;
+  QMap<QString, QIcon>            ModuleIcons;
   qSlicerLayoutManager*           LayoutManager;
   QQueue<qSlicerIO::IOProperties> RecentlyLoadedFileProperties;
 
@@ -426,6 +427,9 @@ void qSlicerAppMainWindowPrivate::readSettings()
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
   this->FavoriteModules << "Armatures" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "Volumes" << "VolumeRendering" << "Models";
   this->DefaultModule = "Armatures";
+  this->ModuleIcons["ArmatureWeight"] = QIcon(":ArmatureWeight.png");
+  this->ModuleIcons["EvalWeight"] = QIcon(":EvalWeight.png");
+  this->ModuleIcons["PoseBody"] = QIcon(":PoseBody.png");
   // [/Ninja]
 
   foreach(const qSlicerIO::IOProperties& fileProperty, Self::readRecentlyLoadedFiles())
@@ -997,13 +1001,13 @@ void qSlicerAppMainWindow::onModuleLoaded(const QString& moduleName)
 
   // Module ToolBar
   QAction * action = module->action();
-  if (!action) // || action->icon().isNull())
+  if (action && d->ModuleIcons.contains(module->name()))
+    {
+    action->setIcon(d->ModuleIcons[module->name()]);
+    }
+  if (!action || action->icon().isNull())
     {
     return;
-    }
-  if (action->icon().isNull())
-    {
-    action->setIcon(QIcon(":Icons/Medium/DesktopIcon.png"));
     }
   Q_ASSERT(action->data().toString() == module->name());
   Q_ASSERT(action->text() == module->title());
