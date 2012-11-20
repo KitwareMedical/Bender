@@ -30,6 +30,7 @@
 // VTK includes
 #include "vtkCommand.h"
 
+class vtkMRMLArmatureNodeCallback;
 class vtkMRMLBoneNode;
 
 class vtkArmatureWidget;
