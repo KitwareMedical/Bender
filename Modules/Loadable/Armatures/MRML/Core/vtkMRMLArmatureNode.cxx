@@ -86,6 +86,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(1.0);
 
+  this->ArmatureProperties->SetBonesAlwaysOnTop(1);
+
   this->ShouldResetPoseMode = 0;
 
   this->Callback->Node = this;
