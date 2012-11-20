@@ -56,11 +56,19 @@ protected:
   virtual void ProcessMRMLNodesEvents(vtkObject *caller,
     unsigned long event, void *callData);
 
+  /// WidgetCallback is a static function to relay modified events from the scene
+  virtual void ProcessMRMLSceneEvents(vtkObject *caller,
+    unsigned long event, void *callData);
+
   virtual void UnobserveMRMLScene();
   virtual void UpdateFromMRMLScene();
   virtual void OnMRMLSceneNodeAdded(vtkMRMLNode* node);
   virtual void OnMRMLSceneNodeRemoved(vtkMRMLNode* node);
+  virtual void OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node);
   virtual void OnMRMLNodeModified(vtkMRMLNode* node);
+
+  /// Observe MRML scene events
+  virtual void SetMRMLSceneInternal(vtkMRMLScene * newScene);
 
   /// Reimplemented to bypass vtkMRMLAnnotationDisplayableManager as it prevents
   /// OnMRMLNodeModified(vtkMRMLNode* node) from being called.

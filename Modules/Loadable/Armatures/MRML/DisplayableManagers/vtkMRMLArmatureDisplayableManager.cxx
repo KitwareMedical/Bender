@@ -244,8 +244,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     return;
     }
 
-  this->RemoveAllBoneNodes(it->first);
-
   // The manager has the responsabilty to delete the widget.
   if (it->second)
     {
@@ -277,6 +275,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     {
     return;
     }
+
   vtkNew<vtkCollection> bones;
   armatureNode->GetAllBones(bones.GetPointer());
   vtkCollectionSimpleIterator it;
@@ -289,6 +288,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     if (boneNode)
       {
       this->RemoveBoneNode(boneNode);
+      this->External->GetMRMLScene()->RemoveNode(boneNode);
       }
     }
 }
@@ -755,6 +755,22 @@ void vtkMRMLArmatureDisplayableManager
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager
+::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* nodeRemoved)
+{
+  if (!this->IsManageable(nodeRemoved))
+    {
+    return;
+    }
+
+  if (nodeRemoved->IsA("vtkMRMLArmatureNode"))
+    {
+    this->Internal->RemoveAllBoneNodes(
+      vtkMRMLArmatureNode::SafeDownCast(nodeRemoved));
+    }
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager
 ::OnMRMLSceneNodeRemoved(vtkMRMLNode* nodeRemoved)
 {
   if (!this->IsManageable(nodeRemoved))
@@ -791,6 +807,29 @@ void vtkMRMLArmatureDisplayableManager::OnMRMLNodeModified(vtkMRMLNode* node)
     this->Internal->UpdateBoneWidgetFromNode(boneNode, boneWidget);
     }
   this->RequestRender();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager
+::SetMRMLSceneInternal(vtkMRMLScene * newScene)
+{
+  assert(newScene != this->GetMRMLScene());
+
+  vtkNew<vtkIntArray> sceneEvents;
+  //sceneEvents->InsertNextValue(vtkMRMLScene::StartBatchProcessEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::EndBatchProcessEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::StartCloseEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::EndCloseEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::StartImportEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::EndImportEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::StartRestoreEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::EndRestoreEvent);
+  //sceneEvents->InsertNextValue(vtkMRMLScene::NewSceneEvent);
+  sceneEvents->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  sceneEvents->InsertNextValue(vtkMRMLScene::NodeAboutToBeRemovedEvent);
+  sceneEvents->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+
+  this->SetAndObserveMRMLSceneEventsInternal(newScene, sceneEvents.GetPointer());
 }
 
 //---------------------------------------------------------------------------
@@ -844,6 +883,21 @@ void vtkMRMLArmatureDisplayableManager
     }
 
   this->Superclass::ProcessMRMLNodesEvents(caller, event, callData);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager
+::ProcessMRMLSceneEvents(vtkObject *caller,
+                         unsigned long event,
+                         void* callData)
+{
+  if (event == vtkMRMLScene::NodeAboutToBeRemovedEvent)
+    {
+    vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
+    this->OnMRMLSceneNodeAboutToBeRemoved(node);
+    }
+
+  this->Superclass::ProcessMRMLSceneEvents(caller, event, callData);
 }
 
 //---------------------------------------------------------------------------
