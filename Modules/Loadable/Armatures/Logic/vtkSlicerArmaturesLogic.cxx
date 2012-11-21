@@ -71,7 +71,7 @@ void vtkSlicerArmaturesLogic::SetMRMLSceneInternal(vtkMRMLScene * newScene)
 {
   vtkIntArray *events = vtkIntArray::New();
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
-  events->InsertNextValue(vtkMRMLScene::NodeRemovedEvent);
+  events->InsertNextValue(vtkMRMLScene::NodeAboutToBeRemovedEvent);
   this->SetAndObserveMRMLSceneEventsInternal(newScene, events);
   events->Delete();
 }

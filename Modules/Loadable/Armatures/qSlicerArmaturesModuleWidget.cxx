@@ -140,7 +140,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->BonesAlwaysOnTopCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureRestPoseModeButton,
+  QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
 
   // -- Armature Hierarchy --
@@ -367,13 +367,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        && ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       }
     else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        || ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       enableTailWidget = true;
       }
     }
@@ -385,6 +385,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->HeadCoordinatesWidget->setEnabled(enableHeadWidget);
   this->TailCoordinatesWidget->setEnabled(enableTailWidget);
   this->LengthSpinBox->setEnabled(enableTailWidget);
+  this->BonePositionTypeComboBox->setEnabled(enableTailWidget);
   this->DirectionCoordinatesWidget->setEnabled(enableTailWidget);
 
   this->updateAdvancedPositions(boneNode);
@@ -431,7 +432,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureColorPickerButton->setEnabled(armatureNode != 0);
   this->ArmatureOpacitySlider->setEnabled(armatureNode != 0);
   this->BonesAlwaysOnTopCheckBox->setEnabled(armatureNode != 0);
-  this->ArmatureRestPoseModeButton->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -759,6 +759,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 
   d->ArmatureVisibilityCheckBox->setEnabled(d->ArmatureNode != 0);
   d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
+    && d->ArmatureStateComboBox->currentText() == "Pose");
 
   if (!d->ArmatureNode)
     {
