@@ -84,6 +84,11 @@ protected:
   virtual void OnClickInRenderWindow(double x, double y,
                                      const char *associatedNodeID);
 
+  /// Create a bone with the given head and tail coordinates and add it to the
+  /// current MRML scene.
+  void CreateAndAddBoneToCurrentScene(
+    double head[3], double tail[3], const char *associatedNodeID);
+
 private:
   vtkMRMLArmatureDisplayableManager(const vtkMRMLArmatureDisplayableManager&);// Not implemented
   void operator=(const vtkMRMLArmatureDisplayableManager&);                   // Not Implemented
