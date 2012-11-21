@@ -998,6 +998,7 @@ void vtkMRMLArmatureDisplayableManager
       currentBone->GetWorldHeadRest(head);
       this->CreateAndAddBoneToCurrentScene(
         head, worldCoordinates, associatedNodeID);
+      return;
       }
     }
   else // No armature currently selected.
@@ -1055,10 +1056,10 @@ void vtkMRMLArmatureDisplayableManager
 
   // if this was a one time place, go back to view transform mode
   vtkMRMLInteractionNode *interactionNode = this->GetInteractionNode();
+  this->Helper->RemoveSeeds();
+  this->m_ClickCounter->Reset();
   if (interactionNode && interactionNode->GetPlaceModePersistence() != 1)
     {
-    this->Helper->RemoveSeeds();
-    this->m_ClickCounter->Reset();
     interactionNode->SetCurrentInteractionMode(
       vtkMRMLInteractionNode::ViewTransform);
     }
