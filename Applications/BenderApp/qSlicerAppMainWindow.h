@@ -79,11 +79,6 @@ protected slots:
   void onLayoutChanged(int);
   void loadDICOMActionTriggered();
 
-  // [Ninja]
-  /// Allows to configure the SliceWidgets at its creation
-  void onLayoutCreateSliceWidget(qMRMLSliceWidget* sliceWidget);
-  // [/Ninja]
-
 protected:
 
   /// Connect MainWindow action with slots defined in MainWindowCore
