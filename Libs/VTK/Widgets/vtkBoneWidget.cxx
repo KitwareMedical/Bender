@@ -1323,10 +1323,7 @@ void vtkBoneWidget::RebuildAxes()
     return;
     }
 
-  double distance = 
-   vtkMath::Distance2BetweenPoints(this->WorldHeadRest, this->WorldTailRest)
-     * this->AxesSize; // Rest because distance shouldn't change in pose mode
-                       // anyway
+  double distance = this->GetLength() * this->AxesSize;
   this->AxesActor->SetTotalLength(distance, distance, distance);
 
   vtkSmartPointer<vtkTransform> transform =
