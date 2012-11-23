@@ -58,6 +58,10 @@ public:
   /// Return the display node of the current armature node if any, 0 otherwise.
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
+
+  /// Set the current MRML scene to the widget
+  virtual void setMRMLScene(vtkMRMLScene*);
+
 public slots:
   /// Set \a armatureNode as current.
   /// \sa setMRMLArmatureNode(vtkMRMLNode*)
