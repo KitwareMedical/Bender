@@ -472,7 +472,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::selectBoneNode(vtkObject* sender, void* callData)
+::selectBoneNode(vtkObject* vtkNotUsed(sender), void* callData)
 {
   Q_Q(qSlicerArmaturesModuleWidget);
 
@@ -631,9 +631,7 @@ void qSlicerArmaturesModuleWidget
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::setArmatureVisibility(bool visible)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLArmatureNode* armatureNode = this->mrmlArmatureNode();
-
   if (!armatureNode)
     {
     return;
@@ -710,7 +708,8 @@ void qSlicerArmaturesModuleWidget::enter()
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
+  Q_UNUSED(boneNode);
+  //Q_D(qSlicerArmaturesModuleWidget);
   //d->logic()->SetActiveBone(boneNode);
   //if (boneNode == 0)
   //  {
@@ -722,14 +721,12 @@ void qSlicerArmaturesModuleWidget
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLNode* boneNode)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
   this->setMRMLBoneNode(vtkMRMLBoneNode::SafeDownCast(boneNode));
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::addAndPlaceBone()
 {
-  Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
     this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
   vtkMRMLInteractionNode* interactionNode =
