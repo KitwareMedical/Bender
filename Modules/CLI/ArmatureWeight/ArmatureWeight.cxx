@@ -802,8 +802,9 @@ private:
     //
     if(1) //simple and stupid
       {
-      BonePartition = LabelImage::New();
+      this->BonePartition = LabelImage::New();
       Allocate<LabelImage,LabelImage>(this->BodyMap,BonePartition);
+      this->BonePartition->FillBuffer(0);
       itk::ImageRegionIteratorWithIndex<LabelImage> boneIter(BonePartition,imDomain);
       CharImage::Pointer boneInside = threshold->GetOutput();
 
@@ -949,6 +950,7 @@ private:
       std::vector<int> componentSize(this->GetMaxEdgeLabel()+1,0);
       for(boneIter.GoToBegin(); !boneIter.IsAtEnd(); ++boneIter)
         {
+        assert(boneIter.Get()<componentSize.size());
         componentSize[boneIter.Get()]++;
         }
       int totalSize=0;
@@ -1000,12 +1002,15 @@ public:
     regionSize+=Expand(this->Armature.BodyPartition, this->GetLabel(), unknown, expansionDistance,
                        this->Domain,ArmatureType::DomainLabel);
 
-    typedef itk::ImageFileWriter<CharImage> WriterType;
-    WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( "./region.mha");
-    writer->SetInput(this->Domain);
-    writer->SetUseCompression(1);
-    writer->Update();
+    if(DumpSegmentationImages)
+      {
+      typedef itk::ImageFileWriter<CharImage> WriterType;
+      WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( "./region.mha");
+      writer->SetInput(this->Domain);
+      writer->SetUseCompression(1);
+      writer->Update();
+      }
 
     //Debug
     std::cout << "Region size after expanding "<<expansionDistance<<" : "<<regionSize << std::endl;
@@ -1192,7 +1197,10 @@ int main( int argc, char * argv[] )
   std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
   std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
 
+  //----------------------------
+  //Clean up the data
   RemoveSingleVoxelIsland(labelMap);
+  //----------------------------
 
   //----------------------------
   // Read armature information
