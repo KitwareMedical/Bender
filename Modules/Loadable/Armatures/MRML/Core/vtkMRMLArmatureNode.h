@@ -110,6 +110,16 @@ public:
   /// \sa SetShowAxes()
   int GetShowAxes();
 
+  /// The different axes that can be shown.
+  //BTX
+  enum ArmatureAxesType
+    {
+    Hidden = 0,
+    ShowRestTransform,
+    ShowPoseTransform,
+    };
+  //ETX
+
   /// Show the a line between the bones and their origin.
   /// \sa GetShowParenthood()
   void SetShowParenthood(int parenthood);

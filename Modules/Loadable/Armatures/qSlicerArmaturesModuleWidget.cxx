@@ -133,8 +133,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureOpacitySlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureShowAxesComboBox,
-    SIGNAL(currentIndexChanged(int)),
+  QObject::connect(this->ArmatureShowAxesCheckBox,
+    SIGNAL(stateChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureShowParenthoodCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
@@ -175,12 +175,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   // \todo Fix this !
   this->ParentBoneNodeComboBox->setHidden(true);
   this->ParentBoneLabel->setHidden(true);
-
-  // The bone axes have a weird sizing.
-  // Hide it meanwhile.
-  // \todo Fix this !
-  this->ArmatureShowAxesComboBox->setHidden(true);
-  this->ArmatureShowAxesLabel->setHidden(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -440,13 +434,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   if (armatureNode)
     {
-    this->ArmatureShowAxesComboBox->setCurrentIndex(
+    this->ArmatureShowAxesCheckBox->setChecked(
       armatureNode->GetShowAxes());
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
     }
 
-  this->ArmatureShowAxesComboBox->setEnabled(armatureNode != 0);
+  this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
 }
 
@@ -856,7 +850,19 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetOpacity(d->ArmatureOpacitySlider->value());
 
-  d->ArmatureNode->SetShowAxes(d->ArmatureShowAxesComboBox->currentIndex());
+  int showAxes = vtkMRMLArmatureNode::Hidden;
+  if (d->ArmatureShowAxesCheckBox->isChecked())
+    {
+    if (d->ArmatureStateComboBox->currentText() == "Rest")
+      {
+      showAxes = vtkMRMLArmatureNode::ShowRestTransform;
+      }
+    else
+      {
+      showAxes = vtkMRMLArmatureNode::ShowPoseTransform;
+      }
+    }
+  d->ArmatureNode->SetShowAxes(showAxes);
 
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
