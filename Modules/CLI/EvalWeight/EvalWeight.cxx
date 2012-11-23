@@ -24,6 +24,7 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapMath.h"
 #include "benderWeightMapIO.h"
+#include "benderIOUtils.h"
 
 //--------ITK --------------
 #include <itkImageFileWriter.h>
@@ -105,68 +106,6 @@ public:
   }
   VoxelOffset Offsets[8];
 };
-
-//-------------------------------------------------------------------------------
-vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
-{
-  vtkPolyData* polyData = 0;
-  vtkSmartPointer<vtkPolyDataReader> pdReader;
-  vtkSmartPointer<vtkXMLPolyDataReader> pdxReader;
-  vtkSmartPointer<vtkSTLReader> stlReader;
-
-  // do we have vtk or vtp models?
-  std::string::size_type loc = fileName.find_last_of(".");
-  if( loc == std::string::npos )
-    {
-    std::cerr << "Failed to find an extension for " << fileName << std::endl;
-    return polyData;
-    }
-
-  std::string extension = fileName.substr(loc);
-
-  if( extension == std::string(".vtk") )
-    {
-    pdReader = vtkSmartPointer<vtkPolyDataReader>::New();
-    pdReader->SetFileName(fileName.c_str() );
-    pdReader->Update();
-    polyData = pdReader->GetOutput();
-    }
-  else if( extension == std::string(".vtp") )
-    {
-    pdxReader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-    pdxReader->SetFileName(fileName.c_str() );
-    pdxReader->Update();
-    polyData = pdxReader->GetOutput();
-    }
-  else if( extension == std::string(".stl") )
-    {
-    stlReader = vtkSmartPointer<vtkSTLReader>::New();
-    stlReader->SetFileName(fileName.c_str() );
-    stlReader->Update();
-    polyData = stlReader->GetOutput();
-    }
-  if( polyData == NULL )
-    {
-    std::cerr << "Failed to read surface " << fileName << std::endl;
-    return polyData;
-    }
-  // Build Cells
-  polyData->BuildLinks();
-
-  if(invertY)
-    {
-    vtkPoints* points = polyData->GetPoints();
-    for(int i=0; i<points->GetNumberOfPoints();++i)
-      {
-      double x[3];
-      points->GetPoint(i,x);
-      x[1]*=-1;
-      points->SetPoint(i, x);
-      }
-    }
-  polyData->Register(0);
-  return polyData;
-}
 
 
 //-------------------------------------------------------------------------------
@@ -267,7 +206,7 @@ int main( int argc, char * argv[] )
   // Read in the stl file
   //----------------------------
   vtkSmartPointer<vtkPolyData> surface;
-  surface.TakeReference(ReadPolyData(InputSurface.c_str(),InvertY));
+  surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),InvertY));
 
   vtkPoints* points = surface->GetPoints();
   int numPoints = points->GetNumberOfPoints();

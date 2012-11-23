@@ -24,6 +24,7 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapIO.h"
 #include "benderWeightMapMath.h"
+#include "benderIOUtils.h"
 
 #include <itkImageFileWriter.h>
 #include <itkImage.h>
@@ -437,31 +438,6 @@ public:
 };
 
 
-//-------------------------------------------------------------------------------
-vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
-{
-  vtkPolyData* polyData = 0;
-  vtkNew<vtkPolyDataReader> stlReader;
-  stlReader->SetFileName(fileName.c_str() );
-  stlReader->Update();
-  polyData = stlReader->GetOutput();
-  polyData->Register(0);
-
-  vtkPoints* points = polyData->GetPoints();
-  if(invertY)
-    {
-    cout<<"Invert y coordinate\n";
-    for(int i=0; i<points->GetNumberOfPoints();++i)
-      {
-      double x[3];
-      points->GetPoint(i,x);
-      x[1]*=-1;
-      points->SetPoint(i, x);
-      }
-    }
-  return polyData;
-}
-
 //-----------------------------------------------------------------------------
 void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
 {
@@ -738,7 +714,7 @@ int main( int argc, char * argv[] )
   // Read in the surface file
   //----------------------------
   vtkSmartPointer<vtkPolyData> inSurface;
-  inSurface.TakeReference(ReadPolyData(SurfaceInput.c_str(),false));
+  inSurface.TakeReference(bender::IOUtils::ReadPolyData(SurfaceInput.c_str(),false));
 
   vtkPoints* inputPoints = inSurface->GetPoints();
   int numPoints = inputPoints->GetNumberOfPoints();
@@ -758,7 +734,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   std::vector<RigidTransform> transforms;
   vtkSmartPointer<vtkPolyData> armature;
-  armature.TakeReference(ReadPolyData(ArmaturePoly.c_str(),false));
+  armature.TakeReference(bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),false));
 
   if(0) //test whether the transform makes senses.
     {
