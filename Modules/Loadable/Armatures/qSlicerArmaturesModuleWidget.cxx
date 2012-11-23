@@ -681,28 +681,27 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+void qSlicerArmaturesModuleWidget::enter()
 {
-  this->Superclass::setMRMLScene(scene);
-
-  if (!this->mrmlScene())
+  this->Superclass::enter();
+  if (this->mrmlScene())
     {
-    return;
+    vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
+      this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    if (selectionNode)
+      {
+      selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+      }
+    vtkMRMLInteractionNode* interactionNode =
+      vtkMRMLInteractionNode::SafeDownCast(
+        this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+    if (interactionNode)
+      {
+      interactionNode->SetPlaceModePersistence(1);
+      interactionNode->SetCurrentInteractionMode(
+        vtkMRMLInteractionNode::ViewTransform);
+      }
     }
-
-  vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
-    this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-  vtkMRMLInteractionNode* interactionNode =
-    vtkMRMLInteractionNode::SafeDownCast(
-      this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
-  if (!selectionNode || !interactionNode)
-    {
-    qCritical() << "Invalid scene, no interaction or selection node";
-    return;
-    }
-
-  selectionNode->SetReferenceDefaultAnnotationID("vtkMRMLBoneNode");
-  interactionNode->SetPlaceModePersistence(1);
 }
 
 //-----------------------------------------------------------------------------

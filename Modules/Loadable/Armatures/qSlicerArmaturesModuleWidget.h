@@ -59,8 +59,8 @@ public:
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
 
-  /// Set the current MRML scene to the widget
-  virtual void setMRMLScene(vtkMRMLScene*);
+  /// Reimplemented to set the bone node the default bone annotation.
+  virtual void enter();
 
 public slots:
   /// Set \a armatureNode as current.
