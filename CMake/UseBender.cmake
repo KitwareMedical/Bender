@@ -41,7 +41,11 @@ if(NOT Bender_USE_FILE_INCLUDED)
   endif()
 
   # TODO: Make it more robust to Eigen name (EIGEN, Eigen3...)
-  string(REPLACE "Eigen-build" "Eigen" EIGEN3_INCLUDE_DIR ${Eigen_DIR})
+  if (Eigen3_DIR)
+    string(REPLACE "Eigen3-build" "Eigen3" eigen3_include_dir ${Eigen3_DIR})
+    set(EIGEN3_INCLUDE_DIR_INTERNAL ${eigen3_include_dir} CACHE INTERNAL  "eigen3 include dir")
+  endif()
+  set(EIGEN3_INCLUDE_DIR ${EIGEN3_INCLUDE_DIR_INTERNAL})
   find_package(Eigen3)
   include_directories(${EIGEN3_INCLUDE_DIR})
 
