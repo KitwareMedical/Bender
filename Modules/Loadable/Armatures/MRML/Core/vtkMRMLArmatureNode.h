@@ -26,15 +26,17 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+class vtkArmatureWidget;
+class vtkBoneWidget;
+class vtkMRMLArmatureDisplayableManager;
+class vtkMRMLArmatureNodeCallback;
+class vtkMRMLBoneNode;
+class vtkMRMLModelNode;
 
 // VTK includes
 #include "vtkCommand.h"
+class vtkPolyData;
 
-class vtkMRMLArmatureNodeCallback;
-class vtkMRMLBoneNode;
-
-class vtkArmatureWidget;
-class vtkBoneWidget;
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -203,6 +205,18 @@ public:
   /// Reset the pose mode to the rest positions.
   void ResetPoseMode();
 
+  /// Set the model that contains the polydata of the armature.
+  /// The model node is the associated node of the armature.
+  /// \sa GetArmatureModel(), SetAssociatedNodeID()
+  void SetArmatureModel(vtkMRMLModelNode* model);
+  /// Return the associated model node.
+  /// \sa SetArmatureModel(), GetPolyData()
+  vtkMRMLModelNode* GetArmatureModel();
+
+  /// Return the armature polydata. Each bone is represented by a 2-point
+  /// line cell. It is the polydata stored in the associated model node.
+  /// \sa SetPolyData(), GetArmatureModel()
+  vtkPolyData* GetPolyData();
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
@@ -212,9 +226,15 @@ protected:
 
   //BTX
   friend class vtkMRMLArmatureNodeCallback;
+  friend class vtkMRMLArmatureDisplayableManager;
   //ETX
 
   vtkMRMLArmatureNodeCallback* Callback;
+
+  /// Set the armature polydata. Only the displayable manager can set the
+  /// polydata.
+  /// \sa GetPolyData(), SetArmatureModel()
+  void SetArmaturePolyData(vtkPolyData* polyData);
 
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;

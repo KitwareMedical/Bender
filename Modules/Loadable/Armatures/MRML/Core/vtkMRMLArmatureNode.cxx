@@ -427,3 +427,42 @@ void vtkMRMLArmatureNode
     }
 
 }
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetArmatureModel(vtkMRMLModelNode* model)
+{
+  vtkPolyData* polyData = this->GetPolyData();
+  if (model)
+    {
+    model->SetName(this->GetName());
+    model->SetAndObservePolyData(polyData);
+    }
+  // Prevent ModifiedEvents from being fired as the order of calls is wrong.
+  int wasModifying = this->StartModify();
+  this->SetAssociatedNodeID(model ? model->GetID() : 0);
+  this->EndModify(wasModifying);
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLModelNode* vtkMRMLArmatureNode::GetArmatureModel()
+{
+  return vtkMRMLModelNode::SafeDownCast(this->GetAssociatedNode());
+}
+
+//---------------------------------------------------------------------------
+vtkPolyData* vtkMRMLArmatureNode::GetPolyData()
+{
+  vtkMRMLModelNode* model = this->GetArmatureModel();
+  return model ? model->GetPolyData() : 0;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetArmaturePolyData(vtkPolyData* polyData)
+{
+  vtkMRMLModelNode* model = this->GetArmatureModel();
+  if (!model)
+    {
+    return;
+    }
+  model->SetAndObservePolyData(polyData);
+}
