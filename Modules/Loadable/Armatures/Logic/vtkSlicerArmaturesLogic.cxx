@@ -125,6 +125,10 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
   if (armatureNode)
     {
+    vtkNew<vtkMRMLModelNode> armatureModel;
+    this->GetMRMLScene()->AddNode(armatureModel.GetPointer());
+    armatureNode->SetArmatureModel(armatureModel.GetPointer());
+
     this->SetActiveArmature(armatureNode);
     }
   vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
