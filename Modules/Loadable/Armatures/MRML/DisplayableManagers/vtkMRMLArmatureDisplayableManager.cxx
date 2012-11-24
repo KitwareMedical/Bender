@@ -589,6 +589,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     }
 
   armatureNode->PasteArmatureNodeProperties(armatureWidget);
+  armatureNode->SetArmaturePolyData(armatureWidget->GetPolyData());
 
   armatureWidget->SetEnabled(1);//armatureNode->GetWidgetVisible());
 }

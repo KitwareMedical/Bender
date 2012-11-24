@@ -31,7 +31,6 @@
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkBoneRepresentation;
 class vtkBoneWidget;
-
 class vtkMRMLBoneDisplayNode;
 class vtkMRMLBoneNodeCallback;
 class vtkMRMLDisplayNode;

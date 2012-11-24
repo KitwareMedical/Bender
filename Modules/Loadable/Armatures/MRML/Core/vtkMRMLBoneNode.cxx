@@ -87,6 +87,8 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
 
   this->BoneProperties->CreateDefaultRepresentation();
   this->BoneProperties->SetWidgetStateToRest();
+
+  this->SetHideFromEditors(true);
 }
 
 //----------------------------------------------------------------------------

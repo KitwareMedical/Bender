@@ -53,6 +53,7 @@ class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
 class vtkBoneWidget;
 class vtkCollection;
+class vtkPolyData;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureWidget : public vtkAbstractWidget
 {
@@ -65,6 +66,10 @@ public:
   // Standard methods for a VTK class.
   vtkTypeMacro(vtkArmatureWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Armature of all the bones in wire mode despite the representation.
+  vtkGetObjectMacro(PolyData, vtkPolyData);
 
   // Description:
   // The method for activating and deactivating this widget. This method
@@ -250,6 +255,10 @@ public:
   void SetBonesAlwaysOnTop(int onTop);
   vtkGetMacro(BonesAlwaysOnTop, int);
 
+  // Description:
+  // Reimplemented for internal reasons (update polydata).
+  virtual void Modified();
+
 protected:
   vtkArmatureWidget();
   ~vtkArmatureWidget();
@@ -262,6 +271,7 @@ protected:
 
   // Bone Tree
   ArmatureTreeNodeVectorType* Bones;
+  vtkPolyData* PolyData;
 
   // Top level bone tree
   typedef std::vector<vtkBoneWidget*> BoneVectorType;
@@ -284,6 +294,7 @@ protected:
   void UpdateChildren(ArmatureTreeNode* parentNode);
   void UpdateChildrenWidgetStateToPose(ArmatureTreeNode* parentNode);
   void UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode);
+  void UpdatePolyData();
 
   // Set the bone world to parent rest or pose transform correctly
   void SetBoneWorldToParentTransform(vtkBoneWidget* bone,

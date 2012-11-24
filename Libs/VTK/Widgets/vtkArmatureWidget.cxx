@@ -31,7 +31,10 @@
 #include <vtkCommand.h>
 #include <vtkCollection.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -182,6 +185,12 @@ vtkArmatureWidget::vtkArmatureWidget()
 
   // Init map and root
   this->Bones = new ArmatureTreeNodeVectorType;
+  this->PolyData = vtkPolyData::New();
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  this->PolyData->SetPoints(points.GetPointer());
+  this->PolyData->Allocate(100);
+
   // Init bones properties
   this->BonesRepresentationType = vtkArmatureWidget::None;
   this->WidgetState = vtkArmatureWidget::Rest;
@@ -194,6 +203,8 @@ vtkArmatureWidget::vtkArmatureWidget()
 //----------------------------------------------------------------------------
 vtkArmatureWidget::~vtkArmatureWidget()
 {
+  this->PolyData->Delete();
+
   // Delete all the bones in the map
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -865,6 +876,23 @@ ArmatureTreeNode* vtkArmatureWidget::GetNode(vtkBoneWidget* bone)
 }
 
 //----------------------------------------------------------------------------
+void vtkArmatureWidget::UpdatePolyData()
+{
+  this->PolyData->GetPoints()->Reset();
+  this->PolyData->Reset();
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
+    {
+    vtkIdType indexes[2];
+    indexes[0] = this->PolyData->GetPoints()->InsertNextPoint(
+      (*it)->Bone->GetWorldHeadRest());
+    indexes[1] = this->PolyData->GetPoints()->InsertNextPoint(
+      (*it)->Bone->GetWorldTailRest());
+    this->PolyData->InsertNextCell(VTK_LINE, 2, indexes);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkArmatureWidget::UpdateChildren(ArmatureTreeNode* parentNode)
 {
   if (!parentNode)
@@ -901,6 +929,7 @@ void vtkArmatureWidget
       (*it)->Bone->SetWorldHeadRest(parentNode->Bone->GetWorldTailRest());
       }
     }
+  this->UpdatePolyData();
 }
 
 //----------------------------------------------------------------------------
@@ -917,6 +946,7 @@ void vtkArmatureWidget
     {
     this->SetBoneWorldToParentPoseTransform((*it)->Bone, parentNode->Bone);
     }
+  this->UpdatePolyData();
 }
 
 //----------------------------------------------------------------------------
@@ -926,4 +956,11 @@ void vtkArmatureWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Armature Widget " << this << "\n";
   // TO DO
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Modified()
+{
+  this->UpdatePolyData();
+  this->Superclass::Modified();
 }

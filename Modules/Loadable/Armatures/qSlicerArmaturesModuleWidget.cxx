@@ -91,6 +91,8 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->BonesTreeView->annotationModel()->setValueColumn(-1);
   this->BonesTreeView->annotationModel()->setTextColumn(-1);
   this->BonesTreeView->annotationModel()->setVisibilityColumn(-1);
+  this->BonesTreeView->sortFilterProxyModel()->setShowHiddenForTypes(
+    QStringList("vtkMRMLBoneNode"));
 
   this->BonesTreeView->setHeaderHidden(true);
 
