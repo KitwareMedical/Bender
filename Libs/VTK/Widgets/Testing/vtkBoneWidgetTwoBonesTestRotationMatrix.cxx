@@ -257,20 +257,6 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       std::string key = rwi->GetKeySym();
       std::cout<<"Key Pressed: "<<key<<std::endl;
 
-      if (key == "Shift_L")
-        {
-        std::cout<<"Changing representation !"<<std::endl;
-
-        // Cycling through the representations
-        int newRepresentationType = Armature->GetBonesRepresentationType() + 1;
-        if (newRepresentationType > vtkArmatureWidget::DoubleCone
-            || newRepresentationType < vtkArmatureWidget::Bone) //last case is case no representation
-          {
-          newRepresentationType = 0;
-          }
-        Armature->SetBonesRepresentation(newRepresentationType);
-        }
-
       //if (key == "a")
         //{
         //vtkSmartPointer<vtkTransform> transform =
@@ -281,7 +267,7 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
         //Axes->SetUserTransform(transform);
         //}
-      else if (key == "Control_L")
+      if (key == "Control_L")
         {
         Armature->SetWidgetState( ! Armature->GetWidgetState() );
         }
@@ -360,7 +346,7 @@ rotationAxis -0.866354 0 0.49943*/
   armature->SetInteractor(renderWindowInteractor);
   armature->SetCurrentRenderer(renderer);
   armature->CreateDefaultRepresentation();
-  armature->SetBonesRepresentation(vtkArmatureWidget::Bone);
+  armature->SetBonesRepresentation(vtkBoneRepresentation::New());
   armature->SetWidgetState(vtkArmatureWidget::Rest);
 
   vtkBoneWidget* biceps = armature->CreateBone(NULL, "Biceps");

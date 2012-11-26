@@ -62,20 +62,6 @@ class ArmatureTestKeyPressInteractorStyle : public vtkInteractorStyleTrackballCa
       std::string key = rwi->GetKeySym();
       std::cout<<"Key Pressed: "<<key<<std::endl;
 
-      if (key == "Shift_L")
-        {
-        std::cout<<"Changing representation !"<<std::endl;
-
-        // Cycling through the representations
-        int newRepresentationType = Armature->GetBonesRepresentationType() + 1;
-        if (newRepresentationType > vtkArmatureWidget::DoubleCone
-            || newRepresentationType < vtkArmatureWidget::Bone) //last case is case no representation
-          {
-          newRepresentationType = 0;
-          }
-        Armature->SetBonesRepresentation(newRepresentationType);
-        }
-
       //if (key == "a")
         //{
         //vtkSmartPointer<vtkTransform> transform =
@@ -140,7 +126,7 @@ int vtkArmatureWidgetTest(int, char *[])
   root->SetWorldHeadRest(0.0, 0.0, 0.0);
   root->SetWorldTailRest(0.5, 0.0, 0.0);
 
-  arm->SetBonesRepresentation(vtkArmatureWidget::Bone);
+  arm->SetBonesRepresentation(vtkBoneRepresentation::New());
 
   vtkBoneWidget* child = arm->CreateBone(root, "first Child (Red)");
   arm->AddBone(child, root);

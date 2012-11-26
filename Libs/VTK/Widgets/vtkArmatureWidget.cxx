@@ -22,7 +22,6 @@
 #include "vtkArmatureRepresentation.h"
 #include "vtkArmatureWidget.h"
 #include "vtkBoneRepresentation.h"
-#include "vtkBoneWidget.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
 
@@ -183,7 +182,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   // Init map and root
   this->Bones = new ArmatureTreeNodeVectorType;
   // Init bones properties
-  this->BonesRepresentationType = vtkArmatureWidget::None;
+  this->BonesRepresentation = 0;
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
@@ -200,6 +199,11 @@ vtkArmatureWidget::~vtkArmatureWidget()
     {
     this->RemoveBoneObservers((*it)->Bone);
     (*it)->Bone->Delete(); // Delete bone
+    }
+
+  if (this->BonesRepresentation)
+    {
+    this->BonesRepresentation->Delete();
     }
 
   this->ArmatureWidgetCallback->Delete();
@@ -242,8 +246,7 @@ void vtkArmatureWidget::SetEnabled(int enabling)
     {
     if (!(*it)->Bone->GetBoneRepresentation())
       {
-      this->SetBoneRepresentation(
-        (*it)->Bone, this->BonesRepresentationType);
+      this->SetBoneRepresentation((*it)->Bone);
       }
     (*it)->Bone->SetEnabled(enabling);
     }
@@ -454,78 +457,40 @@ void vtkArmatureWidget::SetShowParenthood(int parenthood)
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetBonesRepresentation(int representationType)
+void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
 {
-  if (representationType == this->BonesRepresentationType)
+  if (!newRep || newRep == this->BonesRepresentation)
     {
     return;
     }
 
-  if (representationType < 0
-    || representationType > vtkArmatureWidget::DoubleCone)
-    {
-    vtkErrorMacro("Unknown representation type: "
-      <<this->BonesRepresentationType<<"/n  ->Representations unchanged");
-    }
-
-  this->BonesRepresentationType = representationType;
+  this->BonesRepresentation = newRep;
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    this->SetBoneRepresentation((*it)->Bone, this->BonesRepresentationType);
+    this->SetBoneRepresentation((*it)->Bone);
     }
 
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget
-::SetBoneRepresentation(vtkBoneWidget* bone, int representationType)
+vtkBoneRepresentation* vtkArmatureWidget::GetBonesRepresentation()
 {
-  switch (representationType)
+  return this->BonesRepresentation;
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
+{
+  vtkBoneRepresentation* copiedRepresentation = 0;
+  if (this->BonesRepresentation)
     {
-    case vtkArmatureWidget::None:
-      {
-      bone->SetRepresentation(NULL);
-
-      break;
-      }
-    case vtkArmatureWidget::Bone:
-      {
-      vtkSmartPointer<vtkBoneRepresentation> boneRep =
-        vtkSmartPointer<vtkBoneRepresentation>::New();
-      bone->SetRepresentation(boneRep);
-
-      break;
-      }
-    case vtkArmatureWidget::Cylinder:
-      {
-      vtkSmartPointer<vtkCylinderBoneRepresentation> cylinderRep =
-          vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
-      bone->SetRepresentation(cylinderRep);
-
-      break;
-      }
-    case vtkArmatureWidget::DoubleCone:
-      {
-      vtkSmartPointer<vtkDoubleConeBoneRepresentation> simsIconRep =
-          vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
-      bone->SetRepresentation(simsIconRep);
-
-      break;
-      }
-    default:
-      {
-      vtkErrorMacro("Unknown representation type: "
-        <<representationType<<"/n  ->Representation unchanged");
-      break;
-      }
+    copiedRepresentation = this->BonesRepresentation->NewInstance();
+    copiedRepresentation->ShallowCopy(this->BonesRepresentation);
     }
 
-  if (bone->GetBoneRepresentation())
-    {
-    bone->GetBoneRepresentation()->SetAlwaysOnTop(this->BonesAlwaysOnTop);
-    }
+  bone->SetRepresentation(copiedRepresentation);
 }
 
 //----------------------------------------------------------------------------
@@ -685,7 +650,7 @@ void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
 void vtkArmatureWidget
 ::UpdateBoneWithArmatureOptions(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
-  this->SetBoneRepresentation(bone, this->BonesRepresentationType);
+  this->SetBoneRepresentation(bone);
   bone->SetShowAxes(this->ShowAxes);
   bone->SetShowParenthood(this->ShowParenthood);
 
@@ -821,14 +786,9 @@ void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
     }
   this->BonesAlwaysOnTop = onTop;
 
-  if (this->GetBonesRepresentationType() != vtkArmatureWidget::None)
+  if (this->GetBonesRepresentation())
     {
-    for (NodeIteratorType it = this->Bones->begin();
-      it != this->Bones->end(); ++it)
-      {
-      (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
-        this->BonesAlwaysOnTop);
-      }
+    this->BonesRepresentation->SetAlwaysOnTop(this->BonesAlwaysOnTop);
     }
 
   this->Modified();
