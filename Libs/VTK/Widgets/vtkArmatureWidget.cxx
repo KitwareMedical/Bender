@@ -337,7 +337,16 @@ void vtkArmatureWidget
   bone->Register(this);
 
   // Create bone
-  this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
+  ArmatureTreeNode* newNode
+    = this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
+  if (!newNode)
+    {
+    vtkErrorMacro("Failed to add the bone named "
+      << bone->GetName() << " to the armature.");
+    bone->Delete();
+    return;
+    }
+
   this->AddBoneObservers(bone);
 
   this->InvokeEvent(vtkArmatureWidget::BoneAdded, bone);
@@ -684,25 +693,29 @@ void vtkArmatureWidget
     return;
     }
 
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
+  ArmatureTreeNode* oldNode = this->GetNode(bone);
+  if (!oldNode)
     {
-    if ((*it)->Bone == bone)
-      {
-      // Create new node with bone and NEW parent
-      this->CreateAndAddNodeToHierarchy(
-        bone, newParent, (*it)->HeadLinkedToParent);
-
-      // Remove old node
-      this->RemoveNodeFromHierarchy(it - this->Bones->begin());
-
-      // Update bone
-      this->SetBoneWorldToParentTransform(bone, newParent);
-      this->InvokeEvent(vtkArmatureWidget::BoneReparented, bone);
-      this->Modified();
-      return;
-      }
+    return;
     }
+
+  // Create new node with bone and NEW parent
+  ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(
+    bone, newParent, oldNode->HeadLinkedToParent);
+  if (!newNode)
+    {
+    vtkErrorMacro("Failed to reparent the bone named "<< bone->GetName());
+    return;
+    }
+
+  // Remove old node
+  this->RemoveNodeFromHierarchy(oldNode);
+
+  // Update bone
+  this->SetBoneWorldToParentRestTransform(bone, newParent);
+  this->SetBoneWorldToParentPoseTransform(bone, newParent);
+  this->InvokeEvent(vtkArmatureWidget::BoneReparented, bone);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -803,7 +816,7 @@ void vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::CreateAndAddNodeToHierarchy(
+ArmatureTreeNode* vtkArmatureWidget::CreateAndAddNodeToHierarchy(
   vtkBoneWidget* bone,
   vtkBoneWidget* newParent,
   bool linkedWithParent)
@@ -822,6 +835,8 @@ void vtkArmatureWidget::CreateAndAddNodeToHierarchy(
     {
     bone->SetWorldHeadRest(newParent->GetWorldTailRest());
     }
+
+  return newNode;
 }
 
 //----------------------------------------------------------------------------
@@ -834,16 +849,26 @@ void vtkArmatureWidget
     return;
     }
 
-  NodeIteratorType boneIterator = this->Bones->begin() + nodePosition;
+  this->RemoveNodeFromHierarchy(*(this->Bones->begin() + nodePosition));
+}
 
-  if ((*boneIterator)->Parent) // Stitch children to the father
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::RemoveNodeFromHierarchy(ArmatureTreeNode* node)
+{
+  if (! node)
     {
-    (*boneIterator)->Parent->RemoveChild(*boneIterator);
-    this->UpdateChildren((*boneIterator)->Parent);
+    return;
+    }
+
+  if (node->Parent) // Stitch children to the father
+    {
+    node->Parent->RemoveChild(node);
+    this->UpdateChildren(node->Parent);
     }
   else // It was root
     {
-    ArmatureTreeNode* replacementRoot = (*boneIterator)->RemoveRoot();
+    ArmatureTreeNode* replacementRoot = node->RemoveRoot();
     if (replacementRoot)
       {
       this->TopLevelBones.push_back(replacementRoot->Bone);
@@ -852,8 +877,7 @@ void vtkArmatureWidget
 
     BoneVectorIterator rootsIterator
       = std::find(this->TopLevelBones.begin(),
-        this->TopLevelBones.end(),
-        (*boneIterator)->Bone);
+        this->TopLevelBones.end(), node->Bone);
     if (rootsIterator != this->TopLevelBones.end())
       {
       this->TopLevelBones.erase(rootsIterator);
