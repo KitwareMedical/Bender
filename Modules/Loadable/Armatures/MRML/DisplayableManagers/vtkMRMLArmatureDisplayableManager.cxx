@@ -482,7 +482,7 @@ vtkArmatureWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
   armatureWidget->SetRepresentation(rep.GetPointer());
   armatureWidget->SetEnabled(0);
 
-  armatureWidget->SetBonesRepresentation(vtkArmatureWidget::DoubleCone);
+  armatureWidget->SetBonesRepresentation(vtkDoubleConeBoneRepresentation::New());
 
   // Link widget evenement to the LogicCallbackCommand
   armatureWidget->AddObserver(vtkCommand::StartInteractionEvent,

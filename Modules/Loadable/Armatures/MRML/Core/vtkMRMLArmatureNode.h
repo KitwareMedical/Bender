@@ -29,6 +29,7 @@
 #include "vtkArmatureWidget.h"
 
 class vtkArmatureWidget;
+class vtkBoneRepresentation;
 class vtkBoneWidget;
 class vtkMRMLArmatureDisplayableManager;
 class vtkMRMLArmatureNodeCallback;
@@ -92,12 +93,29 @@ public:
   // Armature methods
   //--------------------------------------------------------------------------
 
-  /// Set the bones representation type.
-  /// \sa GetBonesRepresentation()
-  void SetBonesRepresentation(int representationType);
-  /// Get the bones representation type.
-  /// \sa SetBonesRepresentation()
-  int GetBonesRepresentation();
+  /// Set/Get the bones representation type.
+  /// \sa GetBonesRepresentationType(), SetBonesRepresentationType()
+  void SetBonesRepresentation(vtkBoneRepresentation* rep);
+  vtkBoneRepresentation* GetBonesRepresentation();
+
+  /// Set/Get the bones representation type.
+  /// \sa SetBonesRepresentation(), GetBonesRepresentation()
+  void SetBonesRepresentationType(int representationType);
+  int GetBonesRepresentationType();
+
+  /// Deduce the bone representation type from the given representation.
+  /// Returns vtkMRMLArmatureNode::Bone if the given representation is null.
+  /// \sa GetBonesRepresentationType(), SetBonesRepresentationType()
+  int GetBonesRepresentationType(vtkBoneRepresentation* r);
+
+  //BTX
+  enum RepresentationTypes
+    {
+    Bone = 0,
+    Cylinder,
+    Octohedron
+    };
+  //ETX
 
   /// Set the bones widget state.
   /// \sa GetWidgetState()

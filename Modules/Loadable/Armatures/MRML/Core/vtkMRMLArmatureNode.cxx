@@ -74,8 +74,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->ArmatureProperties = vtkArmatureWidget::New();
   this->ArmatureProperties->CreateDefaultRepresentation();
   this->ArmatureProperties->SetBonesRepresentation(
-    vtkArmatureWidget::DoubleCone);
-  this->WidgetState = vtkArmatureWidget::Rest;
+    vtkDoubleConeBoneRepresentation::New());
+  this->WidgetState = vtkMRMLArmatureNode::Rest;
   this->SetHideFromEditors(0);
   this->Callback = vtkMRMLArmatureNodeCallback::New();
 
@@ -177,15 +177,65 @@ vtkMRMLBoneNode* vtkMRMLArmatureNode::GetParentBone(vtkMRMLBoneNode* bone)
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetBonesRepresentation(int representationType)
+void vtkMRMLArmatureNode::SetBonesRepresentation(vtkBoneRepresentation* rep)
 {
-  this->ArmatureProperties->SetBonesRepresentation(representationType);
+  this->ArmatureProperties->SetBonesRepresentation(rep);
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLArmatureNode::GetBonesRepresentation()
+vtkBoneRepresentation* vtkMRMLArmatureNode::GetBonesRepresentation()
 {
-  return this->ArmatureProperties->GetBonesRepresentationType();
+  return this->ArmatureProperties->GetBonesRepresentation();
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetBonesRepresentationType(vtkBoneRepresentation* r)
+{
+  if (vtkDoubleConeBoneRepresentation::SafeDownCast(
+    this->GetBonesRepresentation()))
+    {
+    return vtkMRMLArmatureNode::Octohedron;
+    }
+  else if (vtkCylinderBoneRepresentation::SafeDownCast(
+    this->GetBonesRepresentation()))
+    {
+    return vtkMRMLArmatureNode::Cylinder;
+    }
+
+  return vtkMRMLArmatureNode::Bone;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetBonesRepresentationType(int type)
+{
+  if (type
+    == this->GetBonesRepresentationType(this->GetBonesRepresentation()))
+    {
+    return;
+    }
+
+  vtkBoneRepresentation* r = 0;
+  if (type == vtkMRMLArmatureNode::Octohedron)
+    {
+    r = vtkDoubleConeBoneRepresentation::New();
+    }
+  else if (type == vtkMRMLArmatureNode::Cylinder)
+    {
+    r =  vtkCylinderBoneRepresentation::New();
+    }
+  else
+    {
+    r = vtkBoneRepresentation::New();
+    }
+
+  r->ShallowCopy(this->GetBonesRepresentation());
+  this->SetBonesRepresentation(r);
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetBonesRepresentationType()
+{
+  return this->GetBonesRepresentationType(this->GetBonesRepresentation());
 }
 
 //---------------------------------------------------------------------------
@@ -358,7 +408,7 @@ void vtkMRMLArmatureNode
 
   //int wasModifying = this->StartModify(); // ? Probably not
   this->ArmatureProperties->SetBonesRepresentation(
-    armatureWidget->GetBonesRepresentationType());
+    armatureWidget->GetBonesRepresentation());
   this->WidgetState = armatureWidget->GetWidgetState();
   this->ArmatureProperties->SetShowAxes(
     armatureWidget->GetShowAxes());
@@ -386,7 +436,7 @@ void vtkMRMLArmatureNode
 
   //int wasModifying = this->StartModify(); // ? Probably not
   armatureWidget->SetBonesRepresentation(
-    this->ArmatureProperties->GetBonesRepresentationType());
+    this->ArmatureProperties->GetBonesRepresentation());
   armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());

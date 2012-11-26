@@ -403,9 +403,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     {
     this->blockArmatureDisplaySignals(true);
 
-    // -1 to compensate for the vtkArmatureWidget::None
     this->ArmatureRepresentationComboBox->setCurrentIndex(
-      armatureNode->GetBonesRepresentation() - 1);
+      armatureNode->GetBonesRepresentationType());
 
     double rgb[3];
     armatureNode->GetColor(rgb);
@@ -836,9 +835,8 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   d->ArmatureNode->SetWidgetState(
     d->ArmatureStateComboBox->currentIndex() + 2);
 
-  // +1 to compensate for the vtkArmatureWidget::None
-  d->ArmatureNode->SetBonesRepresentation(
-    d->ArmatureRepresentationComboBox->currentIndex() + 1);
+  d->ArmatureNode->SetBonesRepresentationType(
+    d->ArmatureRepresentationComboBox->currentIndex());
 
   double rgb[3];
   rgb[0] =
