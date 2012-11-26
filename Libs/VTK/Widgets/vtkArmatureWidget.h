@@ -244,6 +244,7 @@ public:
     BoneAdded = vtkCommand::UserEvent+1,
     BoneRemoved,
     BoneReparented,
+    BoneMerged
     };
   //ETX
 
@@ -252,6 +253,13 @@ public:
   // If the new parent is null, the bone is added to the top level bones.
   // @sa AddBone(), RemoveBone, ArmatureEventType
   void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
+
+  // Description:
+  // Merge the two bones of the armature together. The bones must
+  // be parented and belong to the armature.
+  // Returns the merged bone upon succes, NULL otherwise.
+  // @sa AddBone(), RemoveBone(), ArmatureEventType, IsBoneParent()
+  vtkBoneWidget* MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone);
 
   // Description:
   // Reset the pose positions to the initial rest position with no rotations

@@ -753,6 +753,58 @@ void vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
+vtkBoneWidget* vtkArmatureWidget
+::MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone)
+{
+  if (!headBone || !tailBone)
+    {
+    return NULL;
+    }
+
+  ArmatureTreeNode* headNode = this->GetNode(headBone);
+  ArmatureTreeNode* tailNode = this->GetNode(tailBone);
+
+  if (!headNode || !tailNode)
+    {
+    return NULL;
+    }
+
+  if (! this->IsBoneParent(tailBone, headBone))
+    {
+    vtkErrorMacro("Cannot merge bones that are not parented");
+    return NULL;
+    }
+
+  std::string newBoneName = headBone->GetName();
+  newBoneName += " + ";
+  newBoneName += tailBone->GetName();
+
+  vtkBoneWidget* newBone = this->CreateBone(headNode->Parent->Bone,
+    tailBone->GetWorldTailRest(), newBoneName);
+  ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(newBone,
+    headNode->Parent->Bone, headNode->HeadLinkedToParent);
+
+  //Initialize new bone transforms
+  this->SetBoneWorldToParentRestTransform(newBone, headNode->Parent->Bone);
+  this->SetBoneWorldToParentPoseTransform(newBone, headNode->Parent->Bone);
+
+  // Reparent tail node children
+  newNode->AddChild(tailNode);
+
+  // Then delete old bones. In the case of tailBone,
+  // this automatically reparents its children to newNode.
+  this->RemoveBone(tailBone);
+  this->RemoveBone(headBone);
+
+  // Add observers and invoke events.
+  this->AddBoneObservers(newBone);
+  this->InvokeEvent(vtkArmatureWidget::BoneMerged, newBone);
+  this->Modified();
+
+  return newBone;
+}
+
+//----------------------------------------------------------------------------
 void vtkArmatureWidget::ResetPoseToRest()
 {
   int oldState = this->WidgetState;
