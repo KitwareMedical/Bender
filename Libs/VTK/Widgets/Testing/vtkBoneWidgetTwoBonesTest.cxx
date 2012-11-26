@@ -155,8 +155,8 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
   //Test Z Axis
 //  fatherBoneWidget->SetHeadRestWorldPosition(0.0, 0.0, 0.0);
 //  fatherBoneWidget->SetTailRestWorldPosition(0.0, 0.0, 0.1);
-  expectedAngle = vtkMath::Pi() / 2.0;
-  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
+//  expectedAngle = vtkMath::Pi() / 2.0;
+//  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
 
 //  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
   /*if (fabs(angle - expectedAngle) > 0.0001)
@@ -184,86 +184,86 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
   //std::cout<<"Father, along Y"<<std::endl;
 //  fatherBoneWidget->SetHeadRestWorldPosition(0.0, 0.0, 0.0);
 //  fatherBoneWidget->SetTailRestWorldPosition(0.0, 0.1, 0.0);
-  expectedAngle = 0.0;
-  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
+//  expectedAngle = 0.0;
+//  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
 
 //  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
-  if (fabs(angle - expectedAngle) > 0.0001)
-    {
-    std::cout<<"Angle different !"<<std::endl
-      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
-    //return EXIT_FAILURE;
-    }
-  for (int i =0; i < 3; ++i)
-    {
-    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
-      {
-      std::cout<<"Axis Different different !"<<std::endl
-        <<"Expected:  "<<expectedAxis[0]<<" "
-                      <<expectedAxis[1]<<" "
-                      <<expectedAxis[2]<<std::endl
-        <<" - Got:    "<<axis[0]<<" "
-                      <<axis[1]<<" "
-                      <<axis[2]<<std::endl;
-      //return EXIT_FAILURE;
-      }
-    }
+//  if (fabs(angle - expectedAngle) > 0.0001)
+//    {
+//    std::cout<<"Angle different !"<<std::endl
+//      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
+//    //return EXIT_FAILURE;
+//    }
+//  for (int i =0; i < 3; ++i)
+//    {
+//    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
+//      {
+//      std::cout<<"Axis Different different !"<<std::endl
+//        <<"Expected:  "<<expectedAxis[0]<<" "
+//                      <<expectedAxis[1]<<" "
+//                      <<expectedAxis[2]<<std::endl
+    //    <<" - Got:    "<<axis[0]<<" "
+    //                  <<axis[1]<<" "
+    //                  <<axis[2]<<std::endl;
+    //  //return EXIT_FAILURE;
+    //  }
+    //}
     
-  //Test X Axis
-  //std::cout<<"Father, along X"<<std::endl;
-//  fatherBoneWidget->SetTailRestWorldPosition(0.1, 0.0, 0.0);
-  expectedAngle = vtkMath::Pi() / 2.0;
-  expectedAxis[0] = 0.0; expectedAxis[1] = 0.0; expectedAxis[2] = -1.0;
+//  //Test X Axis
+//  //std::cout<<"Father, along X"<<std::endl;
+////  fatherBoneWidget->SetTailRestWorldPosition(0.1, 0.0, 0.0);
+//  expectedAngle = vtkMath::Pi() / 2.0;
+//  expectedAxis[0] = 0.0; expectedAxis[1] = 0.0; expectedAxis[2] = -1.0;
+//
+////  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
+//  if (fabs(angle - expectedAngle) > 0.0001)
+//    {
+//    std::cout<<"Angle different !"<<std::endl
+//      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
+//    //return EXIT_FAILURE;
+//    }
+//  for (int i =0; i < 3; ++i)
+//    {
+//    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
+//      {
+//      std::cout<<"Axis Different different !"<<std::endl
+//        <<"Expected:  "<<expectedAxis[0]<<" "
+//                      <<expectedAxis[1]<<" "
+//                      <<expectedAxis[2]<<std::endl
+//        <<" - Got:    "<<axis[0]<<" "
+//                      <<axis[1]<<" "
+//                      <<axis[2]<<std::endl;
+//      //return EXIT_FAILURE;
+//      }
+//    }
 
-//  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
-  if (fabs(angle - expectedAngle) > 0.0001)
-    {
-    std::cout<<"Angle different !"<<std::endl
-      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
-    //return EXIT_FAILURE;
-    }
-  for (int i =0; i < 3; ++i)
-    {
-    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
-      {
-      std::cout<<"Axis Different different !"<<std::endl
-        <<"Expected:  "<<expectedAxis[0]<<" "
-                      <<expectedAxis[1]<<" "
-                      <<expectedAxis[2]<<std::endl
-        <<" - Got:    "<<axis[0]<<" "
-                      <<axis[1]<<" "
-                      <<axis[2]<<std::endl;
-      //return EXIT_FAILURE;
-      }
-    }
-
-  //Test Weirder Axis
-  //std::cout<<"Father, along weirder axis"<<std::endl;
-//  fatherBoneWidget->SetTailRestWorldPosition(0.1, 0.1, 0.1);
-  expectedAngle = 0.955317;
-  expectedAxis[0] = sqrt(2.0)/2.0; expectedAxis[1] = 0.0; expectedAxis[2] = -sqrt(2.0)/2.0;
-
-//  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
-  if (fabs(angle - expectedAngle) > 0.0001)
-    {
-    std::cout<<"Angle different !"<<std::endl
-      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
-    //return EXIT_FAILURE;
-    }
-  for (int i =0; i < 3; ++i)
-    {
-    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
-      {
-      std::cout<<"Axis Different different !"<<std::endl
-        <<"Expected:  "<<expectedAxis[0]<<" "
-                      <<expectedAxis[1]<<" "
-                      <<expectedAxis[2]<<std::endl
-        <<" - Got:    "<<axis[0]<<" "
-                      <<axis[1]<<" "
-                      <<axis[2]<<std::endl;
-      //return EXIT_FAILURE;
-      }
-    }
+//  //Test Weirder Axis
+//  //std::cout<<"Father, along weirder axis"<<std::endl;
+////  fatherBoneWidget->SetTailRestWorldPosition(0.1, 0.1, 0.1);
+//  expectedAngle = 0.955317;
+//  expectedAxis[0] = sqrt(2.0)/2.0; expectedAxis[1] = 0.0; expectedAxis[2] = -sqrt(2.0)/2.0;
+//
+////  angle = vtkBoneWidget::QuaternionToAxisAngle(fatherBoneWidget->GetRestTransform(), axis);
+//  if (fabs(angle - expectedAngle) > 0.0001)
+//    {
+//    std::cout<<"Angle different !"<<std::endl
+//      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
+//    //return EXIT_FAILURE;
+//    }
+//  for (int i =0; i < 3; ++i)
+//    {
+//    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
+//      {
+//      std::cout<<"Axis Different different !"<<std::endl
+//        <<"Expected:  "<<expectedAxis[0]<<" "
+//                      <<expectedAxis[1]<<" "
+//                      <<expectedAxis[2]<<std::endl
+//        <<" - Got:    "<<axis[0]<<" "
+//                      <<axis[1]<<" "
+//                      <<axis[2]<<std::endl;
+//      //return EXIT_FAILURE;
+//      }
+//    }
 
   //Reset Father position
 //  fatherBoneWidget->SetTailRestWorldPosition(0.1, 0.0, 0.0);
@@ -281,31 +281,31 @@ int vtkBoneWidgetTwoBonesTest(int, char *[])
   sonBoneWidget->GetBoneRepresentation()->GetHeadRepresentation()->GetProperty()->SetColor(0.0, 1.0, 1.0);
   sonBoneWidget->GetBoneRepresentation()->GetTailRepresentation()->GetProperty()->SetColor(0.0, 0.0, 1.0);
 
-  //Test son
-  //RestTransform
-  expectedAngle = vtkMath::Pi() / 2.0;
-  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
-//  angle = vtkBoneWidget::QuaternionToAxisAngle(sonBoneWidget->GetRestTransform(), axis);
-  if (fabs(angle - expectedAngle) > 0.0001)
-    {
-    std::cout<<"Angle different !"<<std::endl
-      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
-    //return EXIT_FAILURE;
-    }
-  for (int i =0; i < 3; ++i)
-    {
-    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
-      {
-      std::cout<<"Axis Different different !"<<std::endl
-        <<"Expected:  "<<expectedAxis[0]<<" "
-                      <<expectedAxis[1]<<" "
-                      <<expectedAxis[2]<<std::endl
-        <<" - Got:    "<<axis[0]<<" "
-                      <<axis[1]<<" "
-                      <<axis[2]<<std::endl;
-      //return EXIT_FAILURE;
-      }
-    }
+//  //Test son
+//  //RestTransform
+//  expectedAngle = vtkMath::Pi() / 2.0;
+//  expectedAxis[0] = 1.0; expectedAxis[1] = 0.0; expectedAxis[2] = 0.0;
+////  angle = vtkBoneWidget::QuaternionToAxisAngle(sonBoneWidget->GetRestTransform(), axis);
+//  if (fabs(angle - expectedAngle) > 0.0001)
+//    {
+//    std::cout<<"Angle different !"<<std::endl
+//      <<"Expected "<< expectedAngle <<" - Got "<< angle <<std::endl;
+//    //return EXIT_FAILURE;
+//    }
+//  for (int i =0; i < 3; ++i)
+//    {
+//    if (fabs(expectedAxis[i] - axis[i]) > 0.0001)
+//      {
+//      std::cout<<"Axis Different different !"<<std::endl
+//        <<"Expected:  "<<expectedAxis[0]<<" "
+//                      <<expectedAxis[1]<<" "
+//                      <<expectedAxis[2]<<std::endl
+//        <<" - Got:    "<<axis[0]<<" "
+//                      <<axis[1]<<" "
+//                      <<axis[2]<<std::endl;
+//      //return EXIT_FAILURE;
+//      }
+//    }
 
   //Setup callbacks
   vtkSmartPointer<TwoBonesTestKeyPressInteractorStyle> fatherStyle = 

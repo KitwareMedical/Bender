@@ -363,29 +363,34 @@ rotationAxis -0.866354 0 0.49943*/
   armature->SetBonesRepresentation(vtkArmatureWidget::Bone);
   armature->SetWidgetState(vtkArmatureWidget::Rest);
 
-  vtkBoneWidget* arm = armature->CreateBone(NULL);
-  armature->AddBone(arm, NULL, "Arm");
-  arm->SetWorldHeadRest(0.0, 0.0, 0.0);
-  arm->SetWorldTailRest(10.0, 0.0, 0.0);
-  vtkSmartPointer<vtkCylinderBoneRepresentation> armRep =
+  vtkBoneWidget* biceps = armature->CreateBone(NULL, "Biceps");
+  armature->AddBone(biceps, NULL);
+  biceps->SetWorldHeadRest(0.0, 0.0, 0.0);
+  biceps->SetWorldTailRest(10.0, 0.0, 0.0);
+  vtkSmartPointer<vtkCylinderBoneRepresentation> bicepsRep =
     vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
-  arm->SetRepresentation(armRep);
-  //arm->CreateDefaultRepresentation();
+  biceps->SetRepresentation(bicepsRep);
+  //biceps->CreateDefaultRepresentation();
 
-  vtkBoneWidget* forearm = armature->CreateBone(arm, 20.0, 0.0, 0.0, "forearm");
-  armature->AddBone(forearm, arm);
+  vtkBoneWidget* fore = armature->CreateBone(biceps, 10.0, 20.0, 0.0, "fore");
+  armature->AddBone(fore, biceps);
+  vtkBoneWidget* arm = armature->CreateBone(fore, 20.0, 0.0, 0.0, "arm");
+  armature->AddBone(arm, fore);
+
+  vtkBoneWidget* thumb = armature->CreateBone(arm, 20.0, 4.0, 0.0, "thumb");
+  armature->AddBone(thumb, arm);
+  thumb->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
+
+  vtkBoneWidget* indexFinger = armature->CreateBone(arm, 22.0, 2.0, 0.0, "index finger");
+  armature->AddBone(indexFinger, arm);
+  indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
+
+  // Test merge
+  vtkBoneWidget* forearm = armature->MergeBones(fore, arm);
   vtkSmartPointer<vtkDoubleConeBoneRepresentation> forearmRep =
     vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
   forearm->SetRepresentation(forearmRep);
   forearmRep->GetConesProperty()->SetOpacity(0.4);
-
-  vtkBoneWidget* thumb = armature->CreateBone(forearm, 20.0, 4.0, 0.0, "thumb");
-  armature->AddBone(thumb, forearm);
-  thumb->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
-
-  vtkBoneWidget* indexFinger = armature->CreateBone(forearm, 22.0, 2.0, 0.0, "index finger");
-  armature->AddBone(indexFinger, forearm);
-  indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0, "middle finger");
   armature->AddBone(middleFinger, forearm);
@@ -399,7 +404,7 @@ rotationAxis -0.866354 0 0.49943*/
   armature->AddBone(littleFinger, forearm);
   littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  if (! armature->IsBoneParent(littleFinger, arm))
+  if (! armature->IsBoneParent(littleFinger, biceps))
     {
     std::cout<<"Little finger should be inderctly related to the biceps";
     //return EXIT_FAILURE;
