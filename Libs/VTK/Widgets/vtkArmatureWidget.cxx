@@ -547,6 +547,40 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneParent(vtkBoneWidget* bone)
 }
 
 //----------------------------------------------------------------------------
+bool vtkArmatureWidget
+::IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+{
+  return this->GetBoneParent(bone) == parent;
+}
+
+//----------------------------------------------------------------------------
+bool vtkArmatureWidget
+::IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+{
+  if (!parent)
+    {
+    return true; // A bone should always have a root parent
+    }
+
+  ArmatureTreeNode* node = this->GetNode(bone);
+  if (!node || !node->Parent)
+    {
+    return false;
+    }
+
+  while (node)
+    {
+    if (node->Parent->Bone == parent)
+      {
+      return true;
+      }
+    node = node->Parent;
+    }
+
+  return false;
+}
+
+//----------------------------------------------------------------------------
 vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
 {
   vtkCollection* children = vtkCollection::New();

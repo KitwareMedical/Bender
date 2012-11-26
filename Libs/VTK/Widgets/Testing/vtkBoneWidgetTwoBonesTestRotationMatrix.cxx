@@ -399,6 +399,12 @@ rotationAxis -0.866354 0 0.49943*/
   armature->AddBone(littleFinger, forearm);
   littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
+  if (! armature->IsBoneParent(littleFinger, arm))
+    {
+    std::cout<<"Little finger should be inderctly related to the biceps";
+    //return EXIT_FAILURE;
+    }
+
   //armature->SetWidgetState(vtkArmatureWidget::Pose);
 
   vtkSmartPointer<Test1KeyPressInteractorStyle> style =
