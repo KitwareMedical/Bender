@@ -226,9 +226,9 @@ public:
   //BTX
   enum ArmatureEventType
     {
-    AddedBone = vtkCommand::UserEvent+1,
-    RemovedBone,
-    ReparentedBone
+    BoneAdded = vtkCommand::UserEvent+1,
+    BoneRemoved,
+    BoneReparented,
     };
   //ETX
 

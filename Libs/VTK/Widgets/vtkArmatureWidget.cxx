@@ -329,7 +329,7 @@ void vtkArmatureWidget
   this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
   this->AddBoneObservers(bone);
 
-  this->InvokeEvent(vtkArmatureWidget::AddedBone, bone);
+  this->InvokeEvent(vtkArmatureWidget::BoneAdded, bone);
   this->Modified();
 }
 
@@ -569,7 +569,7 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
       (*it)->Bone->Delete();
       this->Bones->erase(it);
 
-      this->InvokeEvent(vtkArmatureWidget::RemovedBone, bone);
+      this->InvokeEvent(vtkArmatureWidget::BoneRemoved, bone);
       this->Modified();
       return true;
       }
@@ -687,7 +687,7 @@ void vtkArmatureWidget
 
       // Update bone
       this->SetBoneWorldToParentTransform(bone, newParent);
-      this->InvokeEvent(vtkArmatureWidget::ReparentedBone, bone);
+      this->InvokeEvent(vtkArmatureWidget::BoneReparented, bone);
       this->Modified();
       return;
       }
