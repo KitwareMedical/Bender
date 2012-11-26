@@ -153,6 +153,16 @@ public:
   vtkBoneWidget* GetBoneParent(vtkBoneWidget* bone);
 
   // Description:
+  // Returns if the parent is directly the bone's parent.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  bool IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+
+ // Description:
+  // Returns if the parent is directly or inderectly the bone's parent.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  bool IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+
+  // Description:
   // Returns the bone's children if the bone has any and it belongs
   // to the armature.
   // The user is responsible for deleting the returned collection.
