@@ -53,6 +53,7 @@ struct ArmatureTreeNode;
 
 class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
+class vtkBoneRepresentation;
 class vtkCollection;
 class vtkPolyData;
 
@@ -199,12 +200,13 @@ public:
   //ETX
 
   // Description:
-  // Set/Get the representation type. If a new representation is chosen,
+  // Set/Get the representation. If a new representation is chosen,
   // it will be applied to all the bones of the armature.
+  // The armature will keep a reference on the new representation.
   // @sa vtkBoneWidgetRepresentation() vtkCylinderBoneRepresentation()
   // @sa vtkDoubleConeRepresentation()
-  void SetBonesRepresentation(int representationType);
-  vtkGetMacro(BonesRepresentationType, int);
+  void SetBonesRepresentation(vtkBoneRepresentation* newRepresentation);
+  vtkBoneRepresentation* GetBonesRepresentation();
 
   // Description:
   // Widget State of all the bones.
@@ -302,7 +304,7 @@ protected:
   std::vector<vtkBoneWidget*> TopLevelBones;
 
   // Bone Properties
-  int BonesRepresentationType;
+  vtkBoneRepresentation* BonesRepresentation;
   int WidgetState;
   int ShowAxes;
   int ShowParenthood;
@@ -342,7 +344,7 @@ protected:
   ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
 
   // Set the representation type for a given bone.
-  void SetBoneRepresentation(vtkBoneWidget* bone, int representationType);
+  void SetBoneRepresentation(vtkBoneWidget* bone);
 
   // Create a new node
   ArmatureTreeNode* CreateNewMapElement(vtkBoneWidget* parent);
