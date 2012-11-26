@@ -38,9 +38,11 @@
 
 // Bender includes
 #include "vtkBenderWidgetsExport.h"
+#include "vtkBoneWidget.h"
 
 // VTK includes
 #include <vtkAbstractWidget.h>
+
 #include <vtkCommand.h>
 #include <vtkStdString.h>
 
@@ -51,7 +53,6 @@ struct ArmatureTreeNode;
 
 class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
-class vtkBoneWidget;
 class vtkCollection;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureWidget : public vtkAbstractWidget
@@ -203,7 +204,11 @@ public:
   // Description:
   // Widget State of all the bones.
   //BTX
-  enum WidgetStateType{Rest = 0, Pose};
+  enum WidgetStateType
+    {
+    Rest = vtkBoneWidget::Rest,
+    Pose = vtkBoneWidget::Pose
+    };
   //ETX
 
   // Description:
