@@ -36,8 +36,8 @@ class BENDER_COMMON_EXPORT IOUtils
 {
  public:
   // Description:
-  // Read .vtk/.stl/.vtp file into a vtkPolyData. Negate y coordinates if invertY==true
-  static vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false);
+  // Read .vtk/.stl/.vtp file into a vtkPolyData. Negate x and y coordinates if invertXY==true
+  static vtkPolyData* ReadPolyData(const std::string& fileName, bool invertXY=false);
 };
 };
 

@@ -166,7 +166,7 @@ int main( int argc, char * argv[] )
 
   cout<<"Evaluate weight in  "<<WeightDirectory<<endl;
   cout<<"Evaluating surface: "<<InputSurface<<endl;
-  if(InvertY)
+  if(!IsSurfaceInRAS)
     {
     cout<<"Invert y coordinate\n";
     }
@@ -206,7 +206,7 @@ int main( int argc, char * argv[] )
   // Read in the stl file
   //----------------------------
   vtkSmartPointer<vtkPolyData> surface;
-  surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),InvertY));
+  surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsSurfaceInRAS));
 
   vtkPoints* points = surface->GetPoints();
   int numPoints = points->GetNumberOfPoints();
@@ -258,7 +258,7 @@ int main( int argc, char * argv[] )
     bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
-      cerr<<"Lerp failed for "<<coord<<endl;
+      cerr<<"WARNING: Lerp failed for "<<coord<<endl;
       }
     else
       {

@@ -86,6 +86,15 @@ inline void SetToIdentityQuarternion(Vec4& v)
   v[2] = 0;
   v[3] = 0;
 }
+
+//-------------------------------------------------------------------------------
+template<class T>
+inline void InvertXY(T& x)
+{
+  x[0]*=-1;
+  x[1]*=-1;
+}
+
 //-----------------------------------------------------------------------------
 template<class T>
 void PrintVector(T* a, int n)
@@ -254,7 +263,7 @@ struct RigidTransform
 };
 
 //-------------------------------------------------------------------------------
-void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* arrayName, const double* rcenter, RigidTransform& F,bool invertY =true)
+void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* arrayName, const double* rcenter, RigidTransform& F,bool invertXY =true)
 {
   double A[12];
   polyData->GetCellData()->GetArray(arrayName)->GetTuple(cellId, A);
@@ -277,20 +286,20 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* a
     RCenter[i] = rcenter[i];
     }
 
-  if(invertY)
+  if(invertXY)
     {
     for(int i=0; i<3; ++i)
       {
       for(int j=0; j<3; ++j)
         {
-        if( (i==1 || j==1) && i!=j)
+        if( (i>1 || j>1) && i!=j)
           {
           R[i][j]*=-1;
           }
         }
       }
-    T[1]*=-1;
-    RCenter[1]*=-1;
+    InvertXY(T);
+    InvertXY(RCenter);
     }
 
   F.SetRotation(&R[0][0]);
@@ -299,7 +308,7 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* a
 }
 
 //-------------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const char* arrayName, bool invertY)
+vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const char* arrayName, bool invertXY)
 {
   vtkSmartPointer<vtkPolyData> output = vtkSmartPointer<vtkPolyData>::New();
   output->DeepCopy(armature);
@@ -334,21 +343,20 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
     T[1] = A[10];
     T[2] = A[11];
 
-    if(invertY)
+    if(invertXY)
       {
       //    Mat33 flipY;
       for(int i=0; i<3; ++i)
+        {
         for(int j=0; j<3; ++j)
           {
-          if( (i==1 || j==1) && i!=j)
+          if( (i>1 || j>1) && i!=j)
             {
             R(i,j)*=-1;
             }
-//          flipY(i,j) = (i==1 && j==1) ? -1 : (i==j? 1 : 0);
           }
-
-//      R = flipY*R*flipY;
-      T[1]*=-1;
+        }
+      InvertXY(T);
       }
 
 
@@ -356,15 +364,15 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
     Vec3 bx(inPoints->GetPoint(b));
     Vec3 ax1;
     Vec3 bx1;
-    if(!invertY)
+    if(!invertXY)
       {
       ax1 = R*(ax-ax)+ax+T;
       bx1 = R*(bx-ax)+ax+T;
       }
     else
       {
-      ax[1]*=-1;
-      bx[1]*=-1;
+      InvertXY(ax);
+      InvertXY(bx);
       ax1 = R*(ax-ax)+ax+T;
       bx1 = R*(bx-ax)+ax+T;
       }

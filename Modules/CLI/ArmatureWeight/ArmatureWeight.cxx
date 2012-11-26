@@ -62,6 +62,12 @@ typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
 bool DumpSegmentationImages = false;
+//-------------------------------------------------------------------------------
+inline void InvertXY(double* x)
+{
+  x[0]*=-1;
+  x[1]*=-1;
+}
 
 //-------------------------------------------------------------------------------
 template<unsigned int dimension>
@@ -680,17 +686,17 @@ public:
   std::vector<Voxel> Fixed;
   std::vector<WeightImage::Pointer> Weights;
 
-  void Init(const char* fname, bool invertY)
+  void Init(const char* fname, bool invertXY)
   {
     vtkNew<vtkPolyDataReader> reader;
     reader->SetFileName(fname);
     reader->Update();
-    this->InitSkeleton(reader->GetOutput(), invertY);
+    this->InitSkeleton(reader->GetOutput(), invertXY);
 
     this->InitBones();
   }
 private:
-  void InitSkeleton(vtkPolyData* armPoly, bool invertY)
+  void InitSkeleton(vtkPolyData* armPoly, bool invertXY)
   {
     vtkCellArray* armatureSegments = armPoly->GetLines();
 
@@ -708,10 +714,10 @@ private:
       armPoly->GetPoints()->GetPoint(a, ax);
       armPoly->GetPoints()->GetPoint(b, bx);
 
-      if(invertY)
+      if(invertXY)
         {
-        ax[1]*=-1;
-        bx[1]*=-1;
+        InvertXY(ax);
+        InvertXY(bx);
         }
 
       this->SkeletonVoxels.push_back(std::vector<Voxel>());
@@ -1146,9 +1152,9 @@ int main( int argc, char * argv[] )
     std::cout << "Use binary weight: " << std::endl;
     }
 
-  if(InvertY)
+  if(!IsArmatureInRAS)
     {
-    std::cout << "Y coordinate of the armature will be inverted" << std::endl;
+    std::cout << "Input armature is not in RAS coordinate system; will convert it to RAS." << std::endl;
     }
 
   if(DumpDebugImages)
@@ -1206,7 +1212,7 @@ int main( int argc, char * argv[] )
   // Read armature information
   //----------------------------
   ArmatureType armature(labelMap);
-  armature.Init(ArmaturePoly.c_str(),InvertY);
+  armature.Init(ArmaturePoly.c_str(),!IsArmatureInRAS);
 
   if (LastEdge<0)
     {

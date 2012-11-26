@@ -30,7 +30,7 @@
 namespace bender
 {
 //-------------------------------------------------------------------------------
-vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertY)
+vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
 {
   vtkPolyData* polyData = 0;
   vtkSmartPointer<vtkPolyDataReader> pdReader;
@@ -76,13 +76,14 @@ vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertY)
   // Build Cells
   polyData->BuildLinks();
 
-  if(invertY)
+  if(invertXY)
     {
     vtkPoints* points = polyData->GetPoints();
     for(int i=0; i<points->GetNumberOfPoints();++i)
       {
       double x[3];
       points->GetPoint(i,x);
+      x[0]*=-1;
       x[1]*=-1;
       points->SetPoint(i, x);
       }

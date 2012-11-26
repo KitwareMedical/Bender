@@ -30,10 +30,9 @@
     </geometry>
 
     <boolean>
-      <name>InvertY</name>
-      <label>Invert Armature Y Coordinates</label>
-      <description><![CDATA[Whether to invert the y coordinate of the input armature]]></description>
-      <longflag>--inverty</longflag>
+      <name>IsArmatureInRAS</name>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system]]></description>
+      <longflag>--isArmatureRas</longflag>
       <default>false</default>
     </boolean>
 
