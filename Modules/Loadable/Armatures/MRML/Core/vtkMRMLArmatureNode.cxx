@@ -28,7 +28,6 @@
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
-#include <vtkArmatureWidget.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
 #include <vtkCollection.h>

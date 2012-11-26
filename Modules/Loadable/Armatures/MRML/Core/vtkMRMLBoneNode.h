@@ -29,8 +29,9 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+#include "vtkBoneWidget.h"
+
 class vtkBoneRepresentation;
-class vtkBoneWidget;
 class vtkMRMLBoneDisplayNode;
 class vtkMRMLBoneNodeCallback;
 class vtkMRMLDisplayNode;
@@ -115,10 +116,10 @@ public:
   //BTX
   enum WidgetStateType
     {
-    PlaceHead = 0,
-    PlaceTail,
-    Rest,
-    Pose
+    PlaceHead = vtkBoneWidget::PlaceHead,
+    PlaceTail = vtkBoneWidget::PlaceTail,
+    Rest = vtkBoneWidget::Rest,
+    Pose = vtkBoneWidget::Pose
     };
   //ETX
 

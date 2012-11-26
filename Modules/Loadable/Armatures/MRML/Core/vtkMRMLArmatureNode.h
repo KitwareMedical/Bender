@@ -26,6 +26,8 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+#include "vtkArmatureWidget.h"
+
 class vtkArmatureWidget;
 class vtkBoneWidget;
 class vtkMRMLArmatureDisplayableManager;
@@ -36,7 +38,6 @@ class vtkMRMLModelNode;
 // VTK includes
 #include "vtkCommand.h"
 class vtkPolyData;
-
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -104,6 +105,14 @@ public:
   /// Get the bones widget state.
   /// \sa SetWidgetState()
   int GetWidgetState();
+
+  //BTX
+  enum WidgetState
+    {
+    Rest = vtkArmatureWidget::Rest,
+    Pose = vtkArmatureWidget::Pose
+    };
+  //ETX
 
   /// Set the bones debug axes visibility.
   /// \sa GetShowAxes()

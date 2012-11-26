@@ -27,7 +27,6 @@
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
 #include <vtkBoneRepresentation.h>
-#include <vtkBoneWidget.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>

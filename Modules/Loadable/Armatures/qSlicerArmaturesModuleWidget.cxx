@@ -787,7 +787,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 
   d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
-  d->ArmatureStateComboBox->setCurrentIndex(d->ArmatureNode->GetWidgetState());
+  d->ArmatureStateComboBox->setCurrentIndex(
+    d->ArmatureNode->GetWidgetState() - 2);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
 
   d->updateArmatureWidget(d->ArmatureNode);
@@ -831,7 +832,9 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   int wasModifying = d->ArmatureNode->StartModify();
 
-  d->ArmatureNode->SetWidgetState(d->ArmatureStateComboBox->currentIndex());
+  // +1 to compensate for the vtkArmatureWidget::Rest == 2
+  d->ArmatureNode->SetWidgetState(
+    d->ArmatureStateComboBox->currentIndex() + 2);
 
   // +1 to compensate for the vtkArmatureWidget::None
   d->ArmatureNode->SetBonesRepresentation(
