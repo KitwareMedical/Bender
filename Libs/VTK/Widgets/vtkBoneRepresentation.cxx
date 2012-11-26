@@ -223,6 +223,42 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneRepresentation::ShallowCopy(vtkProp* prop)
+{
+  vtkBoneRepresentation *rep = vtkBoneRepresentation::SafeDownCast(prop);
+  if (rep)
+    {
+    // vtkLineRepresentation copies, should probably go in vtk
+    this->SetDistanceAnnotationFormat(rep->GetDistanceAnnotationFormat());
+    this->SetDistanceAnnotationScale(rep->GetDistanceAnnotationScale());
+    this->SetDistanceAnnotationVisibility(
+      rep->GetDistanceAnnotationVisibility());
+    this->SetInteractionState(rep->GetInteractionState());
+    this->SetPoint1WorldPosition(rep->GetPoint1WorldPosition());
+    this->SetPoint2WorldPosition(rep->GetPoint2WorldPosition());
+    this->SetRepresentationState(rep->GetRepresentationState());
+    this->SetResolution(rep->GetResolution());
+    this->SetTolerance(rep->GetTolerance());
+
+    // vtkBoneWidget copies
+    this->SetAlwaysOnTop(rep->GetAlwaysOnTop());
+    this->SetOpacity(rep->GetLineProperty()->GetOpacity());
+
+    // Properties:
+    // Enpoint (Head)
+    this->EndPointProperty->DeepCopy(rep->GetEndPointProperty());
+    this->SelectedEndPointProperty->DeepCopy(rep->GetSelectedEndPointProperty());
+    // Enpoint2 (Tail)
+    this->EndPoint2Property->DeepCopy(rep->GetEndPoint2Property());
+    this->SelectedEndPoint2Property->DeepCopy(rep->GetSelectedEndPoint2Property());
+    // Line
+    this->LineProperty->DeepCopy(rep->GetLineProperty());
+    this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
+    }
+  this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetOpacity(double opacity)
 {
   this->LineProperty->SetOpacity(opacity);

@@ -37,6 +37,7 @@
 #include "vtkBenderWidgetsExport.h"
 
 class vtkPointHandleRepresentation3D;
+class vtkProp;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkBoneRepresentation
   : public vtkLineRepresentation
@@ -108,6 +109,7 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
+  virtual void ShallowCopy(vtkProp* prop);
 
   // Description:
   // Helper function to set the opacity of all the bone representation
