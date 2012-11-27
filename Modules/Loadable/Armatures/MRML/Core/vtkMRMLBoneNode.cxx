@@ -625,6 +625,8 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 
   // -- Representation --
   this->SetBoneRepresentation(boneWidget->GetBoneRepresentation());
+  this->BoneProperties->GetBoneRepresentation()->SetAlwaysOnTop(
+    boneWidget->GetBoneRepresentation()->GetAlwaysOnTop());
 
   this->BoneProperties->GetBoneRepresentation()->GetLineProperty()->SetColor(
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetColor());
@@ -671,6 +673,8 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       boneWidget->SetRepresentation(rep);
       }
     }
+  boneWidget->GetBoneRepresentation()->SetAlwaysOnTop(
+    this->BoneProperties->GetBoneRepresentation()->GetAlwaysOnTop());
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);
