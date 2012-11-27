@@ -800,6 +800,12 @@ void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
   if (this->GetBonesRepresentation())
     {
     this->BonesRepresentation->SetAlwaysOnTop(this->BonesAlwaysOnTop);
+
+    for (NodeIteratorType it = this->Bones->begin();
+      it != this->Bones->end(); ++it)
+      {
+      (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(this->BonesAlwaysOnTop);
+      }
     }
 
   this->Modified();
