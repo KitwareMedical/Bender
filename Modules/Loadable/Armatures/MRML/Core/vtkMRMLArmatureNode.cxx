@@ -30,6 +30,7 @@
 #include <vtkArmatureRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
+#include <vtkCallbackCommand.h>
 #include <vtkCollection.h>
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
@@ -43,30 +44,21 @@
 vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
 
 //----------------------------------------------------------------------------
-class vtkMRMLArmatureNodeCallback : public vtkCommand
+static void MRMLArmatureNodeCallback(vtkObject* caller,
+                                     long unsigned int eventId,
+                                     void* clientData,
+                                     void* callData )
 {
-public:
-  static vtkMRMLArmatureNodeCallback *New()
-    { return new vtkMRMLArmatureNodeCallback; }
-
-  vtkMRMLArmatureNodeCallback()
-    { this->Node = 0; }
-
-  virtual void Execute(vtkObject* caller, unsigned long eventId, void* data)
+  if (eventId == vtkCommand::ModifiedEvent)
     {
-    vtkNotUsed(data);
-    switch (eventId)
+    vtkMRMLArmatureNode* node =
+      reinterpret_cast<vtkMRMLArmatureNode*>(clientData);
+    if (node)
       {
-      case vtkCommand::ModifiedEvent:
-        {
-        this->Node->Modified();
-        break;
-        }
+      node->Modified();
       }
     }
-
-  vtkMRMLArmatureNode* Node;
-};
+}
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::vtkMRMLArmatureNode()
@@ -77,7 +69,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
     vtkDoubleConeBoneRepresentation::New());
   this->WidgetState = vtkMRMLArmatureNode::Rest;
   this->SetHideFromEditors(0);
-  this->Callback = vtkMRMLArmatureNodeCallback::New();
+  this->Callback = vtkCallbackCommand::New();
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetColor(67.0 / 255.0, 75.0/255.0, 89.0/255.0); //Slicer's bone color.
@@ -89,7 +81,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 
   this->ShouldResetPoseMode = 0;
 
-  this->Callback->Node = this;
+  this->Callback->SetClientData(this);
+  this->Callback->SetCallback(MRMLArmatureNodeCallback);
   this->ArmatureProperties->AddObserver(vtkCommand::ModifiedEvent,
     this->Callback);
 }

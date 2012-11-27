@@ -31,8 +31,8 @@
 class vtkArmatureWidget;
 class vtkBoneRepresentation;
 class vtkBoneWidget;
+class vtkCallbackCommand;
 class vtkMRMLArmatureDisplayableManager;
-class vtkMRMLArmatureNodeCallback;
 class vtkMRMLBoneNode;
 class vtkMRMLModelNode;
 
@@ -252,11 +252,10 @@ protected:
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
 
   //BTX
-  friend class vtkMRMLArmatureNodeCallback;
   friend class vtkMRMLArmatureDisplayableManager;
   //ETX
 
-  vtkMRMLArmatureNodeCallback* Callback;
+  vtkCallbackCommand* Callback;
 
   /// Set the armature polydata. Only the displayable manager can set the
   /// polydata.
