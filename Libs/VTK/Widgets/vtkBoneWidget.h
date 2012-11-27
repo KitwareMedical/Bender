@@ -331,6 +331,13 @@ public:
   void SetShowAxes(int show);
 
   // Description:
+  // Set the get the axes size factor. The axes final size is the bone's
+  // length multiplied b this factor.
+  // The values is between 0 and 1, default is 0.4.
+  void SetAxesSize(double size);
+  vtkGetMacro(AxesSize, double);
+
+  // Description:
   // Hidden:  Hide the axes.
   // ShowRestTransform: The debug axes will output the RestTransform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
@@ -392,6 +399,11 @@ public:
     LineSelected
     };
   //ETX
+
+  // Description:
+  // Deep copy another bone's properties.
+  // Note: The representation type (if any) is left unchanged.
+  void DeepCopy(vtkBoneWidget* other);
 
 protected:
   vtkBoneWidget();
