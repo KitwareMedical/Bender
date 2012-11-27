@@ -58,6 +58,14 @@ vtkSlicerArmaturesLogic::vtkSlicerArmaturesLogic()
 //----------------------------------------------------------------------------
 vtkSlicerArmaturesLogic::~vtkSlicerArmaturesLogic()
 {
+  if (this->ModelsLogic)
+    {
+    this->ModelsLogic->Delete();
+    }
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
