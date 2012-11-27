@@ -27,6 +27,7 @@
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
 #include <vtkBoneRepresentation.h>
+#include <vtkQuaternion.h>
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -483,13 +484,13 @@ void vtkMRMLBoneNode::SetWorldToParentPoseRotation(const double* rotation)
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToParentRestRotation()
 {
-  return this->BoneProperties->GetWorldToParentRestRotation();
+  return this->BoneProperties->GetWorldToParentRestRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToParentPoseRotation()
 {
-  return this->BoneProperties->GetWorldToParentPoseRotation();
+  return this->BoneProperties->GetWorldToParentPoseRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
@@ -527,13 +528,13 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetParentToBoneRestRotation()
 {
-  return this->BoneProperties->GetParentToBoneRestRotation();
+  return this->BoneProperties->GetParentToBoneRestRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetParentToBonePoseRotation()
 {
-  return this->BoneProperties->GetParentToBonePoseRotation();
+  return this->BoneProperties->GetParentToBonePoseRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
@@ -551,13 +552,13 @@ double* vtkMRMLBoneNode::GetParentToBonePoseTranslation()
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToBoneRestRotation()
 {
-  return this->BoneProperties->GetWorldToBoneRestRotation();
+  return this->BoneProperties->GetWorldToBoneRestRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
 double* vtkMRMLBoneNode::GetWorldToBonePoseRotation()
 {
-  return this->BoneProperties->GetWorldToBonePoseRotation();
+  return this->BoneProperties->GetWorldToBonePoseRotation().GetData();
 }
 
 //---------------------------------------------------------------------------
@@ -622,30 +623,6 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
     return;
     }
 
-  // -- World coordinates --
-  this->BoneProperties->SetWorldHeadRest(boneWidget->GetWorldHeadRest());
-  this->BoneProperties->SetWorldTailRest(boneWidget->GetWorldTailRest());
-
-  // -- World to parent transforms
-  this->BoneProperties->SetWorldToParentRestRotation(
-    boneWidget->GetWorldToParentRestRotation());
-  this->BoneProperties->SetWorldToParentPoseRotation(
-    boneWidget->GetWorldToParentPoseRotation());
-  this->BoneProperties->SetWorldToParentRestTranslation(
-    boneWidget->GetWorldToParentRestTranslation());
-  this->BoneProperties->SetWorldToParentPoseTranslation(
-    boneWidget->GetWorldToParentPoseTranslation());
-
-  // -- Local coordinates --
-  // No Update for local coordinates, they already are up-to-date since we set
-  // the world coordinates and the world to parent transforms
-
-  // -- Axes -- 
-  this->BoneProperties->SetShowAxes(boneWidget->GetShowAxes());
-
-  // -- Parenthood -- 
-  this->BoneProperties->SetShowParenthood(boneWidget->GetShowParenthood());
-
   // -- Representation --
   this->SetBoneRepresentation(boneWidget->GetBoneRepresentation());
 
@@ -654,14 +631,14 @@ void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
   this->BoneProperties->GetBoneRepresentation()->GetLineProperty()->SetOpacity(
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
 
-  // -- State --
-  this->BoneProperties->SetWidgetState(boneWidget->GetWidgetState());
-
   // -- Name --
   this->SetName(boneWidget->GetName());
 
   // -- Selected --
   this->SetSelected(boneWidget->GetBoneSelected());
+
+  // -- All the other properties --
+  this->BoneProperties->DeepCopy(boneWidget);
 }
 
 //---------------------------------------------------------------------------
@@ -695,33 +672,6 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       }
     }
 
-  // -- World coordinates --
-  boneWidget->SetWorldHeadRest(this->BoneProperties->GetWorldHeadRest());
-  boneWidget->SetWorldTailRest(this->BoneProperties->GetWorldTailRest());
-
-  // -- World to parent transforms
-  boneWidget->SetWorldToParentRestRotation(
-    this->BoneProperties->GetWorldToParentRestRotation());
-  boneWidget->SetWorldToParentPoseRotation(
-    this->BoneProperties->GetWorldToParentPoseRotation());
-  boneWidget->SetWorldToParentRestTranslation(
-    this->BoneProperties->GetWorldToParentRestTranslation());
-  boneWidget->SetWorldToParentPoseTranslation(
-    this->BoneProperties->GetWorldToParentPoseTranslation());
-
-  // -- Local coordinates --
-  // No Update for local coordinates, they already are up-to-date since we set
-  // the world coordinates and the world to parent transforms
-
-  // -- Axes -- 
-  boneWidget->SetShowAxes(this->BoneProperties->GetShowAxes());
-
-  // -- Parenthood -- 
-  boneWidget->SetShowParenthood(this->BoneProperties->GetShowParenthood());
-
-  // -- State --
-  boneWidget->SetWidgetState(this->BoneProperties->GetWidgetState());
-
-  // -- Name --
-  boneWidget->SetName(this->BoneProperties->GetName());
+  // -- All the other properties --
+  boneWidget->DeepCopy(this->BoneProperties);
 }
