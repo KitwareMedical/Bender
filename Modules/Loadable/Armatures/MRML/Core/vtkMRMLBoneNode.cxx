@@ -32,6 +32,7 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
+#include <vtkCallBackCommand.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -47,41 +48,30 @@
 vtkMRMLNodeNewMacro(vtkMRMLBoneNode);
 
 //----------------------------------------------------------------------------
-class vtkMRMLBoneNodeCallback : public vtkCommand
+static void MRMLBoneNodeCallback(vtkObject* caller, long unsigned int eventId,
+                                 void* clientData, void* callData )
 {
-public:
-  static vtkMRMLBoneNodeCallback *New()
-    { return new vtkMRMLBoneNodeCallback; }
-
-  vtkMRMLBoneNodeCallback()
-    { this->Node = 0; }
-
-  virtual void Execute(vtkObject* caller, unsigned long eventId, void* data)
+  if (eventId == vtkCommand::ModifiedEvent)
     {
-    vtkNotUsed(data);
-    switch (eventId)
+    vtkMRMLBoneNode* node = reinterpret_cast<vtkMRMLBoneNode*>(clientData);
+    if (node)
       {
-      case vtkCommand::ModifiedEvent:
-        {
-        this->Node->Modified();
-        break;
-        }
+      node->Modified();
       }
     }
-
-  vtkMRMLBoneNode* Node;
-};
+}
 
 //----------------------------------------------------------------------------
 vtkMRMLBoneNode::vtkMRMLBoneNode()
 {
-  this->Callback = vtkMRMLBoneNodeCallback::New();
+  this->Callback = vtkCallbackCommand::New();
   this->BoneProperties = vtkBoneWidget::New();
   this->BoneRepresentationType = 0;
   this->LinkedWithParent = true;
   this->HasParent = false;
 
-  this->Callback->Node = this;
+  this->Callback->SetCallback(MRMLBoneNodeCallback);
+  this->Callback->SetClientData(this);
   this->BoneProperties->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
 
   this->BoneProperties->CreateDefaultRepresentation();

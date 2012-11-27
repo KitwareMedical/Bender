@@ -32,8 +32,8 @@
 #include "vtkBoneWidget.h"
 
 class vtkBoneRepresentation;
+class vtkCallbackCommand;
 class vtkMRMLBoneDisplayNode;
-class vtkMRMLBoneNodeCallback;
 class vtkMRMLDisplayNode;
 
 /// \ingroup Bender_MRML
@@ -253,10 +253,7 @@ protected:
   vtkMRMLBoneNode(const vtkMRMLBoneNode&); /// not implemented
   void operator=(const vtkMRMLBoneNode&); /// not implemented
 
-  //BTX
-  friend class vtkMRMLBoneNodeCallback;
-  //ETX
-  vtkMRMLBoneNodeCallback* Callback;
+  vtkCallbackCommand* Callback;
 
   vtkBoneWidget* BoneProperties;
   int BoneRepresentationType;
