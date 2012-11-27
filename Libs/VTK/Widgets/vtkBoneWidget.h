@@ -209,13 +209,13 @@ public:
   // Description:
   // Rest mode get methods.
   // Access methods to all the rotation and translations from the rest mode.
-  vtkGetQuaternionMacro(WorldToParentRestRotation, double);
+  vtkGetQuaterniondMacro(WorldToParentRestRotation, double);
   vtkGetVector3Macro(WorldToParentRestTranslation, double);
 
-  vtkGetQuaternionMacro(ParentToBoneRestRotation, double);
+  vtkGetQuaterniondMacro(ParentToBoneRestRotation, double);
   vtkGetVector3Macro(ParentToBoneRestTranslation, double);
 
-  vtkGetQuaternionMacro(WorldToBoneRestRotation, double);
+  vtkGetQuaterniondMacro(WorldToBoneRestRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadRestTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailRestTranslation, double);
 
@@ -248,18 +248,18 @@ public:
   // Description:
   // Pose mode get methods.
   // Access methods to all the rotation and translations from the pose mode.
-  vtkGetQuaternionMacro(WorldToParentPoseRotation, double);
+  vtkGetQuaterniondMacro(WorldToParentPoseRotation, double);
   vtkGetVector3Macro(WorldToParentPoseTranslation, double);
 
-  vtkGetQuaternionMacro(ParentToBonePoseRotation, double);
+  vtkGetQuaterniondMacro(ParentToBonePoseRotation, double);
   vtkGetVector3Macro(ParentToBonePoseTranslation, double);
 
-  vtkGetQuaternionMacro(WorldToBonePoseRotation, double);
+  vtkGetQuaterniondMacro(WorldToBonePoseRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
-  vtkGetQuaternionMacro(RestToPoseRotation, double);
-  //void SetRestToPoseRotation(double rotation[4]); //\TO DO
+  vtkGetQuaterniondMacro(RestToPoseRotation, double);
+  //void SetRestToPoseRotation(double rotation[4]); //\TO DO ?
 
   // Description:
   // Pose mode methods to quickly create transforms.

@@ -192,7 +192,6 @@ vtkBoneWidget::vtkBoneWidget()
   //
   // - Rest Transforms:
   //   * Parent To Bone:
-  //InitializeQuaternion(this->ParentToBoneRestRotation);
   InitializeVector3(this->ParentToBoneRestTranslation);
   //   * World To Parent:
   InitializeVector3(this->WorldToParentRestTranslation);
@@ -485,6 +484,7 @@ void vtkBoneWidget
   if (changeRotation)
     {
     this->WorldToParentRestRotation.Set(quat);
+    this->WorldToParentRestRotation.Normalize();
     }
   if (changeTranslation)
     {
@@ -506,6 +506,7 @@ void vtkBoneWidget::SetWorldToParentRestRotation(double quat[4])
     }
 
   this->WorldToParentRestRotation.Set(quat);
+  this->WorldToParentRestRotation.Normalize();
   this->UpdateRestMode();
 }
 
@@ -625,6 +626,7 @@ void vtkBoneWidget
   if (changeRotation)
     {
     this->WorldToParentPoseRotation.Set(quat);
+    this->WorldToParentPoseRotation.Normalize();
     }
   if (changeTranslation)
     {
@@ -647,6 +649,7 @@ void vtkBoneWidget::SetWorldToParentPoseRotation(double quat[4])
     }
 
   this->WorldToParentPoseRotation.Set(quat);
+  this->WorldToParentPoseRotation.Normalize();
   this->UpdateWorldPosePositions();
   this->UpdatePoseMode();
 }
@@ -1867,6 +1870,7 @@ void vtkBoneWidget::UpdatePoseIntercationsVariables()
   CopyVector3(this->WorldHeadPose, this->InteractionWorldHeadPose);
   CopyVector3(this->WorldTailPose, this->InteractionWorldTailPose);
   this->StartPoseRotation = this->WorldToBonePoseRotation;
+  this->StartPoseRotation.Normalize(); // Normalization paranoia
 }
 
 //----------------------------------------------------------------------------
@@ -1894,7 +1898,7 @@ void vtkBoneWidget::RebuildPoseFromRest()
   // Update Parent to bone
   this->ParentToBonePoseRotation =
     this->RestToPoseRotation * this->ParentToBoneRestRotation;
-  this->ParentToBonePoseRotation.Normalized();
+  this->ParentToBonePoseRotation.Normalize(); // Normalization paranoia
 
   // Update World to bone Pose rotation.
   this->RebuildWorldToBonePoseRotationFromParent();
