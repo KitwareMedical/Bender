@@ -1881,16 +1881,22 @@ void vtkBoneWidget::RebuildPoseFromRest()
   // Head is given by the position of the local rest in the parent.
   CopyVector3(this->LocalHeadRest, this->LocalHeadPose);
 
+  // Compute pose tail.
+  // Pose tail is rest tail transformed by the RestToPoseRotation.
+  // First things first, centers rest tail.
+  double centeredTail[3];
+  vtkMath::Subtract(this->LocalTailRest, this->LocalHeadRest, centeredTail);
+
+  // Apply Rest -> Pose rotation
   double axis[3];
   double angle = this->RestToPoseRotation.GetRotationAngleAndAxis(axis);
   vtkSmartPointer<vtkTransform> rotateTail =
     vtkSmartPointer<vtkTransform>::New();
   rotateTail->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
+  double* newLocalTail = rotateTail->TransformDoubleVector(centeredTail);
 
-  // Rotate local rest tail.
-  double* newLocalTail =
-    rotateTail->TransformDoubleVector(this->LocalTailRest);
-  CopyVector3(newLocalTail, this->LocalTailPose);
+  // Re-Translate
+  vtkMath::Add(this->LocalHeadRest, newLocalTail, this->LocalTailPose);
 
   // Update world positions
   this->UpdateWorldPosePositions();
