@@ -172,26 +172,22 @@ vtkBoneWidget::vtkBoneWidget()
   this->LineWidget->ManagesCursorOff();
 
   // Set up the callbacks on the two handles.
-  this->HeadWidgetCallback = vtkBoneWidgetCallback::New();
-  this->HeadWidgetCallback->BoneWidget = this;
+  this->HandlesCallback = vtkBoneWidgetCallback::New();
+  this->HandlesCallback->BoneWidget = this;
   this->HeadWidget->AddObserver(vtkCommand::StartInteractionEvent,
-    this->HeadWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
   this->HeadWidget->AddObserver(vtkCommand::EndInteractionEvent,
-    this->HeadWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
 
-  this->TailWidgetCallback = vtkBoneWidgetCallback::New();
-  this->TailWidgetCallback->BoneWidget = this;
   this->TailWidget->AddObserver(vtkCommand::StartInteractionEvent,
-    this->TailWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
   this->TailWidget->AddObserver(vtkCommand::EndInteractionEvent,
-    this->TailWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
 
-  this->LineWidgetCallback = vtkBoneWidgetCallback::New();
-  this->LineWidgetCallback->BoneWidget = this;
   this->LineWidget->AddObserver(vtkCommand::StartInteractionEvent,
-    this->LineWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
   this->LineWidget->AddObserver(vtkCommand::EndInteractionEvent,
-    this->LineWidgetCallback, this->Priority);
+    this->HandlesCallback, this->Priority);
 
   // These are the event callbacks supported by this widget.
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -272,17 +268,13 @@ vtkBoneWidget::~vtkBoneWidget()
   this->AxesActor->Delete();
   this->ParenthoodLink->Delete();
 
-  this->HeadWidget->RemoveObserver(this->HeadWidgetCallback);
+  this->HeadWidget->RemoveObserver(this->HandlesCallback);
   this->HeadWidget->Delete();
-  this->HeadWidgetCallback->Delete();
-
-  this->TailWidget->RemoveObserver(this->TailWidgetCallback);
+  this->TailWidget->RemoveObserver(this->HandlesCallback);
   this->TailWidget->Delete();
-  this->TailWidgetCallback->Delete();
-
-  this->LineWidget->RemoveObserver(this->TailWidgetCallback);
+  this->LineWidget->RemoveObserver(this->HandlesCallback);
   this->LineWidget->Delete();
-  this->LineWidgetCallback->Delete();
+  this->HandlesCallback->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -1290,6 +1282,9 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 
     self->SetDisplayTailRestPosition(e);
     CopyVector3(self->WorldTailRest, self->WorldTailPose);
+
+    self->ReleaseFocus();
+    self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
     self->Modified();
     }
 
