@@ -33,6 +33,7 @@
 #include <vtkBiDimensionalRepresentation2D.h>
 #include <vtkCommand.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
 #include <vtkOrientationMarkerWidget.h>
 #include <vtkAppendPolyData.h>
 #include <vtkTransformPolyDataFilter.h>
@@ -40,6 +41,8 @@
 #include <vtkAxesActor.h>
 #include <vtkPointHandleRepresentation3D.h>
 #include <vtkLineWidget2.h>
+
+#include <map>
 
 #include <vtkInteractorStyleTrackballCamera.h>
 
@@ -148,10 +151,46 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
   vtkBoneWidget* Widget;
 };
 
+
+class vtkSpy : public vtkCommand
+{
+public:
+  vtkTypeMacro(vtkSpy, vtkCommand);
+  static vtkSpy *New(){return new vtkSpy;}
+  virtual void Execute(vtkObject *caller, unsigned long eventId,
+                       void *callData);
+  // List of node that should be updated when NodeAddedEvent is catched
+  std::map<unsigned long, unsigned int> CalledEvents;
+  std::map<unsigned long, unsigned long> LastEventMTime;
+  bool Verbose;
+protected:
+  vtkSpy():Verbose(false){}
+  virtual ~vtkSpy(){}
+};
+
+//---------------------------------------------------------------------------
+void vtkSpy::Execute(
+  vtkObject *vtkcaller, unsigned long eid, void *vtkNotUsed(calldata))
+{
+  ++this->CalledEvents[eid];
+  this->LastEventMTime[eid] = vtkTimeStamp();
+  if (this->Verbose)
+    {
+    std::cout << "vtkSpy: event:" << eid
+              << " (" << vtkCommand::GetStringFromEventId(eid) << ")"
+              << " count: " << this->CalledEvents[eid]
+              << " time: " << this->LastEventMTime[eid]
+              << std::endl;
+    }
+}
+
 vtkStandardNewMacro(KeyPressInteractorStyle);
 
 int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
 {
+  vtkNew<vtkSpy> spy;
+  spy->Verbose = true;
+
   // A renderer and render window
   vtkSmartPointer<vtkRenderer> renderer = 
     vtkSmartPointer<vtkRenderer>::New();
@@ -169,6 +208,8 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
   BoneWidget->SetInteractor(renderWindowInteractor);
   //Test Line
   BoneWidget->CreateDefaultRepresentation();
+  BoneWidget->SetWidgetStateToRest();
+  BoneWidget->AddObserver(vtkCommand::AnyEvent, spy.GetPointer());
 
   //Setup callbacks
   vtkSmartPointer<KeyPressInteractorStyle> style = 

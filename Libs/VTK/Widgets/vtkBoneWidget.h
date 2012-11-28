@@ -429,9 +429,7 @@ protected:
   vtkHandleWidget* HeadWidget;
   vtkHandleWidget* TailWidget;
   vtkHandleWidget* LineWidget;
-  vtkBoneWidgetCallback* HeadWidgetCallback;
-  vtkBoneWidgetCallback* TailWidgetCallback;
-  vtkBoneWidgetCallback* LineWidgetCallback;
+  vtkBoneWidgetCallback* HandlesCallback;
 
   // Methods invoked when the handles at the
   // end points of the widget are manipulated.
