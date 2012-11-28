@@ -327,7 +327,7 @@ void vtkBoneWidget::SetEnabled(int enabling)
     this->LineWidget->GetRepresentation()->SetRenderer(
       this->CurrentRenderer);
     // invisible handle
-    this->LineWidget->GetRepresentation()->SetVisibility(0);
+    this->GetBoneRepresentation()->GetLineHandleRepresentation()->SetHandleSize(0.0);
 
     this->ParenthoodLink->SetInteractor(this->Interactor);
     this->ParenthoodLink->SetCurrentRenderer(this->CurrentRenderer);
@@ -1319,9 +1319,6 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
         self->WidgetRep->StartWidgetInteraction(e);
         self->SetWidgetSelectedState(vtkBoneWidget::LineSelected);
         self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
-
-        // For insivible line handle.
-        self->LineWidget->GetRepresentation()->SetVisibility(0);
         }
 
       self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
