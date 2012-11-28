@@ -464,7 +464,12 @@ void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
     return;
     }
 
+  if (this->BonesRepresentation)
+    {
+    this->BonesRepresentation->Delete();
+    }
   this->BonesRepresentation = newRep;
+  this->BonesRepresentation->Register(this);
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
