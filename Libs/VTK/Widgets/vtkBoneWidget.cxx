@@ -166,6 +166,11 @@ vtkBoneWidget::vtkBoneWidget()
   this->TailWidget->SetParent(this);
   this->TailWidget->ManagesCursorOff();
 
+  this->LineWidget = vtkHandleWidget::New();
+  this->LineWidget->SetPriority(this->Priority-0.01);
+  this->LineWidget->SetParent(this);
+  this->LineWidget->ManagesCursorOff();
+
   // Set up the callbacks on the two handles.
   this->HeadWidgetCallback = vtkBoneWidgetCallback::New();
   this->HeadWidgetCallback->BoneWidget = this;
@@ -180,6 +185,13 @@ vtkBoneWidget::vtkBoneWidget()
     this->TailWidgetCallback, this->Priority);
   this->TailWidget->AddObserver(vtkCommand::EndInteractionEvent,
     this->TailWidgetCallback, this->Priority);
+
+  this->LineWidgetCallback = vtkBoneWidgetCallback::New();
+  this->LineWidgetCallback->BoneWidget = this;
+  this->LineWidget->AddObserver(vtkCommand::StartInteractionEvent,
+    this->LineWidgetCallback, this->Priority);
+  this->LineWidget->AddObserver(vtkCommand::EndInteractionEvent,
+    this->LineWidgetCallback, this->Priority);
 
   // These are the event callbacks supported by this widget.
   this->CallbackMapper->SetCallbackMethod(vtkCommand::LeftButtonPressEvent,
@@ -267,6 +279,10 @@ vtkBoneWidget::~vtkBoneWidget()
   this->TailWidget->RemoveObserver(this->TailWidgetCallback);
   this->TailWidget->Delete();
   this->TailWidgetCallback->Delete();
+
+  this->LineWidget->RemoveObserver(this->TailWidgetCallback);
+  this->LineWidget->Delete();
+  this->LineWidgetCallback->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -312,12 +328,22 @@ void vtkBoneWidget::SetEnabled(int enabling)
     this->TailWidget->GetRepresentation()->SetRenderer(
       this->CurrentRenderer);
 
+    this->LineWidget->SetRepresentation(
+      vtkBoneRepresentation::SafeDownCast
+      (this->WidgetRep)->GetLineHandleRepresentation());
+    this->LineWidget->SetInteractor(this->Interactor);
+    this->LineWidget->GetRepresentation()->SetRenderer(
+      this->CurrentRenderer);
+    // invisible handle
+    this->LineWidget->GetRepresentation()->SetVisibility(0);
+
     this->ParenthoodLink->SetInteractor(this->Interactor);
     this->ParenthoodLink->SetCurrentRenderer(this->CurrentRenderer);
     }
 
   this->HeadWidget->SetEnabled(enabling);
   this->TailWidget->SetEnabled(enabling);
+  this->LineWidget->SetEnabled(enabling);
   this->Superclass::SetEnabled(enabling);
 
   this->ParenthoodLink->SetEnabled(enabling);
@@ -396,6 +422,7 @@ void vtkBoneWidget::SetProcessEvents(int pe)
 
   this->HeadWidget->SetProcessEvents(pe);
   this->TailWidget->SetProcessEvents(pe);
+  this->LineWidget->SetProcessEvents(pe);
 }
 
 //----------------------------------------------------------------------------
@@ -1258,6 +1285,7 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 
     self->TailWidget->SetEnabled(1);
     self->TailWidget->GetRepresentation()->SetVisibility(1);
+    self->LineWidget->SetEnabled(1);
     self->WidgetRep->SetVisibility(1);
 
     self->SetDisplayTailRestPosition(e);
@@ -1293,9 +1321,12 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
       {
       if (self->WidgetState == vtkBoneWidget::Rest)
         {
-        self->SetWidgetSelectedState(vtkBoneWidget::LineSelected);
         self->WidgetRep->StartWidgetInteraction(e);
+        self->SetWidgetSelectedState(vtkBoneWidget::LineSelected);
         self->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+
+        // For insivible line handle.
+        self->LineWidget->GetRepresentation()->SetVisibility(0);
         }
 
       self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -1344,7 +1375,6 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
       {
       self->SetDisplayTailRestPosition(e);
       }
-
     else if (self->BoneSelected == vtkBoneWidget::LineSelected)
       {
       self->GetBoneRepresentation()
