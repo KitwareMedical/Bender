@@ -475,7 +475,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="BonePositionTypeLabel">
               <property name="text">
-               <string>Position Type:</string>
+               <string>Coordinate Reference:</string>
               </property>
               <property name="buddy">
                <cstring>BonePositionTypeComboBox</cstring>
@@ -492,12 +492,12 @@
               </property>
               <item>
                <property name="text">
-                <string>Local</string>
+                <string>Global</string>
                </property>
               </item>
               <item>
                <property name="text">
-                <string>Global</string>
+                <string>Local</string>
                </property>
               </item>
              </widget>
