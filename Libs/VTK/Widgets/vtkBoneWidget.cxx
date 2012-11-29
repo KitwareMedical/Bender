@@ -265,6 +265,7 @@ vtkBoneWidget::~vtkBoneWidget()
     {
     this->CurrentRenderer->RemoveActor(this->AxesActor);
     }
+
   this->AxesActor->Delete();
   this->ParenthoodLink->Delete();
 
@@ -1282,6 +1283,8 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 
     self->SetDisplayTailRestPosition(e);
     CopyVector3(self->WorldTailRest, self->WorldTailPose);
+
+    self->UpdateParenthoodLinkVisibility();
 
     self->ReleaseFocus();
     self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
