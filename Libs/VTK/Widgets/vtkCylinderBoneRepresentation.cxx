@@ -99,7 +99,7 @@ void vtkCylinderBoneRepresentation::CreateDefaultProperties()
 
   this->SelectedCylinderProperty = vtkProperty::New();
   this->SelectedCylinderProperty->SetAmbient(1.0);
-  this->SelectedCylinderProperty->SetAmbientColor(0.0,0.0,1.0);
+  this->SelectedCylinderProperty->SetAmbientColor(0.0,1.0,0.0);
 }
 
 //----------------------------------------------------------------------------
