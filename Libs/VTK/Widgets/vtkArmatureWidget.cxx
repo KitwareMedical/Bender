@@ -687,7 +687,16 @@ void vtkArmatureWidget
     }
 
   ArmatureTreeNode* oldNode = this->GetNode(bone);
-  if (!oldNode)
+
+  // Reparent if:
+  // - The bone belongs to the armature
+  bool shouldReparent = oldNode != 0;
+  // - The new parent belongs to the armature or is null (reparent to root)
+  shouldReparent &= newParent ? this->HasBone(newParent) : true;
+  // - The bone's parent is different than the new parent
+  shouldReparent &= oldNode->Parent ?
+    oldNode->Parent->Bone != newParent : newParent != 0;
+  if (!shouldReparent)
     {
     return;
     }
@@ -701,8 +710,19 @@ void vtkArmatureWidget
     return;
     }
 
+  // Add the children of the old node to he new node
+  for (ChildrenNodeIteratorType it = oldNode->Children.begin();
+    it != oldNode->Children.end(); ++it)
+    {
+    newNode->AddChild(*it);
+    }
+  // Clear chidren
+  oldNode->Children.clear();
+
   // Remove old node
   this->RemoveNodeFromHierarchy(oldNode);
+  this->Bones->erase(
+    std::find(this->Bones->begin(), this->Bones->end(), oldNode));
 
   // Update bone
   this->SetBoneWorldToParentRestTransform(bone, newParent);
