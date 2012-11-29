@@ -30,6 +30,7 @@
 #include <vtkCommand.h>
 #include <vtkCollection.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
@@ -759,7 +760,7 @@ vtkBoneWidget* vtkArmatureWidget
   newBoneName += tailBone->GetName();
 
   vtkBoneWidget* newBone = this->CreateBone(headNode->Parent->Bone,
-    tailBone->GetWorldTailRest(), newBoneName);
+    headBone->GetWorldTailRest(), newBoneName);
   ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(newBone,
     headNode->Parent->Bone, headNode->HeadLinkedToParent);
 
@@ -768,15 +769,18 @@ vtkBoneWidget* vtkArmatureWidget
   this->SetBoneWorldToParentPoseTransform(newBone, headNode->Parent->Bone);
 
   // Reparent tail node children
-  newNode->AddChild(tailNode);
+  this->ReparentBone(tailBone, newBone);
 
   // Then delete old bones. In the case of tailBone,
   // this automatically reparents its children to newNode.
   this->RemoveBone(tailBone);
   this->RemoveBone(headBone);
 
-  // Add observers and invoke events.
+  // Add observers
   this->AddBoneObservers(newBone);
+  // Adjust postion
+  newBone->SetWorldTailRest(tailBone->GetWorldTailRest());
+  // Invoke events.
   this->InvokeEvent(vtkArmatureWidget::BoneMerged, newBone);
   this->Modified();
 
