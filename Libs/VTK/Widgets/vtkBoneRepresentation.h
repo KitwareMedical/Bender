@@ -109,7 +109,7 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
-  virtual void ShallowCopy(vtkProp* prop);
+  virtual void DeepCopy(vtkProp* prop);
 
   // Description:
   // Helper function to set the opacity of all the bone representation

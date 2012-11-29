@@ -492,7 +492,7 @@ void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
   if (this->BonesRepresentation)
     {
     copiedRepresentation = this->BonesRepresentation->NewInstance();
-    copiedRepresentation->ShallowCopy(this->BonesRepresentation);
+    copiedRepresentation->DeepCopy(this->BonesRepresentation);
     }
 
   bone->SetRepresentation(copiedRepresentation);
