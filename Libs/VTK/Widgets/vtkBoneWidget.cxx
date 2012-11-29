@@ -265,6 +265,7 @@ vtkBoneWidget::~vtkBoneWidget()
     {
     this->CurrentRenderer->RemoveActor(this->AxesActor);
     }
+
   this->AxesActor->Delete();
   this->ParenthoodLink->Delete();
 
@@ -327,7 +328,7 @@ void vtkBoneWidget::SetEnabled(int enabling)
     this->LineWidget->GetRepresentation()->SetRenderer(
       this->CurrentRenderer);
     // invisible handle
-    this->LineWidget->GetRepresentation()->SetVisibility(0);
+    this->GetBoneRepresentation()->GetLineHandleRepresentation()->SetHandleSize(0.0);
 
     this->ParenthoodLink->SetInteractor(this->Interactor);
     this->ParenthoodLink->SetCurrentRenderer(this->CurrentRenderer);
@@ -1282,6 +1283,8 @@ void vtkBoneWidget::StartSelectAction(vtkAbstractWidget *w)
 
     self->SetDisplayTailRestPosition(e);
     CopyVector3(self->WorldTailRest, self->WorldTailPose);
+
+    self->UpdateParenthoodLinkVisibility();
 
     self->ReleaseFocus();
     self->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);

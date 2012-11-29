@@ -77,14 +77,14 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
           //do nothing
           //I wanted this if to be explicit !
           }
-        /*else if ( widgetState == vtkBoneWidget::Rest )
+        else if ( widgetState == vtkBoneWidget::Rest )
           {
           this->Widget->SetWidgetStateToPose();
           }
         else if ( widgetState == vtkBoneWidget::Pose )
           {
           this->Widget->SetWidgetStateToRest();
-          }*/
+          }
         }
       else if (key == "Tab")
         {
@@ -92,62 +92,37 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
         if (vtkCylinderBoneRepresentation::SafeDownCast(rep)) // switch to double cone
             {
-            vtkSmartPointer<vtkDoubleConeBoneRepresentation> simsIconRep = 
-              vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
-            simsIconRep->SetNumberOfSides(10);
-            simsIconRep->SetRatio(0.2);
-            simsIconRep->SetCapping(1);
-            simsIconRep->GetConesProperty()->SetOpacity(0.3);
+            vtkDoubleConeBoneRepresentation* simsIconRep =
+              vtkDoubleConeBoneRepresentation::New();
             Widget->SetRepresentation(simsIconRep);
+            simsIconRep->Delete();
             }
         else if (vtkDoubleConeBoneRepresentation::SafeDownCast(rep)) // switch to line
           {
-          vtkSmartPointer<vtkBoneRepresentation> lineRep = 
-              vtkSmartPointer<vtkBoneRepresentation>::New();
-         
+          vtkBoneRepresentation* lineRep =
+            vtkBoneRepresentation::New();
           Widget->SetRepresentation(lineRep);
+          lineRep->Delete();
           }
         else if (vtkBoneRepresentation::SafeDownCast(rep))
           {
-          vtkSmartPointer<vtkCylinderBoneRepresentation> cylinderRep = 
-            vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
-          cylinderRep->SetNumberOfSides(10);
-          cylinderRep->GetCylinderProperty()->SetOpacity(0.3);
+          vtkCylinderBoneRepresentation* cylinderRep =
+            vtkCylinderBoneRepresentation::New();
           Widget->SetRepresentation(cylinderRep);
+          cylinderRep->Delete();
           }
-
-        Widget->GetBoneRepresentation()->GetLineProperty()->SetOpacity(0.3);
         }
-      else if (key == "u")
+      else if (key == "a")
         {
-  //      std::cout<<"here"<<std::endl;
- //       double axis[3];
- //       vtkSmartPointer<vtkTransform> transform = vtkSmartPointer<vtkTransform>::New();
-//        transform->Translate( Widget->GetTailRestWorldPosition() );
-
-  //      double angle = vtkBoneWidget::QuaternionToAxisAngle(Widget->GetRestTransform(), axis);
-//        transform->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis[0], axis[1], axis[2]);
-
-   //     Axes->SetUserTransform(transform);
+        int show = Widget->GetShowAxes() + 1;
+        if (show > vtkBoneWidget::ShowPoseTransform)
+          {
+          show = vtkBoneWidget::Hidden;
+          }
+        Widget->SetShowAxes(show);
         }
-      else if (key == "h")
-        {
-        Axes->SetVisibility( !Axes->GetVisibility() );
-        }
-      else if (key == "minus")
-        {
-        double op = Widget->GetBoneRepresentation()->GetLineProperty()->GetOpacity() - 0.1;
-        Widget->GetBoneRepresentation()->SetOpacity(op);
-        }
-      else if (key == "plus")
-        {
-        double op = Widget->GetBoneRepresentation()->GetLineProperty()->GetOpacity() + 0.1;
-        Widget->GetBoneRepresentation()->SetOpacity(op);
-        }
-
       }
 
-  vtkAxesActor*  Axes;
   vtkBoneWidget* Widget;
 };
 
@@ -192,35 +167,33 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
   spy->Verbose = true;
 
   // A renderer and render window
-  vtkSmartPointer<vtkRenderer> renderer = 
+  vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renderWindow = 
     vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->AddRenderer(renderer);
 
   // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = 
+  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
   renderWindowInteractor->SetRenderWindow(renderWindow);
 
-  vtkSmartPointer<vtkBoneWidget> BoneWidget = 
+  vtkSmartPointer<vtkBoneWidget> boneWidget =
     vtkSmartPointer<vtkBoneWidget>::New();
-  BoneWidget->SetInteractor(renderWindowInteractor);
+  boneWidget->SetInteractor(renderWindowInteractor);
   //Test Line
-  BoneWidget->CreateDefaultRepresentation();
-  BoneWidget->SetWidgetStateToRest();
-  BoneWidget->AddObserver(vtkCommand::AnyEvent, spy.GetPointer());
+  boneWidget->CreateDefaultRepresentation();
 
   //Setup callbacks
   vtkSmartPointer<KeyPressInteractorStyle> style = 
     vtkSmartPointer<KeyPressInteractorStyle>::New();
   renderWindowInteractor->SetInteractorStyle(style);
-  style->Widget = BoneWidget;
+  style->Widget = boneWidget;
   style->SetCurrentRenderer(renderer);
 
   // Render
   renderWindow->Render();
-  BoneWidget->On();
+  boneWidget->On();
   renderWindow->Render();
 
   // Begin mouse interaction

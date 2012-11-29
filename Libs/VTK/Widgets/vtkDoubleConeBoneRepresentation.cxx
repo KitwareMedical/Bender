@@ -112,7 +112,7 @@ void vtkDoubleConeBoneRepresentation::CreateDefaultProperties()
 
   this->SelectedConesProperty = vtkProperty::New();
   this->SelectedConesProperty->SetAmbient(1.0);
-  this->SelectedConesProperty->SetAmbientColor(1.0,1.0,1.0);
+  this->SelectedConesProperty->SetAmbientColor(0.0,1.0,0.0);
   //this->SelectedConesProperty->SetOpacity(0.3);
 
 }

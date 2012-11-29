@@ -278,7 +278,7 @@ public:
   // This can be set even if the bones do not have any representation.
   // @sa vtkBoneRepresentation
   void SetBonesAlwaysOnTop(int onTop);
-  vtkGetMacro(BonesAlwaysOnTop, int);
+  int GetBonesAlwaysOnTop();
 
   // Description:
   // Reimplemented for internal reasons (update polydata).
@@ -309,7 +309,6 @@ protected:
   int ShowAxes;
   int ShowParenthood;
   bool ShouldResetPoseToRest;
-  int BonesAlwaysOnTop;
 
   // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);

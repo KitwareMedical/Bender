@@ -191,12 +191,13 @@ vtkArmatureWidget::vtkArmatureWidget()
   this->PolyData->Allocate(100);
 
   // Init bones properties
-  this->BonesRepresentation = 0;
+  vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
+  defaultRep->SetAlwaysOnTop(0);
+  this->BonesRepresentation = defaultRep;
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
   this->ShouldResetPoseToRest = true;
-  this->BonesAlwaysOnTop = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -212,23 +213,18 @@ vtkArmatureWidget::~vtkArmatureWidget()
     (*it)->Bone->Delete(); // Delete bone
     }
 
-  if (this->BonesRepresentation)
-    {
-    this->BonesRepresentation->Delete();
-    }
-
+  this->BonesRepresentation->Delete();
   this->ArmatureWidgetCallback->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::CreateDefaultRepresentation()
 {
-  vtkArmatureRepresentation* armatureRepresentation =
-    this->GetArmatureRepresentation();
-  if (!armatureRepresentation)
+  if (! this->GetArmatureRepresentation())
     {
-    armatureRepresentation = vtkArmatureRepresentation::New();
-    this->SetRepresentation(armatureRepresentation);
+    vtkSmartPointer<vtkArmatureRepresentation> rep =
+      vtkSmartPointer<vtkArmatureRepresentation>::New();
+    this->SetRepresentation(rep);
     }
 }
 
@@ -475,12 +471,12 @@ void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
     return;
     }
 
-  if (this->BonesRepresentation)
-    {
-    this->BonesRepresentation->Delete();
-    }
+  newRep->SetAlwaysOnTop(this->BonesRepresentation->GetAlwaysOnTop());
+
+  this->BonesRepresentation->Delete();
   this->BonesRepresentation = newRep;
   this->BonesRepresentation->Register(this);
+
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
@@ -503,7 +499,13 @@ void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
   if (this->BonesRepresentation)
     {
     copiedRepresentation = this->BonesRepresentation->NewInstance();
-    copiedRepresentation->ShallowCopy(this->BonesRepresentation);
+    copiedRepresentation->DeepCopy(this->BonesRepresentation);
+    }
+
+  bone->SetRepresentation(copiedRepresentation);
+  if (copiedRepresentation)
+    {
+    copiedRepresentation->Delete();
     }
 
   bone->SetRepresentation(copiedRepresentation);
@@ -698,7 +700,16 @@ void vtkArmatureWidget
     }
 
   ArmatureTreeNode* oldNode = this->GetNode(bone);
-  if (!oldNode)
+
+  // Reparent if:
+  // - The bone belongs to the armature
+  bool shouldReparent = oldNode != 0;
+  // - The new parent belongs to the armature or is null (reparent to root)
+  shouldReparent &= newParent ? this->HasBone(newParent) : true;
+  // - The bone's parent is different than the new parent
+  shouldReparent &= oldNode->Parent ?
+    oldNode->Parent->Bone != newParent : newParent != 0;
+  if (!shouldReparent)
     {
     return;
     }
@@ -712,8 +723,19 @@ void vtkArmatureWidget
     return;
     }
 
+  // Add the children of the old node to he new node
+  for (ChildrenNodeIteratorType it = oldNode->Children.begin();
+    it != oldNode->Children.end(); ++it)
+    {
+    newNode->AddChild(*it);
+    }
+  // Clear chidren
+  oldNode->Children.clear();
+
   // Remove old node
   this->RemoveNodeFromHierarchy(oldNode);
+  this->Bones->erase(
+    std::find(this->Bones->begin(), this->Bones->end(), oldNode));
 
   // Update bone
   this->SetBoneWorldToParentRestTransform(bone, newParent);
@@ -750,7 +772,7 @@ vtkBoneWidget* vtkArmatureWidget
   newBoneName += tailBone->GetName();
 
   vtkBoneWidget* newBone = this->CreateBone(headNode->Parent->Bone,
-    tailBone->GetWorldTailRest(), newBoneName);
+    headBone->GetWorldTailRest(), newBoneName);
   ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(newBone,
     headNode->Parent->Bone, headNode->HeadLinkedToParent);
 
@@ -759,15 +781,18 @@ vtkBoneWidget* vtkArmatureWidget
   this->SetBoneWorldToParentPoseTransform(newBone, headNode->Parent->Bone);
 
   // Reparent tail node children
-  newNode->AddChild(tailNode);
+  this->ReparentBone(tailBone, newBone);
 
   // Then delete old bones. In the case of tailBone,
   // this automatically reparents its children to newNode.
   this->RemoveBone(tailBone);
   this->RemoveBone(headBone);
 
-  // Add observers and invoke events.
+  // Add observers
   this->AddBoneObservers(newBone);
+  // Adjust postion
+  newBone->SetWorldTailRest(tailBone->GetWorldTailRest());
+  // Invoke events.
   this->InvokeEvent(vtkArmatureWidget::BoneMerged, newBone);
   this->Modified();
 
@@ -796,24 +821,26 @@ void vtkArmatureWidget::ResetPoseToRest()
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
 {
-  if (onTop == this->BonesAlwaysOnTop)
+  if (this->BonesRepresentation->GetAlwaysOnTop() == onTop)
     {
     return;
     }
-  this->BonesAlwaysOnTop = onTop;
 
-  if (this->GetBonesRepresentation())
+  this->BonesRepresentation->SetAlwaysOnTop(onTop);
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
     {
-    this->BonesRepresentation->SetAlwaysOnTop(this->BonesAlwaysOnTop);
-
-    for (NodeIteratorType it = this->Bones->begin();
-      it != this->Bones->end(); ++it)
-      {
-      (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(this->BonesAlwaysOnTop);
-      }
+    (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
+      this->BonesRepresentation->GetAlwaysOnTop());
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+int vtkArmatureWidget::GetBonesAlwaysOnTop()
+{
+  return this->BonesRepresentation->GetAlwaysOnTop();
 }
 
 //----------------------------------------------------------------------------

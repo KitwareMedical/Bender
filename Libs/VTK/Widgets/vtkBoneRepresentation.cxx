@@ -223,7 +223,7 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneRepresentation::ShallowCopy(vtkProp* prop)
+void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
 {
   vtkBoneRepresentation *rep = vtkBoneRepresentation::SafeDownCast(prop);
   if (rep)
@@ -255,6 +255,7 @@ void vtkBoneRepresentation::ShallowCopy(vtkProp* prop)
     this->LineProperty->DeepCopy(rep->GetLineProperty());
     this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
     }
+
   this->Superclass::ShallowCopy(prop);
 }
 
