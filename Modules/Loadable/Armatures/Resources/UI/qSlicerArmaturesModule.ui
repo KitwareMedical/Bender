@@ -180,7 +180,7 @@
             <double>0.010000000000000</double>
            </property>
            <property name="pageStep">
-            <double>1.000000000000000</double>
+            <double>0.010000000000000</double>
            </property>
            <property name="maximum">
             <double>1.000000000000000</double>
