@@ -26,6 +26,7 @@
 #include "qSlicerArmaturesModuleWidget.h"
 #include "ui_qSlicerArmaturesModule.h"
 
+class QAction;
 class qSlicerWidget;
 class vtkMRMLArmatureNode;
 class vtkMRMLBoneNode;
@@ -98,5 +99,7 @@ protected:
 private:
   vtkMRMLArmatureNode* ArmatureNode;
   vtkMRMLBoneNode* BoneNode;
+  QAction* AddBoneAction;
+  QAction* DeleteBonesAction;
 };
 

@@ -55,6 +55,8 @@ qSlicerArmaturesModuleWidgetPrivate
 {
   this->ArmatureNode = 0;
   this->BoneNode = 0;
+  this->AddBoneAction = 0;
+  this->DeleteBonesAction = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,17 +103,17 @@ void qSlicerArmaturesModuleWidgetPrivate
                    q, SLOT(setMRMLBoneNode(vtkMRMLNode*)));
 
   // Bone tree view actions
-  QAction* addBoneAction = new QAction("Add bone", this->BonesTreeView);
-  this->BonesTreeView->prependNodeMenuAction(addBoneAction);
-  this->BonesTreeView->prependSceneMenuAction(addBoneAction);
-  QObject::connect(addBoneAction, SIGNAL(triggered()),
+  this->AddBoneAction = new QAction("Add bone", this->BonesTreeView);
+  this->BonesTreeView->prependNodeMenuAction(this->AddBoneAction);
+  this->BonesTreeView->prependSceneMenuAction(this->AddBoneAction);
+  QObject::connect(this->AddBoneAction, SIGNAL(triggered()),
                    q, SLOT(addAndPlaceBone()));
 
-  QAction* deleteBonesAction =
+  this->DeleteBonesAction =
     new QAction("Delete bones", this->BonesTreeView);
-  this->BonesTreeView->appendNodeMenuAction(deleteBonesAction);
-  this->BonesTreeView->appendSceneMenuAction(deleteBonesAction);
-  QObject::connect(deleteBonesAction, SIGNAL(triggered()),
+  this->BonesTreeView->appendNodeMenuAction(this->DeleteBonesAction);
+  this->BonesTreeView->appendSceneMenuAction(this->DeleteBonesAction);
+  QObject::connect(this->DeleteBonesAction, SIGNAL(triggered()),
                    q, SLOT(deleteBones()));
 
   // Logic
@@ -832,8 +834,13 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   int wasModifying = d->ArmatureNode->StartModify();
 
   // +1 to compensate for the vtkArmatureWidget::Rest == 2
-  d->ArmatureNode->SetWidgetState(
-    d->ArmatureStateComboBox->currentIndex() + 2);
+  int state = d->ArmatureStateComboBox->currentIndex() + 2;
+  d->ArmatureNode->SetWidgetState(state);
+
+  // Enable Add action only on resat mode.
+  d->AddBoneAction->setEnabled(state == vtkMRMLArmatureNode::Rest);
+  // Enable Delete action only in rest mode.
+  d->DeleteBonesAction->setEnabled(state == vtkMRMLArmatureNode::Rest);
 
   d->ArmatureNode->SetBonesRepresentationType(
     d->ArmatureRepresentationComboBox->currentIndex());
