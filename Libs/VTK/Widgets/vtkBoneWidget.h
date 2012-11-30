@@ -290,6 +290,11 @@ public:
   void SetDisplayHeadRestPosition(double head[3]);
   void SetDisplayTailRestPosition(double x, double y);
   void SetDisplayTailRestPosition(double tail[3]);
+  void SetDisplayHeadAndTailRestPosition(double linePos[3]);
+  // Description:
+  // Rotate the tail around the head in pose mode.
+  // @sa SetDisplayTailRestPosition()
+  void RotateDisplayTailPosePosition(double newPos[3], double lastPos[3]);
 
   // Description:
   // Get rest and pose mode world positions.
@@ -434,7 +439,14 @@ protected:
   // Methods invoked when the handles at the
   // end points of the widget are manipulated.
   void StartBoneInteraction();
-  virtual void EndBoneInteraction();
+  void EndBoneInteraction();
+
+  // Return the selected state from interaction state.
+  // It converts the vtkBoneRepresentation enum into the widget selected state
+  // enum.
+  int GetSelectedStateFromInteractionState(int interactionState);
+  vtkWidgetRepresentation* GetSelectedRepresentation();
+  void SetWidgetStateInternal(int state);
 
   // Bone widget essentials
   // World positions:
