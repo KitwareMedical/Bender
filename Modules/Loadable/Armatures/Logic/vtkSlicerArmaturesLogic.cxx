@@ -179,15 +179,21 @@ void vtkSlicerArmaturesLogic
     return;
     }
 
-  vtkEventBroker::GetInstance()->RemoveObservations(
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Delete();
+    vtkEventBroker::GetInstance()->RemoveObservations(
       this->AnnotationsLogic, vtkCommand::ModifiedEvent,
       this, this->GetMRMLLogicsCallbackCommand());
-
+    }
   this->AnnotationsLogic = annotationLogic;
-
-  vtkEventBroker::GetInstance()->AddObservation(
-    this->AnnotationsLogic, vtkCommand::ModifiedEvent,
-    this, this->GetMRMLLogicsCallbackCommand());
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Register(this);
+    vtkEventBroker::GetInstance()->AddObservation(
+      this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+      this, this->GetMRMLLogicsCallbackCommand());
+    }
 }
 
 //----------------------------------------------------------------------------
