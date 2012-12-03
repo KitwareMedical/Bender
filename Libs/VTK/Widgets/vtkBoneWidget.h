@@ -429,12 +429,22 @@ protected:
   vtkHandleWidget* HeadWidget;
   vtkHandleWidget* TailWidget;
   vtkHandleWidget* LineWidget;
-  vtkBoneWidgetCallback* HandlesCallback;
 
   // Methods invoked when the handles at the
   // end points of the widget are manipulated.
-  void StartBoneInteraction();
-  virtual void EndBoneInteraction();
+  virtual void StartInteraction();
+  virtual void EndInteraction();
+
+  // Return the selected state from interaction state.
+  // It converts the vtkBoneRepresentation enum into the widget selected state
+  // enum.
+  int GetSelectedStateFromInteractionState(int interactionState);
+  vtkAbstractWidget* GetHandleFromInteractionState(int state);
+  vtkWidgetRepresentation* GetSelectedRepresentation();
+  void SetWidgetStateInternal(int state);
+
+  // Warning, the new tail shouldn't change the length of the bone.
+  void SetWorldTailPose(double tail[3]);
 
   // Bone widget essentials
   // World positions:
@@ -508,6 +518,11 @@ protected:
   // while interacting.
   double InteractionWorldHeadPose[3];
   double InteractionWorldTailPose[3];
+
+  // Update visibility of the widget and associated actors such as axes,
+  // parenthood, etc...
+  // @sa UpdateShowAxes(), UpdateParenthoodLinkVisibility()
+  void UpdateVisibility();
 
   // Axes variables:
   // For an easier debug and understanding.

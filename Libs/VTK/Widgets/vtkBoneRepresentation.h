@@ -116,17 +116,35 @@ public:
   // actors (normal and selected).
   virtual void SetOpacity(double opacity);
 
+  // Description:
+  // This property controls the behavior when interacting with the
+  // line/tail.
+  // @sa vtkBoneWidget::WidgetStateType
+  vtkSetMacro(Pose, bool);
+  vtkGetMacro(Pose, bool);
+
+  // Description:
+  // Reimplemented to rotate the bone in pose mode
+  virtual void WidgetInteraction(double e[2]);
+
+  // Description:
+  // Reimplemented to prevent head selection in pose mode
+  virtual int ComputeInteractionState(int X, int Y, int modifier = 0);
+
 protected:
   vtkBoneRepresentation();
   ~vtkBoneRepresentation();
 
   int AlwaysOnTop;
+  bool Pose;
 
   // Protected rendring classes. They do the the regular job of rendering and
   // are called depeding if the rendering is overlayed or not.
   virtual int RenderOpaqueGeometryInternal(vtkViewport *v);
   virtual int RenderTranslucentPolygonalGeometryInternal(vtkViewport* v);
   virtual int RenderOverlayInternal(vtkViewport*);
+
+  void Rotate(double angle, double axis[3], double center[3], double pos[3], double res[3]);
 
 private:
   vtkBoneRepresentation(const vtkBoneRepresentation&);  //Not implemented

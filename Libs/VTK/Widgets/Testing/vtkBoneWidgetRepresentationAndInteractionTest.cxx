@@ -18,38 +18,40 @@
 
 =========================================================================*/
 
-#include "vtkCallbackCommand.h"
-#include <vtkAxes.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkObjectFactory.h>
-#include <vtkPolyData.h>
-#include <vtkProperty.h>
-#include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
-#include <vtkBiDimensionalRepresentation2D.h>
-#include <vtkCommand.h>
-#include <vtkMath.h>
-#include <vtkNew.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkAppendPolyData.h>
-#include <vtkTransformPolyDataFilter.h>
-#include <vtkTransform.h>
-#include <vtkAxesActor.h>
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkLineWidget2.h>
-
-#include <map>
-
-#include <vtkInteractorStyleTrackballCamera.h>
-
+// Widgets
 #include "vtkBoneWidget.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
- 
+
+// VTK includes
+#include <vtkAxes.h>
+#include <vtkAxesActor.h>
+#include <vtkActor.h>
+#include <vtkAppendPolyData.h>
+#include <vtkBiDimensionalRepresentation2D.h>
+#include <vtkCallbackCommand.h>
+#include <vtkCommand.h>
+#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkLineWidget2.h>
+#include <vtkMath.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+#include <vtkOrientationMarkerWidget.h>
+#include <vtkPointHandleRepresentation3D.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindowInteractor.h>
+#include <vtkSmartPointer.h>
+#include <vtkSphereSource.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkTransform.h>
+
+// STD includes
+#include <map>
+
 // Define interaction style
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
@@ -126,17 +128,17 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
   vtkBoneWidget* Widget;
 };
 
-
 class vtkSpy : public vtkCommand
 {
 public:
   vtkTypeMacro(vtkSpy, vtkCommand);
   static vtkSpy *New(){return new vtkSpy;}
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
+  virtual void Execute(vtkObject *caller, unsigned long eventId, 
                        void *callData);
   // List of node that should be updated when NodeAddedEvent is catched
   std::map<unsigned long, unsigned int> CalledEvents;
   std::map<unsigned long, unsigned long> LastEventMTime;
+
   bool Verbose;
 protected:
   vtkSpy():Verbose(false){}
@@ -159,6 +161,7 @@ void vtkSpy::Execute(
     }
 }
 
+
 vtkStandardNewMacro(KeyPressInteractorStyle);
 
 int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
@@ -180,6 +183,8 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
 
   vtkSmartPointer<vtkBoneWidget> boneWidget =
     vtkSmartPointer<vtkBoneWidget>::New();
+  boneWidget->AddObserver(vtkCommand::AnyEvent, spy.GetPointer());
+
   boneWidget->SetInteractor(renderWindowInteractor);
   //Test Line
   boneWidget->CreateDefaultRepresentation();
