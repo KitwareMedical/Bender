@@ -64,18 +64,21 @@ public:
 
 public slots:
   /// Set \a armatureNode as current.
-  /// \sa setMRMLArmatureNode(vtkMRMLNode*)
+  /// \sa setMRMLArmatureNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
   void setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode);
   /// Utility function to conveniently connect signals/slots.
   /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
+  /// \sa setMRMLNode(vtkMRMLNode* node)
   void setMRMLArmatureNode(vtkMRMLNode* armatureNode);
-
   /// Set \a boneNode as current.
-  /// \sa setMRMLBoneNode(vtkMRMLNode*)
+  /// \sa setMRMLBoneNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
   void setMRMLBoneNode(vtkMRMLBoneNode* boneNode);
-  /// Utility function to conveniently connect signals/slots.
+
+  /// Utility function called when a bone or an armature is selected.
   /// \sa setMRMLBoneNode(vtkMRMLBoneNode*)
-  void setMRMLBoneNode(vtkMRMLNode* boneNode);
+  /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
+  /// \sa setMRMLArmatureNode(vtkMRMLNode*)
+  void setMRMLNode(vtkMRMLNode* node);
 
   /// Set the visibility of the current armature node.
   /// \sa vtkMRMLArmatureDisplayNode::Visibility

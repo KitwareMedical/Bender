@@ -100,7 +100,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 
   QObject::connect(this->BonesTreeView,
                    SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-                   q, SLOT(setMRMLBoneNode(vtkMRMLNode*)));
+                   q, SLOT(setMRMLNode(vtkMRMLNode*)));
 
   // Bone tree view actions
   this->AddBoneAction = new QAction("Add bone", this->BonesTreeView);
@@ -610,6 +610,14 @@ void qSlicerArmaturesModuleWidget
 ::setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode)
 {
   Q_D(qSlicerArmaturesModuleWidget);
+
+  if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
+    {
+    bool wasBlocking = d->ArmatureNodeComboBox->blockSignals(true);
+    d->ArmatureNodeComboBox->setCurrentNode(armatureNode);
+    d->ArmatureNodeComboBox->blockSignals(wasBlocking);
+    }
+
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
     vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromArmatureNode()));
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
@@ -720,9 +728,18 @@ void qSlicerArmaturesModuleWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
-::setMRMLBoneNode(vtkMRMLNode* boneNode)
+::setMRMLNode(vtkMRMLNode* node)
 {
-  this->setMRMLBoneNode(vtkMRMLBoneNode::SafeDownCast(boneNode));
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode)
+    {
+    this->setMRMLArmatureNode(armatureNode);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode)
+    {
+    this->setMRMLBoneNode(boneNode);
+    }
 }
 
 //-----------------------------------------------------------------------------
