@@ -33,7 +33,7 @@
 #include <vtkMRMLScene.h>
 
 // VTK includes
-#include <vtkCallBackCommand.h>
+#include <vtkCallbackCommand.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>

@@ -101,7 +101,7 @@ bool CompareQuaternion(vtkQuaterniond q1, double q2[4])
   return q1.Compare(quad2, 1e-6);
 }
 
-bool CopyQuaternionIfDifferent(vtkQuaterniond& quat, vtkQuaterniond& copyQuat)
+bool CopyQuaternionIfDifferent(const vtkQuaterniond& quat, vtkQuaterniond& copyQuat)
 {
   if (quat.Compare(copyQuat, 1e-6))
     {
