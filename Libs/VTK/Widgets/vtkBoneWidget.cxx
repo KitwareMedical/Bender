@@ -1008,6 +1008,7 @@ void vtkBoneWidget::RotateTailWXYZ(double angle, double axis[3])
     rotation.Normalize();
     this->ParentToBonePoseRotation = rotation * this->ParentToBonePoseRotation;
     this->ParentToBonePoseRotation.Normalize();
+    this->UpdateRestToPoseRotation();
 
     this->UpdatePoseMode();
     }
@@ -1390,7 +1391,6 @@ void vtkBoneWidget::RebuildAxes()
   vtkSmartPointer<vtkTransform> transform =
     vtkSmartPointer<vtkTransform>::New();
   transform->Translate(this->GetCurrentWorldTail());
-  std::cout << "Rebuild axes" << std::endl;
 
   if (this->ShowAxes == vtkBoneWidget::ShowRestTransform)
     {
@@ -1871,7 +1871,10 @@ void vtkBoneWidget::UpdatePoseMode()
   this->UpdateDisplay();
 
   this->InvokeEvent(vtkBoneWidget::PoseChangedEvent, NULL);
-  this->Modified();
+  if (this->WidgetState != vtkBoneWidget::Rest)
+    {
+    this->Modified(); // In rest mode, update rest mode will call the modified
+    }
 }
 
 //----------------------------------------------------------------------------
