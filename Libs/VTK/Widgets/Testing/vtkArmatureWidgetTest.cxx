@@ -18,220 +18,214 @@
 
 =========================================================================*/
 
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkObjectFactory.h>
-#include <vtkPolyData.h>
-#include <vtkProperty.h>
-#include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
-#include <vtkBoxWidget.h>
-#include <vtkBiDimensionalRepresentation2D.h>
+#include <vtkCollection.h>
 #include <vtkCommand.h>
-#include <vtkMath.h>
-#include <vtkMatrix3x3.h>
-#include <vtkTransform.h>
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkAxesActor.h>
-#include <vtkCaptionActor2D.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkLineWidget2.h>
-#include <vtkLineRepresentation.h>
-#include <vtkCallbackCommand.h>
-
-#include <vtkInteractorStyleTrackballCamera.h>
+#include <vtkObjectFactory.h>
+#include <vtkSmartPointer.h>
 
 #include "vtkArmatureWidget.h"
+#include "vtkBenderWidgetTestHelper.h"
 #include "vtkBoneWidget.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
 
-// Define interaction style
-class ArmatureTestKeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
-{
-  public:
-    static ArmatureTestKeyPressInteractorStyle* New();
-    vtkTypeMacro(ArmatureTestKeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
-
-    virtual void OnKeyPress()
-      {
-      vtkRenderWindowInteractor *rwi = this->Interactor;
-      std::string key = rwi->GetKeySym();
-      std::cout<<"Key Pressed: "<<key<<std::endl;
-
-      //if (key == "a")
-        //{
-        //vtkSmartPointer<vtkTransform> transform =
-        //  vtkSmartPointer<vtkTransform>::New();
-        //transform->Translate(Armature->GetBone(1)->GetParentToBoneRestTranslation());
-
-        //transform->Concatenate(Armature->GetBone(1)->CreateParentToBoneRestRotation());
-
-        //Axes->SetUserTransform(transform);
-        //}
-      if (key == "Control_L")
-        {
-          std::cout<<"Setting widget state to "<<! Armature->GetWidgetState()<<std::endl;
-        Armature->SetWidgetState( ! Armature->GetWidgetState() );
-        }
-      else if (key == "Tab")
-        {
-        int state = Armature->GetShowAxes() + 1;
-        if (state > vtkBoneWidget::ShowPoseTransform)
-          {
-          state = 0;
-          }
-        Armature->SetShowAxes(state);
-        }
-      }
-
-  vtkArmatureWidget* Armature;
-  //vtkAxesActor* Axes;
-};
-
-void PrintInteractionEvent(vtkObject*, unsigned long eid, void* clientdata, void *calldata)
-{
-  std::cout<<"Interaction Event !"<<std::endl;
-}
-
-vtkStandardNewMacro(ArmatureTestKeyPressInteractorStyle);
-
 int vtkArmatureWidgetTest(int, char *[])
 {
-  // A renderer and render window
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
+  int errors = 0;
+  int sectionErrors = 0;
 
-  // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  renderWindowInteractor->SetRenderWindow(renderWindow);
-
+  // Create armature
   vtkSmartPointer<vtkArmatureWidget> arm =
     vtkSmartPointer<vtkArmatureWidget>::New();
-  arm->SetInteractor(renderWindowInteractor);
-  arm->SetCurrentRenderer(renderer);
-  arm->CreateDefaultRepresentation();
 
-  // Add root bone
+  // Create spy
+  vtkSmartPointer<vtkSpy> spy = vtkSmartPointer<vtkSpy>::New();
+  //spy->Verbose = true;
+  arm->AddObserver(vtkCommand::AnyEvent, spy);
+
+  //
+  // Add/Create bone root
+  //
+
+  spy->ClearEvents();
   vtkBoneWidget* root = arm->CreateBone(NULL, "Root");
+  sectionErrors += spy->CalledEvents.size() != 0;
+  sectionErrors += root->GetName() != "Root";
+
+  spy->ClearEvents();
   arm->AddBone(root, NULL);
-  root->Delete();
-  root->SetWorldHeadRest(0.0, 0.0, 0.0);
-  root->SetWorldTailRest(0.5, 0.0, 0.0);
+  sectionErrors += root->GetReferenceCount() != 2;
+  sectionErrors += arm->HasBone(root) != true;
+  sectionErrors += arm->GetBoneParent(root) != NULL;
+  sectionErrors += arm->GetBoneByName("Root") != root;
+  sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneAdded;
+  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 2;
 
-  arm->SetBonesRepresentation(vtkBoneRepresentation::New());
+  double tail[3] = {0.5, 0.0, 0.0};
+  root->SetWorldTailRest(tail);
 
-  vtkBoneWidget* child = arm->CreateBone(root, "first Child (Red)");
+  if (sectionErrors > 0)
+    {
+    std::cout<<"There were "<<sectionErrors
+      <<" while testing the addition/creation of the root."<<std::endl;
+    }
+  errors += sectionErrors;
+
+  //
+  // Add/Create normal bone
+  //
+  sectionErrors = 0;
+
+  spy->ClearEvents();
+  vtkBoneWidget* child = arm->CreateBone(root, "first Child");
+  sectionErrors += spy->CalledEvents.size() != 0;
+
+  spy->ClearEvents();
   arm->AddBone(child, root);
-  child->Delete();
-  child->SetWorldHeadRest(2.0, 0.0, 0.0);
+  sectionErrors += child->GetReferenceCount() != 2;
+  sectionErrors += arm->HasBone(child) != true;
+  sectionErrors += arm->GetBoneParent(child) != root;
+  sectionErrors += arm->GetBoneByName("first Child") != child;
+  sectionErrors += arm->GetBoneLinkedWithParent(child) != true;
+  sectionErrors += arm->IsBoneDirectParent(child, root) != true;
+  sectionErrors += arm->IsBoneParent(child, root) != true;
+  sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneAdded;
+  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 2;
+  sectionErrors += CompareVector3(child->GetWorldHeadRest(),
+    root->GetWorldTailRest()) != true;
+
+  double head[3] = {2.0, 0.0, 0.0};
+  child->SetWorldHeadRest(head);
+  sectionErrors += CompareVector3(child->GetWorldHeadRest(), tail) != true;
+  sectionErrors += CompareVector3(root->GetWorldTailRest(), tail) != true;
+
+  root->SetWorldTailRest(head);
+  sectionErrors += CompareVector3(child->GetWorldHeadRest(), head) != true;
+  sectionErrors += CompareVector3(root->GetWorldTailRest(), head) != true;
+
   child->SetWorldTailRest(2.0, 1.0, 0.0);
 
-  if ( !child->GetBoneRepresentation() || !root->GetBoneRepresentation() )
+  if (sectionErrors > 0)
     {
-    std::cerr<<"There should be representation for each bone"<<std::endl;
+    std::cout<<"There were "<<sectionErrors
+      <<" while testing the addition/creation of the first child."<<std::endl;
+    }
+  errors += sectionErrors;
+
+  //
+  // Add/Create second bone
+  //
+  sectionErrors = 0;
+
+  spy->ClearEvents();
+  tail[0] = 3.0; tail[0] = 1.0; tail[0] = 0.0;
+  vtkBoneWidget* secondChild = arm->CreateBone(child, tail, "Second child");
+  sectionErrors += spy->CalledEvents.size() != 0;
+  sectionErrors += CompareVector3(secondChild->GetWorldHeadRest(),
+    child->GetWorldTailRest()) != true;
+  sectionErrors += CompareVector3(secondChild->GetWorldTailRest(), tail) != true;
+
+  spy->ClearEvents();
+  arm->AddBone(secondChild, child);
+  sectionErrors += secondChild->GetReferenceCount() != 2;
+  sectionErrors += arm->HasBone(secondChild) != true;
+  sectionErrors += arm->GetBoneParent(secondChild) != child;
+  sectionErrors += arm->GetBoneByName("Second child") != secondChild;
+  sectionErrors += arm->GetBoneLinkedWithParent(secondChild) != true;
+  sectionErrors += arm->IsBoneDirectParent(secondChild, root) != false;
+  sectionErrors += arm->IsBoneParent(secondChild, root) != true;
+  sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneAdded;
+  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 2;
+
+  if (sectionErrors > 0)
+    {
+    std::cout<<"There were "<<sectionErrors
+      <<" while testing the addition/creation of the first child."<<std::endl;
+    }
+  errors += sectionErrors;
+
+  //
+  // Remove parent bone
+  //
+  sectionErrors = 0;
+
+  // Add bones to be removed
+  vtkBoneWidget* toBeRemovedParent = arm->CreateBone(secondChild, "toBeRemovedParent");
+  arm->AddBone(toBeRemovedParent, child);
+
+  tail[0] = 12.0; tail[0] = -38.0; tail[0] = 0.001;
+  toBeRemovedParent->SetWorldTailRest(tail);
+
+  vtkBoneWidget* toBeRemovedLeaf = arm->CreateBone(secondChild, "toBeRemovedLeaf");
+  arm->AddBone(toBeRemovedLeaf, toBeRemovedParent);
+  toBeRemovedLeaf->GetWorldTailRest(tail);
+
+  // Test
+  spy->ClearEvents();
+  sectionErrors += arm->RemoveBone(toBeRemovedParent) != true;
+  sectionErrors += toBeRemovedParent->GetReferenceCount() != 1;
+  sectionErrors += arm->HasBone(toBeRemovedParent) != false;
+  sectionErrors += arm->GetBoneParent(toBeRemovedParent) != NULL;
+  sectionErrors += arm->GetBoneByName("toBeRemovedParent") != NULL;
+  sectionErrors += arm->GetBoneLinkedWithParent(toBeRemovedParent) != false;
+  sectionErrors += arm->IsBoneDirectParent(toBeRemovedParent, root) != false;
+  sectionErrors += arm->IsBoneParent(toBeRemovedParent, root) != false;
+  sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneRemoved;
+  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 2;
+
+  sectionErrors += arm->HasBone(toBeRemovedLeaf) != true;
+  sectionErrors += arm->GetBoneParent(toBeRemovedLeaf) != child;
+  sectionErrors += arm->GetBoneLinkedWithParent(toBeRemovedLeaf) != true;
+  sectionErrors += CompareVector3(toBeRemovedLeaf->GetWorldHeadRest(),
+    child->GetWorldTailRest()) != true;
+  sectionErrors += CompareVector3(toBeRemovedLeaf->GetWorldTailRest(), tail) != true;
+
+  if (sectionErrors > 0)
+    {
+    std::cout<<"There were "<<sectionErrors
+      <<" while testing the removal of a parent bone."<<std::endl;
+    }
+  errors += sectionErrors;
+
+  //
+  // Remove leaf bone
+  //
+  sectionErrors = 0;
+
+  spy->ClearEvents();
+  sectionErrors += arm->RemoveBone(toBeRemovedLeaf) != true;
+  sectionErrors += toBeRemovedLeaf->GetReferenceCount() != 1;
+  sectionErrors += arm->HasBone(toBeRemovedLeaf) != false;
+  sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneRemoved;
+  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 2;
+
+  if (sectionErrors > 0)
+    {
+    std::cout<<"There were "<<sectionErrors
+      <<" while testing the removal of a leaf bone."<<std::endl;
+    }
+  errors += sectionErrors;
+
+  spy->Verbose = false;
+  root->Delete();
+  child->Delete();
+  secondChild->Delete();
+  toBeRemovedLeaf->Delete();
+  toBeRemovedParent->Delete();
+  if (errors > 0)
+    {
+    std::cout<<"Test failed with "<<errors<<" errors."<<std::endl;
     return EXIT_FAILURE;
     }
-  child->GetBoneRepresentation()->GetLineProperty()->SetColor(1.0, 0.0, 0.0);
-
-  vtkBoneWidget* finalChild = arm->CreateBone(child, 3.0, 1.0, 0.0, "Grand child (Green)");
-  arm->AddBone(finalChild, child);
-  finalChild->Delete();
-  if (finalChild == NULL)
+  else
     {
-    std::cerr<<"There should be a bone with id 2"<<std::endl;
-    return EXIT_FAILURE;
+    std::cout<<"Basic Armature test passed !"<<std::endl;
     }
-  finalChild->GetBoneRepresentation()->GetLineProperty()->SetColor(0.0, 1.0, 0.0);
-
-  vtkBoneWidget* toBeRemovedChild = arm->CreateBone(finalChild, "toBeRemovedChild");
-  if (toBeRemovedChild == NULL)
-    {
-    std::cerr<<"There should be a bone with id 3"<<std::endl;
-    return EXIT_FAILURE;
-    }
-  arm->AddBone(toBeRemovedChild);
-  toBeRemovedChild->Delete();
-  if (arm->GetBoneLinkedWithParent(toBeRemovedChild) != false)
-    {
-    std::cerr<<"The bones should be unlinked !"<<std::endl;
-    return EXIT_FAILURE;
-    }
-  arm->SetBoneLinkedWithParent(toBeRemovedChild, true);
-  if (arm->GetBoneLinkedWithParent(toBeRemovedChild) != true)
-    {
-    std::cerr<<"The bones should be linked !"<<std::endl;
-    return EXIT_FAILURE;
-    }
-
-  // Delete bone
-  vtkSmartPointer<vtkBoneWidget> fake = vtkSmartPointer<vtkBoneWidget>::New();
-  if (arm->RemoveBone(fake))
-    {
-    std::cerr<<"Deleting a fake bone should have failed"<<std::endl;
-    return EXIT_FAILURE;
-    }
-  if (! arm->RemoveBone(toBeRemovedChild))
-    {
-    std::cerr<<"Deleting a bone child shouldn't have failed"<<std::endl;
-    return EXIT_FAILURE;
-    }
-
-  arm->SetShowParenthood(false);
-  if (finalChild->GetShowParenthood())
-    {
-    std::cerr<<"Parenthood for bone with shouldn't be active"<<std::endl;
-    return EXIT_FAILURE;
-    }
-  finalChild->SetShowParenthood(true);
-  arm->SetShowParenthood(true);
-  if (! finalChild->GetShowParenthood())
-    {
-    std::cerr<<"Parenthood for bone should be active"<<std::endl;
-    return EXIT_FAILURE;
-    }
-
-
-  vtkBoneWidget* bone = vtkBoneWidget::New();
-  arm->UpdateBoneWithArmatureOptions(bone, finalChild);
-  arm->AddBone(bone, finalChild);
-  bone->Delete();
-
-  // Setup callbacks
-  vtkSmartPointer<ArmatureTestKeyPressInteractorStyle> style =
-    vtkSmartPointer<ArmatureTestKeyPressInteractorStyle>::New();
-  renderWindowInteractor->SetInteractorStyle(style);
-  style->Armature = arm;
-
-  vtkSmartPointer<vtkAxesActor> axes =
-    vtkSmartPointer<vtkAxesActor>::New();
-
-  vtkSmartPointer<vtkOrientationMarkerWidget> axesWidget =
-    vtkSmartPointer<vtkOrientationMarkerWidget>::New();
-  axesWidget->SetOrientationMarker( axes );
-  axesWidget->SetInteractor( renderWindowInteractor );
-  axesWidget->On();
-
-  /*vtkSmartPointer<vtkCallbackCommand> callback = 
-    vtkSmartPointer<vtkCallbackCommand>::New();
-  callback->SetCallback ( PrintInteractionEvent );
-  root->AddObserver(vtkCommand::InteractionEvent, callback);*/
-
-  // Render
-  renderWindow->Render();
-  renderWindowInteractor->Initialize();
-  renderWindow->Render();
-  arm->On();
-
-  // Begin mouse interaction
-  renderWindowInteractor->Start();
 
   return EXIT_SUCCESS;
 }

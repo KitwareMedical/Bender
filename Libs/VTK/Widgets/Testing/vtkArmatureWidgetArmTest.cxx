@@ -18,30 +18,13 @@
 
 =========================================================================*/
 
-#include <vtkPolyDataMapper.h>
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkObjectFactory.h>
-#include <vtkPolyData.h>
-#include <vtkProperty.h>
 #include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
-#include <vtkBoxWidget.h>
-#include <vtkBiDimensionalRepresentation2D.h>
 #include <vtkCommand.h>
-#include <vtkMath.h>
-#include <vtkMatrix3x3.h>
-#include <vtkTransform.h>
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkAxesActor.h>
-#include <vtkCaptionActor2D.h>
-#include <vtkOrientationMarkerWidget.h>
 #include <vtkNew.h>
-#include <vtkTubeFilter.h>
-#include <vtkLineSource.h>
-#include <vtkTransform.h>
 
 #include <vtkInteractorStyleTrackballCamera.h>
 
@@ -61,7 +44,6 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       {
       vtkRenderWindowInteractor *rwi = this->Interactor;
       std::string key = rwi->GetKeySym();
-      std::cout<<"Key Pressed: "<<key<<std::endl;
 
       if (key == "Control_L")
         {
@@ -139,11 +121,17 @@ int vtkArmatureWidgetArmTest(int, char *[])
   armature->AddBone(thumb, arm);
   //thumb->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* indexFinger = armature->CreateBone(arm, 22.0, 2.0, 0.0, "index finger");
+  vtkBoneWidget* indexFinger =
+    armature->CreateBone(arm, 22.0, 2.0, 0.0, "index finger");
   armature->AddBone(indexFinger, arm);
   //indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   armature->ReparentBone(arm, fore);
+  if (! armature->IsBoneDirectParent(arm, fore))
+    {
+    std::cout<<"Arm parent should be Fore !"<<std::endl;
+    return EXIT_FAILURE;
+    }
 
   vtkBoneWidget* forearm = armature->MergeBones(fore, arm);
   vtkSmartPointer<vtkDoubleConeBoneRepresentation> forearmRep =
@@ -152,22 +140,26 @@ int vtkArmatureWidgetArmTest(int, char *[])
   fore->Delete();
   arm->Delete();
 
-  vtkBoneWidget* middleFinger = armature->CreateBone(forearm, 22.0, 1.0, 0.0, "middle finger");
+  vtkBoneWidget* middleFinger =
+    armature->CreateBone(forearm, 22.0, 1.0, 0.0, "middle finger");
   armature->AddBone(middleFinger, forearm);
   //middleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* ringFinger = armature->CreateBone(forearm, 22.0, -1.0, 0.0, "ring finger");
+  vtkBoneWidget* ringFinger =
+    armature->CreateBone(forearm, 22.0, -1.0, 0.0, "ring finger");
   armature->AddBone(ringFinger, forearm);
   //ringFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  vtkBoneWidget* littleFinger = armature->CreateBone(forearm, 22.0, -2.0, 0.0, "little finger");
+  vtkBoneWidget* littleFinger =
+    armature->CreateBone(forearm, 22.0, -2.0, 0.0, "little finger");
   armature->AddBone(littleFinger, forearm);
   //littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   if (! armature->IsBoneParent(littleFinger, biceps))
     {
-    std::cout<<"Little finger should be inderctly related to the biceps";
-    //return EXIT_FAILURE;
+    std::cout<<"Little finger should be inderectly "
+      <<"related to the biceps"<<std::endl;
+    return EXIT_FAILURE;
     }
 
   biceps->Delete();
@@ -176,8 +168,6 @@ int vtkArmatureWidgetArmTest(int, char *[])
   middleFinger->Delete();
   ringFinger->Delete();
   littleFinger->Delete();
-
-  //armature->SetWidgetState(vtkArmatureWidget::Pose);
 
   vtkSmartPointer<Test1KeyPressInteractorStyle> style =
     vtkSmartPointer<Test1KeyPressInteractorStyle>::New();

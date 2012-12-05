@@ -30,8 +30,6 @@ create_test_sourcelist(${KIT}_TEST_SRCS
   vtkBoneWidgetTest_RestMode.cxx
   vtkBoneWidgetTest_PoseMode.cxx
   vtkBoneWidgetRepresentationAndInteractionTest.cxx
-  vtkBoneWidgetTwoBonesTest.cxx
-  vtkBoneWidgetThreeBonesTest.cxx
   )
 
 add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
@@ -48,9 +46,5 @@ add_test(vtkBoneWidgetTest_RestMode ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWi
 add_test(vtkBoneWidgetTest_PoseMode ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTest_PoseMode)
 
 add_test(vtkBoneWidgetRepresentationAndIntercationTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
-
-add_test(vtkBoneWidgetTwoBonesTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTwoBonesTest)
-
-add_test(vtkBoneWidgetThreeBonesTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetThreeBonesTest)
 
 add_test(vtkArmatureWidgetArmTest ${CXX_TEST_PATH}/BenderWidgetTests vtkArmatureWidgetArmTest)
