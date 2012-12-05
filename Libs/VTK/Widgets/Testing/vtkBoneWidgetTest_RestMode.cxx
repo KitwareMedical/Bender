@@ -24,58 +24,11 @@
 #include <vtkMathUtilities.h>
 #include <vtkCommand.h>
 
+#include "vtkBenderWidgetTestHelper.h"
 #include "vtkBoneWidget.h"
 #include "vtkBoneRepresentation.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
-
-namespace
-{
-
-int CompareVector3(const double* v1, const double* v2)
-{
-  double diff[3];
-  vtkMath::Subtract(v1, v2, diff);
-  if (vtkMath::Dot(diff, diff) < 1e-6)
-    {
-    return 0;
-    }
-
-  return 1;
-}
-
-class vtkSpy : public vtkCommand
-{
-public:
-  vtkTypeMacro(vtkSpy, vtkCommand);
-  static vtkSpy *New(){return new vtkSpy;}
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData);
-  // List of node that should be updated when NodeAddedEvent is catched
-  std::vector<unsigned long> CalledEvents;
-  void ClearEvents() {this->CalledEvents.clear();};
-  bool Verbose;
-protected:
-  vtkSpy():Verbose(false){}
-  virtual ~vtkSpy(){}
-};
-
-//---------------------------------------------------------------------------
-void vtkSpy::Execute(
-  vtkObject *vtkcaller, unsigned long eid, void *vtkNotUsed(calldata))
-{
-  this->CalledEvents.push_back(eid);
-  if (this->Verbose)
-    {
-    std::cout << "vtkSpy: event:" << eid
-              << " (" << vtkCommand::GetStringFromEventId(eid) << ")"
-              << " time: " << vtkTimeStamp()
-              << std::endl;
-    }
-}
-
-
-}// end namespace
 
 int vtkBoneWidgetTest_RestMode(int, char *[])
 {
@@ -96,21 +49,24 @@ int vtkBoneWidgetTest_RestMode(int, char *[])
 
   double head[3];
   double tail[3];
-  sectionErrors += CompareVector3(bone->GetWorldHeadRest(), bone->GetCurrentWorldHead());
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), bone->GetCurrentWorldTail());
+  sectionErrors +=
+    CompareVector3(bone->GetWorldHeadRest(), bone->GetCurrentWorldHead()) != true;
+  sectionErrors +=
+    CompareVector3(bone->GetWorldTailRest(), bone->GetCurrentWorldTail()) != true;
 
   // (Nothing has moved yet)
-  sectionErrors += CompareVector3(bone->GetWorldHeadRest(), bone->GetWorldHeadPose());
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), bone->GetWorldTailPose());
+  sectionErrors +=
+    CompareVector3(bone->GetWorldHeadRest(), bone->GetWorldHeadPose()) != true;
+  sectionErrors +=
+    CompareVector3(bone->GetWorldTailRest(), bone->GetWorldTailPose()) != true;
 
   // Head
   head[0] = 10.0;   head[1] = 42.0;   head[2] = -100.0002;
   spy->ClearEvents();
   bone->SetWorldHeadRest(head);
-  sectionErrors += spy->CalledEvents[0] != vtkBoneWidget::RestChangedEvent;
-  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
-  sectionErrors += spy->CalledEvents.size() != 2;
-  sectionErrors += CompareVector3(bone->GetWorldHeadRest(), head);
+  sectionErrors += spy->CalledEvents[0] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 1;
+  sectionErrors += CompareVector3(bone->GetWorldHeadRest(), head) != true;
 
   spy->ClearEvents();
   bone->SetWorldHeadRest(head); // Try again and make sure it does not move
@@ -120,14 +76,15 @@ int vtkBoneWidgetTest_RestMode(int, char *[])
   tail[0] = 26.0;   tail[1] = -300.;   tail[2] = -0.000008;
   spy->ClearEvents();
   bone->SetWorldTailRest(tail);
-  sectionErrors += spy->CalledEvents[0] != vtkBoneWidget::RestChangedEvent;
-  sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
-  sectionErrors += spy->CalledEvents.size() != 2;
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), tail);
+  sectionErrors += spy->CalledEvents[0] != vtkCommand::ModifiedEvent;
+  sectionErrors += spy->CalledEvents.size() != 1;
+  sectionErrors += CompareVector3(bone->GetWorldTailRest(), tail) != true;
 
   spy->ClearEvents();
   bone->SetWorldTailRest(tail); // Try again and make sure it does not move
   sectionErrors += spy->CalledEvents.size() > 0;
+
+  bone->SetWidgetStateToRest();
 
   // Move both and look at transforms
   head[0] = 200.0;   head[1] = 42.0;   head[2] = -100.0002;
@@ -144,13 +101,17 @@ int vtkBoneWidgetTest_RestMode(int, char *[])
   sectionErrors += fabs(vtkMath::Normalize(lineVect) - bone->GetLength()) > 1e-6;
 
   // Translations
-  sectionErrors += CompareVector3(bone->GetWorldToBoneHeadRestTranslation(), head);
-  sectionErrors += CompareVector3(bone->GetWorldToBoneTailRestTranslation(), tail);
-  sectionErrors += CompareVector3(bone->GetParentToBoneRestTranslation(),
-    bone->GetWorldToBoneHeadRestTranslation()); // (no parent transform)
+  sectionErrors +=
+    CompareVector3(bone->GetWorldToBoneHeadRestTranslation(), head) != true;
+  sectionErrors +=
+    CompareVector3(bone->GetWorldToBoneTailRestTranslation(), tail) != true;
+  sectionErrors +=
+    CompareVector3(bone->GetParentToBoneRestTranslation(),
+      bone->GetWorldToBoneHeadRestTranslation()) != true; // (no parent transform)
 
   double origin [3] = {0.0, 0.0, 0.0};
-  sectionErrors += CompareVector3(bone->GetWorldToParentRestTranslation(), origin);
+  sectionErrors +=
+    CompareVector3(bone->GetWorldToParentRestTranslation(), origin) != true;
 
   // Rotations
   vtkQuaterniond worldToBoneRest(0.707986, 0.702722, 0, -0.070272);
@@ -192,12 +153,15 @@ int vtkBoneWidgetTest_RestMode(int, char *[])
   sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
   sectionErrors += spy->CalledEvents.size() != 2;
 
-  sectionErrors += CompareVector3(bone->GetWorldHeadRest(), head);
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), tail);
+  sectionErrors +=
+    CompareVector3(bone->GetWorldHeadRest(), head) != true;
+  sectionErrors +=
+    CompareVector3(bone->GetWorldTailRest(), tail) != true;
 
   // World To Parent
   sectionErrors += quat.Compare(bone->GetWorldToParentRestRotation(), 1e-4) != true;
-  sectionErrors += CompareVector3(translation, bone->GetWorldToParentRestTranslation());
+  sectionErrors +=
+    CompareVector3(translation, bone->GetWorldToParentRestTranslation()) != true;
 
   // Parent to bone
   vtkQuaterniond parentToBoneRest(0.000908997, 0.00454498, 0.999896, -0.0136349);
@@ -211,8 +175,10 @@ int vtkBoneWidgetTest_RestMode(int, char *[])
   double localHead[3] = {-146.31, 651.596, 22290.8};
   double localTail[3] = {-166.693, 646.826, 22090.9};
 
-  sectionErrors += CompareVector3(localHead, bone->GetLocalHeadRest());
-  sectionErrors += CompareVector3(localTail, bone->GetLocalTailRest());
+  sectionErrors +=
+    CompareVector3(localHead, bone->GetLocalHeadRest()) != true;
+  sectionErrors +=
+    CompareVector3(localTail, bone->GetLocalTailRest()) != true;
 
   vtkMath::Subtract(localHead, localTail, lineVect);
   sectionErrors += fabs(vtkMath::Normalize(lineVect) - bone->GetLength()) > 1e-6;

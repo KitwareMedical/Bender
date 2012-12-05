@@ -31,57 +31,11 @@
 #include <vtkSmartPointer.h>
 #include <vtkTransform.h>
 
+#include "vtkBenderWidgetTestHelper.h"
 #include "vtkBoneWidget.h"
 #include "vtkBoneRepresentation.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
-
-namespace
-{
-
-int CompareVector3(const double* v1, const double* v2)
-{
-  double diff[3];
-  vtkMath::Subtract(v1, v2, diff);
-  if (vtkMath::Dot(diff, diff) < 1e-6)
-    {
-    return 0;
-    }
-
-  return 1;
-}
-
-class vtkSpy : public vtkCommand
-{
-public:
-  vtkTypeMacro(vtkSpy, vtkCommand);
-  static vtkSpy *New(){return new vtkSpy;}
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-                       void *callData);
-  // List of node that should be updated when NodeAddedEvent is catched
-  std::vector<unsigned long> CalledEvents;
-  void ClearEvents() {this->CalledEvents.clear();};
-  bool Verbose;
-protected:
-  vtkSpy():Verbose(false){}
-  virtual ~vtkSpy(){}
-};
-
-//---------------------------------------------------------------------------
-void vtkSpy::Execute(
-  vtkObject *vtkcaller, unsigned long eid, void *vtkNotUsed(calldata))
-{
-  this->CalledEvents.push_back(eid);
-  if (this->Verbose)
-    {
-    std::cout << "vtkSpy: event:" << eid
-              << " (" << vtkCommand::GetStringFromEventId(eid) << ")"
-              << " time: " << vtkTimeStamp()
-              << std::endl;
-    }
-}
-
-}// end namespace
 
 int vtkBoneWidgetTest_Basics(int, char *[])
 {
@@ -201,7 +155,8 @@ int vtkBoneWidgetTest_Basics(int, char *[])
     wxyz[1], wxyz[2], wxyz[3]);
 
   sectionErrors += axesRotation.Compare(bone->GetWorldToBoneRestRotation(), 1e-4) != true;
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), axesTransform->GetPosition());
+  sectionErrors +=
+    CompareVector3(bone->GetWorldTailRest(), axesTransform->GetPosition()) != true;
 
   spy->ClearEvents();
   bone->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
@@ -216,7 +171,8 @@ int vtkBoneWidgetTest_Basics(int, char *[])
     wxyz[1], wxyz[2], wxyz[3]);
 
   sectionErrors += axesRotation.Compare(bone->GetWorldToBonePoseRotation(), 1e-4) != true;
-  sectionErrors += CompareVector3(bone->GetWorldTailRest(), axesTransform->GetPosition());
+  sectionErrors +=
+    CompareVector3(bone->GetWorldTailRest(), axesTransform->GetPosition()) != true;
 
   if (sectionErrors > 0)
     {
@@ -236,9 +192,9 @@ int vtkBoneWidgetTest_Basics(int, char *[])
 
   vtkLineRepresentation* parenthood = bone->GetParenthoodRepresentation();
   sectionErrors += CompareVector3(bone->GetWorldToParentRestTranslation(),
-    parenthood->GetPoint1WorldPosition());
+    parenthood->GetPoint1WorldPosition()) != true;
   sectionErrors += CompareVector3(bone->GetWorldHeadRest(),
-    parenthood->GetPoint2WorldPosition());
+    parenthood->GetPoint2WorldPosition()) != true;
 
   spy->ClearEvents();
   bone->SetShowParenthood(0);
