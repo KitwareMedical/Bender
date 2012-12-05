@@ -24,33 +24,14 @@
 #include "vtkDoubleConeBoneRepresentation.h"
 
 // VTK includes
-#include <vtkAxes.h>
-#include <vtkAxesActor.h>
-#include <vtkActor.h>
-#include <vtkAppendPolyData.h>
-#include <vtkBiDimensionalRepresentation2D.h>
 #include <vtkCallbackCommand.h>
 #include <vtkCommand.h>
 #include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkLineWidget2.h>
-#include <vtkMath.h>
-#include <vtkNew.h>
 #include <vtkObjectFactory.h>
-#include <vtkOrientationMarkerWidget.h>
-#include <vtkPointHandleRepresentation3D.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataMapper.h>
-#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
-#include <vtkSphereSource.h>
-#include <vtkTransformPolyDataFilter.h>
-#include <vtkTransform.h>
-
-// STD includes
-#include <map>
 
 // Define interaction style
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
@@ -63,12 +44,9 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
       {
       vtkRenderWindowInteractor *rwi = this->Interactor;
       std::string key = rwi->GetKeySym();
-      std::cout<<"Key pressed: "<<key<<std::endl; 
-
       if (key == "Control_L")
         {
         int widgetState = this->Widget->GetWidgetState();
-   
         if ( widgetState == vtkBoneWidget::PlaceHead )
           {
           //do nothing
@@ -87,6 +65,10 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
           {
           this->Widget->SetWidgetStateToRest();
           }
+        }
+      if (key == "h")
+        {
+        this->Widget->SetWidgetState(vtkBoneWidget::PlaceHead );
         }
       else if (key == "Tab")
         {
@@ -128,47 +110,10 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
   vtkBoneWidget* Widget;
 };
 
-class vtkSpy : public vtkCommand
-{
-public:
-  vtkTypeMacro(vtkSpy, vtkCommand);
-  static vtkSpy *New(){return new vtkSpy;}
-  virtual void Execute(vtkObject *caller, unsigned long eventId, 
-                       void *callData);
-  // List of node that should be updated when NodeAddedEvent is catched
-  std::map<unsigned long, unsigned int> CalledEvents;
-  std::map<unsigned long, unsigned long> LastEventMTime;
-
-  bool Verbose;
-protected:
-  vtkSpy():Verbose(false){}
-  virtual ~vtkSpy(){}
-};
-
-//---------------------------------------------------------------------------
-void vtkSpy::Execute(
-  vtkObject *vtkcaller, unsigned long eid, void *vtkNotUsed(calldata))
-{
-  ++this->CalledEvents[eid];
-  this->LastEventMTime[eid] = vtkTimeStamp();
-  if (this->Verbose)
-    {
-    std::cout << "vtkSpy: event:" << eid
-              << " (" << vtkCommand::GetStringFromEventId(eid) << ")"
-              << " count: " << this->CalledEvents[eid]
-              << " time: " << this->LastEventMTime[eid]
-              << std::endl;
-    }
-}
-
-
 vtkStandardNewMacro(KeyPressInteractorStyle);
 
 int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
 {
-  vtkNew<vtkSpy> spy;
-  spy->Verbose = true;
-
   // A renderer and render window
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
@@ -183,7 +128,6 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
 
   vtkSmartPointer<vtkBoneWidget> boneWidget =
     vtkSmartPointer<vtkBoneWidget>::New();
-  boneWidget->AddObserver(vtkCommand::AnyEvent, spy.GetPointer());
 
   boneWidget->SetInteractor(renderWindowInteractor);
   //Test Line
@@ -203,7 +147,7 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
 
   // Begin mouse interaction
   renderWindowInteractor->Start();
- 
+
   return EXIT_SUCCESS;
 }
 

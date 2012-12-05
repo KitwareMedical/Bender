@@ -126,7 +126,7 @@ vtkBoneWidget::vtkBoneWidget()
   this->Name = "";
 
   // Widget interaction init.
-  this->WidgetState = vtkBoneWidget::PlaceHead;
+  this->WidgetState = vtkBoneWidget::Rest;
   this->BoneSelected = vtkBoneWidget::NotSelected;
 
   // The widgets for moving the end points. They observe this widget (i.e.,
@@ -209,8 +209,11 @@ vtkBoneWidget::vtkBoneWidget()
   this->ShowParenthood = 1;
   this->ParenthoodLink = vtkLineWidget2::New();
 
+  // Init the transforms correctly just in case.
   this->UpdateRestMode();
   this->ResetPoseToRest();
+
+  this->SetWidgetState(vtkBoneWidget::PlaceHead);
 }
 
 //----------------------------------------------------------------------------
@@ -1268,7 +1271,8 @@ void vtkBoneWidget::MoveAction(vtkAbstractWidget *w)
   bool modified = false;
 
   // See whether we're active
-  if ( self->BoneSelected == vtkBoneWidget::NotSelected )
+  if ( self->BoneSelected == vtkBoneWidget::NotSelected
+    && self->WidgetState != vtkBoneWidget::PlaceHead)
     {
     // Highlight the handles
     int state = self->GetBoneRepresentation()->ComputeInteractionState(X,Y);
@@ -1825,23 +1829,31 @@ void vtkBoneWidget::EndInteraction()
 //----------------------------------------------------------------------------
 void vtkBoneWidget::UpdateRestMode()
 {
-  // Update Rotations:
-  // Little weird here: Since we know that our world to bone computations is
-  // robust and works well, we compute the world to bone transform first
-  // and then deduce the parent to bone transform from it:
-  this->RebuildWorldToBoneRestRotation();
-  this->RebuildParentToBoneRestRotation();
+  if (this->WidgetState == vtkBoneWidget::PlaceHead)
+    {
+    this->UpdateDisplay();
+    }
+  else // PlaceHead, Rest and Pose mode
+    {
+    // Update Rotations:
+    // Little weird here: Since we know that our world to bone computations is
+    // robust and works well, we compute the world to bone transform first
+    // and then deduce the parent to bone transform from it:
+    this->RebuildWorldToBoneRestRotation();
+    this->RebuildParentToBoneRestRotation();
 
-  // Finally recompute local points.
-  this->RebuildLocalRestPoints();
+    // Finally recompute local points.
+    this->RebuildLocalRestPoints();
 
-  // Update translations:
-  this->RebuildWorldToBoneRestTranslations();
-  this->RebuildParentToBoneRestTranslation();
+    // Update translations:
+    this->RebuildWorldToBoneRestTranslations();
+    this->RebuildParentToBoneRestTranslation();
 
-  this->UpdateDisplay();
+    this->UpdateDisplay();
 
-  this->InvokeEvent(vtkBoneWidget::RestChangedEvent, NULL);
+    this->InvokeEvent(vtkBoneWidget::RestChangedEvent, NULL);
+    }
+
   this->Modified();
 }
 
