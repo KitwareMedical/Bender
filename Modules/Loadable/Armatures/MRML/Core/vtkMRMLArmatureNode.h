@@ -103,11 +103,6 @@ public:
   void SetBonesRepresentationType(int representationType);
   int GetBonesRepresentationType();
 
-  /// Deduce the bone representation type from the given representation.
-  /// Returns vtkMRMLArmatureNode::Bone if the given representation is null.
-  /// \sa GetBonesRepresentationType(), SetBonesRepresentationType()
-  int GetBonesRepresentationType(vtkBoneRepresentation* r);
-
   //BTX
   enum RepresentationTypes
     {
@@ -264,6 +259,7 @@ protected:
 
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
+  int BonesRepresentationType;
   int ShouldResetPoseMode;
 };
 
