@@ -676,8 +676,14 @@ int main( int argc, char * argv[] )
 
   PARSE_ARGS;
 
-
-  cout<<"Armature Y coordinate will be inverted\n";
+  if (!IsSurfaceInRAS)
+    {
+    std::cout<<"Surface x,y coordinates will be inverted\n";
+    }
+  if (!IsArmatureInRAS)
+    {
+    std::cout<<"Armature x,y coordinates will be inverted\n";
+    }
 
   if(LinearBlend)
     {
@@ -722,7 +728,7 @@ int main( int argc, char * argv[] )
   // Read in the surface file
   //----------------------------
   vtkSmartPointer<vtkPolyData> inSurface;
-  inSurface.TakeReference(bender::IOUtils::ReadPolyData(SurfaceInput.c_str(),false));
+  inSurface.TakeReference(bender::IOUtils::ReadPolyData(SurfaceInput.c_str(),!IsSurfaceInRAS));
 
   vtkPoints* inputPoints = inSurface->GetPoints();
   int numPoints = inputPoints->GetNumberOfPoints();
@@ -742,7 +748,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   std::vector<RigidTransform> transforms;
   vtkSmartPointer<vtkPolyData> armature;
-  armature.TakeReference(bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),false));
+  armature.TakeReference(bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
 
   if(0) //test whether the transform makes senses.
     {

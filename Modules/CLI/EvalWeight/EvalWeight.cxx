@@ -168,7 +168,7 @@ int main( int argc, char * argv[] )
   cout<<"Evaluating surface: "<<InputSurface<<endl;
   if(!IsSurfaceInRAS)
     {
-    cout<<"Invert y coordinate\n";
+    cout<<"Invert x,y coordinates\n";
     }
   cout<<"Output to "<<OutputSurface<<endl;
 
