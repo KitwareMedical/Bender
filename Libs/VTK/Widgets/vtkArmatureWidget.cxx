@@ -471,8 +471,6 @@ void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
     return;
     }
 
-  newRep->SetAlwaysOnTop(this->BonesRepresentation->GetAlwaysOnTop());
-
   this->BonesRepresentation->Delete();
   this->BonesRepresentation = newRep;
   this->BonesRepresentation->Register(this);
@@ -507,8 +505,6 @@ void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
     {
     copiedRepresentation->Delete();
     }
-
-  bone->SetRepresentation(copiedRepresentation);
 }
 
 //----------------------------------------------------------------------------
