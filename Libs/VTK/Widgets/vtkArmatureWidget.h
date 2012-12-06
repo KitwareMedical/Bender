@@ -259,6 +259,10 @@ public:
   // Reimplemented for internal reasons (update polydata).
   virtual void Modified();
 
+  static void ComputeTransform(double start[3], double end[3], double mat[3][3]);
+  static double ComputeAngle(double v1[3], double v2[3]);
+  static void ComputeAxisAngleMatrix(double axis[3], double angle, double mat[3][3]);
+
 protected:
   vtkArmatureWidget();
   ~vtkArmatureWidget();

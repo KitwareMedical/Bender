@@ -28,8 +28,10 @@
 
 // VTK includes
 #include <vtkCallbackCommand.h>
+#include <vtkCellData.h>
 #include <vtkCommand.h>
 #include <vtkCollection.h>
+#include <vtkDoubleArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -190,6 +192,10 @@ vtkArmatureWidget::vtkArmatureWidget()
   points->SetDataTypeToDouble();
   this->PolyData->SetPoints(points.GetPointer());
   this->PolyData->Allocate(100);
+  vtkNew<vtkDoubleArray> transforms;
+  transforms->SetNumberOfComponents(12);
+  transforms->SetName("Transforms");
+  this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
 
   // Init bones properties
   this->BonesRepresentationType = vtkArmatureWidget::None;
@@ -879,6 +885,9 @@ ArmatureTreeNode* vtkArmatureWidget::GetNode(vtkBoneWidget* bone)
 void vtkArmatureWidget::UpdatePolyData()
 {
   this->PolyData->GetPoints()->Reset();
+  vtkDoubleArray* transforms = vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("Transforms"));
+  transforms->Reset();
   this->PolyData->Reset();
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -889,7 +898,88 @@ void vtkArmatureWidget::UpdatePolyData()
     indexes[1] = this->PolyData->GetPoints()->InsertNextPoint(
       (*it)->Bone->GetWorldTailRest());
     this->PolyData->InsertNextCell(VTK_LINE, 2, indexes);
+
+    double translation[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldHeadPose(), (*it)->Bone->GetWorldHeadRest(), translation);
+    double localTailRest[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldTailRest(), (*it)->Bone->GetWorldHeadRest(), localTailRest);
+    double localTailPose[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldTailPose(), (*it)->Bone->GetWorldHeadPose(), localTailPose);
+    vtkMath::Subtract((*it)->Bone->GetWorldHeadPose(), (*it)->Bone->GetWorldHeadRest(), translation);
+
+    double rotation[3][3];
+    this->ComputeTransform(localTailRest, localTailPose, rotation);
+    double transform[4][3];
+    memcpy(transform, rotation, 3*3*sizeof(double));
+    memcpy(transform[3], translation, 3*sizeof(double));
+    transforms->InsertNextTuple(transform[0]);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::ComputeTransform(double start[3], double end[3], double mat[3][3])
+{
+  double startNormalized[3] = {start[0], start[1], start[2]};
+  double startNorm = vtkMath::Normalize(startNormalized);
+  double endNormalized[3] = {end[0], end[1], end[2]};
+  double endNorm = vtkMath::Normalize(endNormalized);
+
+  double rotationAxis[3] = {0., 0., 0.};
+  vtkMath::Cross(startNormalized, endNormalized, rotationAxis);
+  if (rotationAxis[0] == 0. && rotationAxis[1] == 0. && rotationAxis[2] == 0.)
+    {
+    double dummy[3];
+    vtkMath::Perpendiculars(startNormalized, rotationAxis, dummy, 0.);
+    }
+  if (rotationAxis[0] == 0. && rotationAxis[1] == 0. && rotationAxis[2] == 0.)
+    {
+    vtkMath::Identity3x3(mat);
+    }
+  else
+    {
+    vtkMath::Normalize(rotationAxis);
+    double angle = vtkArmatureWidget::ComputeAngle(startNormalized, endNormalized);
+    vtkArmatureWidget::ComputeAxisAngleMatrix(rotationAxis, angle, mat);
+    }
+  double scaleMatrix[3][3] = {1.,0.,0.,0.,1.,0.,0.,0.,1.};
+  scaleMatrix[0][0] = scaleMatrix[1][1] = scaleMatrix[2][2] = endNorm / startNorm;
+  vtkMath::Multiply3x3(mat, scaleMatrix, mat);
+  //vtkMath::Multiply3x3(scaleMatrix, transform, transform);
+}
+
+//-----------------------------------------------------------------------------
+double vtkArmatureWidget::ComputeAngle(double v1[3], double v2[3])
+{
+  double dot = vtkMath::Dot(v1, v2);
+  dot = std::min(dot, 1.);
+  double angle = acos(dot);
+  return angle;
+}
+
+//-----------------------------------------------------------------------------
+void vtkArmatureWidget::ComputeAxisAngleMatrix(double axis[3], double angle, double mat[3][3])
+{
+  /* rotation of angle radials around axis */
+  double vx, vx2, vy, vy2, vz, vz2, co, si;
+
+  vx = axis[0];
+  vy = axis[1];
+  vz = axis[2];
+  vx2 = vx * vx;
+  vy2 = vy * vy;
+  vz2 = vz * vz;
+  co = cos(angle);
+  si = sin(angle);
+
+  mat[0][0] = vx2 + co * (1.0f - vx2);
+  mat[0][1] = vx * vy * (1.0f - co) + vz * si;
+  mat[0][2] = vz * vx * (1.0f - co) - vy * si;
+  mat[1][0] = vx * vy * (1.0f - co) - vz * si;
+  mat[1][1] = vy2 + co * (1.0f - vy2);
+  mat[1][2] = vy * vz * (1.0f - co) + vx * si;
+  mat[2][0] = vz * vx * (1.0f - co) + vy * si;
+  mat[2][1] = vy * vz * (1.0f - co) - vx * si;
+  mat[2][2] = vz2 + co * (1.0f - vz2);
 }
 
 //----------------------------------------------------------------------------
