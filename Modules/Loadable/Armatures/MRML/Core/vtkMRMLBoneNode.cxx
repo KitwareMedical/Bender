@@ -260,23 +260,20 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
 
   if (type == 1)
     {
-    vtkCylinderBoneRepresentation* rep
-      = vtkCylinderBoneRepresentation::New();
-    this->BoneProperties->SetRepresentation(rep);
+    vtkNew<vtkCylinderBoneRepresentation> rep;
+    this->BoneProperties->SetRepresentation(rep.GetPointer());
     this->BoneRepresentationType = 1;
     }
   else if (type == 2)
     {
-    vtkDoubleConeBoneRepresentation* rep
-      = vtkDoubleConeBoneRepresentation::New();
-    this->BoneProperties->SetRepresentation(rep);
+    vtkNew<vtkDoubleConeBoneRepresentation> rep;
+    this->BoneProperties->SetRepresentation(rep.GetPointer());
     this->BoneRepresentationType = 2;
     }
   else
     {
-    vtkBoneRepresentation* rep
-      = vtkBoneRepresentation::New();
-    this->BoneProperties->SetRepresentation(rep);
+    vtkNew<vtkBoneRepresentation> rep;
+    this->BoneProperties->SetRepresentation(rep.GetPointer());
     this->BoneRepresentationType = 0;
     }
 
@@ -654,20 +651,18 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
     {
     if (this->BoneRepresentationType == 1)
       {
-      vtkCylinderBoneRepresentation* rep
-        = vtkCylinderBoneRepresentation::New();
-      boneWidget->SetRepresentation(rep);
+      vtkNew<vtkCylinderBoneRepresentation> rep;
+      boneWidget->SetRepresentation(rep.GetPointer());
       }
     else if (this->BoneRepresentationType == 2)
       {
-      vtkDoubleConeBoneRepresentation* rep
-        = vtkDoubleConeBoneRepresentation::New();
-      boneWidget->SetRepresentation(rep);
+      vtkNew<vtkDoubleConeBoneRepresentation> rep;
+      boneWidget->SetRepresentation(rep.GetPointer());
       }
     else
       {
-      vtkBoneRepresentation* rep = vtkBoneRepresentation::New();
-      boneWidget->SetRepresentation(rep);
+      vtkNew<vtkBoneRepresentation> rep;
+      boneWidget->SetRepresentation(rep.GetPointer());
       }
     }
 

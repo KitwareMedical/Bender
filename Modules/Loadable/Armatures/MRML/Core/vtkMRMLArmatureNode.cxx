@@ -87,10 +87,11 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 {
   this->ArmatureProperties = vtkArmatureWidget::New();
   this->ArmatureProperties->CreateDefaultRepresentation();
-  this->ArmatureProperties->SetBonesRepresentation(
-    vtkDoubleConeBoneRepresentation::New());
+  vtkNew<vtkDoubleConeBoneRepresentation> newRep;
+  this->ArmatureProperties->SetBonesRepresentation(newRep.GetPointer());
   this->BonesRepresentationType = FindBonesRepresentationType(
     this->ArmatureProperties->GetBonesRepresentation());
+
   this->WidgetState = vtkMRMLArmatureNode::Rest;
   this->SetHideFromEditors(0);
   this->Callback = vtkCallbackCommand::New();
@@ -114,6 +115,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 {
+  this->Callback->Delete();
   this->ArmatureProperties->Delete();
 }
 
@@ -236,6 +238,7 @@ void vtkMRMLArmatureNode::SetBonesRepresentationType(int type)
 
   r->DeepCopy(this->GetBonesRepresentation());
   this->ArmatureProperties->SetBonesRepresentation(r);
+  r->Delete();
 }
 
 //---------------------------------------------------------------------------
@@ -439,20 +442,18 @@ void vtkMRMLArmatureNode
     {
     if (this->BonesRepresentationType == 1)
       {
-      vtkCylinderBoneRepresentation* rep
-        = vtkCylinderBoneRepresentation::New();
-      armatureWidget->SetBonesRepresentation(rep);
+      vtkNew<vtkCylinderBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
     else if (this->BonesRepresentationType == 2)
       {
-      vtkDoubleConeBoneRepresentation* rep
-        = vtkDoubleConeBoneRepresentation::New();
-      armatureWidget->SetBonesRepresentation(rep);
+      vtkNew<vtkDoubleConeBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
     else
       {
-      vtkBoneRepresentation* rep = vtkBoneRepresentation::New();
-      armatureWidget->SetBonesRepresentation(rep);
+      vtkNew<vtkBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
     }
 

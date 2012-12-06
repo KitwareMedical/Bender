@@ -263,7 +263,9 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   if (it->second)
     {
     it->second->Delete();
+    it->second = 0;
     }
+  this->RemoveAllBoneNodes(it->first);
 
   // TODO: it->first might have already been deleted
   it->first->RemoveObserver(this->External->GetMRMLNodesCallbackCommand());
@@ -482,7 +484,8 @@ vtkArmatureWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
   armatureWidget->SetRepresentation(rep.GetPointer());
   armatureWidget->SetEnabled(0);
 
-  armatureWidget->SetBonesRepresentation(vtkDoubleConeBoneRepresentation::New());
+  vtkNew<vtkDoubleConeBoneRepresentation> newRep;
+  armatureWidget->SetBonesRepresentation(newRep.GetPointer());
 
   // Link widget evenement to the LogicCallbackCommand
   armatureWidget->AddObserver(vtkCommand::StartInteractionEvent,
