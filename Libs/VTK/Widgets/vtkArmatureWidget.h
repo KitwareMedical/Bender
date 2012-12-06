@@ -345,6 +345,19 @@ protected:
   // Set the representation type for a given bone.
   void SetBoneRepresentation(vtkBoneWidget* bone);
 
+  // Highlight helpers function, to highlight correctly what will move.
+  //
+  // Highlight the given bone parent and its direct children if
+  // they are directly linked.
+  void HighlightLinkedParentAndParentChildren(vtkBoneWidget* bone,
+    int highlight);
+  // Highlight the given bone direct children if they are directly linked.
+  void HighlightLinkedChildren(vtkBoneWidget* bone, int highlight);
+  void HighlightLinkedChildren(ArmatureTreeNode* node, int highlight);
+  // Highlight the all the bone children (direct or indirect).
+  // Recursive function.
+  void HighlightAllChildren(ArmatureTreeNode* node, int highlight);
+
   // Create a new node
   ArmatureTreeNode* CreateNewMapElement(vtkBoneWidget* parent);
 
