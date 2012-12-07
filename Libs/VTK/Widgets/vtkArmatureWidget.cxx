@@ -170,6 +170,42 @@ public:
 
         break;
         }
+      case vtkBoneWidget::SelectedStateChangedEvent:
+        {
+        // Assume the cast isn't null. The only elements that should send
+        // selected state changed event should be vtkBoneWidget
+        vtkBoneWidget* bone = vtkBoneWidget::SafeDownCast(caller);
+        int newState = bone->GetBoneSelected();
+
+        if (bone->GetWidgetState() == vtkBoneWidget::Rest)
+          {
+          if (newState == vtkBoneWidget::HeadSelected
+            || newState == vtkBoneWidget::LineSelected)
+            {
+            ArmatureWidget->HighlightLinkedParentAndParentChildren(bone, 1);
+            }
+
+          if (newState == vtkBoneWidget::TailSelected
+            || newState == vtkBoneWidget::LineSelected)
+            {
+            ArmatureWidget->HighlightLinkedChildren(bone, 1);
+            }
+
+          if (newState == vtkBoneWidget::NotSelected)
+            {
+            ArmatureWidget->HighlightLinkedParentAndParentChildren(bone, 0);
+            ArmatureWidget->HighlightLinkedChildren(bone, 0);
+            }
+          }
+        else if (bone->GetWidgetState() == vtkBoneWidget::Pose)
+          {
+          ArmatureWidget->HighlightAllChildren(ArmatureWidget->GetNode(bone),
+            newState == vtkBoneWidget::TailSelected
+            || newState == vtkBoneWidget::LineSelected);
+          }
+
+        break;
+        }
       }
     }
 
@@ -655,6 +691,8 @@ void vtkArmatureWidget::AddBoneObservers(vtkBoneWidget* bone)
     this->ArmatureWidgetCallback, this->Priority);
   bone->AddObserver(vtkBoneWidget::PoseChangedEvent,
     this->ArmatureWidgetCallback, this->Priority);
+  bone->AddObserver(vtkBoneWidget::SelectedStateChangedEvent,
+    this->ArmatureWidgetCallback, this->Priority);
 }
 
 //----------------------------------------------------------------------------
@@ -663,6 +701,8 @@ void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
   bone->RemoveObservers(vtkBoneWidget::RestChangedEvent,
     this->ArmatureWidgetCallback);
   bone->RemoveObservers(vtkBoneWidget::PoseChangedEvent,
+    this->ArmatureWidgetCallback);
+  bone->AddObserver(vtkBoneWidget::SelectedStateChangedEvent,
     this->ArmatureWidgetCallback);
 }
 
@@ -1141,6 +1181,73 @@ void vtkArmatureWidget
     this->SetBoneWorldToParentPoseTransform((*it)->Bone, parentNode->Bone);
     }
   this->UpdatePolyData();
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedParentAndParentChildren(vtkBoneWidget* bone, int highlight)
+{
+  ArmatureTreeNode* node = this->GetNode(bone);
+  if (!node || !node->Parent)
+    {
+    return;
+    }
+
+  if (node->HeadLinkedToParent)
+    {
+    if (node->Parent->Bone->GetBoneRepresentation())
+      {
+      node->Parent->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+    this->HighlightLinkedChildren(node->Parent, highlight);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedChildren(vtkBoneWidget* bone, int highlight)
+{
+  this->HighlightLinkedChildren(this->GetNode(bone), highlight);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedChildren(ArmatureTreeNode* node, int highlight)
+{
+  if (! node)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = node->Children.begin();
+    it != node->Children.end(); ++it)
+    {
+    if ((*it)->HeadLinkedToParent && (*it)->Bone->GetBoneRepresentation())
+      {
+      (*it)->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightAllChildren(ArmatureTreeNode* node, int highlight)
+{
+  if (!node)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = node->Children.begin();
+    it != node->Children.end(); ++it)
+    {
+    if ((*it)->Bone->GetBoneRepresentation())
+      {
+      (*it)->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+
+    this->HighlightAllChildren(*it, highlight);
+    }
 }
 
 //----------------------------------------------------------------------------

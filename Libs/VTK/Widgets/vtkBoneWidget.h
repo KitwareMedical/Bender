@@ -140,9 +140,12 @@ public:
   // was updated.
   // PoseChangedEvent: Fired in pose mode when a point or a transform
   // was updated.
+  // SelectedStateChangedEvent: Fired whenever the bone is selected
+  // or unselected.
   //BTX
   enum BoneWidgetEventType {RestChangedEvent = vtkCommand::UserEvent + 1,
                             PoseChangedEvent,
+                            SelectedStateChangedEvent
                            };
   //ETX
 

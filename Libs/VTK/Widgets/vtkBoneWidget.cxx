@@ -2087,6 +2087,8 @@ void vtkBoneWidget::SetWidgetSelectedState(int selectionState)
     this->GetBoneRepresentation()->Highlight(
       selectionState != vtkBoneWidget::NotSelected);
     }
+
+  this->InvokeEvent(vtkBoneWidget::SelectedStateChangedEvent, NULL);
   this->Modified();
 }
 
