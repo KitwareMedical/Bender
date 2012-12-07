@@ -28,7 +28,7 @@
       <index>1</index>
     </geometry>
 
-    <geometry fileExtensions=".stl|.vtk">
+    <geometry fileExtensions=".vtk">
       <name>SurfaceInput</name>
       <label>Surface</label>
       <description><![CDATA[Input surface to be posed.]]></description>

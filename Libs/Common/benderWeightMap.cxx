@@ -53,7 +53,10 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
 
   for(size_t j=0; j<voxels.size(); ++j)
     {
-    this->LUTIndex->SetPixel(voxels[j], j);
+    if (region.IsInside(voxels[j]))
+      {
+      this->LUTIndex->SetPixel(voxels[j], j);
+      }
     }
 }
 
@@ -61,6 +64,10 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
 bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
 {
   if(value<=0)
+    {
+    return false;
+    }
+  if (!this->LUTIndex->GetLargestPossibleRegion().IsInside(v))
     {
     return false;
     }
@@ -83,6 +90,12 @@ bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
 void WeightMap::Get(const Voxel& v, WeightVector& values) const
 {
   values.Fill(0);
+
+  if (!this->LUTIndex->GetLargestPossibleRegion().IsInside(v))
+    {
+    return;
+    }
+
   size_t j = this->LUTIndex->GetPixel(v);
   assert(j<Cols);
 

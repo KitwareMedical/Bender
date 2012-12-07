@@ -71,7 +71,6 @@ typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
-
 //-------------------------------------------------------------------------------
 template<class T>
 void PrintVector(T* a, int n)
@@ -137,7 +136,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
-      if(!domain->GetPixel(q))
+      if(domain->GetLargestPossibleRegion().IsInside(q) && !domain->GetPixel(q))
         {
         domain->SetPixel(q,true);
         domainVoxels.push_back(q);
@@ -194,6 +193,10 @@ int main( int argc, char * argv[] )
   Region weightRegion = weight0->GetLargestPossibleRegion();
   cout<<"Weight volume description: "<<endl;
   cout<<weightRegion<<endl;
+  cout<<" origin: "<<weight0->GetOrigin()<<endl;
+  cout<<" spacing: "<<weight0->GetSpacing()<<endl;
+
+
 
   int numForeGround(0);
   for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
@@ -255,10 +258,13 @@ int main( int argc, char * argv[] )
     itk::Point<double,3> x(xraw);
     itk::ContinuousIndex<double,3> coord;
     weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+
     bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
-      cerr<<"WARNING: Lerp failed for "<<coord<<endl;
+      cerr<<"WARNING: Lerp failed for "<< pi
+          << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
+          << " w:" << coord<<endl;
       }
     else
       {

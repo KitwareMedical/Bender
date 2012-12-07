@@ -636,8 +636,9 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   CubeNeighborhood cubeNeighborhood;
   VoxelOffset* offsets = cubeNeighborhood.Offsets;
 
+  WeightImage::RegionType region = image->GetLargestPossibleRegion();
   BoolImage::Pointer domain = BoolImage::New();
-  domain->SetRegions(image->GetLargestPossibleRegion());
+  domain->SetRegions(region);
   domain->Allocate();
   domain->FillBuffer(false);
 
@@ -656,7 +657,8 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
-      if(!domain->GetPixel(q))
+
+      if(region.IsInside(q) && !domain->GetPixel(q))
         {
         domain->SetPixel(q,true);
         domainVoxels.push_back(q);
@@ -874,7 +876,9 @@ int main( int argc, char * argv[] )
     bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
-      cerr<<"Lerp failed for "<<coord<<endl;
+      cerr<<"WARNING: Lerp failed for "<< pi
+          << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
+          << " w:" << coord<<endl;
       }
     else
       {

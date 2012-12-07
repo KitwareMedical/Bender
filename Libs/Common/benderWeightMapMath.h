@@ -58,7 +58,10 @@ namespace bender
         cornerW*= upper? t : 1-t;
         q[dim] = m[dim]+ static_cast<int>(upper);
         }
-      assert(cornerW>=0);
+      if(cornerW<0)
+        {
+        return false; //the point must be outside the region
+        }
       w_corner.Fill(0);
       if(mask->GetPixel(q)>=foreground_minimum)
         {
