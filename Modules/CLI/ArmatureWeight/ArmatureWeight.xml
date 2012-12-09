@@ -75,6 +75,13 @@
       <default>20</default>
     </integer>
     <integer>
+      <name>Padding</name>
+      <longflag>--padding</longflag>
+      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
+      <default>1</default>
+    </integer>
+
+    <integer>
       <name>SmoothingIteration</name>
       <longflag>--smooth</longflag>
       <label>Smoothing Iteration Number</label>

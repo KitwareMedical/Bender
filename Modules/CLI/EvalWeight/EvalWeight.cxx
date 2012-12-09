@@ -110,6 +110,7 @@ public:
 //-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
                          ,vtkPoints* points //input
+                         ,const std::vector<vtkIdType>& selection
                          ,std::vector<Voxel>& domainVoxels //output
                          )
 {
@@ -121,8 +122,9 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+  for(size_t i = 0; i<selection.size(); i++)
     {
+    vtkIdType pi = selection[i];
     double xraw[3];
     points->GetPoint(pi,xraw);
 
@@ -162,6 +164,7 @@ int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
   typedef bender::WeightMap WeightMap;
+  typedef std::vector<vtkIdType> IdArray;
 
   cout<<"Evaluate weight in  "<<WeightDirectory<<endl;
   cout<<"Evaluating surface: "<<InputSurface<<endl;
@@ -206,16 +209,28 @@ int main( int argc, char * argv[] )
   cout<<numForeGround<<" foreground voxels"<<endl;
 
   //----------------------------
-  // Read in the stl file
+  // Read in the surface input file
+  // , pick only the vertices that are
+  // inside the image and store them in sampleVertices
   //----------------------------
   vtkSmartPointer<vtkPolyData> surface;
   surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsSurfaceInRAS));
-
   vtkPoints* points = surface->GetPoints();
-  int numPoints = points->GetNumberOfPoints();
+  IdArray sampleVertices;
+  for(vtkIdType pi=0; pi<points->GetNumberOfPoints();++pi)
+    {
+    itk::Point<double,3> x(points->GetPoint(pi));
+    itk::ContinuousIndex<double,3> coord;
+    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+    if(weight0->GetLargestPossibleRegion().IsInside(coord))
+      {
+      sampleVertices.push_back(pi);
+      }
+    }
+  cout<<sampleVertices.size()<<" out of "<<points->GetNumberOfPoints()<<" vertices are in the weight image domain"<<endl;
   std::vector<Voxel> domainVoxels;
-  ComputeDomainVoxels(weight0,points,domainVoxels);
-  cout<<points->GetNumberOfPoints()<<" points, "<<domainVoxels.size()<<" voxels"<<endl;
+  ComputeDomainVoxels(weight0,points,sampleVertices,domainVoxels);
+  cout<<domainVoxels.size()<<" voxels in the weight domain"<<endl;
 
   //----------------------------
   // Read Weights
@@ -226,6 +241,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   //Perform interpolation
   //----------------------------
+  vtkIdType numPoints = points->GetNumberOfPoints();
   vtkPointData* pointData = surface->GetPointData();
   pointData->Initialize();
   std::vector<vtkFloatArray*> surfaceVertexWeights;
@@ -250,8 +266,10 @@ int main( int argc, char * argv[] )
   int numZeros(0);
   WeightMap::WeightVector w_pi(numSites);
   WeightMap::WeightVector w_corner(numSites);
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+
+  for(IdArray::iterator itr=sampleVertices.begin();itr!=sampleVertices.end();itr++)
     {
+    vtkIdType pi = *itr;
     double xraw[3];
     points->GetPoint(pi,xraw);
 

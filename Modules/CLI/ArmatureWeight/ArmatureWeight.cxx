@@ -547,6 +547,44 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
 }
 
 //-------------------------------------------------------------------------------
+//Expand the foreground once. The new foreground pixels are assigned foreGroundMin
+int ExpandForegroundOnce(LabelImage::Pointer labelMap, unsigned short foreGroundMin)
+{
+  int numNewVoxels=0;
+  CharImage::RegionType region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,region);
+  Neighborhood<3> neighbors;
+  VoxelOffset* offsets = neighbors.Offsets;
+
+  std::vector<Voxel> front;
+  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    Voxel p = it.GetIndex();
+    LabelImage::PixelType value = it.Get();
+    if(value>=foreGroundMin)
+      {
+      for(int iOff=0; iOff<6; ++iOff)
+        {
+        const VoxelOffset& offset = offsets[iOff];
+        Voxel q = p + offset;
+        if(region.IsInside(q) && labelMap->GetPixel(q)<foreGroundMin)
+          {
+          front.push_back(q);
+          }
+        }
+      }
+    }
+  for(std::vector<Voxel>::const_iterator i = front.begin(); i!=front.end();i++)
+    {
+    if(labelMap->GetPixel(*i)<foreGroundMin)
+      {
+      labelMap->SetPixel( *i, foreGroundMin);
+      ++numNewVoxels;
+      }
+    }
+  return numNewVoxels;
+}
+//-------------------------------------------------------------------------------
 int Expand(const std::vector<Voxel>& seeds,
            CharImage::Pointer domain, int distance,
            LabelImage::Pointer labelMap, unsigned short foreGroundMin,
@@ -634,9 +672,8 @@ int Expand(const LabelImage::Pointer labelMap,
         {
         const VoxelOffset& offset = offsets[iOff];
         Voxel qIndex = pIndex + offset;
-        if(allRegion.IsInside(qIndex)
-           && labelMap->GetPixel(qIndex)>=forGroundMin
-           && domain->GetPixel(qIndex)==0)
+        if(allRegion.IsInside(qIndex) && domain->GetPixel(qIndex)==0
+            && labelMap->GetPixel(qIndex)>=forGroundMin)
           {
           ++regionSize;
           newBd.push_back(qIndex);
@@ -1005,7 +1042,8 @@ public:
     assert(NumConnectedComponents<CharImage>(this->Domain)==1);
 
     LabelType unknown = ArmatureType::GetEdgeLabel(-1);
-    regionSize+=Expand(this->Armature.BodyPartition, this->GetLabel(), unknown, expansionDistance,
+    regionSize+=Expand(this->Armature.BodyPartition, this->GetLabel(), unknown,
+                       expansionDistance,
                        this->Domain,ArmatureType::DomainLabel);
 
     if(DumpSegmentationImages)
@@ -1157,6 +1195,8 @@ int main( int argc, char * argv[] )
     std::cout << "Input armature is not in RAS coordinate system; will convert it to RAS." << std::endl;
     }
 
+  std::cout<<"Padding distance: "<<Padding<<endl;
+
   if(DumpDebugImages)
     {
     DumpSegmentationImages = true;
@@ -1186,11 +1226,11 @@ int main( int argc, char * argv[] )
   int numBodyVoxels(0),numBoneVoxels(0);
   for(it.GoToBegin(); !it.IsAtEnd(); ++it)
     {
-    if(it.Get()>bodyIntensity)
+    if(it.Get()>=bodyIntensity)
       {
       ++numBodyVoxels;
       }
-    if(it.Get()>boneIntensity)
+    if(it.Get()>=boneIntensity)
       {
       ++numBoneVoxels;
       }
@@ -1204,9 +1244,15 @@ int main( int argc, char * argv[] )
   std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
 
   //----------------------------
-  //Clean up the data
-  RemoveSingleVoxelIsland(labelMap);
+  // Preprocess of the labelmap
   //----------------------------
+  RemoveSingleVoxelIsland(labelMap);
+  int numPaddedVoxels =0;
+  for(int i=0; i<Padding; i++)
+    {
+    numPaddedVoxels+=ExpandForegroundOnce(labelMap,bodyIntensity);
+    cout<<"Padded "<<numPaddedVoxels<<" voxels"<<endl;
+    }
 
   //----------------------------
   // Read armature information

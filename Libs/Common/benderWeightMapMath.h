@@ -35,6 +35,7 @@ namespace bender
   {
     typedef bender::WeightMap WeightMap;
     typedef WeightMap::Voxel Voxel;
+    typename MaskImageType::RegionType region = mask->GetLargestPossibleRegion();
     w_pi.Fill(0);
     WeightMap::WeightVector w_corner=w_pi;
     w_corner.Fill(0);
@@ -58,19 +59,15 @@ namespace bender
         cornerW*= upper? t : 1-t;
         q[dim] = m[dim]+ static_cast<int>(upper);
         }
-      if(cornerW<0)
+      if(cornerW>=0 &&
+         cornerW<=1
+         && region.IsInside(q)
+         && mask->GetPixel(q)>=foreground_minimum)
         {
-        return false; //the point must be outside the region
-        }
-      w_corner.Fill(0);
-      if(mask->GetPixel(q)>=foreground_minimum)
-        {
+        w_corner.Fill(0);
         cornerWSum+=cornerW;
         weightMap.Get(q, w_corner);
         w_pi += cornerW*w_corner;
-        }
-      else
-        {
         }
       }
     if(cornerWSum!=0.0)
