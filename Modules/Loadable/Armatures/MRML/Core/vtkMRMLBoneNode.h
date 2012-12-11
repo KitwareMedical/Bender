@@ -133,8 +133,6 @@ public:
   void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
 
-  /// Helper function to get the distance between head and tail
-  double GetDistance();
 
   /// Set/Get the bone roll.
   void SetRoll(double roll);

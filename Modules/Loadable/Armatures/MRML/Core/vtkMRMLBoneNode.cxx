@@ -281,22 +281,6 @@ void vtkMRMLBoneNode::SetBoneRepresentationType(int type)
 }
 
 //---------------------------------------------------------------------------
-double vtkMRMLBoneNode::GetDistance()
-{
-  if (this->BoneProperties->GetWidgetState() == vtkBoneWidget::PlaceHead
-    || this->BoneProperties->GetWidgetState() == vtkBoneWidget::PlaceTail)
-    {
-    return 0.0;
-    }
-
-  // Can't use bone properties -> rep -> distance because the representation
-  // is never built. Thus the distance is never recomputed
-  return sqrt(vtkMath::Distance2BetweenPoints(
-    this->BoneProperties->GetBoneRepresentation()->GetWorldHeadPosition(),
-    this->BoneProperties->GetBoneRepresentation()->GetWorldTailPosition()));
-}
-
-//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetRoll(double roll)
 {
   this->BoneProperties->SetRoll(roll);
