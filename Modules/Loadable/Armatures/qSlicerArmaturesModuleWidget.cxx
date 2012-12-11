@@ -44,6 +44,7 @@
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
+#include <vtkMRMLScene.h>
 
 //-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidgetPrivate methods
@@ -611,11 +612,9 @@ void qSlicerArmaturesModuleWidget
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
-  if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
+  if (armatureNode && armatureNode != d->ArmatureNodeComboBox->currentNode())
     {
-    bool wasBlocking = d->ArmatureNodeComboBox->blockSignals(true);
     d->ArmatureNodeComboBox->setCurrentNode(armatureNode);
-    d->ArmatureNodeComboBox->blockSignals(wasBlocking);
     }
 
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
@@ -712,6 +711,16 @@ void qSlicerArmaturesModuleWidget::enter()
       }
     }
 }
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  vtkMRMLScene* oldMRMLScene = this->mrmlScene();
+  this->Superclass::setMRMLScene(scene);
+  this->qvtkReconnect(oldMRMLScene, scene, vtkMRMLScene::NodeAddedEvent, this,
+    SLOT(onMRMLNodeAdded(vtkObject*, void*)));
+}
+
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
@@ -911,4 +920,15 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
   d->setCoordinatesToBoneNode(d->BoneNode);
 
   d->BoneNode->EndModify(wasModifying);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget
+::onMRMLNodeAdded(vtkObject* scene, void* callData)
+{
+  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
+  if (node && node->IsA("vtkMRMLArmatureNode"))
+    {
+    this->setMRMLArmatureNode(node);
+    }
 }
