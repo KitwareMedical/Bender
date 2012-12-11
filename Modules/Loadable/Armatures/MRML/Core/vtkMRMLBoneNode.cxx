@@ -27,6 +27,7 @@
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
 #include <vtkBoneRepresentation.h>
+#include <vtkMRMLNodeHelper.h>
 #include <vtkQuaternion.h>
 
 // MRML includes
@@ -92,7 +93,84 @@ vtkMRMLBoneNode::~vtkMRMLBoneNode()
 void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
 {
   this->Superclass::WriteXML(of, nIndent);
-  // of << indent << " ctrlPtsNumberingScheme=\"" << this->NumberingScheme << "\"";
+
+  vtkIndent indent(nIndent);
+  of << indent << " Length=\"" << this->BoneProperties->GetLength() << "\"";
+  of << indent << " Name=\"" << this->BoneProperties->GetName() << "\"";
+  of << indent << " State=\""
+    << this->BoneProperties->GetWidgetState() << "\"";
+  of << indent << " Roll=\"" << this->BoneProperties->GetRoll() << "\"";
+
+  of << indent << " RepresentationType=\""
+    << this->BoneRepresentationType << "\"";
+  of << indent << " RepresentationName=\""
+    << this->BoneProperties->GetBoneRepresentation()->GetClassName() << "\"";
+  of << indent << " ShowAxes=\""
+    << this->BoneProperties->GetShowAxes() << "\"";
+  of << indent << " ShowParenthood=\""
+    << this->BoneProperties->GetShowParenthood() << "\"";
+
+  of << indent << " WorldHeadRest=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldHeadRest());
+  of << indent << " WorldTailRest=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldTailRest());
+  of << indent << " WorldToParentRestRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetWorldToParentRestRotation().GetData(), 4);
+  of << indent << " WorldToParentRestTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToParentRestTranslation());
+  of << indent << " ParentToBonetRestRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetParentToBoneRestRotation().GetData(), 4);
+  of << indent << " ParentToBoneRestTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetParentToBoneRestTranslation());
+  of << indent << " WorldToBoneRestRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetWorldToBoneRestRotation().GetData(), 4);
+  of << indent << " WorldToBoneHeadRestTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToBoneHeadRestTranslation());
+  of << indent << " WorldToBoneTailRestTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToBoneTailRestTranslation());
+
+  of << indent << " WorldHeadPose=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldHeadPose());
+  of << indent << " WorldTailPose=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldTailPose());
+  of << indent << " WorldToParentPoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetWorldToParentPoseRotation().GetData(), 4);
+  of << indent << " WorldToParentPoseTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToParentPoseTranslation());
+  of << indent << " ParentToBonetPoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetParentToBonePoseRotation().GetData(), 4);
+  of << indent << " ParentToBonePoseTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetParentToBonePoseTranslation());
+  of << indent << " WorldToBonePoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetWorldToBonePoseRotation().GetData(), 4);
+  of << indent << " WorldToBoneHeadPoseTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToBoneHeadPoseTranslation());
+  of << indent << " WorldToBoneTailPoseTranslation=";
+  vtkMRMLNodeHelper::PrintQuotedVector3(of,
+    this->BoneProperties->GetWorldToBoneTailPoseTranslation());
+  of << indent << " RestToPoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetRestToPoseRotation().GetData(), 4);
+
+  of << indent << " BoneLinkedWithParent=\""
+    << this->GetBoneLinkedWithParent() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -121,16 +199,81 @@ void vtkMRMLBoneNode::ReadXMLAttributes(const char** atts)
 
   while (*atts != NULL)
     {
-    //const char* attName = *(atts++);
-    //std::string attValue(*(atts++));
+    const char* attName = *(atts++);
+    std::string attValue(*(atts++));
 
-    // if  (!strcmp(attName, "ctrlPtsNumberingScheme"))
-    //   {
-    //   std::stringstream ss;
-    //   ss << attValue;
-    //   ss >> this->NumberingScheme;
-    //   }
+    if (!strcmp(attName, "Name"))
+      {
+      this->SetName(attValue.c_str());
+      }
+    else if (!strcmp(attName, "State"))
+      {
+      this->BoneProperties->SetWidgetState(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Roll"))
+      {
+      this->BoneProperties->SetRoll(
+        vtkMRMLNodeHelper::StringToDouble(attValue));
+      }
+    else if (!strcmp(attName, "RepresentationType"))
+      {
+      this->SetBoneRepresentationType(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowAxes"))
+      {
+      this->BoneProperties->SetShowAxes(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowParenthood"))
+      {
+      this->BoneProperties->SetShowParenthood(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "WorldHeadRest"))
+      {
+      double head[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, head);
+      this->BoneProperties->SetWorldHeadRest(head);
+      }
+    else if (!strcmp(attName, "WorldTailRest"))
+      {
+      double tail[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, tail);
+      this->BoneProperties->SetWorldTailRest(tail);
+      }
+    else if (!strcmp(attName, "WorldToParentRestRotation"))
+      {
+      double rotation[4];
+      vtkMRMLNodeHelper::StringToVector(attValue, rotation, 4);
+      this->BoneProperties->SetWorldToParentRestRotation(rotation);
+      }
+    else if (!strcmp(attName, "WorldToParentRestTranslation"))
+      {
+      double translation[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, translation);
+      this->BoneProperties->SetWorldToParentRestTranslation(translation);
+      }
+    else if (!strcmp(attName, "WorldToParentPoseRotation"))
+      {
+      double rotation[4];
+      vtkMRMLNodeHelper::StringToVector(attValue, rotation, 4);
+      this->BoneProperties->SetWorldToParentPoseRotation(rotation);
+      }
+    else if (!strcmp(attName, "WorldToParentPoseTranslation"))
+      {
+      double translation[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, translation);
+      this->BoneProperties->SetWorldToParentPoseTranslation(translation);
+      }
+    else if (!strcmp(attName, "BoneLinkedWithParent"))
+      {
+      this->SetBoneLinkedWithParent(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
     }
+
   this->EndModify(disabledModify);
 }
 
