@@ -22,6 +22,7 @@
 #include "vtkMRMLArmatureNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
+#include "vtkMRMLNodeHelper.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
@@ -39,7 +40,6 @@
 #include <vtkObjectFactory.h>
 #include <vtkProperty.h>
 #include <vtkWidgetRepresentation.h>
-
 
 //----------------------------------------------------------------------------
 namespace
@@ -123,7 +123,25 @@ vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
 {
   this->Superclass::WriteXML(of, nIndent);
-  // of << indent << " ctrlPtsNumberingScheme=\"" << this->NumberingScheme << "\"";
+
+  vtkIndent indent(nIndent);
+  of << indent << " BonesRepresentationType=\""
+    << this->BonesRepresentationType << "\"";
+  of << indent << " WidgetState=\""
+    << this->ArmatureProperties->GetWidgetState() << "\"";
+  of << indent << " ShowAxes=\""
+    << this->ArmatureProperties->GetShowAxes() << "\"";
+  of << indent << " ShowParenthood=\""
+    << this->ArmatureProperties->GetShowParenthood() << "\"";
+
+  of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
+  of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
+  of << indent << " Color=";
+  double rgb[3];
+  this->GetColor(rgb);
+  vtkMRMLNodeHelper::PrintQuotedVector3(of, rgb);
+  of << indent << " BonesAlwaysOnTop=\""
+    << this->ArmatureProperties->GetBonesAlwaysOnTop() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -135,15 +153,50 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
 
   while (*atts != NULL)
     {
-    //const char* attName = *(atts++);
-    //std::string attValue(*(atts++));
+    const char* attName = *(atts++);
+    std::string attValue(*(atts++));
 
-    // if  (!strcmp(attName, "ctrlPtsNumberingScheme"))
-    //   {
-    //   std::stringstream ss;
-    //   ss << attValue;
-    //   ss >> this->NumberingScheme;
-    //   }
+    if (!strcmp(attName, "BonesRepresentationType"))
+      {
+      this->SetBonesRepresentationType(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "WidgetState"))
+      {
+      this->SetWidgetState(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowAxes"))
+      {
+      this->SetShowAxes(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowParenthood"))
+      {
+      this->SetShowParenthood(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Visibility"))
+      {
+      this->SetVisibility(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Opacity"))
+      {
+      this->SetOpacity(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "BonesAlwaysOnTop"))
+      {
+      this->SetBonesAlwaysOnTop(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Color"))
+      {
+      double rgb[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
+      this->SetColor(rgb);
+      }
     }
   this->EndModify(disabledModify);
 }

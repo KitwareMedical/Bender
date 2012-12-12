@@ -304,7 +304,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
     if (boneNode)
       {
-      this->RemoveBoneNode(boneNode);
       this->External->GetMRMLScene()->RemoveNode(boneNode);
       }
     }
@@ -798,8 +797,7 @@ void vtkMRMLArmatureDisplayableManager::UpdateFromMRMLScene()
 void vtkMRMLArmatureDisplayableManager
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* nodeAdded)
 {
-  if (this->GetMRMLScene()->IsBatchProcessing() ||
-      !this->IsManageable(nodeAdded))
+  if (!this->IsManageable(nodeAdded))
     {
     return;
     }
@@ -819,7 +817,8 @@ void vtkMRMLArmatureDisplayableManager
 void vtkMRMLArmatureDisplayableManager
 ::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* nodeRemoved)
 {
-  if (!this->IsManageable(nodeRemoved))
+  if (!this->IsManageable(nodeRemoved)
+    || this->GetMRMLScene()->IsBatchProcessing())
     {
     return;
     }
