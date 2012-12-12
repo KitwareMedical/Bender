@@ -611,6 +611,10 @@ void qSlicerArmaturesModuleWidget
 ::setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode)
 {
   Q_D(qSlicerArmaturesModuleWidget);
+  if (armatureNode == d->ArmatureNode)
+    {
+    return;
+    }
 
   if (armatureNode && armatureNode != d->ArmatureNodeComboBox->currentNode())
     {
@@ -720,7 +724,6 @@ void qSlicerArmaturesModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   this->qvtkReconnect(oldMRMLScene, scene, vtkMRMLScene::NodeAddedEvent, this,
     SLOT(onMRMLNodeAdded(vtkObject*, void*)));
 }
-
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget

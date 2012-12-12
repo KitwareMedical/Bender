@@ -213,10 +213,21 @@ void vtkSlicerArmaturesLogic
 void vtkSlicerArmaturesLogic::SetActiveArmature(vtkMRMLArmatureNode* armature)
 {
   assert(this->AnnotationsLogic != 0);
-  if (this->GetActiveArmature() == armature)
+  vtkMRMLArmatureNode* currentArmature = this->GetActiveArmature();
+  if (currentArmature == armature)
     {
     return;
     }
+
+  if (currentArmature)
+    {
+    currentArmature->SetSelected(0);
+    }
+  if (armature)
+    {
+    armature->SetSelected(1);
+    }
+
   this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
     armature ? armature->GetID() : 0);
 }
