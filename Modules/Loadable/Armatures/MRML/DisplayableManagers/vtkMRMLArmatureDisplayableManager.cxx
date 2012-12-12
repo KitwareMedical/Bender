@@ -211,15 +211,15 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     armatureWidget->UpdateBoneWithArmatureOptions(
       boneWidget,
       parentBoneWidget);
-    // For not armature widget properties HACKISH
-    if (boneWidget->GetBoneRepresentation())
+    vtkMRMLBoneDisplayNode* boneDisplayNode = boneNode->GetBoneDisplayNode();
+    if (boneDisplayNode)
       {
-      boneWidget->GetBoneRepresentation()->SetOpacity(
-        armatureNode->GetOpacity());
+      boneDisplayNode->SetOpacity(armatureNode->GetOpacity());
       double rgb[3];
       armatureNode->GetColor(rgb);
-      boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
+      boneDisplayNode->SetColor(rgb);
       }
+
     boneWidget->SetShowParenthood(parentBoneWidget != 0);
     boneNode->SetHasParent(parentBoneWidget != 0);
 
@@ -601,8 +601,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::UpdateBoneWidgetFromNode(vtkMRMLBoneNode* boneNode,
                            vtkBoneWidget* boneWidget)
 {
-  vtkMRMLBoneDisplayNode* boneDisplayNode =
-    boneNode ? boneNode->GetBoneDisplayNode() : 0;
   if (!boneNode)
     {
     return;
@@ -616,6 +614,9 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     this->BoneNodes.find(boneNode)->second = boneWidget;
     }
 
+  vtkMRMLBoneDisplayNode* boneDisplayNode =
+    boneNode ? boneNode->GetBoneDisplayNode() : 0;
+
   // We need to stop listening to the boneWidget when changing its properties
   // according to the node. Otherwise it will send ModifiedEvent() for the
   // first property changed, thus updating the node.
@@ -627,22 +628,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneNode->PasteBoneNodeProperties(boneWidget);
   if (boneDisplayNode)
     {
-    if (boneDisplayNode->GetShouldBeInitialized())
-      {
-      // This hackish code is here to prevent the update of the widget
-      // by the display node before the display node was initialized.
-      int wasModifying = boneDisplayNode->StartModify();
-      double normalColor[3];
-      boneWidget->GetBoneRepresentation()->GetLineProperty()
-        ->GetColor(normalColor);
-      boneDisplayNode->SetColor(normalColor);
-
-      boneDisplayNode->CopyBoneWidgetDisplayProperties(boneWidget);
-      boneDisplayNode->SetSelected(true);
-      boneDisplayNode->SetShouldBeInitialized(false);
-      boneDisplayNode->EndModify(wasModifying);
-      }
-
     boneDisplayNode->PasteBoneDisplayNodeProperties(boneWidget);
     }
   boneWidget->AddObserver(vtkCommand::ModifiedEvent,

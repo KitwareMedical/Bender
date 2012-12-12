@@ -164,8 +164,8 @@ void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
     }
   // \tbd remove this SetScene call as it shouldn't be mandatory.
   this->SetScene(mrmlScene);
-  this->Superclass::Initialize(mrmlScene);
   this->CreateBoneDisplayNode();
+  this->Superclass::Initialize(mrmlScene);
 }
 
 //----------------------------------------------------------------------------
