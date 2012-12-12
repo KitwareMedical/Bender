@@ -235,6 +235,11 @@ vtkBoneWidget::~vtkBoneWidget()
 //----------------------------------------------------------------------------
 void vtkBoneWidget::SetEnabled(int enabling)
 {
+  if (enabling == this->GetEnabled())
+    {
+    return;
+    }
+
   // The handle widgets are not actually enabled until they are placed.
   // The handle widgets take their representation
   // from the vtkBoneRepresentation.
