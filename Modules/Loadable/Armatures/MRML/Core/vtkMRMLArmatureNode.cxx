@@ -127,8 +127,6 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
   vtkIndent indent(nIndent);
   of << indent << " BonesRepresentationType=\""
     << this->BonesRepresentationType << "\"";
-  of << indent << " WidgetState=\""
-    << this->ArmatureProperties->GetWidgetState() << "\"";
   of << indent << " ShowAxes=\""
     << this->ArmatureProperties->GetShowAxes() << "\"";
   of << indent << " ShowParenthood=\""
@@ -151,6 +149,7 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
 
   this->Superclass::ReadXMLAttributes(atts);
 
+  this->SetWidgetState(vtkMRMLArmatureNode::Rest);
   while (*atts != NULL)
     {
     const char* attName = *(atts++);
@@ -159,11 +158,6 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
     if (!strcmp(attName, "BonesRepresentationType"))
       {
       this->SetBonesRepresentationType(
-        vtkMRMLNodeHelper::StringToInt(attValue));
-      }
-    else if (!strcmp(attName, "WidgetState"))
-      {
-      this->SetWidgetState(
         vtkMRMLNodeHelper::StringToInt(attValue));
       }
     else if (!strcmp(attName, "ShowAxes"))
