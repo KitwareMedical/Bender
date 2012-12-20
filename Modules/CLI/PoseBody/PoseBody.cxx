@@ -895,34 +895,37 @@ int main( int argc, char * argv[] )
       wSum+=w_pi[i];
       }
 
-    Vec3 y(0.0);
-    if(LinearBlend)
+    assert(wSum>=0);
+    Vec3 y(xraw);
+    if (wSum > 0.0)
       {
-      assert(wSum>=0);
-      for(int i=0; i<numSites;++i)
+      if(LinearBlend)
         {
-        double w = w_pi[i]/wSum;
-        const RigidTransform& Fi(transforms[i]);
-        double yi[3];
-        Fi.Apply(xraw,yi);
-        y+= w*Vec3(yi);
+        for(int i=0; i<numSites;++i)
+          {
+          double w = w_pi[i]/wSum;
+          const RigidTransform& Fi(transforms[i]);
+          double yi[3];
+          Fi.Apply(xraw,yi);
+          y+= w*Vec3(yi);
+          }
         }
-      }
-    else
-      {
-      Mat24 dq;
-      dq.Fill(0.0);
-      for(int i=0; i<numSites;++i)
+      else
         {
-        double w = w_pi[i]/wSum;
-        Mat24& dq_i(dqs[i]);
-        dq+= dq_i*w;
+        Mat24 dq;
+        dq.Fill(0.0);
+        for(int i=0; i<numSites;++i)
+          {
+          double w = w_pi[i]/wSum;
+          Mat24& dq_i(dqs[i]);
+          dq+= dq_i*w;
+          }
+        Vec4 q;
+        Vec3 t;
+        DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
+        y = Vec3(xraw);
+        ApplyQT(q,t,&y[0]);
         }
-      Vec4 q;
-      Vec3 t;
-      DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-      y = Vec3(xraw);
-      ApplyQT(q,t,&y[0]);
       }
 
     outPoints->SetPoint(pi,y[0],y[1],y[2]);

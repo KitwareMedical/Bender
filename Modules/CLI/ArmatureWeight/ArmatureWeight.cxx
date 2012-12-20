@@ -195,42 +195,49 @@ template <class ImageType>
 void Rasterize(const double* a, const double* b, const typename ImageType::Pointer image,
                std::vector<typename ImageType::IndexType>& outputPixels)
 {
-  typedef itk::Index<ImageType::ImageDimension> Pixel;
+  outputPixels.clear();
 
-  typedef typename itk::Point<float, ImageType::ImageDimension> PointType;
-  PointType pa,pb;
-  unsigned int dimension =ImageType::ImageDimension;
-  for(unsigned int i=0; i<dimension; ++i)
-    {
-    pa[i] = a[i];
-    pb[i] = b[i];
-    }
+  typedef itk::Index<ImageType::ImageDimension> Pixel;
+  typedef typename itk::Point<double, ImageType::ImageDimension> PointType;
+  PointType pa(a);
+  PointType pb(b);
+  const unsigned int dimension = ImageType::ImageDimension;
   Pixel Ia,Ib;
   if(!image->TransformPhysicalPointToIndex(pa,Ia))
     {
-    cerr<<"Fail to rasterize\n";
+    cerr<<"Fail to rasterize pa " << pa << "\n";
+    cerr<<"  Image origin: " << image->GetOrigin() << "\n";
+    cerr<<"  Image spacing: " << image->GetSpacing() << "\n";
+    cerr<<"  Image region: " << image->GetLargestPossibleRegion() << "\n";
+    cerr<< "You might need to convert coordinate system.\n";
     return;
     }
   if(!image->TransformPhysicalPointToIndex(pb,Ib))
     {
-    cerr<<"Fail to rasterize\n";
+    cerr<<"Fail to rasterize pb " << pb << "\n";
+    cerr<<"  Image origin: " << image->GetOrigin() << "\n";
+    cerr<<"  Image spacing: " << image->GetSpacing() << "\n";
+    cerr<<"  Image region: " << image->GetLargestPossibleRegion() << "\n";
+    cerr<< "You might need to convert coordinate system.\n";
     return;
     }
 
+  // TODO: Simplify with ITKv4 new signature for itk::BresenhamLine::BuildLine.
   typedef itk::BresenhamLine<ImageType::ImageDimension> Bresenham;
   typedef typename itk::BresenhamLine<ImageType::ImageDimension>::LType DirType;
   Bresenham bresLine;
-  DirType dir;
+  DirType Idir;
+  DirType Pdir;
   unsigned int maxSteps(0);
   for(unsigned int i=0; i<dimension; ++i)
     {
-    dir[i]=b[i]-a[i];
-    maxSteps+= (int)fabs(dir[i]);
+    Idir[i]=Ib[i]-Ia[i];
+    Pdir[i]=b[i]-a[i];
+    maxSteps+= static_cast<int>(fabs(Idir[i]));
     }
 
-  float len = dir.GetNorm();
-  typename Bresenham::OffsetArray line = bresLine.BuildLine(dir,maxSteps);
-  outputPixels.clear();
+  float len = Pdir.GetNorm();
+  typename Bresenham::OffsetArray line = bresLine.BuildLine(Idir,maxSteps);
   for(size_t i=0; i<line.size();++i)
     {
     Pixel pIndex = Ia+line[i];
@@ -699,6 +706,8 @@ public:
   {
     this->BodyPartition = LabelImage::New();
     Allocate<LabelImage,LabelImage>(image, this->BodyPartition);
+    this->BodyPartition->FillBuffer(0);
+
   }
   static CharType GetEdgeLabel(int i)
   {
@@ -760,15 +769,18 @@ private:
       this->SkeletonVoxels.push_back(std::vector<Voxel>());
       std::vector<Voxel>& edgeVoxels(this->SkeletonVoxels.back());
       Rasterize<LabelImage>(ax,bx,this->BodyPartition, edgeVoxels);
-
+      if (edgeVoxels.size() == 0)
+        {
+        continue;
+        }
       //XXX we really need to make sure that the rasterized edge is a connected component
       //just a hack here
-      for(size_t i=0; i<edgeVoxels.size()-2; ++i)
+      if (edgeVoxels.size() > 2)
         {
-        edgeVoxels[i] = edgeVoxels[i+1];
+        // Discard points a and b
+        edgeVoxels.erase(edgeVoxels.begin());
+        edgeVoxels.erase(edgeVoxels.begin() + edgeVoxels.size() - 1);
         }
-      edgeVoxels.pop_back();
-      edgeVoxels.pop_back();
       CharType label = ArmatureType::GetEdgeLabel(edgeId);
       int numOutside(0);
       for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); ++vi)
