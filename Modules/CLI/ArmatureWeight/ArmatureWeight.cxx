@@ -767,15 +767,18 @@ private:
       this->SkeletonVoxels.push_back(std::vector<Voxel>());
       std::vector<Voxel>& edgeVoxels(this->SkeletonVoxels.back());
       Rasterize<LabelImage>(ax,bx,this->BodyPartition, edgeVoxels);
-
+      if (edgeVoxels.size() == 0)
+        {
+        continue;
+        }
       //XXX we really need to make sure that the rasterized edge is a connected component
       //just a hack here
-      for(size_t i=0; i<edgeVoxels.size()-2; ++i)
+      if (edgeVoxels.size() > 2)
         {
-        edgeVoxels[i] = edgeVoxels[i+1];
+        // Discard points a and b
+        edgeVoxels.erase(edgeVoxels.begin());
+        edgeVoxels.erase(edgeVoxels.begin() + edgeVoxels.size() - 1);
         }
-      edgeVoxels.pop_back();
-      edgeVoxels.pop_back();
       CharType label = ArmatureType::GetEdgeLabel(edgeId);
       int numOutside(0);
       for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); ++vi)
