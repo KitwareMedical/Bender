@@ -140,9 +140,12 @@ public:
   // was updated.
   // PoseChangedEvent: Fired in pose mode when a point or a transform
   // was updated.
+  // SelectedStateChangedEvent: Fired whenever the bone is selected
+  // or unselected.
   //BTX
   enum BoneWidgetEventType {RestChangedEvent = vtkCommand::UserEvent + 1,
                             PoseChangedEvent,
+                            SelectedStateChangedEvent
                            };
   //ETX
 
@@ -209,13 +212,13 @@ public:
   // Description:
   // Rest mode get methods.
   // Access methods to all the rotation and translations from the rest mode.
-  vtkGetQuaternionMacro(WorldToParentRestRotation, double);
+  vtkGetQuaterniondMacro(WorldToParentRestRotation, double);
   vtkGetVector3Macro(WorldToParentRestTranslation, double);
 
-  vtkGetQuaternionMacro(ParentToBoneRestRotation, double);
+  vtkGetQuaterniondMacro(ParentToBoneRestRotation, double);
   vtkGetVector3Macro(ParentToBoneRestTranslation, double);
 
-  vtkGetQuaternionMacro(WorldToBoneRestRotation, double);
+  vtkGetQuaterniondMacro(WorldToBoneRestRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadRestTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailRestTranslation, double);
 
@@ -248,18 +251,18 @@ public:
   // Description:
   // Pose mode get methods.
   // Access methods to all the rotation and translations from the pose mode.
-  vtkGetQuaternionMacro(WorldToParentPoseRotation, double);
+  vtkGetQuaterniondMacro(WorldToParentPoseRotation, double);
   vtkGetVector3Macro(WorldToParentPoseTranslation, double);
 
-  vtkGetQuaternionMacro(ParentToBonePoseRotation, double);
+  vtkGetQuaterniondMacro(ParentToBonePoseRotation, double);
   vtkGetVector3Macro(ParentToBonePoseTranslation, double);
 
-  vtkGetQuaternionMacro(WorldToBonePoseRotation, double);
+  vtkGetQuaterniondMacro(WorldToBonePoseRotation, double);
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
-  vtkGetQuaternionMacro(RestToPoseRotation, double);
-  //void SetRestToPoseRotation(double rotation[4]); //\TO DO
+  vtkGetQuaterniondMacro(RestToPoseRotation, double);
+  //void SetRestToPoseRotation(double rotation[4]); //\TO DO ?
 
   // Description:
   // Pose mode methods to quickly create transforms.
@@ -331,6 +334,13 @@ public:
   void SetShowAxes(int show);
 
   // Description:
+  // Set the get the axes size factor. The axes final size is the bone's
+  // length multiplied b this factor.
+  // The values is between 0 and 1, default is 0.4.
+  void SetAxesSize(double size);
+  vtkGetMacro(AxesSize, double);
+
+  // Description:
   // Hidden:  Hide the axes.
   // ShowRestTransform: The debug axes will output the RestTransform axes.
   // ShowPoseTransform: The debug axes will output the pose transform axes.
@@ -393,6 +403,11 @@ public:
     };
   //ETX
 
+  // Description:
+  // Deep copy another bone's properties.
+  // Note: The representation type (if any) is left unchanged.
+  void DeepCopy(vtkBoneWidget* other);
+
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();
@@ -416,13 +431,23 @@ protected:
   // The positioning handle widgets.
   vtkHandleWidget* HeadWidget;
   vtkHandleWidget* TailWidget;
-  vtkBoneWidgetCallback* HeadWidgetCallback;
-  vtkBoneWidgetCallback* TailWidgetCallback;
+  vtkHandleWidget* LineWidget;
 
   // Methods invoked when the handles at the
   // end points of the widget are manipulated.
-  void StartBoneInteraction();
-  virtual void EndBoneInteraction();
+  virtual void StartInteraction();
+  virtual void EndInteraction();
+
+  // Return the selected state from interaction state.
+  // It converts the vtkBoneRepresentation enum into the widget selected state
+  // enum.
+  int GetSelectedStateFromInteractionState(int interactionState);
+  vtkAbstractWidget* GetHandleFromInteractionState(int state);
+  vtkWidgetRepresentation* GetSelectedRepresentation();
+  void SetWidgetStateInternal(int state);
+
+  // Warning, the new tail shouldn't change the length of the bone.
+  void SetWorldTailPose(double tail[3]);
 
   // Bone widget essentials
   // World positions:
@@ -496,6 +521,11 @@ protected:
   // while interacting.
   double InteractionWorldHeadPose[3];
   double InteractionWorldTailPose[3];
+
+  // Update visibility of the widget and associated actors such as axes,
+  // parenthood, etc...
+  // @sa UpdateShowAxes(), UpdateParenthoodLinkVisibility()
+  void UpdateVisibility();
 
   // Axes variables:
   // For an easier debug and understanding.

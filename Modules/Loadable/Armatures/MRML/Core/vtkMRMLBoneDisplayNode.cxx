@@ -20,6 +20,7 @@
 
 // Armatures includes
 #include "vtkMRMLBoneDisplayNode.h"
+#include "vtkMRMLNodeHelper.h"
 
 // VTK includes
 #include <vtkObjectFactory.h>
@@ -49,7 +50,12 @@ vtkMRMLBoneDisplayNode::~vtkMRMLBoneDisplayNode()
 void vtkMRMLBoneDisplayNode::WriteXML(ostream& of, int nIndent)
 {
   this->Superclass::WriteXML(of, nIndent);
-  // of << indent << " ctrlPtsNumberingScheme=\"" << this->NumberingScheme << "\"";
+
+  vtkIndent indent(nIndent);
+  of << indent << " InteractionColor=\""
+    << this->InteractionColor[0] << " "
+    << this->InteractionColor[1] << " "
+    << this->InteractionColor[2] << " " << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -61,15 +67,15 @@ void vtkMRMLBoneDisplayNode::ReadXMLAttributes(const char** atts)
 
   while (*atts != NULL)
     {
-    //const char* attName = *(atts++);
-    //std::string attValue(*(atts++));
+    const char* attName = *(atts++);
+    std::string attValue(*(atts++));
 
-    // if  (!strcmp(attName, "ctrlPtsNumberingScheme"))
-    //   {
-    //   std::stringstream ss;
-    //   ss << attValue;
-    //   ss >> this->NumberingScheme;
-    //   }
+    if (!strcmp(attName, "InteractionColor"))
+      {
+      double rgb[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
+      this->SetInteractionColor(rgb);
+      }
     }
   this->EndModify(disabledModify);
 }
@@ -113,7 +119,7 @@ void vtkMRMLBoneDisplayNode::SetColor(double r, double g, double b)
 
   v *= 1.2; // enlight
   vtkMath::HSVToRGB(h, s, v, &r, &g, &b);
-  this->SetWidgetInteractionColor(r, g, b);
+  this->SetInteractionColor(r, g, b);
 }
 
 //----------------------------------------------------------------------------
@@ -160,7 +166,7 @@ void vtkMRMLBoneDisplayNode
     this->GetColor(color);
     }
   double interactionColor[3];
-  this->GetWidgetInteractionColor(interactionColor);
+  this->GetInteractionColor(interactionColor);
 
   vtkCylinderBoneRepresentation* cylinderRep =
     vtkCylinderBoneRepresentation::SafeDownCast(

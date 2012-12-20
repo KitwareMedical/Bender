@@ -99,7 +99,7 @@ void vtkCylinderBoneRepresentation::CreateDefaultProperties()
 
   this->SelectedCylinderProperty = vtkProperty::New();
   this->SelectedCylinderProperty->SetAmbient(1.0);
-  this->SelectedCylinderProperty->SetAmbientColor(0.0,0.0,1.0);
+  this->SelectedCylinderProperty->SetAmbientColor(0.0,1.0,0.0);
 }
 
 //----------------------------------------------------------------------------
@@ -155,14 +155,15 @@ int vtkCylinderBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
   this->BuildRepresentation();
   // Bone representation actors
   count += this->LineActor->RenderOpaqueGeometry(v);
+  // Cylinder actor
+  count += this->CylinderActor->RenderOpaqueGeometry(v);
+  // Handles after cylinder
   count += this->Handle[0]->RenderOpaqueGeometry(v);
   count += this->Handle[1]->RenderOpaqueGeometry(v);
   if (this->DistanceAnnotationVisibility)
     {
     count += this->TextActor->RenderOpaqueGeometry(v);
     }
-  // Cylinder actor
-  count += this->CylinderActor->RenderOpaqueGeometry(v);
 
   return count;
 }
@@ -175,14 +176,15 @@ int vtkCylinderBoneRepresentation
   this->BuildRepresentation();
   // Bone representation actors
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
+  // Cylinder actor
+  count += this->CylinderActor->RenderTranslucentPolygonalGeometry(v);
+  // Handles after cylinder
   count += this->Handle[0]->RenderTranslucentPolygonalGeometry(v);
   count += this->Handle[1]->RenderTranslucentPolygonalGeometry(v);
   if (this->DistanceAnnotationVisibility)
     {
     count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
     }
-  // Cylinder actor
-  count += this->CylinderActor->RenderTranslucentPolygonalGeometry(v);
 
   return count;
 }
@@ -194,14 +196,15 @@ int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
   this->BuildRepresentation();
   // Bone representation actors
   count += this->LineActor->RenderOverlay(v);
+  // Cylinder actor
+  count += this->CylinderActor->RenderOverlay(v);
+  // Handles after cylinder
   count += this->Handle[0]->RenderOverlay(v);
   count += this->Handle[1]->RenderOverlay(v);
   if (this->DistanceAnnotationVisibility)
     {
     count += this->TextActor->RenderOverlay(v);
     }
-  // Cylinder actor
-  count += this->CylinderActor->RenderOverlay(v);
 
   return count;
 }
@@ -213,14 +216,15 @@ int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
   this->BuildRepresentation();
   // Bone representation actors
   count |= this->LineActor->HasTranslucentPolygonalGeometry();
+  // Cylinder actor
+  count |= this->CylinderActor->HasTranslucentPolygonalGeometry();
+  // Handles after cylinder
   count |= this->Handle[0]->HasTranslucentPolygonalGeometry();
   count |= this->Handle[1]->HasTranslucentPolygonalGeometry();
   if (this->DistanceAnnotationVisibility)
     {
     count |= this->TextActor->HasTranslucentPolygonalGeometry();
     }
-  // Cylinder actor
-  count |= this->CylinderActor->HasTranslucentPolygonalGeometry();
   return count;
 }
 

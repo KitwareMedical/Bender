@@ -75,8 +75,8 @@ public:
   virtual void SetColor(double r, double g, double b);
 
   /// Set/Get the color of the widget when interacting.
-  vtkSetVector3Macro(WidgetInteractionColor, double);
-  vtkGetVector3Macro(WidgetInteractionColor, double);
+  vtkSetVector3Macro(InteractionColor, double);
+  vtkGetVector3Macro(InteractionColor, double);
 
   //--------------------------------------------------------------------------
   // Bone methods
@@ -94,7 +94,7 @@ protected:
   vtkMRMLBoneDisplayNode();
   ~vtkMRMLBoneDisplayNode();
 
-  double WidgetInteractionColor[3];
+  double InteractionColor[3];
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented
