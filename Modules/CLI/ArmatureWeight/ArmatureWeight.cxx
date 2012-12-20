@@ -706,6 +706,8 @@ public:
   {
     this->BodyPartition = LabelImage::New();
     Allocate<LabelImage,LabelImage>(image, this->BodyPartition);
+    this->BodyPartition->FillBuffer(0);
+
   }
   static CharType GetEdgeLabel(int i)
   {
