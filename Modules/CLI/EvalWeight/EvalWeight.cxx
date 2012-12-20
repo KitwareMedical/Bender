@@ -24,6 +24,7 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapMath.h"
 #include "benderWeightMapIO.h"
+#include "benderIOUtils.h"
 
 //--------ITK --------------
 #include <itkImageFileWriter.h>
@@ -70,7 +71,6 @@ typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
-
 //-------------------------------------------------------------------------------
 template<class T>
 void PrintVector(T* a, int n)
@@ -106,72 +106,11 @@ public:
   VoxelOffset Offsets[8];
 };
 
-//-------------------------------------------------------------------------------
-vtkPolyData* ReadPolyData(const std::string& fileName, bool invertY=false)
-{
-  vtkPolyData* polyData = 0;
-  vtkSmartPointer<vtkPolyDataReader> pdReader;
-  vtkSmartPointer<vtkXMLPolyDataReader> pdxReader;
-  vtkSmartPointer<vtkSTLReader> stlReader;
-
-  // do we have vtk or vtp models?
-  std::string::size_type loc = fileName.find_last_of(".");
-  if( loc == std::string::npos )
-    {
-    std::cerr << "Failed to find an extension for " << fileName << std::endl;
-    return polyData;
-    }
-
-  std::string extension = fileName.substr(loc);
-
-  if( extension == std::string(".vtk") )
-    {
-    pdReader = vtkSmartPointer<vtkPolyDataReader>::New();
-    pdReader->SetFileName(fileName.c_str() );
-    pdReader->Update();
-    polyData = pdReader->GetOutput();
-    }
-  else if( extension == std::string(".vtp") )
-    {
-    pdxReader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
-    pdxReader->SetFileName(fileName.c_str() );
-    pdxReader->Update();
-    polyData = pdxReader->GetOutput();
-    }
-  else if( extension == std::string(".stl") )
-    {
-    stlReader = vtkSmartPointer<vtkSTLReader>::New();
-    stlReader->SetFileName(fileName.c_str() );
-    stlReader->Update();
-    polyData = stlReader->GetOutput();
-    }
-  if( polyData == NULL )
-    {
-    std::cerr << "Failed to read surface " << fileName << std::endl;
-    return polyData;
-    }
-  // Build Cells
-  polyData->BuildLinks();
-
-  if(invertY)
-    {
-    vtkPoints* points = polyData->GetPoints();
-    for(int i=0; i<points->GetNumberOfPoints();++i)
-      {
-      double x[3];
-      points->GetPoint(i,x);
-      x[1]*=-1;
-      points->SetPoint(i, x);
-      }
-    }
-  polyData->Register(0);
-  return polyData;
-}
-
 
 //-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
                          ,vtkPoints* points //input
+                         ,const std::vector<vtkIdType>& selection
                          ,std::vector<Voxel>& domainVoxels //output
                          )
 {
@@ -183,8 +122,9 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+  for(size_t i = 0; i<selection.size(); i++)
     {
+    vtkIdType pi = selection[i];
     double xraw[3];
     points->GetPoint(pi,xraw);
 
@@ -198,7 +138,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
-      if(!domain->GetPixel(q))
+      if(domain->GetLargestPossibleRegion().IsInside(q) && !domain->GetPixel(q))
         {
         domain->SetPixel(q,true);
         domainVoxels.push_back(q);
@@ -224,12 +164,13 @@ int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
   typedef bender::WeightMap WeightMap;
+  typedef std::vector<vtkIdType> IdArray;
 
   cout<<"Evaluate weight in  "<<WeightDirectory<<endl;
   cout<<"Evaluating surface: "<<InputSurface<<endl;
-  if(InvertY)
+  if(!IsSurfaceInRAS)
     {
-    cout<<"Invert y coordinate\n";
+    cout<<"Invert x,y coordinates\n";
     }
   cout<<"Output to "<<OutputSurface<<endl;
 
@@ -255,6 +196,10 @@ int main( int argc, char * argv[] )
   Region weightRegion = weight0->GetLargestPossibleRegion();
   cout<<"Weight volume description: "<<endl;
   cout<<weightRegion<<endl;
+  cout<<" origin: "<<weight0->GetOrigin()<<endl;
+  cout<<" spacing: "<<weight0->GetSpacing()<<endl;
+
+
 
   int numForeGround(0);
   for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
@@ -264,16 +209,28 @@ int main( int argc, char * argv[] )
   cout<<numForeGround<<" foreground voxels"<<endl;
 
   //----------------------------
-  // Read in the stl file
+  // Read in the surface input file
+  // , pick only the vertices that are
+  // inside the image and store them in sampleVertices
   //----------------------------
   vtkSmartPointer<vtkPolyData> surface;
-  surface.TakeReference(ReadPolyData(InputSurface.c_str(),InvertY));
-
+  surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsSurfaceInRAS));
   vtkPoints* points = surface->GetPoints();
-  int numPoints = points->GetNumberOfPoints();
+  IdArray sampleVertices;
+  for(vtkIdType pi=0; pi<points->GetNumberOfPoints();++pi)
+    {
+    itk::Point<double,3> x(points->GetPoint(pi));
+    itk::ContinuousIndex<double,3> coord;
+    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+    if(weight0->GetLargestPossibleRegion().IsInside(coord))
+      {
+      sampleVertices.push_back(pi);
+      }
+    }
+  cout<<sampleVertices.size()<<" out of "<<points->GetNumberOfPoints()<<" vertices are in the weight image domain"<<endl;
   std::vector<Voxel> domainVoxels;
-  ComputeDomainVoxels(weight0,points,domainVoxels);
-  cout<<points->GetNumberOfPoints()<<" points, "<<domainVoxels.size()<<" voxels"<<endl;
+  ComputeDomainVoxels(weight0,points,sampleVertices,domainVoxels);
+  cout<<domainVoxels.size()<<" voxels in the weight domain"<<endl;
 
   //----------------------------
   // Read Weights
@@ -284,6 +241,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   //Perform interpolation
   //----------------------------
+  vtkIdType numPoints = points->GetNumberOfPoints();
   vtkPointData* pointData = surface->GetPointData();
   pointData->Initialize();
   std::vector<vtkFloatArray*> surfaceVertexWeights;
@@ -308,18 +266,23 @@ int main( int argc, char * argv[] )
   int numZeros(0);
   WeightMap::WeightVector w_pi(numSites);
   WeightMap::WeightVector w_corner(numSites);
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+
+  for(IdArray::iterator itr=sampleVertices.begin();itr!=sampleVertices.end();itr++)
     {
+    vtkIdType pi = *itr;
     double xraw[3];
     points->GetPoint(pi,xraw);
 
     itk::Point<double,3> x(xraw);
     itk::ContinuousIndex<double,3> coord;
     weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+
     bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
-      cerr<<"Lerp failed for "<<coord<<endl;
+      cerr<<"WARNING: Lerp failed for "<< pi
+          << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
+          << " w:" << coord<<endl;
       }
     else
       {
