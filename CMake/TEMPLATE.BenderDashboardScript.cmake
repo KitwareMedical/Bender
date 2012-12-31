@@ -67,7 +67,7 @@ endif()
 #
 # Project specific properties
 #
-set(CTEST_SOURCE_DIRECTORY "${CTEST_DASHBOARD_ROOT}/Bender")
+set(CTEST_SOURCE_DIRECTORY "${CTEST_DASHBOARD_ROOT}/Bender-${CTEST_BUILD_CONFIGURATION}-${GIT_BRANCH_NAME}")
 if (NOT CTEST_BINARY_DIRECTORY)
   set(CTEST_BINARY_DIRECTORY "${CTEST_DASHBOARD_ROOT}/Bender-Superbuild-${CTEST_BUILD_CONFIGURATION}-${MY_BITNESS}bits-${SCRIPT_MODE}-${MY_QT_VERSION}-${MY_CMAKE_VERSION}")
 endif()
@@ -125,7 +125,7 @@ endmacro()
 # Download and include dashboard driver script
 #
 
-set(url https://github.com/downloads/vovythevov/Bender/BenderDashboardDriverScript.cmake)
+set(url http://midas3.kitware.com/midas/download?items=28862)
 set(dest ${CTEST_SCRIPT_DIRECTORY}/${CTEST_SCRIPT_NAME}.driver)
 downloadFile(${url} ${dest})
 include(${dest})
