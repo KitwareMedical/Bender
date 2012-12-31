@@ -660,7 +660,7 @@ void qSlicerArmaturesModuleWidget::setArmatureVisibility(bool visible)
 
     if (boneNode)
       {
-      boneNode->SetVisible(visible);
+      boneNode->SetDisplayVisibility(visible);
       }
     }
 }
