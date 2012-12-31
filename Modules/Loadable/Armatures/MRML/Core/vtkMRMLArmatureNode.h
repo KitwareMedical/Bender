@@ -26,15 +26,19 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
+#include "vtkArmatureWidget.h"
+
+class vtkArmatureWidget;
+class vtkBoneRepresentation;
+class vtkBoneWidget;
+class vtkCallbackCommand;
+class vtkMRMLArmatureDisplayableManager;
+class vtkMRMLBoneNode;
+class vtkMRMLModelNode;
 
 // VTK includes
 #include "vtkCommand.h"
-
-class vtkMRMLArmatureNodeCallback;
-class vtkMRMLBoneNode;
-
-class vtkArmatureWidget;
-class vtkBoneWidget;
+class vtkPolyData;
 
 /// \ingroup Bender_MRML
 /// \brief Root of a tree of bones
@@ -89,12 +93,24 @@ public:
   // Armature methods
   //--------------------------------------------------------------------------
 
-  /// Set the bones representation type.
-  /// \sa GetBonesRepresentation()
-  void SetBonesRepresentation(int representationType);
-  /// Get the bones representation type.
-  /// \sa SetBonesRepresentation()
-  int GetBonesRepresentation();
+  /// Set/Get the bones representation type.
+  /// \sa GetBonesRepresentationType(), SetBonesRepresentationType()
+  void SetBonesRepresentation(vtkBoneRepresentation* rep);
+  vtkBoneRepresentation* GetBonesRepresentation();
+
+  /// Set/Get the bones representation type.
+  /// \sa SetBonesRepresentation(), GetBonesRepresentation()
+  void SetBonesRepresentationType(int representationType);
+  int GetBonesRepresentationType();
+
+  //BTX
+  enum RepresentationTypes
+    {
+    Bone = 0,
+    Cylinder,
+    Octohedron
+    };
+  //ETX
 
   /// Set the bones widget state.
   /// \sa GetWidgetState()
@@ -103,12 +119,30 @@ public:
   /// \sa SetWidgetState()
   int GetWidgetState();
 
+  //BTX
+  enum WidgetState
+    {
+    Rest = vtkArmatureWidget::Rest,
+    Pose = vtkArmatureWidget::Pose
+    };
+  //ETX
+
   /// Set the bones debug axes visibility.
   /// \sa GetShowAxes()
   void SetShowAxes(int axesVisibility);
   /// Get the bones debug axes visibility.
   /// \sa SetShowAxes()
   int GetShowAxes();
+
+  /// The different axes that can be shown.
+  //BTX
+  enum ArmatureAxesType
+    {
+    Hidden = 0,
+    ShowRestTransform,
+    ShowPoseTransform,
+    };
+  //ETX
 
   /// Show the a line between the bones and their origin.
   /// \sa GetShowParenthood()
@@ -193,6 +227,18 @@ public:
   /// Reset the pose mode to the rest positions.
   void ResetPoseMode();
 
+  /// Set the model that contains the polydata of the armature.
+  /// The model node is the associated node of the armature.
+  /// \sa GetArmatureModel(), SetAssociatedNodeID()
+  void SetArmatureModel(vtkMRMLModelNode* model);
+  /// Return the associated model node.
+  /// \sa SetArmatureModel(), GetPolyData()
+  vtkMRMLModelNode* GetArmatureModel();
+
+  /// Return the armature polydata. Each bone is represented by a 2-point
+  /// line cell. It is the polydata stored in the associated model node.
+  /// \sa SetPolyData(), GetArmatureModel()
+  vtkPolyData* GetPolyData();
 protected:
   vtkMRMLArmatureNode();
   ~vtkMRMLArmatureNode();
@@ -201,13 +247,19 @@ protected:
   void operator=(const vtkMRMLArmatureNode&); /// not implemented
 
   //BTX
-  friend class vtkMRMLArmatureNodeCallback;
+  friend class vtkMRMLArmatureDisplayableManager;
   //ETX
 
-  vtkMRMLArmatureNodeCallback* Callback;
+  vtkCallbackCommand* Callback;
+
+  /// Set the armature polydata. Only the displayable manager can set the
+  /// polydata.
+  /// \sa GetPolyData(), SetArmatureModel()
+  void SetArmaturePolyData(vtkPolyData* polyData);
 
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
+  int BonesRepresentationType;
   int ShouldResetPoseMode;
 };
 

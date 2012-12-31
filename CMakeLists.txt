@@ -47,6 +47,11 @@ set(${kit}_CMAKE_DIR "${${kit}_SOURCE_DIR}/CMake")
 set(CMAKE_MODULE_PATH  ${${kit}_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
+# Testing
+enable_testing()
+include(CTest)
+
+#-----------------------------------------------------------------------------
 # Library mode: SHARED (default) or STATIC
 if(NOT DEFINED BUILD_SHARED_LIBS)
   option(BUILD_SHARED_LIBS "Build Bender with shared libraries." ON)

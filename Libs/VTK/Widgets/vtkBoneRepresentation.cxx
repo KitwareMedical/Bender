@@ -36,7 +36,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkPolyData.h>
 #include <vtkProperty.h>
+#include <vtkSmartPointer.h>
 #include <vtkSphereSource.h>
+#include <vtkTransform.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkVectorText.h>
@@ -48,6 +50,7 @@ vtkStandardNewMacro(vtkBoneRepresentation);
 vtkBoneRepresentation::vtkBoneRepresentation()
 {
   this->AlwaysOnTop = 1;
+  this->Pose = false;
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +166,120 @@ void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneRepresentation::WidgetInteraction(double e[2])
+{
+  if (!this->Pose)
+    {
+    this->Superclass::WidgetInteraction(e);
+    return;
+    }
+
+  //
+  // Make rotation in camera view plane center on Head.
+  //
+  double newPos[3];
+  newPos[0] = e[0];
+  newPos[1] = e[1];
+  newPos[2] = 0.;
+
+  // Get display positions
+  double center[3];
+  this->GetDisplayHeadPosition(center);
+
+  // Get the current line (-> the line between Head and the event)
+  // in display coordinates.
+  double currentLine[2], oldLine[2];
+  currentLine[0] = newPos[0] - center[0];
+  currentLine[1] = newPos[1] - center[1];
+  vtkMath::Normalize2D(currentLine);
+
+  // Get the old line (-> the line between Head and the LAST event)
+  // in display coordinates.
+  oldLine[0] = this->LastEventPosition[0] - center[0];
+  oldLine[1] = this->LastEventPosition[1] - center[1];
+  vtkMath::Normalize2D(oldLine);
+
+  // Get the angle between those two lines.
+  double angle = vtkMath::DegreesFromRadians(
+                   acos(vtkMath::Dot2D(currentLine, oldLine)));
+
+  //Get the camera vector.
+  double cameraVec[3];
+  if (!this->GetRenderer()
+      || !this->GetRenderer()->GetActiveCamera())
+    {
+    vtkErrorMacro(
+      "There should be a renderer and a camera. Make sure to set these !"
+      "\n ->Cannot move Tail in pose mode");
+    return;
+    }
+  this->GetRenderer()->GetActiveCamera()->GetDirectionOfProjection(cameraVec);
+
+  // Need to figure if the rotation is clockwise or counterclowise.
+  double spaceCurrentLine[3];
+  spaceCurrentLine[0] = currentLine[0];
+  spaceCurrentLine[1] = currentLine[1];
+  spaceCurrentLine[2] = 0.0;
+
+  double spaceOldLine[3];
+  spaceOldLine[0] = oldLine[0];
+  spaceOldLine[1] = oldLine[1];
+  spaceOldLine[2] = 0.0;
+
+  double handenessVec[3];
+  vtkMath::Cross(spaceOldLine, spaceCurrentLine, handenessVec);
+
+  // Handeness is opposite beacuse camera is toward the focal point.
+  const double Z[3] = {0.0, 0.0, 1.0};
+  double handeness = vtkMath::Dot(handenessVec, Z) > 0 ? -1.0: 1.0;
+  angle *= handeness;
+
+  // Finally rotate tail
+  double newTailPos[3];
+  this->Rotate(angle, cameraVec, this->GetWorldHeadPosition(), this->GetWorldTailPosition(), newTailPos);
+  this->SetWorldTailPosition(newTailPos);
+
+  // Store the start position
+  this->LastEventPosition[0] = e[0];
+  this->LastEventPosition[1] = e[1];
+  this->LastEventPosition[2] = 0.0;
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::
+Rotate(double angle, double axis[3], double center[3], double pos[3], double res[3])
+{
+  vtkSmartPointer<vtkTransform> transformTail =
+    vtkSmartPointer<vtkTransform>::New();
+  transformTail->Translate(center);
+  transformTail->RotateWXYZ(angle, axis);
+  double minusHead[3];
+  minusHead[0] = center[0];
+  minusHead[1] = center[1];
+  minusHead[2] = center[2];
+  vtkMath::MultiplyScalar(minusHead, -1.0);
+  transformTail->Translate(minusHead);
+
+  double* trans = transformTail->TransformDoublePoint(pos);
+  res[0] = trans[0];
+  res[1] = trans[1];
+  res[2] = trans[2];
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::ComputeInteractionState(int X, int Y, int modifier)
+{
+  int state = this->Superclass::ComputeInteractionState(X, Y, modifier);
+  // Don't select head in pose mode.
+  if (this->Pose && state == vtkBoneRepresentation::OnHead)
+    {
+    state = vtkBoneRepresentation::Outside;
+    this->SetRepresentationState(state);
+    }
+  return state;
+}
+
+//----------------------------------------------------------------------------
 int vtkBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 {
   int count = 0;
@@ -220,6 +337,43 @@ int vtkBoneRepresentation::RenderOverlay(vtkViewport *v)
     }
 
   return count;
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
+{
+  vtkBoneRepresentation *rep = vtkBoneRepresentation::SafeDownCast(prop);
+  if (rep)
+    {
+    // vtkLineRepresentation copies, should probably go in vtk
+    this->SetDistanceAnnotationFormat(rep->GetDistanceAnnotationFormat());
+    this->SetDistanceAnnotationScale(rep->GetDistanceAnnotationScale());
+    this->SetDistanceAnnotationVisibility(
+      rep->GetDistanceAnnotationVisibility());
+    this->SetInteractionState(rep->GetInteractionState());
+    this->SetPoint1WorldPosition(rep->GetPoint1WorldPosition());
+    this->SetPoint2WorldPosition(rep->GetPoint2WorldPosition());
+    this->SetRepresentationState(rep->GetRepresentationState());
+    this->SetResolution(rep->GetResolution());
+    this->SetTolerance(rep->GetTolerance());
+
+    // vtkBoneWidget copies
+    this->SetAlwaysOnTop(rep->GetAlwaysOnTop());
+    this->SetOpacity(rep->GetLineProperty()->GetOpacity());
+
+    // Properties:
+    // Enpoint (Head)
+    this->EndPointProperty->DeepCopy(rep->GetEndPointProperty());
+    this->SelectedEndPointProperty->DeepCopy(rep->GetSelectedEndPointProperty());
+    // Enpoint2 (Tail)
+    this->EndPoint2Property->DeepCopy(rep->GetEndPoint2Property());
+    this->SelectedEndPoint2Property->DeepCopy(rep->GetSelectedEndPoint2Property());
+    // Line
+    this->LineProperty->DeepCopy(rep->GetLineProperty());
+    this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
+    }
+
+  this->Superclass::ShallowCopy(prop);
 }
 
 //----------------------------------------------------------------------------

@@ -26,22 +26,30 @@
 // \TO DO: Set Macro
 
 #define vtkGetQuaternionMacro(name, type) \
-virtual type *Get##name () \
-{ \
-  vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " pointer " << this->name); \
-  return this->name.GetData(); \
-} \
 virtual void Get##name (type &_arg1, type &_arg2, type &_arg3, type &_arg4) \
   { \
-    _arg1 = this->name.GetW(); \
-    _arg2 = this->name.GetX(); \
-    _arg3 = this->name.GetY(); \
-    _arg4 = this->name.GetZ(); \
+  _arg1 = this->name.GetW(); \
+  _arg2 = this->name.GetX(); \
+  _arg3 = this->name.GetY(); \
+  _arg4 = this->name.GetZ(); \
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): returning " << #name " = (" << _arg1 << "," << _arg2 << "," << _arg3 << "," << _arg4 << ")"); \
   }; \
 virtual void Get##name (type _arg[4]) \
   { \
   this->Get##name (_arg[0], _arg[1], _arg[2], _arg[3]);\
+  }\
+
+#define vtkGetQuaterniondMacro(name, type) \
+vtkGetQuaternionMacro(name, type)\
+virtual vtkQuaterniond Get##name () \
+  { \
+  return this->name;\
   }
 
+#define vtkGetQuaternionfMacro(name, type) \
+vtkGetQuaternionMacro(name, type)\
+virtual vtkQuaternionf Get##name () \
+  { \
+  return this->name;\
+  }
 #endif

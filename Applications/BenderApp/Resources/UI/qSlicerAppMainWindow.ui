@@ -177,6 +177,9 @@
        <property name="text" stdset="0">
         <string>Data Probe</string>
        </property>
+       <property name="collapsed">
+        <bool>true</bool>
+       </property>
        <layout class="QHBoxLayout" name="horizontalLayout"/>
       </widget>
      </item>

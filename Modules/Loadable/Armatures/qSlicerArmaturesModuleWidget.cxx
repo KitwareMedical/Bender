@@ -44,6 +44,7 @@
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
+#include <vtkMRMLScene.h>
 
 //-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidgetPrivate methods
@@ -55,6 +56,8 @@ qSlicerArmaturesModuleWidgetPrivate
 {
   this->ArmatureNode = 0;
   this->BoneNode = 0;
+  this->AddBoneAction = 0;
+  this->DeleteBonesAction = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -91,25 +94,27 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->BonesTreeView->annotationModel()->setValueColumn(-1);
   this->BonesTreeView->annotationModel()->setTextColumn(-1);
   this->BonesTreeView->annotationModel()->setVisibilityColumn(-1);
+  this->BonesTreeView->sortFilterProxyModel()->setShowHiddenForTypes(
+    QStringList("vtkMRMLBoneNode"));
 
   this->BonesTreeView->setHeaderHidden(true);
 
   QObject::connect(this->BonesTreeView,
                    SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-                   q, SLOT(setMRMLBoneNode(vtkMRMLNode*)));
+                   q, SLOT(setMRMLNode(vtkMRMLNode*)));
 
   // Bone tree view actions
-  QAction* addBoneAction = new QAction("Add bone", this->BonesTreeView);
-  this->BonesTreeView->prependNodeMenuAction(addBoneAction);
-  this->BonesTreeView->prependSceneMenuAction(addBoneAction);
-  QObject::connect(addBoneAction, SIGNAL(triggered()),
+  this->AddBoneAction = new QAction("Add bone", this->BonesTreeView);
+  this->BonesTreeView->prependNodeMenuAction(this->AddBoneAction);
+  this->BonesTreeView->prependSceneMenuAction(this->AddBoneAction);
+  QObject::connect(this->AddBoneAction, SIGNAL(triggered()),
                    q, SLOT(addAndPlaceBone()));
 
-  QAction* deleteBonesAction =
+  this->DeleteBonesAction =
     new QAction("Delete bones", this->BonesTreeView);
-  this->BonesTreeView->appendNodeMenuAction(deleteBonesAction);
-  this->BonesTreeView->appendSceneMenuAction(deleteBonesAction);
-  QObject::connect(deleteBonesAction, SIGNAL(triggered()),
+  this->BonesTreeView->appendNodeMenuAction(this->DeleteBonesAction);
+  this->BonesTreeView->appendSceneMenuAction(this->DeleteBonesAction);
+  QObject::connect(this->DeleteBonesAction, SIGNAL(triggered()),
                    q, SLOT(deleteBones()));
 
   // Logic
@@ -133,14 +138,14 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureOpacitySlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureShowAxesComboBox,
-    SIGNAL(currentIndexChanged(int)),
+  QObject::connect(this->ArmatureShowAxesCheckBox,
+    SIGNAL(stateChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureShowParenthoodCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->BonesAlwaysOnTopCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureRestPoseModeButton,
+  QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
 
   // -- Armature Hierarchy --
@@ -175,12 +180,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   // \todo Fix this !
   this->ParentBoneNodeComboBox->setHidden(true);
   this->ParentBoneLabel->setHidden(true);
-
-  // The bone axes have a weird sizing.
-  // Hide it meanwhile.
-  // \todo Fix this !
-  this->ArmatureShowAxesComboBox->setHidden(true);
-  this->ArmatureShowAxesLabel->setHidden(true);
 }
 
 //-----------------------------------------------------------------------------
@@ -367,13 +366,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     if (boneNode->GetWidgetState() == vtkMRMLBoneNode::PlaceTail)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        && ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       }
     else if (boneNode->GetWidgetState() == vtkMRMLBoneNode::Rest)
       {
-      enableHeadWidget = boneNode->GetHasParent()
-        || ! boneNode->GetBoneLinkedWithParent();
+      enableHeadWidget = !(boneNode->GetHasParent()
+        && boneNode->GetBoneLinkedWithParent());
       enableTailWidget = true;
       }
     }
@@ -385,6 +384,7 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->HeadCoordinatesWidget->setEnabled(enableHeadWidget);
   this->TailCoordinatesWidget->setEnabled(enableTailWidget);
   this->LengthSpinBox->setEnabled(enableTailWidget);
+  this->BonePositionTypeComboBox->setEnabled(enableTailWidget);
   this->DirectionCoordinatesWidget->setEnabled(enableTailWidget);
 
   this->updateAdvancedPositions(boneNode);
@@ -406,9 +406,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     {
     this->blockArmatureDisplaySignals(true);
 
-    // -1 to compensate for the vtkArmatureWidget::None
     this->ArmatureRepresentationComboBox->setCurrentIndex(
-      armatureNode->GetBonesRepresentation() - 1);
+      armatureNode->GetBonesRepresentationType());
 
     double rgb[3];
     armatureNode->GetColor(rgb);
@@ -431,7 +430,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureColorPickerButton->setEnabled(armatureNode != 0);
   this->ArmatureOpacitySlider->setEnabled(armatureNode != 0);
   this->BonesAlwaysOnTopCheckBox->setEnabled(armatureNode != 0);
-  this->ArmatureRestPoseModeButton->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -440,13 +438,13 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   if (armatureNode)
     {
-    this->ArmatureShowAxesComboBox->setCurrentIndex(
+    this->ArmatureShowAxesCheckBox->setChecked(
       armatureNode->GetShowAxes());
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
     }
 
-  this->ArmatureShowAxesComboBox->setEnabled(armatureNode != 0);
+  this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
 }
 
@@ -476,7 +474,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::selectBoneNode(vtkObject* sender, void* callData)
+::selectBoneNode(vtkObject* vtkNotUsed(sender), void* callData)
 {
   Q_Q(qSlicerArmaturesModuleWidget);
 
@@ -613,6 +611,16 @@ void qSlicerArmaturesModuleWidget
 ::setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode)
 {
   Q_D(qSlicerArmaturesModuleWidget);
+  if (armatureNode == d->ArmatureNode)
+    {
+    return;
+    }
+
+  if (armatureNode && armatureNode != d->ArmatureNodeComboBox->currentNode())
+    {
+    d->ArmatureNodeComboBox->setCurrentNode(armatureNode);
+    }
+
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
     vtkCommand::ModifiedEvent, this, SLOT(updateWidgetFromArmatureNode()));
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
@@ -635,9 +643,7 @@ void qSlicerArmaturesModuleWidget
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::setArmatureVisibility(bool visible)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLArmatureNode* armatureNode = this->mrmlArmatureNode();
-
   if (!armatureNode)
     {
     return;
@@ -654,7 +660,7 @@ void qSlicerArmaturesModuleWidget::setArmatureVisibility(bool visible)
 
     if (boneNode)
       {
-      boneNode->SetVisible(visible);
+      boneNode->SetDisplayVisibility(visible);
       }
     }
 }
@@ -685,11 +691,46 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 }
 */
 
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::enter()
+{
+  this->Superclass::enter();
+  if (this->mrmlScene())
+    {
+    vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
+      this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
+    if (selectionNode)
+      {
+      selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+      }
+    vtkMRMLInteractionNode* interactionNode =
+      vtkMRMLInteractionNode::SafeDownCast(
+        this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+    if (interactionNode)
+      {
+      interactionNode->SetPlaceModePersistence(1);
+      interactionNode->SetCurrentInteractionMode(
+        vtkMRMLInteractionNode::ViewTransform);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::setMRMLScene(vtkMRMLScene* scene)
+{
+  vtkMRMLScene* oldMRMLScene = this->mrmlScene();
+  this->Superclass::setMRMLScene(scene);
+  this->qvtkReconnect(oldMRMLScene, scene, vtkMRMLScene::NodeAddedEvent, this,
+    SLOT(onMRMLNodeAdded(vtkObject*, void*)));
+}
+
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
+  Q_UNUSED(boneNode);
+  //Q_D(qSlicerArmaturesModuleWidget);
   //d->logic()->SetActiveBone(boneNode);
   //if (boneNode == 0)
   //  {
@@ -699,16 +740,23 @@ void qSlicerArmaturesModuleWidget
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
-::setMRMLBoneNode(vtkMRMLNode* boneNode)
+::setMRMLNode(vtkMRMLNode* node)
 {
-  Q_D(qSlicerArmaturesModuleWidget);
-  this->setMRMLBoneNode(vtkMRMLBoneNode::SafeDownCast(boneNode));
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
+  if (armatureNode)
+    {
+    this->setMRMLArmatureNode(armatureNode);
+    }
+  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
+  if (boneNode)
+    {
+    this->setMRMLBoneNode(boneNode);
+    }
 }
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::addAndPlaceBone()
 {
-  Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
     this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
   vtkMRMLInteractionNode* interactionNode =
@@ -759,6 +807,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 
   d->ArmatureVisibilityCheckBox->setEnabled(d->ArmatureNode != 0);
   d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
+    && d->ArmatureStateComboBox->currentText() == "Pose");
 
   if (!d->ArmatureNode)
     {
@@ -767,7 +817,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
 
   d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
-  d->ArmatureStateComboBox->setCurrentIndex(d->ArmatureNode->GetWidgetState());
+  d->ArmatureStateComboBox->setCurrentIndex(
+    d->ArmatureNode->GetWidgetState() - 2);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
 
   d->updateArmatureWidget(d->ArmatureNode);
@@ -811,11 +862,17 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   int wasModifying = d->ArmatureNode->StartModify();
 
-  d->ArmatureNode->SetWidgetState(d->ArmatureStateComboBox->currentIndex());
+  // +1 to compensate for the vtkArmatureWidget::Rest == 2
+  int state = d->ArmatureStateComboBox->currentIndex() + 2;
+  d->ArmatureNode->SetWidgetState(state);
 
-  // +1 to compensate for the vtkArmatureWidget::None
-  d->ArmatureNode->SetBonesRepresentation(
-    d->ArmatureRepresentationComboBox->currentIndex() + 1);
+  // Enable Add action only on resat mode.
+  d->AddBoneAction->setEnabled(state == vtkMRMLArmatureNode::Rest);
+  // Enable Delete action only in rest mode.
+  d->DeleteBonesAction->setEnabled(state == vtkMRMLArmatureNode::Rest);
+
+  d->ArmatureNode->SetBonesRepresentationType(
+    d->ArmatureRepresentationComboBox->currentIndex());
 
   double rgb[3];
   rgb[0] =
@@ -828,7 +885,19 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetOpacity(d->ArmatureOpacitySlider->value());
 
-  d->ArmatureNode->SetShowAxes(d->ArmatureShowAxesComboBox->currentIndex());
+  int showAxes = vtkMRMLArmatureNode::Hidden;
+  if (d->ArmatureShowAxesCheckBox->isChecked())
+    {
+    if (d->ArmatureStateComboBox->currentText() == "Rest")
+      {
+      showAxes = vtkMRMLArmatureNode::ShowRestTransform;
+      }
+    else
+      {
+      showAxes = vtkMRMLArmatureNode::ShowPoseTransform;
+      }
+    }
+  d->ArmatureNode->SetShowAxes(showAxes);
 
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
@@ -854,4 +923,15 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
   d->setCoordinatesToBoneNode(d->BoneNode);
 
   d->BoneNode->EndModify(wasModifying);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget
+::onMRMLNodeAdded(vtkObject* scene, void* callData)
+{
+  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
+  if (node && node->IsA("vtkMRMLArmatureNode"))
+    {
+    this->setMRMLArmatureNode(node);
+    }
 }

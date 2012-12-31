@@ -22,16 +22,20 @@
 #include "vtkArmatureRepresentation.h"
 #include "vtkArmatureWidget.h"
 #include "vtkBoneRepresentation.h"
-#include "vtkBoneWidget.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
 
 // VTK includes
 #include <vtkCallbackCommand.h>
+#include <vtkCellData.h>
 #include <vtkCommand.h>
 #include <vtkCollection.h>
+#include <vtkDoubleArray.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
@@ -166,6 +170,42 @@ public:
 
         break;
         }
+      case vtkBoneWidget::SelectedStateChangedEvent:
+        {
+        // Assume the cast isn't null. The only elements that should send
+        // selected state changed event should be vtkBoneWidget
+        vtkBoneWidget* bone = vtkBoneWidget::SafeDownCast(caller);
+        int newState = bone->GetBoneSelected();
+
+        if (bone->GetWidgetState() == vtkBoneWidget::Rest)
+          {
+          if (newState == vtkBoneWidget::HeadSelected
+            || newState == vtkBoneWidget::LineSelected)
+            {
+            ArmatureWidget->HighlightLinkedParentAndParentChildren(bone, 1);
+            }
+
+          if (newState == vtkBoneWidget::TailSelected
+            || newState == vtkBoneWidget::LineSelected)
+            {
+            ArmatureWidget->HighlightLinkedChildren(bone, 1);
+            }
+
+          if (newState == vtkBoneWidget::NotSelected)
+            {
+            ArmatureWidget->HighlightLinkedParentAndParentChildren(bone, 0);
+            ArmatureWidget->HighlightLinkedChildren(bone, 0);
+            }
+          }
+        else if (bone->GetWidgetState() == vtkBoneWidget::Pose)
+          {
+          ArmatureWidget->HighlightAllChildren(ArmatureWidget->GetNode(bone),
+            newState == vtkBoneWidget::TailSelected
+            || newState == vtkBoneWidget::LineSelected);
+          }
+
+        break;
+        }
       }
     }
 
@@ -182,18 +222,31 @@ vtkArmatureWidget::vtkArmatureWidget()
 
   // Init map and root
   this->Bones = new ArmatureTreeNodeVectorType;
+  this->PolyData = vtkPolyData::New();
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  this->PolyData->SetPoints(points.GetPointer());
+  this->PolyData->Allocate(100);
+  vtkNew<vtkDoubleArray> transforms;
+  transforms->SetNumberOfComponents(12);
+  transforms->SetName("Transforms");
+  this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
+
   // Init bones properties
-  this->BonesRepresentationType = vtkArmatureWidget::None;
+  vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
+  defaultRep->SetAlwaysOnTop(0);
+  this->BonesRepresentation = defaultRep;
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
   this->ShouldResetPoseToRest = true;
-  this->BonesAlwaysOnTop = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkArmatureWidget::~vtkArmatureWidget()
 {
+  this->PolyData->Delete();
+
   // Delete all the bones in the map
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -202,18 +255,18 @@ vtkArmatureWidget::~vtkArmatureWidget()
     (*it)->Bone->Delete(); // Delete bone
     }
 
+  this->BonesRepresentation->Delete();
   this->ArmatureWidgetCallback->Delete();
 }
 
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::CreateDefaultRepresentation()
 {
-  vtkArmatureRepresentation* armatureRepresentation =
-    this->GetArmatureRepresentation();
-  if (!armatureRepresentation)
+  if (! this->GetArmatureRepresentation())
     {
-    armatureRepresentation = vtkArmatureRepresentation::New();
-    this->SetRepresentation(armatureRepresentation);
+    vtkSmartPointer<vtkArmatureRepresentation> rep =
+      vtkSmartPointer<vtkArmatureRepresentation>::New();
+    this->SetRepresentation(rep);
     }
 }
 
@@ -242,8 +295,7 @@ void vtkArmatureWidget::SetEnabled(int enabling)
     {
     if (!(*it)->Bone->GetBoneRepresentation())
       {
-      this->SetBoneRepresentation(
-        (*it)->Bone, this->BonesRepresentationType);
+      this->SetBoneRepresentation((*it)->Bone);
       }
     (*it)->Bone->SetEnabled(enabling);
     }
@@ -326,10 +378,19 @@ void vtkArmatureWidget
   bone->Register(this);
 
   // Create bone
-  this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
+  ArmatureTreeNode* newNode
+    = this->CreateAndAddNodeToHierarchy(bone, parent, linkedWithParent);
+  if (!newNode)
+    {
+    vtkErrorMacro("Failed to add the bone named "
+      << bone->GetName() << " to the armature.");
+    bone->Delete();
+    return;
+    }
+
   this->AddBoneObservers(bone);
 
-  this->InvokeEvent(vtkArmatureWidget::AddedBone, bone);
+  this->InvokeEvent(vtkArmatureWidget::BoneAdded, bone);
   this->Modified();
 }
 
@@ -445,77 +506,46 @@ void vtkArmatureWidget::SetShowParenthood(int parenthood)
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetBonesRepresentation(int representationType)
+void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
 {
-  if (representationType == this->BonesRepresentationType)
+  if (!newRep || newRep == this->BonesRepresentation)
     {
     return;
     }
 
-  if (representationType < 0
-    || representationType > vtkArmatureWidget::DoubleCone)
-    {
-    vtkErrorMacro("Unknown representation type: "
-      <<this->BonesRepresentationType<<"/n  ->Representations unchanged");
-    }
+  this->BonesRepresentation->Delete();
+  this->BonesRepresentation = newRep;
+  this->BonesRepresentation->Register(this);
 
-  this->BonesRepresentationType = representationType;
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    this->SetBoneRepresentation((*it)->Bone, this->BonesRepresentationType);
+    this->SetBoneRepresentation((*it)->Bone);
     }
 
   this->Modified();
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget
-::SetBoneRepresentation(vtkBoneWidget* bone, int representationType)
+vtkBoneRepresentation* vtkArmatureWidget::GetBonesRepresentation()
 {
-  switch (representationType)
+  return this->BonesRepresentation;
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
+{
+  vtkBoneRepresentation* copiedRepresentation = 0;
+  if (this->BonesRepresentation)
     {
-    case vtkArmatureWidget::None:
-      {
-      bone->SetRepresentation(NULL);
-
-      break;
-      }
-    case vtkArmatureWidget::Bone:
-      {
-      vtkSmartPointer<vtkBoneRepresentation> boneRep =
-        vtkSmartPointer<vtkBoneRepresentation>::New();
-      bone->SetRepresentation(boneRep);
-
-      break;
-      }
-    case vtkArmatureWidget::Cylinder:
-      {
-      vtkSmartPointer<vtkCylinderBoneRepresentation> cylinderRep =
-          vtkSmartPointer<vtkCylinderBoneRepresentation>::New();
-      bone->SetRepresentation(cylinderRep);
-
-      break;
-      }
-    case vtkArmatureWidget::DoubleCone:
-      {
-      vtkSmartPointer<vtkDoubleConeBoneRepresentation> simsIconRep =
-          vtkSmartPointer<vtkDoubleConeBoneRepresentation>::New();
-      bone->SetRepresentation(simsIconRep);
-
-      break;
-      }
-    default:
-      {
-      vtkErrorMacro("Unknown representation type: "
-        <<representationType<<"/n  ->Representation unchanged");
-      break;
-      }
+    copiedRepresentation = this->BonesRepresentation->NewInstance();
+    copiedRepresentation->DeepCopy(this->BonesRepresentation);
     }
 
-  if (bone->GetBoneRepresentation())
+  bone->SetRepresentation(copiedRepresentation);
+  if (copiedRepresentation)
     {
-    bone->GetBoneRepresentation()->SetAlwaysOnTop(this->BonesAlwaysOnTop);
+    copiedRepresentation->Delete();
     }
 }
 
@@ -535,6 +565,40 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneParent(vtkBoneWidget* bone)
     }
 
   return NULL;
+}
+
+//----------------------------------------------------------------------------
+bool vtkArmatureWidget
+::IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+{
+  return this->GetBoneParent(bone) == parent;
+}
+
+//----------------------------------------------------------------------------
+bool vtkArmatureWidget
+::IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+{
+  if (!parent)
+    {
+    return true; // A bone should always have a root parent
+    }
+
+  ArmatureTreeNode* node = this->GetNode(bone);
+  if (!node || !node->Parent)
+    {
+    return false;
+    }
+
+  while (node)
+    {
+    if (node->Parent->Bone == parent)
+      {
+      return true;
+      }
+    node = node->Parent;
+    }
+
+  return false;
 }
 
 //----------------------------------------------------------------------------
@@ -569,7 +633,7 @@ bool vtkArmatureWidget::RemoveBone(vtkBoneWidget* bone)
       (*it)->Bone->Delete();
       this->Bones->erase(it);
 
-      this->InvokeEvent(vtkArmatureWidget::RemovedBone, bone);
+      this->InvokeEvent(vtkArmatureWidget::BoneRemoved, bone);
       this->Modified();
       return true;
       }
@@ -627,6 +691,8 @@ void vtkArmatureWidget::AddBoneObservers(vtkBoneWidget* bone)
     this->ArmatureWidgetCallback, this->Priority);
   bone->AddObserver(vtkBoneWidget::PoseChangedEvent,
     this->ArmatureWidgetCallback, this->Priority);
+  bone->AddObserver(vtkBoneWidget::SelectedStateChangedEvent,
+    this->ArmatureWidgetCallback, this->Priority);
 }
 
 //----------------------------------------------------------------------------
@@ -636,13 +702,15 @@ void vtkArmatureWidget::RemoveBoneObservers(vtkBoneWidget* bone)
     this->ArmatureWidgetCallback);
   bone->RemoveObservers(vtkBoneWidget::PoseChangedEvent,
     this->ArmatureWidgetCallback);
+  bone->AddObserver(vtkBoneWidget::SelectedStateChangedEvent,
+    this->ArmatureWidgetCallback);
 }
 
 //----------------------------------------------------------------------------
 void vtkArmatureWidget
 ::UpdateBoneWithArmatureOptions(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
-  this->SetBoneRepresentation(bone, this->BonesRepresentationType);
+  this->SetBoneRepresentation(bone);
   bone->SetShowAxes(this->ShowAxes);
   bone->SetShowParenthood(this->ShowParenthood);
 
@@ -673,25 +741,104 @@ void vtkArmatureWidget
     return;
     }
 
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
+  ArmatureTreeNode* oldNode = this->GetNode(bone);
+
+  // Reparent if:
+  // - The bone belongs to the armature
+  bool shouldReparent = oldNode != 0;
+  // - The new parent belongs to the armature or is null (reparent to root)
+  shouldReparent &= newParent ? this->HasBone(newParent) : true;
+  // - The bone's parent is different than the new parent
+  shouldReparent &= oldNode->Parent ?
+    oldNode->Parent->Bone != newParent : newParent != 0;
+  if (!shouldReparent)
     {
-    if ((*it)->Bone == bone)
-      {
-      // Create new node with bone and NEW parent
-      this->CreateAndAddNodeToHierarchy(
-        bone, newParent, (*it)->HeadLinkedToParent);
-
-      // Remove old node
-      this->RemoveNodeFromHierarchy(it - this->Bones->begin());
-
-      // Update bone
-      this->SetBoneWorldToParentTransform(bone, newParent);
-      this->InvokeEvent(vtkArmatureWidget::ReparentedBone, bone);
-      this->Modified();
-      return;
-      }
+    return;
     }
+
+  // Create new node with bone and NEW parent
+  ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(
+    bone, newParent, oldNode->HeadLinkedToParent);
+  if (!newNode)
+    {
+    vtkErrorMacro("Failed to reparent the bone named "<< bone->GetName());
+    return;
+    }
+
+  // Add the children of the old node to he new node
+  for (ChildrenNodeIteratorType it = oldNode->Children.begin();
+    it != oldNode->Children.end(); ++it)
+    {
+    newNode->AddChild(*it);
+    }
+  // Clear chidren
+  oldNode->Children.clear();
+
+  // Remove old node
+  this->RemoveNodeFromHierarchy(oldNode);
+  this->Bones->erase(
+    std::find(this->Bones->begin(), this->Bones->end(), oldNode));
+
+  // Update bone
+  this->SetBoneWorldToParentRestTransform(bone, newParent);
+  this->SetBoneWorldToParentPoseTransform(bone, newParent);
+  this->InvokeEvent(vtkArmatureWidget::BoneReparented, bone);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkBoneWidget* vtkArmatureWidget
+::MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone)
+{
+  if (!headBone || !tailBone)
+    {
+    return NULL;
+    }
+
+  ArmatureTreeNode* headNode = this->GetNode(headBone);
+  ArmatureTreeNode* tailNode = this->GetNode(tailBone);
+
+  if (!headNode || !tailNode)
+    {
+    return NULL;
+    }
+
+  if (! this->IsBoneParent(tailBone, headBone))
+    {
+    vtkErrorMacro("Cannot merge bones that are not parented");
+    return NULL;
+    }
+
+  std::string newBoneName = headBone->GetName();
+  newBoneName += " + ";
+  newBoneName += tailBone->GetName();
+
+  vtkBoneWidget* newBone = this->CreateBone(headNode->Parent->Bone,
+    headBone->GetWorldTailRest(), newBoneName);
+  ArmatureTreeNode* newNode = this->CreateAndAddNodeToHierarchy(newBone,
+    headNode->Parent->Bone, headNode->HeadLinkedToParent);
+
+  //Initialize new bone transforms
+  this->SetBoneWorldToParentRestTransform(newBone, headNode->Parent->Bone);
+  this->SetBoneWorldToParentPoseTransform(newBone, headNode->Parent->Bone);
+
+  // Reparent tail node children
+  this->ReparentBone(tailBone, newBone);
+
+  // Then delete old bones. In the case of tailBone,
+  // this automatically reparents its children to newNode.
+  this->RemoveBone(tailBone);
+  this->RemoveBone(headBone);
+
+  // Add observers
+  this->AddBoneObservers(newBone);
+  // Adjust postion
+  newBone->SetWorldTailRest(tailBone->GetWorldTailRest());
+  // Invoke events.
+  this->InvokeEvent(vtkArmatureWidget::BoneMerged, newBone);
+  this->Modified();
+
+  return newBone;
 }
 
 //----------------------------------------------------------------------------
@@ -716,23 +863,26 @@ void vtkArmatureWidget::ResetPoseToRest()
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
 {
-  if (onTop == this->BonesAlwaysOnTop)
+  if (this->BonesRepresentation->GetAlwaysOnTop() == onTop)
     {
     return;
     }
-  this->BonesAlwaysOnTop = onTop;
 
-  if (this->GetBonesRepresentationType() != vtkArmatureWidget::None)
+  this->BonesRepresentation->SetAlwaysOnTop(onTop);
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
     {
-    for (NodeIteratorType it = this->Bones->begin();
-      it != this->Bones->end(); ++it)
-      {
-      (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
-        this->BonesAlwaysOnTop);
-      }
+    (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
+      this->BonesRepresentation->GetAlwaysOnTop());
     }
 
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+int vtkArmatureWidget::GetBonesAlwaysOnTop()
+{
+  return this->BonesRepresentation->GetAlwaysOnTop();
 }
 
 //----------------------------------------------------------------------------
@@ -792,7 +942,7 @@ void vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::CreateAndAddNodeToHierarchy(
+ArmatureTreeNode* vtkArmatureWidget::CreateAndAddNodeToHierarchy(
   vtkBoneWidget* bone,
   vtkBoneWidget* newParent,
   bool linkedWithParent)
@@ -811,6 +961,8 @@ void vtkArmatureWidget::CreateAndAddNodeToHierarchy(
     {
     bone->SetWorldHeadRest(newParent->GetWorldTailRest());
     }
+
+  return newNode;
 }
 
 //----------------------------------------------------------------------------
@@ -823,16 +975,26 @@ void vtkArmatureWidget
     return;
     }
 
-  NodeIteratorType boneIterator = this->Bones->begin() + nodePosition;
+  this->RemoveNodeFromHierarchy(*(this->Bones->begin() + nodePosition));
+}
 
-  if ((*boneIterator)->Parent) // Stitch children to the father
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::RemoveNodeFromHierarchy(ArmatureTreeNode* node)
+{
+  if (! node)
     {
-    (*boneIterator)->Parent->RemoveChild(*boneIterator);
-    this->UpdateChildren((*boneIterator)->Parent);
+    return;
+    }
+
+  if (node->Parent) // Stitch children to the father
+    {
+    node->Parent->RemoveChild(node);
+    this->UpdateChildren(node->Parent);
     }
   else // It was root
     {
-    ArmatureTreeNode* replacementRoot = (*boneIterator)->RemoveRoot();
+    ArmatureTreeNode* replacementRoot = node->RemoveRoot();
     if (replacementRoot)
       {
       this->TopLevelBones.push_back(replacementRoot->Bone);
@@ -841,8 +1003,7 @@ void vtkArmatureWidget
 
     BoneVectorIterator rootsIterator
       = std::find(this->TopLevelBones.begin(),
-        this->TopLevelBones.end(),
-        (*boneIterator)->Bone);
+        this->TopLevelBones.end(), node->Bone);
     if (rootsIterator != this->TopLevelBones.end())
       {
       this->TopLevelBones.erase(rootsIterator);
@@ -862,6 +1023,107 @@ ArmatureTreeNode* vtkArmatureWidget::GetNode(vtkBoneWidget* bone)
       }
     }
   return NULL;
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::UpdatePolyData()
+{
+  this->PolyData->GetPoints()->Reset();
+  vtkDoubleArray* transforms = vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("Transforms"));
+  transforms->Reset();
+  this->PolyData->Reset();
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
+    {
+    vtkIdType indexes[2];
+    indexes[0] = this->PolyData->GetPoints()->InsertNextPoint(
+      (*it)->Bone->GetWorldHeadRest());
+    indexes[1] = this->PolyData->GetPoints()->InsertNextPoint(
+      (*it)->Bone->GetWorldTailRest());
+    this->PolyData->InsertNextCell(VTK_LINE, 2, indexes);
+
+    double translation[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldHeadPose(), (*it)->Bone->GetWorldHeadRest(), translation);
+    double localTailRest[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldTailRest(), (*it)->Bone->GetWorldHeadRest(), localTailRest);
+    double localTailPose[3];
+    vtkMath::Subtract((*it)->Bone->GetWorldTailPose(), (*it)->Bone->GetWorldHeadPose(), localTailPose);
+    vtkMath::Subtract((*it)->Bone->GetWorldHeadPose(), (*it)->Bone->GetWorldHeadRest(), translation);
+
+    double rotation[3][3];
+    this->ComputeTransform(localTailRest, localTailPose, rotation);
+    double transform[4][3];
+    memcpy(transform, rotation, 3*3*sizeof(double));
+    memcpy(transform[3], translation, 3*sizeof(double));
+    transforms->InsertNextTuple(transform[0]);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::ComputeTransform(double start[3], double end[3], double mat[3][3])
+{
+  double startNormalized[3] = {start[0], start[1], start[2]};
+  double startNorm = vtkMath::Normalize(startNormalized);
+  double endNormalized[3] = {end[0], end[1], end[2]};
+  double endNorm = vtkMath::Normalize(endNormalized);
+
+  double rotationAxis[3] = {0., 0., 0.};
+  vtkMath::Cross(startNormalized, endNormalized, rotationAxis);
+  if (rotationAxis[0] == 0. && rotationAxis[1] == 0. && rotationAxis[2] == 0.)
+    {
+    double dummy[3];
+    vtkMath::Perpendiculars(startNormalized, rotationAxis, dummy, 0.);
+    }
+  if (rotationAxis[0] == 0. && rotationAxis[1] == 0. && rotationAxis[2] == 0.)
+    {
+    vtkMath::Identity3x3(mat);
+    }
+  else
+    {
+    vtkMath::Normalize(rotationAxis);
+    double angle = vtkArmatureWidget::ComputeAngle(startNormalized, endNormalized);
+    vtkArmatureWidget::ComputeAxisAngleMatrix(rotationAxis, angle, mat);
+    }
+  double scaleMatrix[3][3] = {1.,0.,0.,0.,1.,0.,0.,0.,1.};
+  scaleMatrix[0][0] = scaleMatrix[1][1] = scaleMatrix[2][2] = endNorm / startNorm;
+  vtkMath::Multiply3x3(mat, scaleMatrix, mat);
+  //vtkMath::Multiply3x3(scaleMatrix, transform, transform);
+}
+
+//-----------------------------------------------------------------------------
+double vtkArmatureWidget::ComputeAngle(double v1[3], double v2[3])
+{
+  double dot = vtkMath::Dot(v1, v2);
+  dot = std::min(dot, 1.);
+  double angle = acos(dot);
+  return angle;
+}
+
+//-----------------------------------------------------------------------------
+void vtkArmatureWidget::ComputeAxisAngleMatrix(double axis[3], double angle, double mat[3][3])
+{
+  /* rotation of angle radials around axis */
+  double vx, vx2, vy, vy2, vz, vz2, co, si;
+
+  vx = axis[0];
+  vy = axis[1];
+  vz = axis[2];
+  vx2 = vx * vx;
+  vy2 = vy * vy;
+  vz2 = vz * vz;
+  co = cos(angle);
+  si = sin(angle);
+
+  mat[0][0] = vx2 + co * (1.0f - vx2);
+  mat[0][1] = vx * vy * (1.0f - co) + vz * si;
+  mat[0][2] = vz * vx * (1.0f - co) - vy * si;
+  mat[1][0] = vx * vy * (1.0f - co) - vz * si;
+  mat[1][1] = vy2 + co * (1.0f - vy2);
+  mat[1][2] = vy * vz * (1.0f - co) + vx * si;
+  mat[2][0] = vz * vx * (1.0f - co) + vy * si;
+  mat[2][1] = vy * vz * (1.0f - co) - vx * si;
+  mat[2][2] = vz2 + co * (1.0f - vz2);
 }
 
 //----------------------------------------------------------------------------
@@ -901,6 +1163,7 @@ void vtkArmatureWidget
       (*it)->Bone->SetWorldHeadRest(parentNode->Bone->GetWorldTailRest());
       }
     }
+  this->UpdatePolyData();
 }
 
 //----------------------------------------------------------------------------
@@ -917,6 +1180,74 @@ void vtkArmatureWidget
     {
     this->SetBoneWorldToParentPoseTransform((*it)->Bone, parentNode->Bone);
     }
+  this->UpdatePolyData();
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedParentAndParentChildren(vtkBoneWidget* bone, int highlight)
+{
+  ArmatureTreeNode* node = this->GetNode(bone);
+  if (!node || !node->Parent)
+    {
+    return;
+    }
+
+  if (node->HeadLinkedToParent)
+    {
+    if (node->Parent->Bone->GetBoneRepresentation())
+      {
+      node->Parent->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+    this->HighlightLinkedChildren(node->Parent, highlight);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedChildren(vtkBoneWidget* bone, int highlight)
+{
+  this->HighlightLinkedChildren(this->GetNode(bone), highlight);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightLinkedChildren(ArmatureTreeNode* node, int highlight)
+{
+  if (! node)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = node->Children.begin();
+    it != node->Children.end(); ++it)
+    {
+    if ((*it)->HeadLinkedToParent && (*it)->Bone->GetBoneRepresentation())
+      {
+      (*it)->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::HighlightAllChildren(ArmatureTreeNode* node, int highlight)
+{
+  if (!node)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = node->Children.begin();
+    it != node->Children.end(); ++it)
+    {
+    if ((*it)->Bone->GetBoneRepresentation())
+      {
+      (*it)->Bone->GetBoneRepresentation()->Highlight(highlight);
+      }
+
+    this->HighlightAllChildren(*it, highlight);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -926,4 +1257,11 @@ void vtkArmatureWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Armature Widget " << this << "\n";
   // TO DO
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Modified()
+{
+  this->UpdatePolyData();
+  this->Superclass::Modified();
 }
