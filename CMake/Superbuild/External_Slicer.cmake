@@ -41,7 +41,7 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3")
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -79,7 +79,7 @@ if(NOT DEFINED ${proj}_DIR)
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
     GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/slicer.git"
-    GIT_TAG "ada0cd74caf52f03e71bda3664254fa66d5f79f2"
+    GIT_TAG "050b46f24ba3ab8e9c75babb771220c6e27eb0eb"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
@@ -93,10 +93,10 @@ if(NOT DEFINED ${proj}_DIR)
       -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
       -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
       -DBUILD_TESTING:BOOL=OFF
-      -D${proj}_INSTALL_BIN_DIR:STRING=${BENDER_INSTALL_BIN_DIR}
-      -D${proj}_INSTALL_LIB_DIR:STRING=${BENDER_INSTALL_BIN_DIR}
+      -D${proj}_INSTALL_BIN_DIR:STRING=${Bender_INSTALL_BIN_DIR}
+      -D${proj}_INSTALL_LIB_DIR:STRING=${Bender_INSTALL_BIN_DIR}
       -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
-      -D${proj}_USE_GIT_PROTOCOL:BOOL=${BENDER_USE_GIT_PROTOCOL}
+      -D${proj}_USE_GIT_PROTOCOL:BOOL=${Bender_USE_GIT_PROTOCOL}
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
       -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
       -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}

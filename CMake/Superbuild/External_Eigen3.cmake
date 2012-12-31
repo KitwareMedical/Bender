@@ -21,7 +21,7 @@
 #
 # Eigen
 #
-set(proj Eigen)
+set(proj Eigen3)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)

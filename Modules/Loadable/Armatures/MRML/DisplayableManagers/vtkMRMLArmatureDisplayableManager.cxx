@@ -645,8 +645,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
       }
     }
 
-  bool visible = boneNode->GetVisible() &&
-    (boneDisplayNode ?
+  bool visible = (boneDisplayNode ?
      boneDisplayNode->GetVisibility(this->GetViewNode()->GetID()) : false);
   boneWidget->SetEnabled(visible);
 }

@@ -497,22 +497,7 @@ void qSlicerAppMainWindowPrivate::overwriteSettings()
 
   // Layout - To change default layout refer to:
   //   1) vtkMRMLLayoutLogic::AddDefaultLayouts() in Libs/MRML/Logic/vtkMRMLLayoutLogic.cxx
-  //   2) http://viewvc.slicer.org/viewvc.cgi/Slicer4?view=revision&revision=20345 
-
-  // SliceView Widget
-  // Connect the signal to automatically hide the possibility to expend
-  // the controls from the SliceViewWidget when created.
-  QObject::connect(this->LayoutManager,
-                   SIGNAL(sliceWidgetCreated(qMRMLSliceWidget*)),
-                   q, SLOT(onLayoutCreateSliceWidget(qMRMLSliceWidget*)));
-
-  // Hide the button which pemit to expend
-  // the controls from the existing SliceViewWidgets.
-  foreach(QString sliceViewName, this->LayoutManager->sliceViewNames())
-    {
-    this->LayoutManager->sliceWidget(sliceViewName)->sliceController()
-      ->setMoreButtonVisible(false);
-    }
+  //   2) http://viewvc.slicer.org/viewvc.cgi/Slicer4?view=revision&revision=20345
 
   this->ModuleSelectorToolBar->modulesMenu()->setCurrentModule(
     this->DefaultModule);
@@ -1142,15 +1127,6 @@ void qSlicerAppMainWindow::onLayoutChanged(int layout)
       }
     }
 }
-
-// [Ninja]
-//------------------------------------------------------------------------------
-void qSlicerAppMainWindow::
-onLayoutCreateSliceWidget(qMRMLSliceWidget* sliceWidget)
-{
-  sliceWidget->sliceController()->setMoreButtonVisible(false);
-}
-// [/Ninja]
 
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindow::dragEnterEvent(QDragEnterEvent *event)

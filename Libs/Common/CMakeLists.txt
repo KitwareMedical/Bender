@@ -46,6 +46,7 @@ include_directories(
 set(${KIT}_SRCS
   benderWeightMap.cxx
   benderWeightMapIO.cxx
+  benderIOUtils.cxx
   )
 
 add_library(${PROJECT_NAME} ${${KIT}_SRCS})

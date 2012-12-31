@@ -62,6 +62,12 @@ typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
 bool DumpSegmentationImages = false;
+//-------------------------------------------------------------------------------
+inline void InvertXY(double* x)
+{
+  x[0]*=-1;
+  x[1]*=-1;
+}
 
 //-------------------------------------------------------------------------------
 template<unsigned int dimension>
@@ -189,42 +195,49 @@ template <class ImageType>
 void Rasterize(const double* a, const double* b, const typename ImageType::Pointer image,
                std::vector<typename ImageType::IndexType>& outputPixels)
 {
-  typedef itk::Index<ImageType::ImageDimension> Pixel;
+  outputPixels.clear();
 
-  typedef typename itk::Point<float, ImageType::ImageDimension> PointType;
-  PointType pa,pb;
-  unsigned int dimension =ImageType::ImageDimension;
-  for(unsigned int i=0; i<dimension; ++i)
-    {
-    pa[i] = a[i];
-    pb[i] = b[i];
-    }
+  typedef itk::Index<ImageType::ImageDimension> Pixel;
+  typedef typename itk::Point<double, ImageType::ImageDimension> PointType;
+  PointType pa(a);
+  PointType pb(b);
+  const unsigned int dimension = ImageType::ImageDimension;
   Pixel Ia,Ib;
   if(!image->TransformPhysicalPointToIndex(pa,Ia))
     {
-    cerr<<"Fail to rasterize\n";
+    cerr<<"Fail to rasterize pa " << pa << "\n";
+    cerr<<"  Image origin: " << image->GetOrigin() << "\n";
+    cerr<<"  Image spacing: " << image->GetSpacing() << "\n";
+    cerr<<"  Image region: " << image->GetLargestPossibleRegion() << "\n";
+    cerr<< "You might need to convert coordinate system.\n";
     return;
     }
   if(!image->TransformPhysicalPointToIndex(pb,Ib))
     {
-    cerr<<"Fail to rasterize\n";
+    cerr<<"Fail to rasterize pb " << pb << "\n";
+    cerr<<"  Image origin: " << image->GetOrigin() << "\n";
+    cerr<<"  Image spacing: " << image->GetSpacing() << "\n";
+    cerr<<"  Image region: " << image->GetLargestPossibleRegion() << "\n";
+    cerr<< "You might need to convert coordinate system.\n";
     return;
     }
 
+  // TODO: Simplify with ITKv4 new signature for itk::BresenhamLine::BuildLine.
   typedef itk::BresenhamLine<ImageType::ImageDimension> Bresenham;
   typedef typename itk::BresenhamLine<ImageType::ImageDimension>::LType DirType;
   Bresenham bresLine;
-  DirType dir;
+  DirType Idir;
+  DirType Pdir;
   unsigned int maxSteps(0);
   for(unsigned int i=0; i<dimension; ++i)
     {
-    dir[i]=b[i]-a[i];
-    maxSteps+= (int)fabs(dir[i]);
+    Idir[i]=Ib[i]-Ia[i];
+    Pdir[i]=b[i]-a[i];
+    maxSteps+= static_cast<int>(fabs(Idir[i]));
     }
 
-  float len = dir.GetNorm();
-  typename Bresenham::OffsetArray line = bresLine.BuildLine(dir,maxSteps);
-  outputPixels.clear();
+  float len = Pdir.GetNorm();
+  typename Bresenham::OffsetArray line = bresLine.BuildLine(Idir,maxSteps);
   for(size_t i=0; i<line.size();++i)
     {
     Pixel pIndex = Ia+line[i];
@@ -541,6 +554,44 @@ void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the 
 }
 
 //-------------------------------------------------------------------------------
+//Expand the foreground once. The new foreground pixels are assigned foreGroundMin
+int ExpandForegroundOnce(LabelImage::Pointer labelMap, unsigned short foreGroundMin)
+{
+  int numNewVoxels=0;
+  CharImage::RegionType region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,region);
+  Neighborhood<3> neighbors;
+  VoxelOffset* offsets = neighbors.Offsets;
+
+  std::vector<Voxel> front;
+  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    Voxel p = it.GetIndex();
+    LabelImage::PixelType value = it.Get();
+    if(value>=foreGroundMin)
+      {
+      for(int iOff=0; iOff<6; ++iOff)
+        {
+        const VoxelOffset& offset = offsets[iOff];
+        Voxel q = p + offset;
+        if(region.IsInside(q) && labelMap->GetPixel(q)<foreGroundMin)
+          {
+          front.push_back(q);
+          }
+        }
+      }
+    }
+  for(std::vector<Voxel>::const_iterator i = front.begin(); i!=front.end();i++)
+    {
+    if(labelMap->GetPixel(*i)<foreGroundMin)
+      {
+      labelMap->SetPixel( *i, foreGroundMin);
+      ++numNewVoxels;
+      }
+    }
+  return numNewVoxels;
+}
+//-------------------------------------------------------------------------------
 int Expand(const std::vector<Voxel>& seeds,
            CharImage::Pointer domain, int distance,
            LabelImage::Pointer labelMap, unsigned short foreGroundMin,
@@ -628,9 +679,8 @@ int Expand(const LabelImage::Pointer labelMap,
         {
         const VoxelOffset& offset = offsets[iOff];
         Voxel qIndex = pIndex + offset;
-        if(allRegion.IsInside(qIndex)
-           && labelMap->GetPixel(qIndex)>=forGroundMin
-           && domain->GetPixel(qIndex)==0)
+        if(allRegion.IsInside(qIndex) && domain->GetPixel(qIndex)==0
+            && labelMap->GetPixel(qIndex)>=forGroundMin)
           {
           ++regionSize;
           newBd.push_back(qIndex);
@@ -656,6 +706,8 @@ public:
   {
     this->BodyPartition = LabelImage::New();
     Allocate<LabelImage,LabelImage>(image, this->BodyPartition);
+    this->BodyPartition->FillBuffer(0);
+
   }
   static CharType GetEdgeLabel(int i)
   {
@@ -680,17 +732,17 @@ public:
   std::vector<Voxel> Fixed;
   std::vector<WeightImage::Pointer> Weights;
 
-  void Init(const char* fname, bool invertY)
+  void Init(const char* fname, bool invertXY)
   {
     vtkNew<vtkPolyDataReader> reader;
     reader->SetFileName(fname);
     reader->Update();
-    this->InitSkeleton(reader->GetOutput(), invertY);
+    this->InitSkeleton(reader->GetOutput(), invertXY);
 
     this->InitBones();
   }
 private:
-  void InitSkeleton(vtkPolyData* armPoly, bool invertY)
+  void InitSkeleton(vtkPolyData* armPoly, bool invertXY)
   {
     vtkCellArray* armatureSegments = armPoly->GetLines();
 
@@ -708,24 +760,27 @@ private:
       armPoly->GetPoints()->GetPoint(a, ax);
       armPoly->GetPoints()->GetPoint(b, bx);
 
-      if(invertY)
+      if(invertXY)
         {
-        ax[1]*=-1;
-        bx[1]*=-1;
+        InvertXY(ax);
+        InvertXY(bx);
         }
 
       this->SkeletonVoxels.push_back(std::vector<Voxel>());
       std::vector<Voxel>& edgeVoxels(this->SkeletonVoxels.back());
       Rasterize<LabelImage>(ax,bx,this->BodyPartition, edgeVoxels);
-
+      if (edgeVoxels.size() == 0)
+        {
+        continue;
+        }
       //XXX we really need to make sure that the rasterized edge is a connected component
       //just a hack here
-      for(size_t i=0; i<edgeVoxels.size()-2; ++i)
+      if (edgeVoxels.size() > 2)
         {
-        edgeVoxels[i] = edgeVoxels[i+1];
+        // Discard points a and b
+        edgeVoxels.erase(edgeVoxels.begin());
+        edgeVoxels.erase(edgeVoxels.begin() + edgeVoxels.size() - 1);
         }
-      edgeVoxels.pop_back();
-      edgeVoxels.pop_back();
       CharType label = ArmatureType::GetEdgeLabel(edgeId);
       int numOutside(0);
       for(std::vector<Voxel>::iterator vi = edgeVoxels.begin(); vi!=edgeVoxels.end(); ++vi)
@@ -802,8 +857,9 @@ private:
     //
     if(1) //simple and stupid
       {
-      BonePartition = LabelImage::New();
+      this->BonePartition = LabelImage::New();
       Allocate<LabelImage,LabelImage>(this->BodyMap,BonePartition);
+      this->BonePartition->FillBuffer(0);
       itk::ImageRegionIteratorWithIndex<LabelImage> boneIter(BonePartition,imDomain);
       CharImage::Pointer boneInside = threshold->GetOutput();
 
@@ -949,6 +1005,7 @@ private:
       std::vector<int> componentSize(this->GetMaxEdgeLabel()+1,0);
       for(boneIter.GoToBegin(); !boneIter.IsAtEnd(); ++boneIter)
         {
+        assert(boneIter.Get()<componentSize.size());
         componentSize[boneIter.Get()]++;
         }
       int totalSize=0;
@@ -997,15 +1054,19 @@ public:
     assert(NumConnectedComponents<CharImage>(this->Domain)==1);
 
     LabelType unknown = ArmatureType::GetEdgeLabel(-1);
-    regionSize+=Expand(this->Armature.BodyPartition, this->GetLabel(), unknown, expansionDistance,
+    regionSize+=Expand(this->Armature.BodyPartition, this->GetLabel(), unknown,
+                       expansionDistance,
                        this->Domain,ArmatureType::DomainLabel);
 
-    typedef itk::ImageFileWriter<CharImage> WriterType;
-    WriterType::Pointer writer = WriterType::New();
-    writer->SetFileName( "./region.mha");
-    writer->SetInput(this->Domain);
-    writer->SetUseCompression(1);
-    writer->Update();
+    if(DumpSegmentationImages)
+      {
+      typedef itk::ImageFileWriter<CharImage> WriterType;
+      WriterType::Pointer writer = WriterType::New();
+      writer->SetFileName( "./region.mha");
+      writer->SetInput(this->Domain);
+      writer->SetUseCompression(1);
+      writer->Update();
+      }
 
     //Debug
     std::cout << "Region size after expanding "<<expansionDistance<<" : "<<regionSize << std::endl;
@@ -1141,10 +1202,12 @@ int main( int argc, char * argv[] )
     std::cout << "Use binary weight: " << std::endl;
     }
 
-  if(InvertY)
+  if(!IsArmatureInRAS)
     {
-    std::cout << "Y coordinate of the armature will be inverted" << std::endl;
+    std::cout << "Input armature is not in RAS coordinate system; will convert it to RAS." << std::endl;
     }
+
+  std::cout<<"Padding distance: "<<Padding<<endl;
 
   if(DumpDebugImages)
     {
@@ -1175,11 +1238,11 @@ int main( int argc, char * argv[] )
   int numBodyVoxels(0),numBoneVoxels(0);
   for(it.GoToBegin(); !it.IsAtEnd(); ++it)
     {
-    if(it.Get()>bodyIntensity)
+    if(it.Get()>=bodyIntensity)
       {
       ++numBodyVoxels;
       }
-    if(it.Get()>boneIntensity)
+    if(it.Get()>=boneIntensity)
       {
       ++numBoneVoxels;
       }
@@ -1192,13 +1255,22 @@ int main( int argc, char * argv[] )
   std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
   std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
 
+  //----------------------------
+  // Preprocess of the labelmap
+  //----------------------------
   RemoveSingleVoxelIsland(labelMap);
+  int numPaddedVoxels =0;
+  for(int i=0; i<Padding; i++)
+    {
+    numPaddedVoxels+=ExpandForegroundOnce(labelMap,bodyIntensity);
+    cout<<"Padded "<<numPaddedVoxels<<" voxels"<<endl;
+    }
 
   //----------------------------
   // Read armature information
   //----------------------------
   ArmatureType armature(labelMap);
-  armature.Init(ArmaturePoly.c_str(),InvertY);
+  armature.Init(ArmaturePoly.c_str(),!IsArmatureInRAS);
 
   if (LastEdge<0)
     {
