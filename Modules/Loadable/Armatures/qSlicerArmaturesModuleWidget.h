@@ -58,20 +58,32 @@ public:
   /// Return the display node of the current armature node if any, 0 otherwise.
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
+
+  /// Reimplemented to set the bone node the default bone annotation.
+  virtual void enter();
+
 public slots:
+   /// Set the mrml scene.
+   /// Listens to add added node to select the newly added armature node
+   /// as selected.
+    virtual void setMRMLScene(vtkMRMLScene* scene);
+
   /// Set \a armatureNode as current.
-  /// \sa setMRMLArmatureNode(vtkMRMLNode*)
+  /// \sa setMRMLArmatureNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
   void setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode);
   /// Utility function to conveniently connect signals/slots.
   /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
+  /// \sa setMRMLNode(vtkMRMLNode* node)
   void setMRMLArmatureNode(vtkMRMLNode* armatureNode);
-
   /// Set \a boneNode as current.
-  /// \sa setMRMLBoneNode(vtkMRMLNode*)
+  /// \sa setMRMLBoneNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
   void setMRMLBoneNode(vtkMRMLBoneNode* boneNode);
-  /// Utility function to conveniently connect signals/slots.
+
+  /// Utility function called when a bone or an armature is selected.
   /// \sa setMRMLBoneNode(vtkMRMLBoneNode*)
-  void setMRMLBoneNode(vtkMRMLNode* boneNode);
+  /// \sa setMRMLArmatureNode(vtkMRMLArmatureNode*)
+  /// \sa setMRMLArmatureNode(vtkMRMLNode*)
+  void setMRMLNode(vtkMRMLNode* node);
 
   /// Set the visibility of the current armature node.
   /// \sa vtkMRMLArmatureDisplayNode::Visibility
@@ -101,6 +113,9 @@ protected slots:
 
   void updateCurrentMRMLArmatureNode();
   void updateCurrentMRMLBoneNode();
+
+  /// Update the selected armature if the new bone added is an armature
+  void onMRMLNodeAdded(vtkObject*, void*);
 
 protected:
   QScopedPointer<qSlicerArmaturesModuleWidgetPrivate> d_ptr;

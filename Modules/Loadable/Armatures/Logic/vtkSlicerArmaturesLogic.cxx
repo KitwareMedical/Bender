@@ -58,6 +58,14 @@ vtkSlicerArmaturesLogic::vtkSlicerArmaturesLogic()
 //----------------------------------------------------------------------------
 vtkSlicerArmaturesLogic::~vtkSlicerArmaturesLogic()
 {
+  if (this->ModelsLogic)
+    {
+    this->ModelsLogic->Delete();
+    }
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -125,6 +133,10 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAdded(vtkMRMLNode* node)
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
   if (armatureNode)
     {
+    vtkNew<vtkMRMLModelNode> armatureModel;
+    this->GetMRMLScene()->AddNode(armatureModel.GetPointer());
+    armatureNode->SetArmatureModel(armatureModel.GetPointer());
+
     this->SetActiveArmature(armatureNode);
     }
   vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
@@ -167,15 +179,21 @@ void vtkSlicerArmaturesLogic
     return;
     }
 
-  vtkEventBroker::GetInstance()->RemoveObservations(
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Delete();
+    vtkEventBroker::GetInstance()->RemoveObservations(
       this->AnnotationsLogic, vtkCommand::ModifiedEvent,
       this, this->GetMRMLLogicsCallbackCommand());
-
+    }
   this->AnnotationsLogic = annotationLogic;
-
-  vtkEventBroker::GetInstance()->AddObservation(
-    this->AnnotationsLogic, vtkCommand::ModifiedEvent,
-    this, this->GetMRMLLogicsCallbackCommand());
+  if (this->AnnotationsLogic)
+    {
+    this->AnnotationsLogic->Register(this);
+    vtkEventBroker::GetInstance()->AddObservation(
+      this->AnnotationsLogic, vtkCommand::ModifiedEvent,
+      this, this->GetMRMLLogicsCallbackCommand());
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -195,10 +213,21 @@ void vtkSlicerArmaturesLogic
 void vtkSlicerArmaturesLogic::SetActiveArmature(vtkMRMLArmatureNode* armature)
 {
   assert(this->AnnotationsLogic != 0);
-  if (this->GetActiveArmature() == armature)
+  vtkMRMLArmatureNode* currentArmature = this->GetActiveArmature();
+  if (currentArmature == armature)
     {
     return;
     }
+
+  if (currentArmature)
+    {
+    currentArmature->SetSelected(0);
+    }
+  if (armature)
+    {
+    armature->SetSelected(1);
+    }
+
   this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
     armature ? armature->GetID() : 0);
 }

@@ -23,24 +23,41 @@
     <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Armature</label>
+      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
       <channel>input</channel>
       <index>1</index>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
     </geometry>
-    <geometry fileExtensions=".stl">
+
+    <geometry fileExtensions=".vtk">
       <name>SurfaceInput</name>
       <label>Surface</label>
+      <description><![CDATA[Input surface to be posed.]]></description>
       <channel>input</channel>
       <index>2</index>
-      <description><![CDATA[Input Surface to be posed.]]></description>
     </geometry>
-    <geometry fileExtensions=".stl">
+    <boolean>
+      <name>IsSurfaceInRAS</name>
+      <label>Surface in RAS</label>
+      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--surfaceInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
-      <label>Surface output file</label>
+      <label>Output posed surface</label>
+      <description><![CDATA[Output surface posed by the armature transforms.]]></description>
       <channel>output</channel>
       <index>3</index>
-      <description><![CDATA[Output surface]]></description>
     </geometry>
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 
   <parameters>

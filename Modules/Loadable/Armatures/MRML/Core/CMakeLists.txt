@@ -38,6 +38,8 @@ set(${KIT}_SRCS
   vtkMRMLBoneDisplayNode.h
   vtkMRMLBoneNode.cxx
   vtkMRMLBoneNode.h
+  vtkMRMLNodeHelper.cxx
+  vtkMRMLNodeHelper.h
   )
 
 set(${KIT}_TARGET_LIBRARIES

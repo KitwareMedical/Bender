@@ -211,15 +211,15 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     armatureWidget->UpdateBoneWithArmatureOptions(
       boneWidget,
       parentBoneWidget);
-    // For not armature widget properties HACKISH
-    if (boneWidget->GetBoneRepresentation())
+    vtkMRMLBoneDisplayNode* boneDisplayNode = boneNode->GetBoneDisplayNode();
+    if (boneDisplayNode)
       {
-      boneWidget->GetBoneRepresentation()->SetOpacity(
-        armatureNode->GetOpacity());
+      boneDisplayNode->SetOpacity(armatureNode->GetOpacity());
       double rgb[3];
       armatureNode->GetColor(rgb);
-      boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(rgb);
+      boneDisplayNode->SetColor(rgb);
       }
+
     boneWidget->SetShowParenthood(parentBoneWidget != 0);
     boneNode->SetHasParent(parentBoneWidget != 0);
 
@@ -263,7 +263,9 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   if (it->second)
     {
     it->second->Delete();
+    it->second = 0;
     }
+  this->RemoveAllBoneNodes(it->first);
 
   // TODO: it->first might have already been deleted
   it->first->RemoveObserver(this->External->GetMRMLNodesCallbackCommand());
@@ -302,7 +304,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
     if (boneNode)
       {
-      this->RemoveBoneNode(boneNode);
       this->External->GetMRMLScene()->RemoveNode(boneNode);
       }
     }
@@ -482,7 +483,8 @@ vtkArmatureWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
   armatureWidget->SetRepresentation(rep.GetPointer());
   armatureWidget->SetEnabled(0);
 
-  armatureWidget->SetBonesRepresentation(vtkArmatureWidget::DoubleCone);
+  vtkNew<vtkDoubleConeBoneRepresentation> newRep;
+  armatureWidget->SetBonesRepresentation(newRep.GetPointer());
 
   // Link widget evenement to the LogicCallbackCommand
   armatureWidget->AddObserver(vtkCommand::StartInteractionEvent,
@@ -589,6 +591,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     }
 
   armatureNode->PasteArmatureNodeProperties(armatureWidget);
+  armatureNode->SetArmaturePolyData(armatureWidget->GetPolyData());
 
   armatureWidget->SetEnabled(1);//armatureNode->GetWidgetVisible());
 }
@@ -598,8 +601,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::UpdateBoneWidgetFromNode(vtkMRMLBoneNode* boneNode,
                            vtkBoneWidget* boneWidget)
 {
-  vtkMRMLBoneDisplayNode* boneDisplayNode =
-    boneNode ? boneNode->GetBoneDisplayNode() : 0;
   if (!boneNode)
     {
     return;
@@ -613,6 +614,9 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     this->BoneNodes.find(boneNode)->second = boneWidget;
     }
 
+  vtkMRMLBoneDisplayNode* boneDisplayNode =
+    boneNode ? boneNode->GetBoneDisplayNode() : 0;
+
   // We need to stop listening to the boneWidget when changing its properties
   // according to the node. Otherwise it will send ModifiedEvent() for the
   // first property changed, thus updating the node.
@@ -624,22 +628,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   boneNode->PasteBoneNodeProperties(boneWidget);
   if (boneDisplayNode)
     {
-    if (boneDisplayNode->GetShouldBeInitialized())
-      {
-      // This hackish code is here to prevent the update of the widget
-      // by the display node before the display node was initialized.
-      int wasModifying = boneDisplayNode->StartModify();
-      double normalColor[3];
-      boneWidget->GetBoneRepresentation()->GetLineProperty()
-        ->GetColor(normalColor);
-      boneDisplayNode->SetColor(normalColor);
-
-      boneDisplayNode->CopyBoneWidgetDisplayProperties(boneWidget);
-      boneDisplayNode->SetSelected(true);
-      boneDisplayNode->SetShouldBeInitialized(false);
-      boneDisplayNode->EndModify(wasModifying);
-      }
-
     boneDisplayNode->PasteBoneDisplayNodeProperties(boneWidget);
     }
   boneWidget->AddObserver(vtkCommand::ModifiedEvent,
@@ -707,8 +695,41 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
   vtkMRMLArmatureNode* armatureNode = this->GetArmatureNode(boneNode);
   if (armatureNode && boneNode->GetSelected())
     {
-    armatureNode->InvokeEvent(
-      vtkMRMLArmatureNode::ArmatureBoneModified, boneNode->GetID());
+    bool shouldSelectBone = true;
+    if (boneNode->GetSelected() == vtkBoneWidget::TailSelected)
+      {
+      vtkMRMLAnnotationHierarchyNode* hierarchyNode
+        = vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+              boneNode->GetScene(), boneNode->GetID()));
+      if (hierarchyNode)
+        {
+        std::vector<vtkMRMLHierarchyNode*> children =
+          hierarchyNode->GetChildrenNodes();
+        for (std::vector<vtkMRMLHierarchyNode*>::iterator it =
+          children.begin(); it != children.end(); ++it)
+          {
+          vtkMRMLBoneNode* boneChild =
+            vtkMRMLBoneNode::SafeDownCast((*it)->GetAssociatedNode());
+          if (boneChild && boneChild->GetBoneLinkedWithParent())
+            {
+            vtkMRMLBoneDisplayNode* boneDisplayNode =
+              boneChild->GetBoneDisplayNode();
+            if (boneDisplayNode && boneDisplayNode->GetSelected())
+              {
+              shouldSelectBone = false;
+              break;
+              }
+            }
+          }
+        }
+      }
+
+    if (shouldSelectBone)
+      {
+      armatureNode->InvokeEvent(
+        vtkMRMLArmatureNode::ArmatureBoneModified, boneNode->GetID());
+      }
     }
 }
 
@@ -760,8 +781,7 @@ void vtkMRMLArmatureDisplayableManager::UpdateFromMRMLScene()
 void vtkMRMLArmatureDisplayableManager
 ::OnMRMLSceneNodeAdded(vtkMRMLNode* nodeAdded)
 {
-  if (this->GetMRMLScene()->IsBatchProcessing() ||
-      !this->IsManageable(nodeAdded))
+  if (!this->IsManageable(nodeAdded))
     {
     return;
     }
@@ -781,7 +801,8 @@ void vtkMRMLArmatureDisplayableManager
 void vtkMRMLArmatureDisplayableManager
 ::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* nodeRemoved)
 {
-  if (!this->IsManageable(nodeRemoved))
+  if (!this->IsManageable(nodeRemoved)
+    || this->GetMRMLScene()->IsBatchProcessing())
     {
     return;
     }
@@ -997,6 +1018,7 @@ void vtkMRMLArmatureDisplayableManager
       currentBone->GetWorldHeadRest(head);
       this->CreateAndAddBoneToCurrentScene(
         head, worldCoordinates, associatedNodeID);
+      return;
       }
     }
   else // No armature currently selected.
@@ -1054,10 +1076,10 @@ void vtkMRMLArmatureDisplayableManager
 
   // if this was a one time place, go back to view transform mode
   vtkMRMLInteractionNode *interactionNode = this->GetInteractionNode();
+  this->Helper->RemoveSeeds();
+  this->m_ClickCounter->Reset();
   if (interactionNode && interactionNode->GetPlaceModePersistence() != 1)
     {
-    this->Helper->RemoveSeeds();
-    this->m_ClickCounter->Reset();
     interactionNode->SetCurrentInteractionMode(
       vtkMRMLInteractionNode::ViewTransform);
     }

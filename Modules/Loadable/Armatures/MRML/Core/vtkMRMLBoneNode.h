@@ -29,11 +29,11 @@
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
-class vtkBoneRepresentation;
-class vtkBoneWidget;
+#include "vtkBoneWidget.h"
 
+class vtkBoneRepresentation;
+class vtkCallbackCommand;
 class vtkMRMLBoneDisplayNode;
-class vtkMRMLBoneNodeCallback;
 class vtkMRMLDisplayNode;
 
 /// \ingroup Bender_MRML
@@ -116,10 +116,10 @@ public:
   //BTX
   enum WidgetStateType
     {
-    PlaceHead = 0,
-    PlaceTail,
-    Rest,
-    Pose
+    PlaceHead = vtkBoneWidget::PlaceHead,
+    PlaceTail = vtkBoneWidget::PlaceTail,
+    Rest = vtkBoneWidget::Rest,
+    Pose = vtkBoneWidget::Pose
     };
   //ETX
 
@@ -133,8 +133,6 @@ public:
   void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
 
-  /// Helper function to get the distance between head and tail
-  double GetDistance();
 
   /// Set/Get the bone roll.
   void SetRoll(double roll);
@@ -253,10 +251,7 @@ protected:
   vtkMRMLBoneNode(const vtkMRMLBoneNode&); /// not implemented
   void operator=(const vtkMRMLBoneNode&); /// not implemented
 
-  //BTX
-  friend class vtkMRMLBoneNodeCallback;
-  //ETX
-  vtkMRMLBoneNodeCallback* Callback;
+  vtkCallbackCommand* Callback;
 
   vtkBoneWidget* BoneProperties;
   int BoneRepresentationType;

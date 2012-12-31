@@ -24,11 +24,12 @@
 
 create_test_sourcelist(${KIT}_TEST_SRCS
   vtkBoneWidgetTests.cxx
+  vtkArmatureWidgetArmTest.cxx
   vtkArmatureWidgetTest.cxx
+  vtkBoneWidgetTest_Basics.cxx
+  vtkBoneWidgetTest_RestMode.cxx
+  vtkBoneWidgetTest_PoseMode.cxx
   vtkBoneWidgetRepresentationAndInteractionTest.cxx
-  vtkBoneWidgetTwoBonesTest.cxx
-  vtkBoneWidgetThreeBonesTest.cxx
-  vtkBoneWidgetTwoBonesTestRotationMatrix.cxx
   )
 
 add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
@@ -38,10 +39,12 @@ target_link_libraries(${PROJECT_NAME}Tests
 
 add_test(vtkArmatureWidgetTest ${CXX_TEST_PATH}/BenderWidgetTests vtkArmatureWidgetTest)
 
+add_test(vtkBoneWidgetTest_Basics ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTest_Basics)
+
+add_test(vtkBoneWidgetTest_RestMode ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTest_RestMode)
+
+add_test(vtkBoneWidgetTest_PoseMode ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTest_PoseMode)
+
 add_test(vtkBoneWidgetRepresentationAndIntercationTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
 
-add_test(vtkBoneWidgetTwoBonesTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTwoBonesTest)
-
-add_test(vtkBoneWidgetThreeBonesTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetThreeBonesTest)
-
-add_test(vtkBoneWidgetTwoBonesTest ${CXX_TEST_PATH}/BenderWidgetTests vtkBoneWidgetTwoBonesTestRotationMatrix)
+add_test(vtkArmatureWidgetArmTest ${CXX_TEST_PATH}/BenderWidgetTests vtkArmatureWidgetArmTest)

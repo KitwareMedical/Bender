@@ -38,9 +38,11 @@
 
 // Bender includes
 #include "vtkBenderWidgetsExport.h"
+#include "vtkBoneWidget.h"
 
 // VTK includes
 #include <vtkAbstractWidget.h>
+
 #include <vtkCommand.h>
 #include <vtkStdString.h>
 
@@ -51,8 +53,9 @@ struct ArmatureTreeNode;
 
 class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
-class vtkBoneWidget;
+class vtkBoneRepresentation;
 class vtkCollection;
+class vtkPolyData;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureWidget : public vtkAbstractWidget
 {
@@ -65,6 +68,10 @@ public:
   // Standard methods for a VTK class.
   vtkTypeMacro(vtkArmatureWidget, vtkAbstractWidget);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Armature of all the bones in wire mode despite the representation.
+  vtkGetObjectMacro(PolyData, vtkPolyData);
 
   // Description:
   // The method for activating and deactivating this widget. This method
@@ -148,6 +155,16 @@ public:
   vtkBoneWidget* GetBoneParent(vtkBoneWidget* bone);
 
   // Description:
+  // Returns if the parent is directly the bone's parent.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  bool IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+
+ // Description:
+  // Returns if the parent is directly or inderectly the bone's parent.
+  // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
+  bool IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+
+  // Description:
   // Returns the bone's children if the bone has any and it belongs
   // to the armature.
   // The user is responsible for deleting the returned collection.
@@ -183,17 +200,22 @@ public:
   //ETX
 
   // Description:
-  // Set/Get the representation type. If a new representation is chosen,
+  // Set/Get the representation. If a new representation is chosen,
   // it will be applied to all the bones of the armature.
+  // The armature will keep a reference on the new representation.
   // @sa vtkBoneWidgetRepresentation() vtkCylinderBoneRepresentation()
   // @sa vtkDoubleConeRepresentation()
-  void SetBonesRepresentation(int representationType);
-  vtkGetMacro(BonesRepresentationType, int);
+  void SetBonesRepresentation(vtkBoneRepresentation* newRepresentation);
+  vtkBoneRepresentation* GetBonesRepresentation();
 
   // Description:
   // Widget State of all the bones.
   //BTX
-  enum WidgetStateType{Rest = 0, Pose};
+  enum WidgetStateType
+    {
+    Rest = vtkBoneWidget::Rest,
+    Pose = vtkBoneWidget::Pose
+    };
   //ETX
 
   // Description:
@@ -226,9 +248,10 @@ public:
   //BTX
   enum ArmatureEventType
     {
-    AddedBone = vtkCommand::UserEvent+1,
-    RemovedBone,
-    ReparentedBone
+    BoneAdded = vtkCommand::UserEvent+1,
+    BoneRemoved,
+    BoneReparented,
+    BoneMerged
     };
   //ETX
 
@@ -237,6 +260,13 @@ public:
   // If the new parent is null, the bone is added to the top level bones.
   // @sa AddBone(), RemoveBone, ArmatureEventType
   void ReparentBone(vtkBoneWidget* bone, vtkBoneWidget* newParent);
+
+  // Description:
+  // Merge the two bones of the armature together. The bones must
+  // be parented and belong to the armature.
+  // Returns the merged bone upon succes, NULL otherwise.
+  // @sa AddBone(), RemoveBone(), ArmatureEventType, IsBoneParent()
+  vtkBoneWidget* MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone);
 
   // Description:
   // Reset the pose positions to the initial rest position with no rotations
@@ -248,7 +278,15 @@ public:
   // This can be set even if the bones do not have any representation.
   // @sa vtkBoneRepresentation
   void SetBonesAlwaysOnTop(int onTop);
-  vtkGetMacro(BonesAlwaysOnTop, int);
+  int GetBonesAlwaysOnTop();
+
+  // Description:
+  // Reimplemented for internal reasons (update polydata).
+  virtual void Modified();
+
+  static void ComputeTransform(double start[3], double end[3], double mat[3][3]);
+  static double ComputeAngle(double v1[3], double v2[3]);
+  static void ComputeAxisAngleMatrix(double axis[3], double angle, double mat[3][3]);
 
 protected:
   vtkArmatureWidget();
@@ -262,6 +300,7 @@ protected:
 
   // Bone Tree
   ArmatureTreeNodeVectorType* Bones;
+  vtkPolyData* PolyData;
 
   // Top level bone tree
   typedef std::vector<vtkBoneWidget*> BoneVectorType;
@@ -269,12 +308,11 @@ protected:
   std::vector<vtkBoneWidget*> TopLevelBones;
 
   // Bone Properties
-  int BonesRepresentationType;
+  vtkBoneRepresentation* BonesRepresentation;
   int WidgetState;
   int ShowAxes;
   int ShowParenthood;
   bool ShouldResetPoseToRest;
-  int BonesAlwaysOnTop;
 
   // Add/Remove all the necessaries observers to a bone
   void AddBoneObservers(vtkBoneWidget* bone);
@@ -284,6 +322,7 @@ protected:
   void UpdateChildren(ArmatureTreeNode* parentNode);
   void UpdateChildrenWidgetStateToPose(ArmatureTreeNode* parentNode);
   void UpdateChildrenWidgetStateToRest(ArmatureTreeNode* parentNode);
+  void UpdatePolyData();
 
   // Set the bone world to parent rest or pose transform correctly
   void SetBoneWorldToParentTransform(vtkBoneWidget* bone,
@@ -294,20 +333,34 @@ protected:
                                          vtkBoneWidget* parent);
 
   // Make a new map element corresponding to the bone and the parent.
-  void CreateAndAddNodeToHierarchy(
+  ArmatureTreeNode* CreateAndAddNodeToHierarchy(
     vtkBoneWidget* bone, vtkBoneWidget* parent, bool linkedWithParent);
 
   // Remove the element according to the hierarchy.
   // Deleting the node from the bone's vector and the bone itself
   // must still be performed.
   void RemoveNodeFromHierarchy(int nodePosition);
+  void RemoveNodeFromHierarchy(ArmatureTreeNode* node);
 
   // Returns the corresponding bone.
   // Null if it does not exist in the bone vector.
   ArmatureTreeNode* GetNode(vtkBoneWidget* bone);
 
   // Set the representation type for a given bone.
-  void SetBoneRepresentation(vtkBoneWidget* bone, int representationType);
+  void SetBoneRepresentation(vtkBoneWidget* bone);
+
+  // Highlight helpers function, to highlight correctly what will move.
+  //
+  // Highlight the given bone parent and its direct children if
+  // they are directly linked.
+  void HighlightLinkedParentAndParentChildren(vtkBoneWidget* bone,
+    int highlight);
+  // Highlight the given bone direct children if they are directly linked.
+  void HighlightLinkedChildren(vtkBoneWidget* bone, int highlight);
+  void HighlightLinkedChildren(ArmatureTreeNode* node, int highlight);
+  // Highlight the all the bone children (direct or indirect).
+  // Recursive function.
+  void HighlightAllChildren(ArmatureTreeNode* node, int highlight);
 
   // Create a new node
   ArmatureTreeNode* CreateNewMapElement(vtkBoneWidget* parent);

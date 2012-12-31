@@ -36,11 +36,12 @@
       <index>2</index>
       <default></default>
     </geometry>
+
     <boolean>
-      <name>InvertY</name>
-      <label>Invert Y Coordinates</label>
-      <description><![CDATA[Whether to invert the y coordinate of the input surface]]></description>
-      <longflag>--inverty</longflag>
+      <name>IsSurfaceInRAS</name>
+      <label>Surface in RAS</label>
+      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
   </parameters>

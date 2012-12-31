@@ -22,15 +22,16 @@
 #include "vtkMRMLArmatureNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
+#include "vtkMRMLNodeHelper.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
-#include <vtkArmatureWidget.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
+#include <vtkCallbackCommand.h>
 #include <vtkCollection.h>
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
@@ -41,44 +42,59 @@
 #include <vtkWidgetRepresentation.h>
 
 //----------------------------------------------------------------------------
+namespace
+{
+
+int FindBonesRepresentationType(vtkBoneRepresentation* r)
+{
+  if (vtkDoubleConeBoneRepresentation::SafeDownCast(r))
+    {
+    return vtkMRMLArmatureNode::Octohedron;
+    }
+  else if (vtkCylinderBoneRepresentation::SafeDownCast(r))
+    {
+    return vtkMRMLArmatureNode::Cylinder;
+    }
+
+  return vtkMRMLArmatureNode::Bone;
+}
+
+} // end namespace
+
+
+//----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
 
 //----------------------------------------------------------------------------
-class vtkMRMLArmatureNodeCallback : public vtkCommand
+static void MRMLArmatureNodeCallback(vtkObject* caller,
+                                     long unsigned int eventId,
+                                     void* clientData,
+                                     void* callData )
 {
-public:
-  static vtkMRMLArmatureNodeCallback *New()
-    { return new vtkMRMLArmatureNodeCallback; }
-
-  vtkMRMLArmatureNodeCallback()
-    { this->Node = 0; }
-
-  virtual void Execute(vtkObject* caller, unsigned long eventId, void* data)
+  if (eventId == vtkCommand::ModifiedEvent)
     {
-    vtkNotUsed(data);
-    switch (eventId)
+    vtkMRMLArmatureNode* node =
+      reinterpret_cast<vtkMRMLArmatureNode*>(clientData);
+    if (node)
       {
-      case vtkCommand::ModifiedEvent:
-        {
-        this->Node->Modified();
-        break;
-        }
+      node->Modified();
       }
     }
-
-  vtkMRMLArmatureNode* Node;
-};
+}
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 {
   this->ArmatureProperties = vtkArmatureWidget::New();
   this->ArmatureProperties->CreateDefaultRepresentation();
-  this->ArmatureProperties->SetBonesRepresentation(
-    vtkArmatureWidget::DoubleCone);
-  this->WidgetState = vtkArmatureWidget::Rest;
+  vtkNew<vtkDoubleConeBoneRepresentation> newRep;
+  this->ArmatureProperties->SetBonesRepresentation(newRep.GetPointer());
+  this->BonesRepresentationType = FindBonesRepresentationType(
+    this->ArmatureProperties->GetBonesRepresentation());
+
+  this->WidgetState = vtkMRMLArmatureNode::Rest;
   this->SetHideFromEditors(0);
-  this->Callback = vtkMRMLArmatureNodeCallback::New();
+  this->Callback = vtkCallbackCommand::New();
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetColor(67.0 / 255.0, 75.0/255.0, 89.0/255.0); //Slicer's bone color.
@@ -90,7 +106,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 
   this->ShouldResetPoseMode = 0;
 
-  this->Callback->Node = this;
+  this->Callback->SetClientData(this);
+  this->Callback->SetCallback(MRMLArmatureNodeCallback);
   this->ArmatureProperties->AddObserver(vtkCommand::ModifiedEvent,
     this->Callback);
 }
@@ -98,6 +115,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 {
+  this->Callback->Delete();
   this->ArmatureProperties->Delete();
 }
 
@@ -105,7 +123,23 @@ vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
 {
   this->Superclass::WriteXML(of, nIndent);
-  // of << indent << " ctrlPtsNumberingScheme=\"" << this->NumberingScheme << "\"";
+
+  vtkIndent indent(nIndent);
+  of << indent << " BonesRepresentationType=\""
+    << this->BonesRepresentationType << "\"";
+  of << indent << " ShowAxes=\""
+    << this->ArmatureProperties->GetShowAxes() << "\"";
+  of << indent << " ShowParenthood=\""
+    << this->ArmatureProperties->GetShowParenthood() << "\"";
+
+  of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
+  of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
+  of << indent << " Color=";
+  double rgb[3];
+  this->GetColor(rgb);
+  vtkMRMLNodeHelper::PrintQuotedVector3(of, rgb);
+  of << indent << " BonesAlwaysOnTop=\""
+    << this->ArmatureProperties->GetBonesAlwaysOnTop() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -115,17 +149,48 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
 
   this->Superclass::ReadXMLAttributes(atts);
 
+  this->SetWidgetState(vtkMRMLArmatureNode::Rest);
   while (*atts != NULL)
     {
-    //const char* attName = *(atts++);
-    //std::string attValue(*(atts++));
+    const char* attName = *(atts++);
+    std::string attValue(*(atts++));
 
-    // if  (!strcmp(attName, "ctrlPtsNumberingScheme"))
-    //   {
-    //   std::stringstream ss;
-    //   ss << attValue;
-    //   ss >> this->NumberingScheme;
-    //   }
+    if (!strcmp(attName, "BonesRepresentationType"))
+      {
+      this->SetBonesRepresentationType(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowAxes"))
+      {
+      this->SetShowAxes(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "ShowParenthood"))
+      {
+      this->SetShowParenthood(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Visibility"))
+      {
+      this->SetVisibility(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Opacity"))
+      {
+      this->SetOpacity(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "BonesAlwaysOnTop"))
+      {
+      this->SetBonesAlwaysOnTop(
+        vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "Color"))
+      {
+      double rgb[3];
+      vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
+      this->SetColor(rgb);
+      }
     }
   this->EndModify(disabledModify);
 }
@@ -178,15 +243,49 @@ vtkMRMLBoneNode* vtkMRMLArmatureNode::GetParentBone(vtkMRMLBoneNode* bone)
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetBonesRepresentation(int representationType)
+void vtkMRMLArmatureNode::SetBonesRepresentation(vtkBoneRepresentation* rep)
 {
-  this->ArmatureProperties->SetBonesRepresentation(representationType);
+  this->SetBonesRepresentationType(FindBonesRepresentationType(rep));
 }
 
 //---------------------------------------------------------------------------
-int vtkMRMLArmatureNode::GetBonesRepresentation()
+vtkBoneRepresentation* vtkMRMLArmatureNode::GetBonesRepresentation()
 {
-  return this->ArmatureProperties->GetBonesRepresentationType();
+  return this->ArmatureProperties->GetBonesRepresentation();
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetBonesRepresentationType()
+{
+  return this->BonesRepresentationType;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetBonesRepresentationType(int type)
+{
+  if (type == this->BonesRepresentationType)
+    {
+    return;
+    }
+
+  this->BonesRepresentationType = type;
+  vtkBoneRepresentation* r = 0;
+  if (type == vtkMRMLArmatureNode::Octohedron)
+    {
+    r = vtkDoubleConeBoneRepresentation::New();
+    }
+  else if (type == vtkMRMLArmatureNode::Cylinder)
+    {
+    r =  vtkCylinderBoneRepresentation::New();
+    }
+  else
+    {
+    r = vtkBoneRepresentation::New();
+    }
+
+  r->DeepCopy(this->GetBonesRepresentation());
+  this->ArmatureProperties->SetBonesRepresentation(r);
+  r->Delete();
 }
 
 //---------------------------------------------------------------------------
@@ -358,8 +457,7 @@ void vtkMRMLArmatureNode
     }
 
   //int wasModifying = this->StartModify(); // ? Probably not
-  this->ArmatureProperties->SetBonesRepresentation(
-    armatureWidget->GetBonesRepresentationType());
+  this->SetBonesRepresentation(armatureWidget->GetBonesRepresentation());
   this->WidgetState = armatureWidget->GetWidgetState();
   this->ArmatureProperties->SetShowAxes(
     armatureWidget->GetShowAxes());
@@ -386,8 +484,26 @@ void vtkMRMLArmatureNode
     }
 
   //int wasModifying = this->StartModify(); // ? Probably not
-  armatureWidget->SetBonesRepresentation(
-    this->ArmatureProperties->GetBonesRepresentationType());
+  if (FindBonesRepresentationType(armatureWidget->GetBonesRepresentation())
+      != this->BonesRepresentationType)
+    {
+    if (this->BonesRepresentationType == 1)
+      {
+      vtkNew<vtkCylinderBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
+      }
+    else if (this->BonesRepresentationType == 2)
+      {
+      vtkNew<vtkDoubleConeBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
+      }
+    else
+      {
+      vtkNew<vtkBoneRepresentation> rep;
+      armatureWidget->SetBonesRepresentation(rep.GetPointer());
+      }
+    }
+
   armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());
@@ -426,4 +542,43 @@ void vtkMRMLArmatureNode
     armatureWidget->ResetPoseToRest();
     }
 
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetArmatureModel(vtkMRMLModelNode* model)
+{
+  vtkPolyData* polyData = this->GetPolyData();
+  if (model)
+    {
+    model->SetName(this->GetName());
+    model->SetAndObservePolyData(polyData);
+    }
+  // Prevent ModifiedEvents from being fired as the order of calls is wrong.
+  int wasModifying = this->StartModify();
+  this->SetAssociatedNodeID(model ? model->GetID() : 0);
+  this->EndModify(wasModifying);
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLModelNode* vtkMRMLArmatureNode::GetArmatureModel()
+{
+  return vtkMRMLModelNode::SafeDownCast(this->GetAssociatedNode());
+}
+
+//---------------------------------------------------------------------------
+vtkPolyData* vtkMRMLArmatureNode::GetPolyData()
+{
+  vtkMRMLModelNode* model = this->GetArmatureModel();
+  return model ? model->GetPolyData() : 0;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetArmaturePolyData(vtkPolyData* polyData)
+{
+  vtkMRMLModelNode* model = this->GetArmatureModel();
+  if (!model)
+    {
+    return;
+    }
+  model->SetAndObservePolyData(polyData);
 }
