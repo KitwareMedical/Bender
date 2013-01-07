@@ -16,13 +16,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
+  This file was originally developed by Yuanxin Liu, Kitware Inc.
+
 =========================================================================*/
 
 // Bender includes
 #include "ArmatureWeightCLP.h"
 
-// Eigen includes
-#include "EigenSparseSolve.h"
+// ArmatureWeight includes
+#include "HeatDiffusionProblem.h"
+#include "SolveHeatDiffusionProblem.h"
 
 // ITK includes
 #include <itkImage.h>
@@ -52,16 +55,18 @@
 
 typedef unsigned char CharType;
 typedef unsigned short LabelType;
+typedef float WeightImagePixel;
 
 typedef itk::Image<unsigned short, 3>  LabelImage;
 typedef itk::Image<unsigned char, 3>  CharImage;
-typedef itk::Image<float, 3>  WeightImage;
+
+typedef itk::Image<WeightImagePixel, 3>  WeightImage;
 
 typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffset;
 typedef itk::ImageRegion<3> Region;
 
-bool DumpSegmentationImages = false;
+static bool DumpSegmentationImages = false;
 //-------------------------------------------------------------------------------
 inline void InvertXY(double* x)
 {
@@ -88,57 +93,6 @@ public:
       }
   }
   itk::Offset<dimension> Offsets[2*dimension];
-};
-
-
-//-------------------------------------------------------------------------------
-//a 3D shape defined by a set of pixels
-template<unsigned int dimension>
-class PixelShape
-{
-public:
-  typedef itk::Index<dimension> Pixel;
-  PixelShape()
-  {
-  }
-  virtual bool IsMember(Pixel p) const=0 ;
-  virtual bool IsBoundary(Pixel p) const =0;
-  virtual bool IsInterior(Pixel p) const=0;
-};
-
-//-------------------------------------------------------------------------------
-class BodyDiffusionRegion: public PixelShape<3>
-{
-public:
-  BodyDiffusionRegion(LabelImage::Pointer domain, LabelImage::Pointer labelMap)
-    :Domain(domain),LabelMap(labelMap)
-  {
-    this->ImRegion = domain->GetLargestPossibleRegion();
-  }
-  bool IsMember(Voxel p) const
-  {
-    return this->ImRegion.IsInside(p) && this->Domain->GetPixel(p)>0;
-  }
-  virtual bool IsBoundary(Voxel p) const
-  {
-    if(!this->IsMember(p))
-      {
-      return false;
-      }
-    return this->LabelMap->GetPixel(p)!=0;
-  }
-  virtual bool IsInterior(Voxel p) const
-  {
-    if(!this->IsMember(p))
-      {
-      return false;
-      }
-    return this->LabelMap->GetPixel(p)==0;
-  }
-private:
-  LabelImage::Pointer Domain;
-  LabelImage::Pointer LabelMap;
-  Region ImRegion;
 };
 
 //-------------------------------------------------------------------------------
@@ -337,219 +291,6 @@ inline int NumConnectedComponents(typename T::Pointer image, typename T::PixelTy
   connectedComponents->SetBackgroundValue(0);
   connectedComponents->Update();
   return connectedComponents->GetObjectCount();
-
-}
-
-//-------------------------------------------------------------------------------
-template<class RealImageType>
-void DiffuseHeatIteratively(typename RealImageType::Pointer heat,
-                            const PixelShape<RealImageType::ImageDimension>& shape,
-                            int numIterations)
-{
-  typedef typename RealImageType::IndexType Pixel;
-  typedef typename RealImageType::PixelType Real;
-
-  typename RealImageType::RegionType region = heat->GetLargestPossibleRegion();
-  Neighborhood<RealImageType::ImageDimension> nbrs;
-  typedef typename RealImageType::OffsetType OffsetType;
-  OffsetType* offsets = nbrs.Offsets;
-
-  std::vector<Pixel> interior;
-  for(itk::ImageRegionIteratorWithIndex<RealImageType> it(heat,region); !it.IsAtEnd(); ++it)
-    {
-    Pixel p = it.GetIndex();
-    if(shape.IsInterior(p))
-      {
-      interior.push_back(p);
-      }
-    }
-
-  std::cout << "Smooth iteratively: ";
-  for(int iteration=0; iteration<numIterations; ++iteration)
-    {
-    std::cout << ". " << std::flush;
-    for(typename std::vector<Pixel>::iterator pi = interior.begin(); pi!=interior.end(); ++pi)
-      {
-      Pixel p = *pi;
-      Real sum=0.0;
-      Real diag = 0.0;
-      for(OffsetType* offset = offsets; offset!=offsets+2*RealImageType::ImageDimension; ++offset)
-        {
-        Pixel q = p + *offset;
-        if(shape.IsMember(q))
-          {
-          assert(heat->GetPixel(q)>=0);
-          sum+=heat->GetPixel(q);
-          diag+=1.0;
-          }
-        }
-      if(diag==0.0)
-        {
-        cerr<<p<<" has no neighbor" << std::endl;
-        }
-      else
-        {
-        heat->SetPixel(p, sum/diag);
-        }
-      }
-    }
-  std::cout << endl;
-}
-
-//-------------------------------------------------------------------------------
-void DiffuseHeat(CharImage::Pointer domain, //a binary image that describes the domain
-                 LabelImage::Pointer sourceMap, //a label image that defines the heat sources
-                 LabelType hotSourceLabel, //any source voxel with this label will be assigned weight 1
-                                          //other source voxels are assigned weight 0
-                 WeightImage::Pointer heat)  ////output
-{
-  Region imDomain = domain->GetLargestPossibleRegion();
-
-  Neighborhood<3> neighbors;
-  VoxelOffset* offsets = neighbors.Offsets ;
-
-  int m(0),n(0),numHotSource(0);
-  itk::ImageRegionIteratorWithIndex<CharImage> it(domain,imDomain);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>0)
-      {
-      ++n;
-      LabelType label = sourceMap->GetPixel(it.GetIndex());
-      if(label==0) //interior
-        {
-        ++m;
-        }
-      else
-        {
-        if(label==hotSourceLabel)
-          {
-          numHotSource++;
-          }
-        }
-      }
-    }
-  std::cout << "Problem dimension: "<<m<<" x "<<n << std::endl;
-  std::cout << "num hot: "<<numHotSource << std::endl;
-
-  typedef itk::Image<int, 3> ImageIndexMap;
-  ImageIndexMap::Pointer matrixIndex = ImageIndexMap::New();
-  Allocate<CharImage,ImageIndexMap>(domain, matrixIndex);
-  std::vector<Voxel> imageIndex(n);
-  int i1(0),i2(m); //index is the image pixel index, i1 and i2 are matrix indices
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    Voxel voxel = it.GetIndex();
-    if(it.Get()>0) //in domain
-      {
-      LabelType label = sourceMap->GetPixel(voxel);
-      if(label==0) //interior
-        {
-        imageIndex[i1] = voxel;
-        matrixIndex->SetPixel(voxel, i1);
-        ++i1;
-        }
-      else
-        {
-        assert(i2<n);
-        imageIndex[i2] = voxel;
-        matrixIndex->SetPixel(voxel,i2);
-        ++i2;
-        }
-      }
-    else
-      {
-      matrixIndex->SetPixel(voxel,-1);//set to invalid value;
-      }
-    }
-  assert(i1==m);
-  assert(i2==n);
-
-  typedef Eigen::SparseMatrix<float> SpMat;
-  SpMat A(m,m);
-  SpMat B(m,n-m);
-    {
-    typedef Eigen::Triplet<float> SpMatEntry;
-    std::vector<SpMatEntry> entryA, entryB;
-    for(int i=0; i<m; ++i)
-      {
-      float Aii(0);
-      for(int ii =0; ii<6; ++ii)
-        {
-        Voxel voxel = imageIndex[i]+offsets[ii];
-        if(imDomain.IsInside(voxel) && domain->GetPixel(voxel)!=0)
-          {
-          int j = matrixIndex->GetPixel(voxel);
-          if (j<m)
-            {
-            entryA.push_back( SpMatEntry(i,j,-1));
-            }
-          else
-            {
-            entryB.push_back( SpMatEntry(i,j-m,-1));
-            }
-          Aii+=1.0;
-          }
-        }
-      entryA.push_back(SpMatEntry(i,i,Aii));
-      }
-    A.setFromTriplets(entryA.begin(),entryA.end());
-    B.setFromTriplets(entryB.begin(),entryB.end());
-    }
-
-  Eigen::VectorXf xB(n-m);
-  int numOnes=0;
-  for(int i=0,i0=m; i<n-m; ++i,++i0)
-    {
-    Voxel voxel = imageIndex[i0];
-    LabelType label = sourceMap->GetPixel(voxel);
-    xB[i] = label==hotSourceLabel? 1.0 : 0.0;
-    numOnes += xB[i]==1.0;
-    }
-  assert(numOnes==numHotSource);
-
-  Eigen::VectorXf b(m);
-    {
-    b = B*xB;
-    b*=-1.0;
-    }
-
-  // Solving:
-  Eigen::VectorXf xI(m);
-  vtkNew<vtkTimerLog> timer;
-  timer->StartTimer();
-
-  if(0)
-    {
-    }
-  else
-    {
-    try
-      {
-      xI = Solve(A,b);
-      }
-    catch(std::bad_alloc)
-      {
-      cout << "Cholesky runs out of memory, switch to conjugate gradient instead\n";
-      Eigen::ConjugateGradient<SpMat> solver(A);
-      xI= solver.solve(b);
-      }
-    }
-
-  timer->StopTimer();
-  std::cout << "Simple heat diffusion of size "<<m<<", solve time: " << timer->GetElapsedTime() << std::endl;
-
-  //set the interior pixels by xI
-  for(int i=0; i<m; ++i)
-    {
-    Voxel voxel = imageIndex[i];
-    heat->SetPixel(voxel, xI[i]);
-    }
-  //set the boundary pixels by xB
-  for(int i=m; i<n; ++i)
-    {
-    heat->SetPixel(imageIndex[i],xB[i-m]);
-    }
 
 }
 
@@ -1134,15 +875,88 @@ public:
       }
     else
       {
-      DiffuseHeat(this->Domain, this->Armature.BonePartition, this->GetLabel(), weight);
-      BodyDiffusionRegion diffusionRegion(this->Armature.BodyMap,this->Armature.BonePartition);
-      DiffuseHeatIteratively<WeightImage>(weight,diffusionRegion, smoothingIterations);
+      //First solve a localized verison of the problme exactly
+      LocalizedBodyHeatDiffusionProblem localizedProblem(this->Domain, this->Armature.BonePartition, this->GetLabel());
+      SolveHeatDiffusionProblem<WeightImage>::Solve(localizedProblem, weight);
+
+      //Approximate the global solution by iterative solving
+      GlobalBodyHeatDiffusionProblem globalProblem(this->Armature.BodyMap, this->Armature.BonePartition);
+      SolveHeatDiffusionProblem<WeightImage>::SolveIteratively(globalProblem,weight,smoothingIterations);
       }
 
     return weight;
   }
   CharType GetLabel() const{ return this->Armature.GetEdgeLabel(this->Id);}
+
 private:
+  class GlobalBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
+  {
+  public:
+    GlobalBodyHeatDiffusionProblem(LabelImage::Pointer body,LabelImage::Pointer bones)
+      :Body(body),Bones(bones)
+    {
+    }
+
+    //Is the voxel inside the problem domain?
+    bool InDomain(const Voxel& voxel) const
+    {
+      return this->Body->GetLargestPossibleRegion().IsInside(voxel)
+          && this->Body->GetPixel(voxel)!=0;
+    }
+
+    bool IsBoundary(const Voxel& p) const
+    {
+      return this->Bones->GetPixel(p)>=2;
+    }
+
+    float GetBoundaryValue(const Voxel&) const
+    {
+      assert(false); //not needed now
+      return 0;
+    }
+  private:
+    LabelImage::Pointer Body;
+    LabelImage::Pointer Bones;
+  };
+
+  class LocalizedBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
+  {
+  public:
+    LocalizedBodyHeatDiffusionProblem(CharImage::Pointer domain,
+                             LabelImage::Pointer sourceMap,
+                             LabelType hotSourceLabel
+    ):Domain(domain),
+      SourceMap(sourceMap),
+      HotSourceLabel(hotSourceLabel)
+    {
+      this->WholeDomain = this->Domain->GetLargestPossibleRegion();
+    }
+
+    //Is the voxel inside the problem domain?
+    bool InDomain(const Voxel& voxel) const
+    {
+      return this->WholeDomain.IsInside(voxel) && this->Domain->GetPixel(voxel)!=0;
+    }
+
+    bool IsBoundary(const Voxel& voxel) const
+    {
+      return this->SourceMap->GetPixel(voxel)!=0;
+    }
+
+    float GetBoundaryValue(const Voxel& voxel) const
+    {
+      LabelType label = this->SourceMap->GetPixel(voxel);
+      return label==this->HotSourceLabel? 1.0 : 0.0;
+    }
+
+  private:
+    CharImage::Pointer Domain;   //a binary image that describes the domain
+    LabelImage::Pointer SourceMap; //a label image that defines the heat sources
+    LabelType HotSourceLabel; //any source voxel with this label will be assigned weight 1
+
+    Region WholeDomain;
+  };
+
   const ArmatureType& Armature;
   int Id;
   CharImage::Pointer Domain;
