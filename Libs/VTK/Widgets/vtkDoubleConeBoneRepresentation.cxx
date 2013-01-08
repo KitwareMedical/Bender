@@ -20,6 +20,9 @@
 
 #include "vtkDoubleConeBoneRepresentation.h"
 
+// Bender includes
+#include "vtkBoneEnvelopeRepresentation.h"
+
 #include <vtkActor.h>
 #include <vtkAppendPolyData.h>
 #include <vtkBox.h>
@@ -194,6 +197,10 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderOpaqueGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOpaqueGeometry(v);
   // Cones actor
@@ -205,7 +212,6 @@ int vtkDoubleConeBoneRepresentation
     {
     count += this->TextActor->RenderOpaqueGeometry(v);
     }
-
   return count;
 }
 
@@ -215,6 +221,10 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
   // Cones actor
@@ -234,6 +244,10 @@ int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderOverlay(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOverlay(v);
   // Cones actor
@@ -245,7 +259,6 @@ int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
     {
     count += this->TextActor->RenderOverlay(v);
     }
-
   return count;
 }
 
@@ -254,6 +267,10 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count |= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
   // Bone representation actors
   count |= this->LineActor->HasTranslucentPolygonalGeometry();
   // Cones actor

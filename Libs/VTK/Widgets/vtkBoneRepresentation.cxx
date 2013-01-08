@@ -20,6 +20,10 @@
 
 #include "vtkBoneRepresentation.h"
 
+// Bender includes
+#include "vtkBoneEnvelopeRepresentation.h"
+
+// VTK includes
 #include <vtkActor.h>
 #include <vtkBox.h>
 #include <vtkCallbackCommand.h>
@@ -51,11 +55,14 @@ vtkBoneRepresentation::vtkBoneRepresentation()
 {
   this->AlwaysOnTop = 1;
   this->Pose = false;
+  this->Envelope = vtkBoneEnvelopeRepresentation::New();
+  this->EnvelopeVisible = false;
 }
 
 //----------------------------------------------------------------------------
 vtkBoneRepresentation::~vtkBoneRepresentation()
 {
+  this->Envelope->Delete();
 }
 
 //----------------------------------------------------------------------------
@@ -86,12 +93,16 @@ double* vtkBoneRepresentation::GetDisplayHeadPosition()
 void vtkBoneRepresentation::SetWorldHeadPosition(double x[3])
 {
   this->Superclass::SetPoint1WorldPosition(x);
+  this->Envelope->SetHead(x);
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetDisplayHeadPosition(double x[3])
 {
   this->Superclass::SetPoint1DisplayPosition(x);
+  double head[3];
+  this->GetWorldHeadPosition(head);
+  this->Envelope->SetHead(head);
 }
 
 //----------------------------------------------------------------------------
@@ -122,12 +133,16 @@ double* vtkBoneRepresentation::GetDisplayTailPosition()
 void vtkBoneRepresentation::SetWorldTailPosition(double x[3])
 {
   this->Superclass::SetPoint2WorldPosition(x);
+  this->Envelope->SetTail(x);
 }
 
 //----------------------------------------------------------------------------
 void vtkBoneRepresentation::SetDisplayTailPosition(double x[3])
 {
   this->Superclass::SetPoint2DisplayPosition(x);
+  double tail[3];
+  this->GetWorldTailPosition(tail);
+  this->Envelope->SetTail(tail);
 }
 
 //----------------------------------------------------------------------------
@@ -155,6 +170,44 @@ void vtkBoneRepresentation::Highlight(int highlight)
   this->HighlightLine(highlight);
   this->HighlightPoint(0, highlight);
   this->HighlightPoint(1, highlight);
+  // no higlight for the envelope
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::SetRenderer(vtkRenderer* ren)
+{
+  this->Superclass::SetRenderer(ren);
+  this->Envelope->SetRenderer(ren);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::BuildRepresentation()
+{
+  // Rebuild only if necessary
+  if ( this->GetMTime() > this->BuildTime ||
+       (this->Renderer && this->Renderer->GetVTKWindow() &&
+        (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
+        this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime)) )
+    {
+    this->Superclass::BuildRepresentation();
+    this->Envelope->BuildRepresentation();
+
+    this->BuildTime.Modified();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::GetActors(vtkPropCollection *pc)
+{
+  this->Superclass::GetActors(pc);
+  this->Envelope->GetActors(pc);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::ReleaseGraphicsResources(vtkWindow* w)
+{
+  this->Superclass::ReleaseGraphicsResources(w);
+  this->Envelope->ReleaseGraphicsResources(w);
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +216,7 @@ void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Always On Top: " << this->AlwaysOnTop << "\n";
+  this->Envelope->PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -280,13 +334,35 @@ int vtkBoneRepresentation::ComputeInteractionState(int X, int Y, int modifier)
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneRepresentation
+::SetWorldToBoneRotation(vtkTransform* worldToBoneRotation)
+{
+  this->Envelope->SetWorldToBoneRotation(worldToBoneRotation);
+}
+
+//----------------------------------------------------------------------------
 int vtkBoneRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
 {
   int count = 0;
+
   if (! this->AlwaysOnTop)
     {
     count = this->RenderTranslucentPolygonalGeometryInternal(v);
     }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkBoneRepresentation::HasTranslucentPolygonalGeometry()
+{
+  int count = 0;
+  this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count |= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
+  count |= this->Superclass::HasTranslucentPolygonalGeometry();
 
   return count;
 }
@@ -371,6 +447,10 @@ void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
     // Line
     this->LineProperty->DeepCopy(rep->GetLineProperty());
     this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
+
+    // Envelope
+    this->EnvelopeVisible = rep->GetEnvelopeVisible();
+    this->Envelope->DeepCopy(rep->GetEnvelope());
     }
 
   this->Superclass::ShallowCopy(prop);
@@ -388,23 +468,46 @@ void vtkBoneRepresentation::SetOpacity(double opacity)
   this->SelectedEndPoint2Property->SetOpacity(opacity);
 
   this->TextActor->GetProperty()->SetOpacity(opacity);
+
+  this->Envelope->GetProperty()->SetOpacity(opacity);
 }
 
 //----------------------------------------------------------------------------
 int vtkBoneRepresentation
 ::RenderTranslucentPolygonalGeometryInternal(vtkViewport *v)
 {
-  return this->Superclass::RenderTranslucentPolygonalGeometry(v);
+  int count = 0;
+  this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
+    }
+  count += this->Superclass::RenderTranslucentPolygonalGeometry(v);
+  return count;
 }
 
 //----------------------------------------------------------------------------
 int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
-  return this->Superclass::RenderOpaqueGeometry(v);
+  int count = 0;
+  this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderOpaqueGeometry(v);
+    }
+  count += this->Superclass::RenderOpaqueGeometry(v);
+  return count;
 }
 
 //----------------------------------------------------------------------------
 int vtkBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
-  return this->Superclass::RenderOverlay(v);
+  int count = 0;
+  this->BuildRepresentation();
+  if (this->EnvelopeVisible)
+    {
+    count += this->Envelope->RenderOverlay(v);
+    }
+  count += this->Superclass::RenderOverlay(v);
+  return count;
 }
