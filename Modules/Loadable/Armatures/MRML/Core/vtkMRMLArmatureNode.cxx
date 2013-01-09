@@ -395,12 +395,12 @@ int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
 void vtkMRMLArmatureNode::SetShowEnvelopes(int show)
 {
   if (static_cast<bool>(show) ==
-    this->ArmatureProperties->GetBonesRepresentation()->GetEnvelopeVisible())
+    this->ArmatureProperties->GetBonesRepresentation()->GetShowEnvelope())
     {
     return;
     }
 
-  this->ArmatureProperties->GetBonesRepresentation()->SetEnvelopeVisible(show);
+  this->ArmatureProperties->GetBonesRepresentation()->SetShowEnvelope(show);
   this->Modified();
 }
 
@@ -408,7 +408,7 @@ void vtkMRMLArmatureNode::SetShowEnvelopes(int show)
 int vtkMRMLArmatureNode::GetShowEnvelopes()
 {
   return this->ArmatureProperties->GetBonesRepresentation()
-    ->GetEnvelopeVisible();
+    ->GetShowEnvelope();
 }
 
 /*
@@ -501,7 +501,7 @@ void vtkMRMLArmatureNode
     armatureWidget->GetArmatureRepresentation()->GetProperty()->GetColor());
 
   this->SetShowEnvelopes(
-    armatureWidget->GetBonesRepresentation()->GetEnvelopeVisible());
+    armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
 }
 
 //---------------------------------------------------------------------------

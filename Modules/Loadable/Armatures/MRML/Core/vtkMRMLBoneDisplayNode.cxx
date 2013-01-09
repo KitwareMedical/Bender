@@ -153,7 +153,7 @@ void vtkMRMLBoneDisplayNode
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
 
   this->SetShowEnvelope(
-    boneWidget->GetBoneRepresentation()->GetEnvelopeVisible());
+    boneWidget->GetBoneRepresentation()->GetShowEnvelope());
 }
 
 //---------------------------------------------------------------------------
@@ -209,6 +209,6 @@ void vtkMRMLBoneDisplayNode
     ->SetOpacity(this->GetOpacity());
 
   // -- Envelope --
-  boneWidget->GetBoneRepresentation()->SetEnvelopeVisible(
+  boneWidget->GetBoneRepresentation()->SetShowEnvelope(
     this->GetShowEnvelope());
 }

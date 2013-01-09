@@ -197,7 +197,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
@@ -221,7 +221,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }
@@ -244,7 +244,7 @@ int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOverlay(v);
     }
@@ -267,7 +267,7 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count |= this->Envelope->HasTranslucentPolygonalGeometry();
     }

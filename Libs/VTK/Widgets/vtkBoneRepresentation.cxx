@@ -56,7 +56,7 @@ vtkBoneRepresentation::vtkBoneRepresentation()
   this->AlwaysOnTop = 1;
   this->Pose = false;
   this->Envelope = vtkBoneEnvelopeRepresentation::New();
-  this->EnvelopeVisible = false;
+  this->ShowEnvelope = false;
 }
 
 //----------------------------------------------------------------------------
@@ -358,7 +358,7 @@ int vtkBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count |= this->Envelope->HasTranslucentPolygonalGeometry();
     }
@@ -449,7 +449,7 @@ void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
     this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
 
     // Envelope
-    this->EnvelopeVisible = rep->GetEnvelopeVisible();
+    this->ShowEnvelope = rep->GetShowEnvelope();
     this->Envelope->DeepCopy(rep->GetEnvelope());
     }
 
@@ -478,7 +478,7 @@ int vtkBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }
@@ -491,7 +491,7 @@ int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
@@ -504,7 +504,7 @@ int vtkBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOverlay(v);
     }

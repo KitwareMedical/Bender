@@ -148,8 +148,8 @@ public:
 
   // Description:
   // This property controls the visibility of the envelope.
-  vtkSetMacro(EnvelopeVisible, bool);
-  vtkGetMacro(EnvelopeVisible, bool);
+  vtkSetMacro(ShowEnvelope, bool);
+  vtkGetMacro(ShowEnvelope, bool);
 
   // Description:
   // Retrieve the envelope. Exist even of not visible.
@@ -165,7 +165,7 @@ protected:
 
   int AlwaysOnTop;
   bool Pose;
-  bool EnvelopeVisible;
+  bool ShowEnvelope;
   vtkBoneEnvelopeRepresentation* Envelope;
 
   // Protected rendring classes. They do the the regular job of rendering and

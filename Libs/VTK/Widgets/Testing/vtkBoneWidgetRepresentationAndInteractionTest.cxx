@@ -112,8 +112,8 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         }
       else if (key == "1")
         {
-        Widget->GetBoneRepresentation()->SetEnvelopeVisible(
-          ! Widget->GetBoneRepresentation()->GetEnvelopeVisible());
+        Widget->GetBoneRepresentation()->SetShowEnvelope(
+          ! Widget->GetBoneRepresentation()->GetShowEnvelope());
         }
       }
 

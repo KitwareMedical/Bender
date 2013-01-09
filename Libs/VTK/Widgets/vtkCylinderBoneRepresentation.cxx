@@ -156,7 +156,7 @@ int vtkCylinderBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
@@ -180,7 +180,7 @@ int vtkCylinderBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }
@@ -203,7 +203,7 @@ int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count += this->Envelope->RenderOverlay(v);
     }
@@ -226,7 +226,7 @@ int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->EnvelopeVisible)
+  if (this->ShowEnvelope)
     {
     count |= this->Envelope->HasTranslucentPolygonalGeometry();
     }
