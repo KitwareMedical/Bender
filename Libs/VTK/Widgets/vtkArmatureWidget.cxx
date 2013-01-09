@@ -207,6 +207,17 @@ public:
 
         break;
         }
+      case vtkCommand::ModifiedEvent:
+        {
+        vtkBoneRepresentation* boneRep =
+          vtkBoneRepresentation::SafeDownCast(caller);
+        if (boneRep && boneRep == ArmatureWidget->GetBonesRepresentation())
+          {
+          ArmatureWidget->UpdateBonesRepresentation();
+          }
+
+        break;
+        }
       }
     }
 
@@ -241,6 +252,9 @@ vtkArmatureWidget::vtkArmatureWidget()
   vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
   defaultRep->SetAlwaysOnTop(0);
   this->BonesRepresentation = defaultRep;
+  defaultRep->AddObserver(vtkCommand::ModifiedEvent,
+    this->ArmatureWidgetCallback, this->Priority);
+
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
@@ -260,6 +274,8 @@ vtkArmatureWidget::~vtkArmatureWidget()
     (*it)->Bone->Delete(); // Delete bone
     }
 
+  this->BonesRepresentation->RemoveObservers(
+    vtkCommand::ModifiedEvent, this->ArmatureWidgetCallback);
   this->BonesRepresentation->Delete();
   this->ArmatureWidgetCallback->Delete();
 }
@@ -298,10 +314,6 @@ void vtkArmatureWidget::SetEnabled(int enabling)
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    if (!(*it)->Bone->GetBoneRepresentation())
-      {
-      this->SetBoneRepresentation((*it)->Bone);
-      }
     (*it)->Bone->SetEnabled(enabling);
     }
 
@@ -518,14 +530,22 @@ void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
     return;
     }
 
-  this->BonesRepresentation->Delete();
-  this->BonesRepresentation = newRep;
-  this->BonesRepresentation->Register(this);
-
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
+  if (newRep->GetClassName() == this->BonesRepresentation->GetClassName())
     {
-    this->SetBoneRepresentation((*it)->Bone);
+    this->BonesRepresentation->DeepCopyRepresentationOnly(newRep);
+    }
+  else
+    {
+    this->BonesRepresentation->RemoveObservers(
+      vtkCommand::ModifiedEvent, this->ArmatureWidgetCallback);
+    this->BonesRepresentation->Delete();
+
+    this->BonesRepresentation = newRep;
+    this->BonesRepresentation->Register(this);
+    this->BonesRepresentation->AddObserver(vtkCommand::ModifiedEvent,
+      this->ArmatureWidgetCallback, this->Priority);
+
+    this->UpdateBonesRepresentation();
     }
 
   this->Modified();
@@ -544,13 +564,40 @@ void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
   if (this->BonesRepresentation)
     {
     copiedRepresentation = this->BonesRepresentation->NewInstance();
-    copiedRepresentation->DeepCopy(this->BonesRepresentation);
+    copiedRepresentation->DeepCopyRepresentationOnly(
+      this->BonesRepresentation);
     }
 
   bone->SetRepresentation(copiedRepresentation);
   if (copiedRepresentation)
     {
     copiedRepresentation->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::UpdateBonesRepresentation()
+{
+  if (!this->BonesRepresentation)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
+    {
+    vtkBoneRepresentation* boneRep = (*it)->Bone->GetBoneRepresentation();
+    if (!boneRep
+      || boneRep->GetClassName() != this->BonesRepresentation->GetClassName())
+      {
+      // The bone does not have a rep yet
+      // or it's a different kind
+      this->SetBoneRepresentation((*it)->Bone);
+      }
+    else
+      {
+      boneRep->DeepCopyRepresentationOnly(this->BonesRepresentation);
+      }
     }
 }
 
@@ -863,31 +910,6 @@ void vtkArmatureWidget::ResetPoseToRest()
     {
     this->SetWidgetState(vtkArmatureWidget::Rest);
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
-{
-  if (this->BonesRepresentation->GetAlwaysOnTop() == onTop)
-    {
-    return;
-    }
-
-  this->BonesRepresentation->SetAlwaysOnTop(onTop);
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
-    {
-    (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
-      this->BonesRepresentation->GetAlwaysOnTop());
-    }
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-int vtkArmatureWidget::GetBonesAlwaysOnTop()
-{
-  return this->BonesRepresentation->GetAlwaysOnTop();
 }
 
 //----------------------------------------------------------------------------

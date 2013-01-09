@@ -124,7 +124,20 @@ public:
   virtual int RenderOverlay(vtkViewport*);
 
   // Description:
+  // Deep copy all the properties of the given prop to the bone representation.
+  // \sa DeepCopyRepresentationOnly()
   virtual void DeepCopy(vtkProp* prop);
+
+  // Description:
+  // Deep copy all the representation properties of the given bone
+  // representation. This is useful for having the representation with the same
+  // graphical properties and yet associated with different bones.
+  // For example, the AlwaysOnTop (visual only) property will be copied
+  // whereas the Head property will not as it would change the displayed bone
+  // position.
+  // \sa DeepCopy()
+  virtual void DeepCopyRepresentationOnly(
+    vtkBoneRepresentation* boneRepresentation);
 
   // Description:
   // Helper function to set the opacity of all the bone representation

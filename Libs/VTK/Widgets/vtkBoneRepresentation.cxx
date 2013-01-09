@@ -422,38 +422,56 @@ void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
   if (rep)
     {
     // vtkLineRepresentation copies, should probably go in vtk
-    this->SetDistanceAnnotationFormat(rep->GetDistanceAnnotationFormat());
-    this->SetDistanceAnnotationScale(rep->GetDistanceAnnotationScale());
-    this->SetDistanceAnnotationVisibility(
-      rep->GetDistanceAnnotationVisibility());
     this->SetInteractionState(rep->GetInteractionState());
     this->SetPoint1WorldPosition(rep->GetPoint1WorldPosition());
     this->SetPoint2WorldPosition(rep->GetPoint2WorldPosition());
     this->SetRepresentationState(rep->GetRepresentationState());
-    this->SetResolution(rep->GetResolution());
-    this->SetTolerance(rep->GetTolerance());
-
-    // vtkBoneWidget copies
-    this->SetAlwaysOnTop(rep->GetAlwaysOnTop());
-    this->SetOpacity(rep->GetLineProperty()->GetOpacity());
-
-    // Properties:
-    // Enpoint (Head)
-    this->EndPointProperty->DeepCopy(rep->GetEndPointProperty());
-    this->SelectedEndPointProperty->DeepCopy(rep->GetSelectedEndPointProperty());
-    // Enpoint2 (Tail)
-    this->EndPoint2Property->DeepCopy(rep->GetEndPoint2Property());
-    this->SelectedEndPoint2Property->DeepCopy(rep->GetSelectedEndPoint2Property());
-    // Line
-    this->LineProperty->DeepCopy(rep->GetLineProperty());
-    this->SelectedLineProperty->DeepCopy(rep->GetSelectedLineProperty());
 
     // Envelope
-    this->ShowEnvelope = rep->GetShowEnvelope();
     this->Envelope->DeepCopy(rep->GetEnvelope());
+
+    // Representation
+    this->DeepCopyRepresentationOnly(rep);
     }
 
   this->Superclass::ShallowCopy(prop);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation
+::DeepCopyRepresentationOnly(vtkBoneRepresentation* boneRep)
+{
+  if (!boneRep)
+    {
+    return;
+    }
+
+  // vtkLineRepresentation copies, should probably go in vtk
+  this->SetDistanceAnnotationFormat(boneRep->GetDistanceAnnotationFormat());
+  this->SetDistanceAnnotationScale(boneRep->GetDistanceAnnotationScale());
+  this->SetDistanceAnnotationVisibility(
+    boneRep->GetDistanceAnnotationVisibility());
+  this->SetResolution(boneRep->GetResolution());
+  this->SetTolerance(boneRep->GetTolerance());
+
+  // vtkBoneWidget copies
+  this->SetAlwaysOnTop(boneRep->GetAlwaysOnTop());
+  this->SetOpacity(boneRep->GetLineProperty()->GetOpacity());
+
+  // Properties:
+  // Enpoint (Head)
+  this->EndPointProperty->DeepCopy(boneRep->GetEndPointProperty());
+  this->SelectedEndPointProperty->DeepCopy(boneRep->GetSelectedEndPointProperty());
+  // Enpoint2 (Tail)
+  this->EndPoint2Property->DeepCopy(boneRep->GetEndPoint2Property());
+  this->SelectedEndPoint2Property->DeepCopy(boneRep->GetSelectedEndPoint2Property());
+  // Line
+  this->LineProperty->DeepCopy(boneRep->GetLineProperty());
+  this->SelectedLineProperty->DeepCopy(boneRep->GetSelectedLineProperty());
+
+  // Envelope
+  this->ShowEnvelope = boneRep->GetShowEnvelope();
+  this->Envelope->SetRadius(boneRep->GetEnvelope()->GetRadius());
 }
 
 //----------------------------------------------------------------------------

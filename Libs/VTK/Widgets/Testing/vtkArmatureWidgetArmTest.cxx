@@ -18,13 +18,14 @@
 
 =========================================================================*/
 
+#include <vtkCommand.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
+#include <vtkProperty.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
-#include <vtkCommand.h>
-#include <vtkNew.h>
 
 #include <vtkInteractorStyleTrackballCamera.h>
 
@@ -70,10 +71,9 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
         }
       else if (key == "space")
         {
-        this->Armature->SetBonesAlwaysOnTop(
-          !this-> Armature->GetBonesAlwaysOnTop());
+        this->Armature->GetBonesRepresentation()->SetAlwaysOnTop(
+          !this-> Armature->GetBonesRepresentation()->GetAlwaysOnTop());
         }
-
       }
 
   vtkArmatureWidget* Armature;
