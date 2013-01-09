@@ -131,6 +131,8 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
     << this->ArmatureProperties->GetShowAxes() << "\"";
   of << indent << " ShowParenthood=\""
     << this->ArmatureProperties->GetShowParenthood() << "\"";
+  of << indent << " ShowEnvelopes=\""
+    << this->GetShowEnvelopes() << "\"";
 
   of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
   of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
@@ -190,6 +192,11 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
       double rgb[3];
       vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
       this->SetColor(rgb);
+      }
+    else if (!strcmp(attName, "ShowEnvelopes"))
+      {
+      this->SetShowEnvelopes(
+        vtkMRMLNodeHelper::StringToInt(attValue));
       }
     }
   this->EndModify(disabledModify);
@@ -384,6 +391,26 @@ int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
   return this->ArmatureProperties->GetBonesAlwaysOnTop();
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetShowEnvelopes(int show)
+{
+  if (static_cast<bool>(show) ==
+    this->ArmatureProperties->GetBonesRepresentation()->GetEnvelopeVisible())
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()->SetEnvelopeVisible(show);
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetShowEnvelopes()
+{
+  return this->ArmatureProperties->GetBonesRepresentation()
+    ->GetEnvelopeVisible();
+}
+
 /*
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
@@ -472,6 +499,9 @@ void vtkMRMLArmatureNode
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetColor(
     armatureWidget->GetArmatureRepresentation()->GetProperty()->GetColor());
+
+  this->SetShowEnvelopes(
+    armatureWidget->GetBonesRepresentation()->GetEnvelopeVisible());
 }
 
 //---------------------------------------------------------------------------
@@ -532,6 +562,8 @@ void vtkMRMLArmatureNode
         {
         boneDisplayNode->SetColor(color);
         boneDisplayNode->SetOpacity(this->GetOpacity());
+
+        boneDisplayNode->SetShowEnvelope(this->GetShowEnvelopes());
         }
       }
     }

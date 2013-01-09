@@ -78,6 +78,10 @@ public:
   vtkSetVector3Macro(InteractionColor, double);
   vtkGetVector3Macro(InteractionColor, double);
 
+  vtkSetMacro(ShowEnvelope,int);
+  vtkGetMacro(ShowEnvelope,int);
+  vtkBooleanMacro(ShowEnvelope,int);
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -95,6 +99,7 @@ protected:
   ~vtkMRMLBoneDisplayNode();
 
   double InteractionColor[3];
+  int ShowEnvelope;
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented

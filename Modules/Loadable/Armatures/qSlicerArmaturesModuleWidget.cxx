@@ -146,6 +146,9 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
+  QObject::connect(this->ArmatureShowEnvelopesCheckBox,
+    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -441,10 +444,13 @@ void qSlicerArmaturesModuleWidgetPrivate
       armatureNode->GetShowAxes());
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
+    this->ArmatureShowEnvelopesCheckBox->setChecked(
+      armatureNode->GetShowEnvelopes());
     }
 
   this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
+  this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -893,6 +899,9 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
+
+  d->ArmatureNode->SetShowEnvelopes(
+    d->ArmatureShowEnvelopesCheckBox->isChecked());
 
   d->ArmatureNode->SetBonesAlwaysOnTop(
     d->BonesAlwaysOnTopCheckBox->isChecked());
