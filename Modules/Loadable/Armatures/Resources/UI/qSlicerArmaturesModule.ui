@@ -134,6 +134,34 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="1" colspan="3">
+          <widget class="QComboBox" name="ArmatureRepresentationComboBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the bones representation.</string>
+           </property>
+           <property name="currentIndex">
+            <number>2</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Line</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cylinder</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Octohedron</string>
+            </property>
+           </item>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="ArmatureColorLabel">
            <property name="text">
@@ -190,90 +218,6 @@
            </property>
           </widget>
          </item>
-         <item row="5" column="0" colspan="4">
-          <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
-           <property name="title">
-            <string>Advanced</string>
-           </property>
-           <property name="collapsed">
-            <bool>true</bool>
-           </property>
-           <layout class="QFormLayout" name="formLayout_7">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-            </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="ArmatureShowAxesLabel">
-              <property name="toolTip">
-               <string>Show the direction axes of the bones.</string>
-              </property>
-              <property name="text">
-               <string>Show Axes:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QCheckBox" name="ArmatureShowAxesCheckBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Show the direction axes of the bones.</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="ArmatureShowParenthoodLabel">
-              <property name="text">
-               <string>Show Parenthood:</string>
-              </property>
-              <property name="buddy">
-               <cstring>ArmatureShowParenthoodCheckBox</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QCheckBox" name="ArmatureShowParenthoodCheckBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Show the bones parent location.</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <property name="tristate">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="0">
-             <widget class="QLabel" name="ArmatureShowEnvelopesLabel">
-              <property name="text">
-               <string>Show Envelopes</string>
-              </property>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <widget class="QCheckBox" name="ArmatureShowEnvelopesCheckBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
          <item row="3" column="0">
           <widget class="QLabel" name="BonesAlwaysOnTopLabel">
            <property name="text">
@@ -297,32 +241,126 @@
            </property>
           </widget>
          </item>
-         <item row="0" column="1" colspan="3">
-          <widget class="QComboBox" name="ArmatureRepresentationComboBox">
-           <property name="enabled">
-            <bool>false</bool>
+         <item row="5" column="0" colspan="4">
+          <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
+           <property name="title">
+            <string>Advanced</string>
            </property>
-           <property name="toolTip">
-            <string>Change the bones representation.</string>
+           <property name="collapsed">
+            <bool>true</bool>
            </property>
-           <property name="currentIndex">
-            <number>2</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Line</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Cylinder</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Octohedron</string>
-            </property>
-           </item>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="ArmatureShowAxesLabel">
+              <property name="toolTip">
+               <string>Show the direction axes of the bones.</string>
+              </property>
+              <property name="text">
+               <string>Show Axes:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="ArmatureShowAxesCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Show the direction axes of the bones.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="ArmatureShowParenthoodLabel">
+              <property name="text">
+               <string>Show Parenthood:</string>
+              </property>
+              <property name="buddy">
+               <cstring>ArmatureShowParenthoodCheckBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="ArmatureShowParenthoodCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Show the bones parent location.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="ArmatureShowEnvelopesLabel">
+              <property name="toolTip">
+               <string>Show/Hide the bone envelope</string>
+              </property>
+              <property name="text">
+               <string>Show Envelopes</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QCheckBox" name="ArmatureShowEnvelopesCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Show/Hide the bone envelope</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="ArmatureEnvelopeRadiusLabel">
+              <property name="toolTip">
+               <string>Change the envelope radius</string>
+              </property>
+              <property name="text">
+               <string>Envelope radius:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="ctkSliderWidget" name="ArmatureEnvelopeRadiusSlider">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Change the envelope radius</string>
+              </property>
+              <property name="singleStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="pageStep">
+               <double>0.100000000000000</double>
+              </property>
+              <property name="minimum">
+               <double>0.000000000000000</double>
+              </property>
+              <property name="maximum">
+               <double>100.000000000000000</double>
+              </property>
+              <property name="value">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>

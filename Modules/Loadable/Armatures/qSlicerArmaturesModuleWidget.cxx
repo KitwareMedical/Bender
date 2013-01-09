@@ -148,6 +148,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
   QObject::connect(this->ArmatureShowEnvelopesCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureEnvelopeRadiusSlider,
+    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
 
 
   // -- Armature Hierarchy --
@@ -446,11 +448,14 @@ void qSlicerArmaturesModuleWidgetPrivate
       armatureNode->GetShowParenthood());
     this->ArmatureShowEnvelopesCheckBox->setChecked(
       armatureNode->GetShowEnvelopes());
+    this->ArmatureEnvelopeRadiusSlider->setValue(
+      armatureNode->GetEnvelopesRadius());
     }
 
   this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
+  this->ArmatureEnvelopeRadiusSlider->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -902,6 +907,8 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetShowEnvelopes(
     d->ArmatureShowEnvelopesCheckBox->isChecked());
+  d->ArmatureNode->SetEnvelopesRadius(
+    d->ArmatureEnvelopeRadiusSlider->value());
 
   d->ArmatureNode->SetBonesAlwaysOnTop(
     d->BonesAlwaysOnTopCheckBox->isChecked());

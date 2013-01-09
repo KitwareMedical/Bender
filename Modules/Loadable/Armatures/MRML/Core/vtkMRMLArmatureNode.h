@@ -195,6 +195,11 @@ public:
   void SetShowEnvelopes(int show);
   int GetShowEnvelopes();
 
+  /// Set/Get the bone's envelopes radius.
+  /// \sa SetShowEnvelopes(), GetShowEnvelopes()
+  void SetEnvelopesRadius(double radius);
+  double GetEnvelopesRadius();
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------

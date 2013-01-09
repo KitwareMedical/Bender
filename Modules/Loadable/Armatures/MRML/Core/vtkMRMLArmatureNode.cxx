@@ -29,6 +29,7 @@
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
+#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
 #include <vtkCallbackCommand.h>
@@ -133,6 +134,8 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
     << this->ArmatureProperties->GetShowParenthood() << "\"";
   of << indent << " ShowEnvelopes=\""
     << this->GetShowEnvelopes() << "\"";
+  of << indent << " EnvelopesRadius=\""
+    << this->GetEnvelopesRadius() << "\"";
 
   of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
   of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
@@ -197,6 +200,11 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
       {
       this->SetShowEnvelopes(
         vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "EnvelopesRadius"))
+      {
+      this->SetEnvelopesRadius(
+        vtkMRMLNodeHelper::StringToDouble(attValue));
       }
     }
   this->EndModify(disabledModify);
@@ -411,6 +419,27 @@ int vtkMRMLArmatureNode::GetShowEnvelopes()
     ->GetShowEnvelope();
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetEnvelopesRadius(double radius)
+{
+  double diff = fabs(radius) - fabs(this->GetEnvelopesRadius());
+  if (fabs(diff) < 1e-6)
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()
+    ->GetEnvelope()->SetRadius(radius);
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+double vtkMRMLArmatureNode::GetEnvelopesRadius()
+{
+  return this->ArmatureProperties->GetBonesRepresentation()
+    ->GetEnvelope()->GetRadius();
+}
+
 /*
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
@@ -502,6 +531,8 @@ void vtkMRMLArmatureNode
 
   this->SetShowEnvelopes(
     armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
+  this->SetEnvelopesRadius(
+    armatureWidget->GetBonesRepresentation()->GetEnvelope()->GetRadius());
 }
 
 //---------------------------------------------------------------------------
@@ -564,6 +595,7 @@ void vtkMRMLArmatureNode
         boneDisplayNode->SetOpacity(this->GetOpacity());
 
         boneDisplayNode->SetShowEnvelope(this->GetShowEnvelopes());
+        boneDisplayNode->SetEnvelopeRadius(this->GetEnvelopesRadius());
         }
       }
     }

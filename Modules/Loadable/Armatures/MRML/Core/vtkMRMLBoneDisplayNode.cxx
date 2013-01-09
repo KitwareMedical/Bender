@@ -27,10 +27,11 @@
 #include <vtkProperty.h>
 
 // Bender includes
-#include <vtkCylinderBoneRepresentation.h>
-#include <vtkDoubleConeBoneRepresentation.h>
+#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
+#include <vtkCylinderBoneRepresentation.h>
+#include <vtkDoubleConeBoneRepresentation.h>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
@@ -39,6 +40,7 @@ vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
 vtkMRMLBoneDisplayNode::vtkMRMLBoneDisplayNode()
 {
   this->ShowEnvelope = 0;
+  this->EnvelopeRadius = 10.0;
   this->SetVisibility(1);
 }
 
@@ -58,6 +60,7 @@ void vtkMRMLBoneDisplayNode::WriteXML(ostream& of, int nIndent)
     << this->InteractionColor[1] << " "
     << this->InteractionColor[2] << "\"";
   of << indent << " ShowEnvelope=\"" << this->ShowEnvelope << "\"";
+  of << indent << " EnvelopeRadius=\"" << this->EnvelopeRadius << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -82,6 +85,11 @@ void vtkMRMLBoneDisplayNode::ReadXMLAttributes(const char** atts)
       {
       this->SetShowEnvelope(
         vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    if (!strcmp(attName, "EnvelopeRadius"))
+      {
+      this->SetShowEnvelope(
+        vtkMRMLNodeHelper::StringToDouble(attValue));
       }
     }
   this->EndModify(disabledModify);
@@ -154,6 +162,8 @@ void vtkMRMLBoneDisplayNode
 
   this->SetShowEnvelope(
     boneWidget->GetBoneRepresentation()->GetShowEnvelope());
+  this->SetEnvelopeRadius(
+    boneWidget->GetBoneRepresentation()->GetEnvelope()->GetRadius());
 }
 
 //---------------------------------------------------------------------------
@@ -211,4 +221,6 @@ void vtkMRMLBoneDisplayNode
   // -- Envelope --
   boneWidget->GetBoneRepresentation()->SetShowEnvelope(
     this->GetShowEnvelope());
+  boneWidget->GetBoneRepresentation()->GetEnvelope()->SetRadius(
+    this->GetEnvelopeRadius());
 }

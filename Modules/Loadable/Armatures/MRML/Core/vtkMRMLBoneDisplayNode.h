@@ -82,6 +82,10 @@ public:
   vtkGetMacro(ShowEnvelope,int);
   vtkBooleanMacro(ShowEnvelope,int);
 
+  vtkSetMacro(EnvelopeRadius, double);
+  vtkGetMacro(EnvelopeRadius, double);
+
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -100,6 +104,7 @@ protected:
 
   double InteractionColor[3];
   int ShowEnvelope;
+  double EnvelopeRadius;
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented
