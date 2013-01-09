@@ -21,6 +21,7 @@
 // Bender includes
 #include "vtkArmatureRepresentation.h"
 #include "vtkArmatureWidget.h"
+#include "vtkBoneEnvelopeRepresentation.h"
 #include "vtkBoneRepresentation.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
@@ -231,6 +232,10 @@ vtkArmatureWidget::vtkArmatureWidget()
   transforms->SetNumberOfComponents(12);
   transforms->SetName("Transforms");
   this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
+  vtkNew<vtkDoubleArray> envelopeRadiuses;
+  envelopeRadiuses->SetNumberOfComponents(1);
+  envelopeRadiuses->SetName("EnvelopeRadiuses");
+  this->PolyData->GetCellData()->AddArray(envelopeRadiuses.GetPointer());
 
   // Init bones properties
   vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
@@ -1032,6 +1037,9 @@ void vtkArmatureWidget::UpdatePolyData()
   vtkDoubleArray* transforms = vtkDoubleArray::SafeDownCast(
     this->PolyData->GetCellData()->GetArray("Transforms"));
   transforms->Reset();
+  vtkDoubleArray* envelopeRadiuses = vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("EnvelopeRadiuses"));
+  envelopeRadiuses->Reset();
   this->PolyData->Reset();
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -1057,6 +1065,14 @@ void vtkArmatureWidget::UpdatePolyData()
     memcpy(transform, rotation, 3*3*sizeof(double));
     memcpy(transform[3], translation, 3*sizeof(double));
     transforms->InsertNextTuple(transform[0]);
+
+    double radius = 0.0;
+    vtkBoneRepresentation* boneRep = (*it)->Bone->GetBoneRepresentation();
+    if (boneRep)
+      {
+      radius = boneRep->GetEnvelope()->GetRadius();
+      }
+    envelopeRadiuses->InsertNextValue(radius);
     }
 }
 
