@@ -218,8 +218,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
       double rgb[3];
       armatureNode->GetColor(rgb);
       boneDisplayNode->SetColor(rgb);
-
-      boneDisplayNode->SetShowEnvelope(armatureNode->GetShowEnvelopes());
       boneDisplayNode->SetEnvelopeRadius(armatureNode->GetEnvelopesRadius());
       }
 

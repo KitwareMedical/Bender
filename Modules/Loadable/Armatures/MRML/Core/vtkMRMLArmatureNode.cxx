@@ -103,7 +103,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(1.0);
 
-  this->ArmatureProperties->SetBonesAlwaysOnTop(1);
+  this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
 
@@ -144,7 +144,7 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
   this->GetColor(rgb);
   vtkMRMLNodeHelper::PrintQuotedVector3(of, rgb);
   of << indent << " BonesAlwaysOnTop=\""
-    << this->ArmatureProperties->GetBonesAlwaysOnTop() << "\"";
+    << this->GetBonesAlwaysOnTop() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -390,13 +390,20 @@ void vtkMRMLArmatureNode::GetColor(double rgb[3])
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetBonesAlwaysOnTop(int onTop)
 {
-  this->ArmatureProperties->SetBonesAlwaysOnTop(onTop);
+  if (onTop == this->GetBonesAlwaysOnTop())
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()
+    ->SetAlwaysOnTop(onTop);
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
 int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
 {
-  return this->ArmatureProperties->GetBonesAlwaysOnTop();
+  return this->ArmatureProperties->GetBonesRepresentation()->GetAlwaysOnTop();
 }
 
 //---------------------------------------------------------------------------
@@ -519,8 +526,8 @@ void vtkMRMLArmatureNode
     armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(
     armatureWidget->GetShowParenthood());
-  this->ArmatureProperties->SetBonesAlwaysOnTop(
-    armatureWidget->GetBonesAlwaysOnTop());
+  this->SetBonesAlwaysOnTop(
+    armatureWidget->GetBonesRepresentation()->GetAlwaysOnTop());
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(
@@ -568,8 +575,10 @@ void vtkMRMLArmatureNode
   armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());
-  armatureWidget->SetBonesAlwaysOnTop(
-    this->ArmatureProperties->GetBonesAlwaysOnTop());
+  armatureWidget->GetBonesRepresentation()->SetAlwaysOnTop(
+    this->GetBonesAlwaysOnTop());
+  armatureWidget->GetBonesRepresentation()->SetShowEnvelope(
+    this->GetShowEnvelopes());
 
   double color[3];
   this->GetColor(color);
@@ -593,8 +602,6 @@ void vtkMRMLArmatureNode
         {
         boneDisplayNode->SetColor(color);
         boneDisplayNode->SetOpacity(this->GetOpacity());
-
-        boneDisplayNode->SetShowEnvelope(this->GetShowEnvelopes());
         boneDisplayNode->SetEnvelopeRadius(this->GetEnvelopesRadius());
         }
       }

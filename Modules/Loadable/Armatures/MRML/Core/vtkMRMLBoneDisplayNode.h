@@ -78,9 +78,6 @@ public:
   vtkSetVector3Macro(InteractionColor, double);
   vtkGetVector3Macro(InteractionColor, double);
 
-  vtkSetMacro(ShowEnvelope,int);
-  vtkGetMacro(ShowEnvelope,int);
-  vtkBooleanMacro(ShowEnvelope,int);
 
   vtkSetMacro(EnvelopeRadius, double);
   vtkGetMacro(EnvelopeRadius, double);

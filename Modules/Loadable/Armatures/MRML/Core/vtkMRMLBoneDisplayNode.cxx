@@ -59,7 +59,6 @@ void vtkMRMLBoneDisplayNode::WriteXML(ostream& of, int nIndent)
     << this->InteractionColor[0] << " "
     << this->InteractionColor[1] << " "
     << this->InteractionColor[2] << "\"";
-  of << indent << " ShowEnvelope=\"" << this->ShowEnvelope << "\"";
   of << indent << " EnvelopeRadius=\"" << this->EnvelopeRadius << "\"";
 }
 
@@ -81,14 +80,9 @@ void vtkMRMLBoneDisplayNode::ReadXMLAttributes(const char** atts)
       vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
       this->SetInteractionColor(rgb);
       }
-    if (!strcmp(attName, "ShowEnvelope"))
-      {
-      this->SetShowEnvelope(
-        vtkMRMLNodeHelper::StringToInt(attValue));
-      }
     if (!strcmp(attName, "EnvelopeRadius"))
       {
-      this->SetShowEnvelope(
+      this->SetEnvelopeRadius(
         vtkMRMLNodeHelper::StringToDouble(attValue));
       }
     }
@@ -159,9 +153,6 @@ void vtkMRMLBoneDisplayNode
   // -- Opacity --
   this->SetOpacity(
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
-
-  this->SetShowEnvelope(
-    boneWidget->GetBoneRepresentation()->GetShowEnvelope());
   this->SetEnvelopeRadius(
     boneWidget->GetBoneRepresentation()->GetEnvelope()->GetRadius());
 }
@@ -217,10 +208,6 @@ void vtkMRMLBoneDisplayNode
     ->SetOpacity(this->GetOpacity());
   boneWidget->GetParenthoodRepresentation()->GetEndPoint2Property()
     ->SetOpacity(this->GetOpacity());
-
-  // -- Envelope --
-  boneWidget->GetBoneRepresentation()->SetShowEnvelope(
-    this->GetShowEnvelope());
   boneWidget->GetBoneRepresentation()->GetEnvelope()->SetRadius(
     this->GetEnvelopeRadius());
 }
