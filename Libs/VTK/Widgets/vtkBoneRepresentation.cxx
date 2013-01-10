@@ -323,14 +323,16 @@ Rotate(double angle, double axis[3], double center[3], double pos[3], double res
 //----------------------------------------------------------------------------
 int vtkBoneRepresentation::ComputeInteractionState(int X, int Y, int modifier)
 {
-  int state = this->Superclass::ComputeInteractionState(X, Y, modifier);
+  this->InteractionState =
+    this->Superclass::ComputeInteractionState(X, Y, modifier);
   // Don't select head in pose mode.
-  if (this->Pose && state == vtkBoneRepresentation::OnHead)
+  if (this->Pose && this->InteractionState== vtkBoneRepresentation::OnHead)
     {
-    state = vtkBoneRepresentation::Outside;
-    this->SetRepresentationState(state);
+    this->InteractionState = vtkBoneRepresentation::Outside;
+    this->SetRepresentationState(this->InteractionState);
     }
-  return state;
+
+  return this->InteractionState;
 }
 
 //----------------------------------------------------------------------------
