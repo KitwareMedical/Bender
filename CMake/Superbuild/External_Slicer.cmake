@@ -78,7 +78,7 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
-    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/slicer.git"
+    GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
     GIT_TAG "050b46f24ba3ab8e9c75babb771220c6e27eb0eb"
     ${bender_external_update}
     INSTALL_COMMAND ""
