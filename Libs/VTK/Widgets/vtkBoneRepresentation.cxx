@@ -185,6 +185,10 @@ void vtkBoneRepresentation::BuildRepresentation()
 {
   // Rebuild only if necessary
   if ( this->GetMTime() > this->BuildTime ||
+       this->Envelope->GetMTime() > this->BuildTime ||
+       this->Point1Representation->GetMTime() > this->BuildTime ||
+       this->Point2Representation->GetMTime() > this->BuildTime ||
+       this->LineHandleRepresentation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         (this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime ||
         this->Renderer->GetActiveCamera()->GetMTime() > this->BuildTime)) )
@@ -429,9 +433,6 @@ void vtkBoneRepresentation::DeepCopy(vtkProp* prop)
     this->SetPoint2WorldPosition(rep->GetPoint2WorldPosition());
     this->SetRepresentationState(rep->GetRepresentationState());
 
-    // Envelope
-    this->Envelope->DeepCopy(rep->GetEnvelope());
-
     // Representation
     this->DeepCopyRepresentationOnly(rep);
     }
@@ -473,7 +474,6 @@ void vtkBoneRepresentation
 
   // Envelope
   this->ShowEnvelope = boneRep->GetShowEnvelope();
-  this->Envelope->SetRadius(boneRep->GetEnvelope()->GetRadius());
 }
 
 //----------------------------------------------------------------------------
