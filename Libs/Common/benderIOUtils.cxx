@@ -29,7 +29,7 @@
 
 namespace bender
 {
-//-------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
 {
   vtkPolyData* polyData = 0;
@@ -91,4 +91,16 @@ vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
   polyData->Register(0);
   return polyData;
 }
+
+//-----------------------------------------------------------------------------
+void IOUtils::WritePolyData(vtkPolyData* polyData, const std::string& fileName)
+{
+  cout<<"Write polydata to "<<fileName<<endl;
+  vtkNew<vtkPolyDataWriter> pdWriter;
+  pdWriter->SetInput(polyData);
+  pdWriter->SetFileName(fileName.c_str() );
+  pdWriter->SetFileTypeToBinary();
+  pdWriter->Update();
+}
+
 };

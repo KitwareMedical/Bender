@@ -18,23 +18,30 @@
 
 =========================================================================*/
 
-#ifndef __benderWeightMapIO_h
-#define __benderWeightMapIO_h
+// ITK includes
+#include <itkImage.h>
+#include <itkImageFileWriter.h>
+#include <itkImageRegionIteratorWithIndex.h>
 
-// Bender includes
-#include "benderWeightMap.h"
-
-// STD includes
-#include <string>
-#include <vector>
+// VTK includes
+#include <vtkNew.h>
+#include <vtkPoints.h>
+#include <vtkPolyData.h>
+#include <vtkPolyDataWriter.h>
 
 namespace bender
 {
-// Get the weight files from a directory
-void BENDER_COMMON_EXPORT GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames);
+//-------------------------------------------------------------------------------
+template <class ImageType>
+void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
+{
+  std::cout << "Write image to " << fname << std::endl;
+  typedef typename itk::ImageFileWriter<ImageType> WriterType;
+  typename WriterType::Pointer writer = WriterType::New();
+  writer->SetFileName(fname);
+  writer->SetInput(image);
+  writer->SetUseCompression(1);
+  writer->Update();
+}
 
-// Create a weight map from a series of files
-int BENDER_COMMON_EXPORT ReadWeights(const std::vector<std::string>& fnames,  const std::vector<bender::WeightMap::Voxel>& bodyVoxels, bender::WeightMap& weightMap);
 };
-
-#endif

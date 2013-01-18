@@ -18,8 +18,8 @@
 
 =========================================================================*/
 
-#ifndef __BenderIOUtils_h
-#define __BenderIOUtils_h
+#ifndef __benderIOUtils_h
+#define __benderIOUtils_h
 
 // .NAME BenderIOUtils - convenience functions read and write to files
 // .SECTION General Description
@@ -35,10 +35,20 @@ namespace bender
 class BENDER_COMMON_EXPORT IOUtils
 {
  public:
-  // Description:
-  // Read .vtk/.stl/.vtp file into a vtkPolyData. Negate x and y coordinates if invertXY==true
+  /// Read .vtk/.stl/.vtp file into a vtkPolyData.
+  /// Negate x and y coordinates if invertXY==true
+  /// The caller of the function is responsible for deleting the returned polydata.
   static vtkPolyData* ReadPolyData(const std::string& fileName, bool invertXY=false);
+
+  static void WritePolyData(vtkPolyData* polyData, const std::string& fileName);
+
+  /// Convenient method to write an itk image to disk.
+  template <class ImageType>
+  static void WriteImage(typename ImageType::Pointer image,const char* fname);
+
 };
+
 };
+#include "benderIOUtils.txx"
 
 #endif
