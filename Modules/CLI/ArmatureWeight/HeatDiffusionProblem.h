@@ -18,23 +18,30 @@
 
 =========================================================================*/
 
-#ifndef __benderWeightMapIO_h
-#define __benderWeightMapIO_h
+#ifndef __HeatDiffusionProblem_h
+#define __HeatDiffusionProblem_h
 
-// Bender includes
-#include "benderWeightMap.h"
+// itk includes
+#include <itkIndex.h>
 
-// STD includes
-#include <string>
-#include <vector>
-
-namespace bender
+// .NAME HeatDiffusionProblem
+// .SECTION General Description
+//  An abstract that describes an image-based heat diffusion problem
+template<unsigned int dimension>
+class HeatDiffusionProblem
 {
-// Get the weight files from a directory
-void BENDER_COMMON_EXPORT GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames);
+public:
+  typedef itk::Index<dimension> Pixel;
+  HeatDiffusionProblem() {};
+  //Is the pixel inside the problem domain?
+  virtual bool InDomain(const Pixel&) const = 0;
 
-// Create a weight map from a series of files
-int BENDER_COMMON_EXPORT ReadWeights(const std::vector<std::string>& fnames,  const std::vector<bender::WeightMap::Voxel>& bodyVoxels, bender::WeightMap& weightMap);
+  //Is the pixel on the boundary of the heat diffusion?
+  virtual bool IsBoundary(const Pixel&) const = 0;
+
+  //What is the given value of the boundary pixel.
+  //Pre: IsBoundary(pixel) must be true
+  virtual float GetBoundaryValue(const Pixel&) const = 0;
 };
 
 #endif
