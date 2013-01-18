@@ -46,6 +46,10 @@ class BENDER_COMMON_EXPORT IOUtils
   template <class ImageType>
   static void WriteImage(typename ImageType::Pointer image,const char* fname);
 
+  static void FilterStart(const char* filterName, const char* comment =0);
+  static void FilterProgress(const char* filterName, float progress,
+                             double fraction = 1.0, double start = 0.);
+  static void FilterEnd(const char* filterName, size_t time = 0);
 };
 
 };

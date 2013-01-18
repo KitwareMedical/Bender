@@ -146,6 +146,8 @@ int main( int argc, char * argv[] )
 
   std::cout << "Padding distance: " << Padding << std::endl;
 
+  bender::IOUtils::FilterStart("Read inputs");
+  bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.33, 0.);
 
   //----------------------------
   // Read label map
@@ -189,6 +191,8 @@ int main( int argc, char * argv[] )
   std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
   std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
 
+  bender::IOUtils::FilterProgress("Read inputs", 0.66, 0.33, 0.);
+
   //----------------------------
   // Preprocess of the labelmap
   //----------------------------
@@ -199,6 +203,10 @@ int main( int argc, char * argv[] )
     numPaddedVoxels+=ExpandForegroundOnce(labelMap,bodyIntensity);
     std::cout<<"Padded "<<numPaddedVoxels<<" voxels"<<std::endl;
     }
+  bender::IOUtils::FilterProgress("Read inputs", 0.99, 0.33, 0.);
+  bender::IOUtils::FilterEnd("Read inputs");
+  bender::IOUtils::FilterStart("Segment bones");
+  bender::IOUtils::FilterProgress("Segment bones", 0.01, 0.33, 0.33);
 
   //----------------------------
   // Read armature information
@@ -213,6 +221,10 @@ int main( int argc, char * argv[] )
     LastEdge = armature.GetNumberOfEdges()-1;
     }
   std::cout << "Process armature edge from "<<FirstEdge<<" to "<<LastEdge << std::endl;
+  bender::IOUtils::FilterProgress("Segment bones", 0.99, 0.33, 0.33);
+  bender::IOUtils::FilterEnd("Segment bones");
+  bender::IOUtils::FilterStart("Compute weights");
+  bender::IOUtils::FilterProgress("Compute weights", 0.01, 0.33, 0.66);
 
   //--------------------------------------------
   // Compute the domain of reach armature part
@@ -230,6 +242,11 @@ int main( int argc, char * argv[] )
     filename << WeightDirectory << "/weight_"
              << std::setfill('0') << std::setw(numDigits) << i << ".mha";
     bender::IOUtils::WriteImage<WeightImage>(weight,filename.str().c_str());
+    bender::IOUtils::FilterProgress("Compute weights",
+                                    (static_cast<double>(i - FirstEdge + 1) / (LastEdge-FirstEdge +1)),
+                                    0.33, 0.66);
+    }
+  bender::IOUtils::FilterEnd("Compute weights");
 
   return EXIT_SUCCESS;
 }
