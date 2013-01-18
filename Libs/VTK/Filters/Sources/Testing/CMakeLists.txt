@@ -32,4 +32,6 @@ target_link_libraries(${PROJECT_NAME}Tests
   ${PROJECT_NAME}
   )
 
-add_test(vtkCapsuleSourceTest ${Bender_BINARY_DIR}/BenderWidgetTests vtkCapsuleSourceTest)
+set(BenderSourcesTest_BINARY_DIR "${Bender_BINARY_DIR}/${Bender_INSTALL_BIN_DIR}")
+
+add_test(vtkCapsuleSourceTest ${BenderSourcesTest_BINARY_DIR}/BenderWidgetTests vtkCapsuleSourceTest)

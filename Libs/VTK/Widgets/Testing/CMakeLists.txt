@@ -36,15 +36,16 @@ add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
 target_link_libraries(${PROJECT_NAME}Tests
   ${PROJECT_NAME}
   )
+set(BenderWidgetTest_BINARY_DIR "${Bender_BINARY_DIR}/${Bender_INSTALL_BIN_DIR}")
 
-add_test(vtkArmatureWidgetTest ${Bender_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetTest)
+add_test(vtkArmatureWidgetTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetTest)
 
-add_test(vtkBoneWidgetTest_Basics ${Bender_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_Basics)
+add_test(vtkBoneWidgetTest_Basics ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_Basics)
 
-add_test(vtkBoneWidgetTest_RestMode ${Bender_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_RestMode)
+add_test(vtkBoneWidgetTest_RestMode ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_RestMode)
 
-add_test(vtkBoneWidgetTest_PoseMode ${Bender_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_PoseMode)
+add_test(vtkBoneWidgetTest_PoseMode ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_PoseMode)
 
-add_test(vtkBoneWidgetRepresentationAndIntercationTest ${Bender_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
+add_test(vtkBoneWidgetRepresentationAndIntercationTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
 
-add_test(vtkArmatureWidgetArmTest ${Bender_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetArmTest)
+add_test(vtkArmatureWidgetArmTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetArmTest)
