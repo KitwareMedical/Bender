@@ -122,8 +122,17 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
 vtkStandardNewMacro(KeyPressInteractorStyle);
 
-int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
+int vtkBoneWidgetRepresentationAndInteractionTest(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+    {
+    if (strcmp(argv[i], "-I") == 0)
+      {
+      interactive = true;
+      }
+    }
+
   // A renderer and render window
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
@@ -156,8 +165,11 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
   boneWidget->On();
   renderWindow->Render();
 
-  // Begin mouse interaction
-  renderWindowInteractor->Start();
+  if (interactive)
+    {
+    // Begin mouse interaction
+    renderWindowInteractor->Start();
+    }
 
   return EXIT_SUCCESS;
 }

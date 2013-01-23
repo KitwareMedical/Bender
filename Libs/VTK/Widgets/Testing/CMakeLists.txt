@@ -22,30 +22,32 @@
 # VTK Bone Widgets Testing
 #
 
-create_test_sourcelist(${KIT}_TEST_SRCS
-  vtkBoneWidgetTests.cxx
-  vtkArmatureWidgetArmTest.cxx
-  vtkArmatureWidgetTest.cxx
-  vtkBoneWidgetTest_Basics.cxx
-  vtkBoneWidgetTest_RestMode.cxx
-  vtkBoneWidgetTest_PoseMode.cxx
-  vtkBoneWidgetRepresentationAndInteractionTest.cxx
+include(BenderMacroSimpleTest)
+
+set(TEST_NAMES_CXX
+    vtkArmatureWidgetArmTest.cxx
+    vtkArmatureWidgetTest.cxx
+    vtkBoneWidgetTest_Basics.cxx
+    vtkBoneWidgetTest_RestMode.cxx
+    vtkBoneWidgetTest_PoseMode.cxx
+    vtkBoneWidgetRepresentationAndInteractionTest.cxx
+    )
+
+set(TEST_EXEC_NAME ${PROJECT_NAME}CxxTests)
+
+create_test_sourcelist(TESTS
+  ${TEST_EXEC_NAME}.cxx
+  ${TEST_NAMES_CXX}
   )
 
-add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
-target_link_libraries(${PROJECT_NAME}Tests
-  ${PROJECT_NAME}
-  )
-set(BenderWidgetTest_BINARY_DIR "${Bender_BINARY_DIR}/${Bender_INSTALL_BIN_DIR}")
+add_executable(${TEST_EXEC_NAME} ${TESTS})
+target_link_libraries(${TEST_EXEC_NAME} ${PROJECT_NAME})
 
-add_test(vtkArmatureWidgetTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetTest)
+set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
 
-add_test(vtkBoneWidgetTest_Basics ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_Basics)
-
-add_test(vtkBoneWidgetTest_RestMode ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_RestMode)
-
-add_test(vtkBoneWidgetTest_PoseMode ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetTest_PoseMode)
-
-add_test(vtkBoneWidgetRepresentationAndIntercationTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkBoneWidgetRepresentationAndIntercationTest)
-
-add_test(vtkArmatureWidgetArmTest ${BenderWidgetTest_BINARY_DIR}/BenderWidgetTests vtkArmatureWidgetArmTest)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkArmatureWidgetArmTest)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkArmatureWidgetTest)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_Basics)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_RestMode)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_PoseMode)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetRepresentationAndInteractionTest)
