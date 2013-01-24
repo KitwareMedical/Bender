@@ -22,7 +22,7 @@
 
 // Bender includes
 #include "ArmatureWeightCLP.h"
-#include "Armature.h"
+#include "ArmatureEdge.h"
 #include <benderIOUtils.h>
 
 // ITK includes
@@ -38,95 +38,25 @@
 #include <iostream>
 #include <iomanip>
 
-typedef itk::Image<unsigned short, 3>  LabelImage;
-typedef itk::Image<unsigned char, 3>  CharImage;
+typedef itk::Image<unsigned short, 3>  LabelImageType;
+typedef itk::Image<unsigned char, 3>  CharImageType;
 
-typedef itk::Image<WeightImagePixel, 3>  WeightImage;
+typedef itk::Image<WeightImagePixelType, 3>  WeightImageType;
 
-typedef itk::Index<3> Voxel;
-typedef itk::Offset<3> VoxelOffset;
-typedef itk::ImageRegion<3> Region;
-
-//-------------------------------------------------------------------------------
-//Expand the foreground once. The new foreground pixels are assigned foreGroundMin
-int ExpandForegroundOnce(LabelImage::Pointer labelMap, unsigned short foreGroundMin)
-{
-  int numNewVoxels=0;
-  CharImage::RegionType region = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,region);
-  Neighborhood<3> neighbors;
-  VoxelOffset* offsets = neighbors.Offsets;
-
-  std::vector<Voxel> front;
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    Voxel p = it.GetIndex();
-    LabelImage::PixelType value = it.Get();
-    if(value>=foreGroundMin)
-      {
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        const VoxelOffset& offset = offsets[iOff];
-        Voxel q = p + offset;
-        if(region.IsInside(q) && labelMap->GetPixel(q)<foreGroundMin)
-          {
-          front.push_back(q);
-          }
-        }
-      }
-    }
-  for(std::vector<Voxel>::const_iterator i = front.begin(); i!=front.end();i++)
-    {
-    if(labelMap->GetPixel(*i)<foreGroundMin)
-      {
-      labelMap->SetPixel( *i, foreGroundMin);
-      ++numNewVoxels;
-      }
-    }
-  return numNewVoxels;
-}
+typedef itk::Index<3> VoxelType;
+typedef itk::Offset<3> VoxelOffsetType;
+typedef itk::ImageRegion<3> RegionType;
 
 //-------------------------------------------------------------------------------
 inline int NumDigits(unsigned int a)
 {
-  int numDigits(0);
+  int numDigits = 0;
   while(a>0)
     {
     a = a/10;
     ++numDigits;
     }
   return numDigits;
-}
-
-//-------------------------------------------------------------------------------
-void RemoveSingleVoxelIsland(LabelImage::Pointer labelMap)
-{
-  Neighborhood<3> neighbors;
-  const VoxelOffset* offsets = neighbors.Offsets;
-
-  Region region = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,region);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>0)
-      {
-      Voxel p = it.GetIndex();
-      int numNeighbors(0);
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        Voxel q = p + offsets[iOff];
-        if( region.IsInside(q) && labelMap->GetPixel(q)>0)
-          {
-          ++numNeighbors;
-          }
-        }
-      if(numNeighbors==0)
-        {
-        std::cerr<<"Paint isolated voxel "<<p<<" to background" << std::endl;
-        labelMap->SetPixel(p, 0);
-        }
-      }
-    }
 }
 
 //-------------------------------------------------------------------------------
@@ -139,112 +69,87 @@ int main( int argc, char * argv[] )
     std::cout << "Use binary weight: " << std::endl;
     }
 
-  if(!IsArmatureInRAS)
-    {
-    std::cout << "Input armature is not in RAS coordinate system; will convert it to RAS." << std::endl;
-    }
-
-  std::cout << "Padding distance: " << Padding << std::endl;
-
   bender::IOUtils::FilterStart("Read inputs");
-  bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.33, 0.);
+  bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.1, 0.0);
 
   //----------------------------
   // Read label map
   //----------------------------
-  typedef itk::ImageFileReader<LabelImage>  ReaderType;
-  ReaderType::Pointer labelMapReader = ReaderType::New();
-  labelMapReader->SetFileName(RestLabelmap.c_str() );
-  labelMapReader->Update();
-  LabelImage::Pointer labelMap = labelMapReader->GetOutput();
-  bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.33, 0.);
+  typedef itk::ImageFileReader<LabelImageType>  ReaderType;
+  ReaderType::Pointer bodyPartitionReader = ReaderType::New();
+  bodyPartitionReader->SetFileName(BodyPartition.c_str() );
+  bodyPartitionReader->Update();
 
-  typedef itk::StatisticsImageFilter<LabelImage>  StatisticsType;
+  bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.1, 0.0);
+
+  ReaderType::Pointer bonesPartitionReader = ReaderType::New();
+  bonesPartitionReader->SetFileName(BonesPartition.c_str() );
+  bonesPartitionReader->Update();
+
+  bender::IOUtils::FilterProgress("Read inputs", 0.66, 0.1, 0.0);
+
+  //----------------------------
+  // Get some statistics
+  //----------------------------
+
+  // \todo Look for all the labels in the image.
+  // and Make sure there are 3 distinct type of label (background, unknown, bone[])
+  // \todo Be able to process non-continous arrays of lables [1, 3, 4 ...]
+  // \todo Define backgound and unknow label values
+
+  typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
   StatisticsType::Pointer statistics = StatisticsType::New();
-  statistics->SetInput( labelMapReader->GetOutput() );
+  statistics->SetInput( bodyPartitionReader->GetOutput() );
   statistics->Update();
 
-  //----------------------------
-  // Print out some statistics
-  //----------------------------
-  Region allRegion = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImage> it(labelMap,labelMap->GetLargestPossibleRegion());
-  LabelType bodyIntensity = 1;
-  LabelType boneIntensity = 209; //marrow
-  int numBodyVoxels(0),numBoneVoxels(0);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>=bodyIntensity)
-      {
-      ++numBodyVoxels;
-      }
-    if(it.Get()>=boneIntensity)
-      {
-      ++numBoneVoxels;
-      }
-    }
-  int totalVoxels = allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
+  LabelImageType::PixelType minLabel = statistics->GetMinimum();
+  LabelImageType::PixelType maxLabel = statistics->GetMaximum();
 
-  std::cout << "Image statistics\n";
-  std::cout << "  min: "<<(int)statistics->GetMinimum()<<" max: "<<(int)statistics->GetMaximum() << std::endl;
-  std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
-  std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
-  std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
-
-  bender::IOUtils::FilterProgress("Read inputs", 0.66, 0.33, 0.);
-
-  //----------------------------
-  // Preprocess of the labelmap
-  //----------------------------
-  RemoveSingleVoxelIsland(labelMap);
-  int numPaddedVoxels =0;
-  for(int i=0; i<Padding; i++)
-    {
-    numPaddedVoxels+=ExpandForegroundOnce(labelMap,bodyIntensity);
-    std::cout<<"Padded "<<numPaddedVoxels<<" voxels"<<std::endl;
-    }
-  bender::IOUtils::FilterProgress("Read inputs", 0.99, 0.33, 0.);
   bender::IOUtils::FilterEnd("Read inputs");
-  bender::IOUtils::FilterStart("Segment bones");
-  bender::IOUtils::FilterProgress("Segment bones", 0.01, 0.33, 0.33);
 
-  //----------------------------
-  // Read armature information
-  //----------------------------
-  ArmatureType armature(labelMap);
-  armature.SetDebug(DumpDebugImages);
-  armature.SetDumpDebugImages(DumpDebugImages);
-  armature.Init(ArmaturePoly.c_str(),!IsArmatureInRAS);
+  //--------------------------------------------
+  // Compute the domain of reach Armature Edge part
+  //--------------------------------------------
 
-  if (LastEdge<0)
-    {
-    LastEdge = armature.GetNumberOfEdges()-1;
-    }
-  std::cout << "Process armature edge from "<<FirstEdge<<" to "<<LastEdge << std::endl;
-  bender::IOUtils::FilterProgress("Segment bones", 0.99, 0.33, 0.33);
-  bender::IOUtils::FilterEnd("Segment bones");
   bender::IOUtils::FilterStart("Compute weights");
-  bender::IOUtils::FilterProgress("Compute weights", 0.01, 0.33, 0.66);
+  bender::IOUtils::FilterProgress("Compute weights", 0.01, 0.99, 0.1);
 
-  //--------------------------------------------
-  // Compute the domain of reach armature part
-  //--------------------------------------------
-  int numDigits = NumDigits(armature.GetNumberOfEdges());
-  for(int i=FirstEdge; i<=LastEdge; ++i)
+  if (LastEdge < 0)
     {
-    ArmatureEdge edge(armature,i);
-    edge.SetDebug(DumpDebugImages);
-    edge.SetDumpDebugImages(DumpDebugImages);
-    std::cout << "Process armature edge "<<i<<" with label "<<(int)edge.GetLabel() << std::endl;
-    edge.Initialize(BinaryWeight? 0 : ExpansionDistance);
-    WeightImage::Pointer weight = edge.ComputeWeight(BinaryWeight,SmoothingIteration);
+    LastEdge = maxLabel - 1;
+    }
+
+  int numDigits = NumDigits(maxLabel);
+  for(int i = FirstEdge; i <= LastEdge; ++i)
+    {
+    // Init edge
+    ArmatureEdge edge(bodyPartitionReader->GetOutput(),
+      bonesPartitionReader->GetOutput(), i);
+    edge.SetDebug(Debug);
+
+    std::cout << "Processing armature edge "<<i<<" with label "
+      <<static_cast<int>(edge.GetLabel()) << std::endl;
+
+    // Compute weight
+    if (! edge.Initialize(BinaryWeight? 0 : ExpansionDistance))
+      {
+      std::cerr<<"Could not initialize edge "<< i <<" correctly."
+        << " Stopping."<<std::endl;
+      return EXIT_FAILURE;
+      }
+
+    WeightImageType::Pointer weight =
+      edge.ComputeWeight(BinaryWeight, SmoothingIteration);
+
+    // Write weight file
     std::stringstream filename;
     filename << WeightDirectory << "/weight_"
              << std::setfill('0') << std::setw(numDigits) << i << ".mha";
-    bender::IOUtils::WriteImage<WeightImage>(weight,filename.str().c_str());
-    bender::IOUtils::FilterProgress("Compute weights",
-                                    (static_cast<double>(i - FirstEdge + 1) / (LastEdge-FirstEdge +1)),
-                                    0.33, 0.66);
+    bender::IOUtils::WriteImage<WeightImageType>(weight, filename.str().c_str());
+
+    double progress =
+      static_cast<double>(i - FirstEdge + 1) / (LastEdge-FirstEdge +1);
+    bender::IOUtils::FilterProgress("Compute weights", progress, 0.99, 0.1);
     }
   bender::IOUtils::FilterEnd("Compute weights");
 

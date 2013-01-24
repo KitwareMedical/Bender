@@ -38,8 +38,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   )
 
 set(MODULE_ADDITIONAL_SRCS
-  Armature.cxx
-  Armature.h
+  ArmatureEdge.cxx
+  ArmatureEdge.h
   )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
@@ -54,7 +54,6 @@ SEMMacroBuildCLI(
   )
 
 #-----------------------------------------------------------------------------
-message(${BUILD_TESTING})
 if(BUILD_TESTING)
   add_subdirectory(Testing)
 endif()

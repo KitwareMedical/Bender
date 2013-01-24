@@ -9,33 +9,28 @@
   <documentation-url></documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware)</contributor>
+  <contributor>Julien Finet (Kitware)</contributor>
+  <contributor>Johan Andruejol(Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
+
     <image>
-      <name>RestLabelmap</name>
-      <label>Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <name>BodyPartition</name>
+      <label>Body Partition Labelmap</label>
+      <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
 
-    <geometry fileExtensions=".vtk">
-      <name>ArmaturePoly</name>
-      <label>Armature</label>
-      <description><![CDATA[Resting armature]]></description>
+    <image>
+      <name>BonesPartition</name>
+      <label>Bones Partition Labelmap</label>
+      <description><![CDATA[The labelmap of the segmented bones according to the armature]]></description>
       <channel>input</channel>
       <index>1</index>
-    </geometry>
-
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
+    </image>
 
     <directory>
       <name>WeightDirectory</name>
@@ -74,13 +69,6 @@
       <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
       <default>20</default>
     </integer>
-    <integer>
-      <name>Padding</name>
-      <longflag>--padding</longflag>
-      <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
-      <default>1</default>
-    </integer>
 
     <integer>
       <name>SmoothingIteration</name>
@@ -104,8 +92,8 @@
     </boolean>
 
     <boolean>
-      <name>DumpDebugImages</name>
-      <label>Dump Intermediate Images</label>
+      <name>Debug</name>
+      <label>Dump Debug Images</label>
       <longflag>--dump</longflag>
       <description><![CDATA[Dump debugging images. for Debugging only]]></description>
       <default>false</default>
