@@ -28,7 +28,6 @@
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkStatisticsImageFilter.h>
-#include <itkBinaryThresholdImageFilter.h>
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkBresenhamLine.h>
 #include <itkMath.h>

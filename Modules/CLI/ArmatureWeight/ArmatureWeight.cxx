@@ -26,7 +26,9 @@
 #include <benderIOUtils.h>
 
 // ITK includes
+#include <itkBinaryThresholdImageFilter.h>
 #include <itkImage.h>
+#include <itkMaskImageFilter.h>
 #include <itkStatisticsImageFilter.h>
 #include <itkPluginUtilities.h>
 #include <itkImageRegionIteratorWithIndex.h>
@@ -38,6 +40,11 @@
 #include <iostream>
 #include <iomanip>
 
+// VTK includes
+#include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkSmartPointer.h>
+
 typedef itk::Image<unsigned short, 3>  LabelImageType;
 typedef itk::Image<unsigned char, 3>  CharImageType;
 
@@ -47,6 +54,8 @@ typedef itk::Index<3> VoxelType;
 typedef itk::Offset<3> VoxelOffsetType;
 typedef itk::ImageRegion<3> RegionType;
 
+namespace
+{
 //-------------------------------------------------------------------------------
 inline int NumDigits(unsigned int a)
 {
@@ -58,6 +67,32 @@ inline int NumDigits(unsigned int a)
     }
   return numDigits;
 }
+
+//-------------------------------------------------------------------------------
+// \todo Move this segmentation to its own CLI
+LabelImageType::Pointer SimpleBoneSegmentation(
+  LabelImageType::Pointer body,
+  LabelImageType::Pointer bodyPartition)
+{
+  // Select the bones and label them by componnets
+  // \todo not needed if the threshold is done manually when boneInside is used
+  typedef itk::BinaryThresholdImageFilter<LabelImageType, CharImageType> ThresholdFilterType;
+  ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
+  threshold->SetInput(body);
+  threshold->SetLowerThreshold(209); //bone marrow
+  threshold->SetUpperThreshold(209);
+  threshold->SetInsideValue(ArmatureEdge::DomainLabel);
+  threshold->SetOutsideValue(ArmatureEdge::BackgroundLabel);
+
+  typedef itk::MaskImageFilter<LabelImageType, CharImageType> MaskFilterType;
+  MaskFilterType::Pointer mask = MaskFilterType::New();
+  mask->SetInput1(bodyPartition);
+  mask->SetInput2(threshold->GetOutput());
+  mask->Update();
+  return mask->GetOutput();
+}
+
+} // end namepaces
 
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
@@ -80,13 +115,18 @@ int main( int argc, char * argv[] )
   bodyPartitionReader->SetFileName(BodyPartition.c_str() );
   bodyPartitionReader->Update();
 
-  bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.1, 0.0);
+  bender::IOUtils::FilterProgress("Read inputs", 0.25, 0.1, 0.0);
 
-  ReaderType::Pointer bonesPartitionReader = ReaderType::New();
-  bonesPartitionReader->SetFileName(BonesPartition.c_str() );
-  bonesPartitionReader->Update();
+  ReaderType::Pointer bodyReader = ReaderType::New();
+  bodyReader->SetFileName(RestLabelmap.c_str() );
+  bodyReader->Update();
 
-  bender::IOUtils::FilterProgress("Read inputs", 0.66, 0.1, 0.0);
+  bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
+
+  vtkSmartPointer<vtkPolyDataReader> polyDataReader =
+    vtkSmartPointer<vtkPolyDataReader>::New();
+  polyDataReader->SetFileName(ArmaturePoly.c_str());
+  polyDataReader->Update();
 
   //----------------------------
   // Get some statistics
@@ -102,10 +142,29 @@ int main( int argc, char * argv[] )
   statistics->SetInput( bodyPartitionReader->GetOutput() );
   statistics->Update();
 
+  bender::IOUtils::FilterProgress("Read inputs", 0.75, 0.1, 0.0);
+
   LabelImageType::PixelType minLabel = statistics->GetMinimum();
   LabelImageType::PixelType maxLabel = statistics->GetMaximum();
 
   bender::IOUtils::FilterEnd("Read inputs");
+
+  //--------------------------------------------
+  // Compute the bone partition
+  //--------------------------------------------
+
+  bender::IOUtils::FilterStart("Compute Bones Partition");
+
+  LabelImageType::Pointer bonesPartition =
+    SimpleBoneSegmentation(bodyReader->GetOutput(),
+      bodyPartitionReader->GetOutput());
+  if (Debug)
+    {
+    bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
+      "./DEBUG_BonesPartition.mha");
+    }
+
+  bender::IOUtils::FilterEnd("Compute Bones Partition");
 
   //--------------------------------------------
   // Compute the domain of reach Armature Edge part
@@ -124,7 +183,7 @@ int main( int argc, char * argv[] )
     {
     // Init edge
     ArmatureEdge edge(bodyPartitionReader->GetOutput(),
-      bonesPartitionReader->GetOutput(), i);
+      bonesPartition, i);
     edge.SetDebug(Debug);
 
     std::cout << "Processing armature edge "<<i<<" with label "

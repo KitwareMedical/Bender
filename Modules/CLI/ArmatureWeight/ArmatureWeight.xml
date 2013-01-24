@@ -17,19 +17,27 @@
     <description><![CDATA[Input/output parameters]]></description>
 
     <image>
-      <name>BodyPartition</name>
-      <label>Body Partition Labelmap</label>
-      <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
+      <name>RestLabelmap</name>
+      <label>Input Rest Labelmap</label>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
 
-    <image>
-      <name>BonesPartition</name>
-      <label>Bones Partition Labelmap</label>
-      <description><![CDATA[The labelmap of the segmented bones according to the armature]]></description>
+    <geometry>
+      <name>ArmaturePoly</name>
+      <label>Input Armature</label>
+      <description><![CDATA[Resting armature]]></description>
       <channel>input</channel>
       <index>1</index>
+    </geometry>
+
+    <image>
+      <name>BodyPartition</name>
+      <label>Body Partition Labelmap</label>
+      <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
+      <channel>input</channel>
+      <index>2</index>
     </image>
 
     <directory>
@@ -37,7 +45,7 @@
       <label>Weight Output Directory</label>
       <description><![CDATA[The directory to contain the weight files.]]></description>
       <channel>output</channel>
-      <index>2</index>
+      <index>3</index>
       <default>./</default>
     </directory>
 
