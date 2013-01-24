@@ -153,7 +153,7 @@ include(BenderExportLibrary)
 enable_testing()
 
 set(${kit}_LAUNCHER_EXECUTABLE
-    ${CMAKE_CURRENT_BINARY_DIR}/../Slicer-build/${kit}.exe)
+    ${CMAKE_CURRENT_BINARY_DIR}/../Slicer-build/${kit})
 set(${kit}_LAUNCH_COMMAND
     ${${kit}_LAUNCHER_EXECUTABLE} --launcher-no-splash --launch)
 
