@@ -22,7 +22,7 @@
 
 // ArmatureWeight includes
 #include "Armature.h"
-#include <benderIOUtils.h>
+#include "benderIOUtils.h"
 
 // ITK includes
 #include <itkImage.h>
@@ -182,15 +182,13 @@ void ComputeManhattanVoronoi(typename InputImageType::Pointer siteMap,
 } // end namespace
 
 //-------------------------------------------------------------------------------
-ArmatureType::ArmatureType(LabelImageType::Pointer image) : BodyMap(image)
+ArmatureType::ArmatureType(LabelImageType::Pointer image)
 {
+  this->BodyMap = image;
+
   this->BodyPartition = LabelImageType::New();
   Allocate<LabelImageType,LabelImageType>(image, this->BodyPartition);
   this->BodyPartition->FillBuffer(ArmatureType::BackgroundLabel);
-
-  this->BonesPartition = LabelImageType::New();
-  Allocate<LabelImageType,LabelImageType>(image, this->BonesPartition);
-  this->BonesPartition->FillBuffer(ArmatureType::BackgroundLabel);
 }
 
 //-------------------------------------------------------------------------------
@@ -229,34 +227,9 @@ bool ArmatureType::GetDebug()const
 }
 
 //-------------------------------------------------------------------------------
-bool ArmatureType::Init(vtkPolyData* armaturePolyData)
-{
-  if (!armaturePolyData)
-    {
-    std::cerr << "No armature"<< std::endl;
-    return false;
-    }
-
-  if (! this->InitSkeleton(armaturePolyData))
-    {
-    std::cerr<< "Could not find the body partition."
-      << " Stopping before segmenting the bones"<<std::endl;
-    return false;
-    }
-
-  return this->InitBones();
-}
-
-//-------------------------------------------------------------------------------
 LabelImageType::Pointer ArmatureType::GetBodyPartition()
 {
   return this->BodyPartition;
-}
-
-//-------------------------------------------------------------------------------
-LabelImageType::Pointer ArmatureType::GetBonesPartition()
-{
-  return this->BonesPartition;
 }
 
 //-------------------------------------------------------------------------------
@@ -365,201 +338,6 @@ bool ArmatureType::InitSkeleton(vtkPolyData* armaturePolyData)
 
   ComputeManhattanVoronoi<LabelImageType>(
     this->BodyPartition, ArmatureType::BackgroundLabel, unknown);
-  return success;
-}
-
-//-------------------------------------------------------------------------------
-bool ArmatureType::InitBones()
-{
-  bool success = true;
-
-  RegionType imDomain = this->BodyMap->GetLargestPossibleRegion();
-  Neighborhood<3> neighbors;
-  const VoxelOffsetType* offsets = neighbors.Offsets;
-
-  // Select the bones and label them by componnets
-  // \todo not needed if the threshold is done manually when boneInside is used
-  typedef itk::BinaryThresholdImageFilter<LabelImageType, CharImageType> Threshold;
-  Threshold::Pointer threshold = Threshold::New();
-  threshold->SetInput(this->BodyMap);
-  threshold->SetLowerThreshold(209); //bone marrow
-  threshold->SetInsideValue(ArmatureType::DomainLabel);
-  threshold->SetOutsideValue(ArmatureType::BackgroundLabel);
-  threshold->Update();
-  CharImageType::Pointer boneInside = threshold->GetOutput();
-
-  // Partition the bones by armature edges
-  // Two goals:
-  // no-split: Each natural bone should be assigned one label
-  // split-joined: If a set of natural bones are connected in the voxel
-  //  space, we would like to partition them.
-  //
-  if (1) //simple and stupid
-    {
-    this->BonesPartition->FillBuffer(ArmatureType::BackgroundLabel);
-    itk::ImageRegionIteratorWithIndex<LabelImageType> boneIter(this->BonesPartition, imDomain);
-
-    for (boneIter.GoToBegin(); !boneIter.IsAtEnd(); ++boneIter)
-      {
-      /// \todo GetIndex/GetPixel is expensive, use iterator instead
-      VoxelType voxel = boneIter.GetIndex();
-      if (boneInside->GetPixel(voxel) != ArmatureType::BackgroundLabel)
-        {
-        CharType edgeLabel = this->BodyPartition->GetPixel(voxel);
-        boneIter.Set(edgeLabel);
-        }
-      }
-    }
-  else //satisfy only the first
-    {
-    typedef itk::ConnectedComponentImageFilter<CharImageType, LabelImageType>  ConnectedComponent;
-    ConnectedComponent::Pointer connectedComponents = ConnectedComponent::New ();
-    connectedComponents->SetInput(threshold->GetOutput());
-    connectedComponents->SetBackgroundValue(ArmatureType::BackgroundLabel);
-    connectedComponents->Update();
-    LabelImageType::Pointer boneComponents =  connectedComponents->GetOutput();
-
-    const int numBones = connectedComponents->GetObjectCount();
-
-    //now relabel the bones by the skeleton part they belong to
-    typedef itk::Image<bool,3> MarkImage;
-    MarkImage::Pointer visited = MarkImage::New();
-    Allocate<LabelImageType,MarkImage>(this->BodyMap,visited);
-    VoxelType invalidVoxel;
-    invalidVoxel[0]=-1;
-    invalidVoxel[1]=-1;
-    invalidVoxel[2]=-1;
-
-    std::vector<VoxelType> boneSeeds(numBones,invalidVoxel);
-    itk::ImageRegionIteratorWithIndex<LabelImageType> it(
-      boneComponents,boneComponents->GetLargestPossibleRegion());
-    for (it.GoToBegin(); !it.IsAtEnd(); ++it)
-      {
-      // i is the component id of the bone, with 0 being the background
-      size_t i = static_cast<size_t>(it.Get());
-      if(i>0)
-        {
-        assert(i>=1 && i<=boneSeeds.size());
-        boneSeeds[i-1] = it.GetIndex();
-        }
-      }
-
-    // verify that seeds are valid
-    for (std::vector<VoxelType>::iterator i=boneSeeds.begin();
-      i!=boneSeeds.end(); ++i)
-      {
-      assert((*i) != invalidVoxel);
-      }
-
-    // compute a map from the old to the new labels:
-    //  newLabels[oldLabel] is the new label
-    std::vector<LabelType> newLabels(numBones+1,0);
-    for (std::vector<VoxelType>::iterator seedIter=boneSeeds.begin();
-      seedIter!=boneSeeds.end();++seedIter)
-      {
-      VoxelType seed = *seedIter;
-      LabelType seedLabel = boneComponents->GetPixel(seed);
-
-      //count the # of voxels of the bone that belongs to each armature edge:
-      // regionSize[i] gives the # of bone voxels that belong to armature edge i
-      std::vector<int> regionSize(this->GetMaxEdgeLabel()+1,0);
-      std::vector<VoxelType> bd;
-      bd.push_back(seed);
-      int numVisited(1);
-      while(!bd.empty())
-        {
-        VoxelType p = bd.back();  bd.pop_back();
-        ++numVisited;
-        CharType edgeLabel = this->BodyPartition->GetPixel(p);
-        regionSize[static_cast<size_t>(edgeLabel)]++;
-        visited->SetPixel(p,true);
-        for(int i=0; i<6; ++i)
-          {
-          VoxelType q = p + offsets[i];
-          if( imDomain.IsInside(q) &&
-              !visited->GetPixel(q) &&
-              boneComponents->GetPixel(q)==seedLabel)
-            {
-            bd.push_back(q);
-            }
-          }
-        }
-
-      LabelType newLabel=0;
-      int maxSize(0);
-      bool printLabels(false);
-      for(size_t i=0; i<regionSize.size();++i)
-        {
-        if(regionSize[6]>0)
-          {
-          printLabels = true;
-          }
-        if(regionSize[i]>maxSize)
-          {
-          maxSize = regionSize[i];
-          newLabel = static_cast<LabelType>(i);
-          }
-        }
-      newLabels[seedLabel] = newLabel;
-      if(printLabels)
-        {
-        std::cout << "Visited: "<<numVisited << std::endl;
-        std::cout << "Edges for bone: "<<seedLabel<<" ";
-        for(size_t i=0; i<regionSize.size();++i)
-          {
-          if(regionSize[i]!=0)
-            {
-            std::cout << i<<" ";
-            }
-          }
-        std::cout << endl;
-        }
-
-      }
-    // Relabel the image
-    itk::ImageRegionIterator<LabelImageType> boneComponentIter(
-      boneComponents,boneComponents->GetLargestPossibleRegion());
-    for(boneComponentIter.GoToBegin();
-      !boneComponentIter.IsAtEnd(); ++boneComponentIter)
-      {
-      LabelType oldLabel = boneComponentIter.Get();
-      LabelType newLabel = newLabels[static_cast<size_t>(oldLabel)];
-      boneComponentIter.Set(newLabel);
-      }
-
-    for(EdgeType i=0; i<this->GetNumberOfEdges(); ++i)
-      {
-      LabelType edgeLabel = static_cast<LabelType>(this->GetEdgeLabel(i));
-      if(std::find(newLabels.begin(), newLabels.end(),edgeLabel)
-        == newLabels.end())
-        {
-        std::cout << "No bones belong to edge "
-          <<i<<" with label "<<edgeLabel << std::endl;
-        }
-      }
-    this->BonesPartition = boneComponents;
-    }
-
-  // for debugging
-  if (this->Debug)
-    {
-    itk::ImageRegionIteratorWithIndex<LabelImageType> boneIter(
-      this->BonesPartition,imDomain);
-
-    std::vector<int> componentSize(this->GetMaxEdgeLabel()+1,0);
-    for ( boneIter.GoToBegin(); !boneIter.IsAtEnd(); ++boneIter )
-      {
-      assert(boneIter.Get()<componentSize.size());
-      componentSize[boneIter.Get()]++;
-      }
-    int totalSize=0;
-    for ( size_t i = 0; i < componentSize.size(); ++i)
-      {
-      totalSize+=componentSize[i];
-      std::cout << i<<": "<<componentSize[i]<<"\n";
-      }
-    }
 
   return success;
 }
-

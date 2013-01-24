@@ -23,7 +23,7 @@
       <index>0</index>
     </image>
 
-    <geometry fileExtensions=".vtk">
+    <geometry>
       <name>ArmaturePoly</name>
       <label>Input Armature</label>
       <description><![CDATA[Resting armature]]></description>
@@ -37,14 +37,6 @@
       <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
       <channel>output</channel>
       <index>2</index>
-    </image>
-    
-    <image>
-      <name>BonesPartition</name>
-      <label>Output Bones Partition</label>
-      <description><![CDATA[Labelmap of the bones of the input labelmap segmented by region according to the input armature.]]></description>
-      <channel>output</channel>
-      <index>3</index>
     </image>
 
   </parameters>

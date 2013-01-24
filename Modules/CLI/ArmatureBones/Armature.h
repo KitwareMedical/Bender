@@ -107,28 +107,24 @@ public:
   void SetDebug(bool);
   bool GetDebug()const;
 
-  // Create the body partition and the bones partition
-  // from the armature file name.
+  // Create the body partition from the armature.
   // Return success/failure.
-  bool Init(vtkPolyData* armaturePolyData);
+  bool InitSkeleton(vtkPolyData* armaturePolyData);
 
   // Get body/bones partition.
   // Should be called after Init() otherwise this will return empty volumes.
   LabelImageType::Pointer GetBodyPartition();
-  LabelImageType::Pointer GetBonesPartition();
 
 protected:
 
   LabelImageType::Pointer BodyMap; // Reference on the input volume
   LabelImageType::Pointer BodyPartition; //the partition of body by armature edges
-  LabelImageType::Pointer BonesPartition; //the partition of bones by armature edges
 
   std::vector<std::vector<Voxel>> SkeletonVoxels;
   std::vector<typename CharImageType::Pointer> Domains;
   std::vector<Voxel> Fixed;
   std::vector<typename WeightImage::Pointer> Weights;
 
-  bool InitSkeleton(vtkPolyData* armaturePolyData);
   bool InitBones();
 
   bool Debug;

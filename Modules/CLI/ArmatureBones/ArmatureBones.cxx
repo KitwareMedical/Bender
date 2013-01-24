@@ -215,7 +215,7 @@ int main( int argc, char * argv[] )
 
   ArmatureType armature(labelMap);
   armature.SetDebug(Debug);
-  bool success = armature.Init(armaturePolyData);
+  bool success = armature.InitSkeleton(armaturePolyData);
 
   bender::IOUtils::FilterProgress("Segment bones", 0.99, 0.89, 0.1);
   bender::IOUtils::FilterEnd("Segment bones");
@@ -223,9 +223,6 @@ int main( int argc, char * argv[] )
   bender::IOUtils::FilterStart("Write output partitions");
   bender::IOUtils::WriteImage<LabelImageType>(
     armature.GetBodyPartition(), BodyPartition.c_str());
-
-  bender::IOUtils::WriteImage<LabelImageType>(
-    armature.GetBonesPartition(), BonesPartition.c_str());
   bender::IOUtils::FilterEnd("Write output partitions");
 
   // Don't forget to delete polydata :)
