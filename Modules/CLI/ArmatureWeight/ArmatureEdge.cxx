@@ -26,18 +26,21 @@
 #include <benderIOUtils.h>
 
 // ITK includes
+#include <itkAddImageFilter.h>
+#include <itkBinaryThresholdImageFilter.h>
+#include <itkLabelGeometryImageFilter.h>
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
-#include <itkStatisticsImageFilter.h>
-#include <itkBinaryThresholdImageFilter.h>
 #include <itkImageRegionIteratorWithIndex.h>
-#include <itkMath.h>
 #include <itkIndex.h>
-#include <itkConnectedComponentImageFilter.h>
+#include <itkMath.h>
 
 // VTK includes
-#include <vtkNew.h>
 #include <vtkCellArray.h>
+#include <vtkDoubleArray.h>
+#include <vtkCellData.h>
+#include <vtkNew.h>
+#include <vtkMath.h>
 #include <vtkTimerLog.h>
 
 // STD includes
@@ -73,119 +76,11 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 }
 
 //-----------------------------------------------------------------------------
-template<class T>
-inline int NumConnectedComponents(typename T::Pointer domain)
+void ConvertToIJK(double x[3])
 {
-  typedef typename itk::Image<unsigned short, T::ImageDimension> OutImageType;
-  typedef itk::ConnectedComponentImageFilter<T, OutImageType> ConnectedComponent;
-  typename ConnectedComponent::Pointer connectedComponents
-    = ConnectedComponent::New();
-  connectedComponents->SetInput(domain);
-  connectedComponents->SetBackgroundValue(0);
-  connectedComponents->Update();
-  return connectedComponents->GetObjectCount();
-}
-
-//-----------------------------------------------------------------------------
-int Expand(const std::vector<VoxelType>& seeds,
-           CharImageType::Pointer domain, int distance,
-           LabelImageType::Pointer labelMap, unsigned short foreGroundMin,
-           unsigned char seedLabel,
-           unsigned char domainLabel)
-{
-  CharImageType::RegionType allRegion = labelMap->GetLargestPossibleRegion();
-  Neighborhood<3> neighbors;
-  VoxelOffsetType* offsets = neighbors.Offsets ;
-
-  //grow by distance
-  typedef std::vector<VoxelType> PixelVector;
-  PixelVector bd = seeds;
-  int regionSize(0);
-  for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
-    {
-    if(labelMap->GetPixel(*i)>=foreGroundMin)
-      {
-      domain->SetPixel(*i,seedLabel);
-      ++regionSize;
-      }
-    }
-  for(int dist=2; dist<=distance; ++dist)
-    {
-    PixelVector newBd;
-    for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
-      {
-      VoxelType pIndex = *i;
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        const VoxelOffsetType& offset = offsets[iOff];
-        VoxelType qIndex = pIndex + offset;
-        if(allRegion.IsInside(qIndex)
-            && labelMap->GetPixel(qIndex) >= foreGroundMin
-            && domain->GetPixel(qIndex) ==0 )
-          {
-          ++regionSize;
-          newBd.push_back(qIndex);
-          domain->SetPixel(qIndex,domainLabel);
-          }
-        }
-      }
-    bd = newBd;
-    }
-  return regionSize;
-}
-
-//-----------------------------------------------------------------------------
-int Expand(const LabelImageType::Pointer labelMap,
-           LabelType label,
-           LabelType forGroundMin,
-           int distance, //input
-           CharImageType::Pointer domain,  //output
-           unsigned char domainLabel)
-{
-  RegionType allRegion = labelMap->GetLargestPossibleRegion();
-  Neighborhood<3> neighbors;
-  VoxelOffsetType* offsets = neighbors.Offsets ;
-
-  //grow by distance
-  typedef std::vector<VoxelType> PixelVector;
-  PixelVector bd;
-  int regionSize(0);
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,allRegion);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    VoxelType p = it.GetIndex();
-    if(it.Get()==label)
-      {
-      bd.push_back(p);
-      if(domain->GetPixel(p)==0)
-        {
-        domain->SetPixel(it.GetIndex(),domainLabel);
-        regionSize++;
-        }
-      }
-    }
-  for(int dist=2; dist<=distance; ++dist)
-    {
-    PixelVector newBd;
-    for(PixelVector::iterator i = bd.begin(); i!=bd.end();++i)
-      {
-      VoxelType pIndex = *i;
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        const VoxelOffsetType& offset = offsets[iOff];
-        VoxelType qIndex = pIndex + offset;
-        if(allRegion.IsInside(qIndex) && domain->GetPixel(qIndex)==0
-            && labelMap->GetPixel(qIndex)>=forGroundMin)
-          {
-          ++regionSize;
-          newBd.push_back(qIndex);
-          domain->SetPixel(qIndex,domainLabel);
-          }
-        }
-      }
-    bd = newBd;
-    }
-  return regionSize;
+  x[0] = -x[0];
+  x[1] = -x[1];
+  x[2] = x[2];
 }
 
 } // end namespace
@@ -199,9 +94,7 @@ ArmatureEdge::ArmatureEdge(LabelImageType::Pointer bodyPartition,
   this->BonesPartition = bonesPartition;
   this->Debug = false;
   this->Id = id;
-  this->Domain = CharImageType::New();
-  Allocate<LabelImageType, CharImageType>(bodyPartition, this->Domain);
-  this->Domain->FillBuffer(ArmatureEdge::BackgroundLabel);
+  this->Domain = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -217,75 +110,126 @@ bool ArmatureEdge::GetDebug()const
 }
 
 //-----------------------------------------------------------------------------
-bool ArmatureEdge::Initialize(int expansionDistance)
+bool ArmatureEdge::Initialize(vtkPolyData* armature)
 {
-  RegionType imDomain = this->BodyPartition->GetLargestPossibleRegion();
-
-  // Compute the "domain" of the armature edge
-  // by expanding fixed distance around the Voronoi region
-  itk::ImageRegionIteratorWithIndex<CharImageType> it(this->Domain, imDomain);
-  size_t regionSize = 0;
-
-  // Start with the Vorononi region
-  CharType label = this->GetLabel();
-  for (it.GoToBegin(); !it.IsAtEnd(); ++it)
+  if (! armature)
     {
-    // \todo Don't use GetIndex/GetPixel, use iterator instead.
-    if (this->BodyPartition->GetPixel(it.GetIndex()) == label)
-      {
-      it.Set(ArmatureEdge::DomainLabel);
-      ++regionSize;
-      }
-    }
-  std::cout << "Voronoi region size: "<<regionSize << std::endl;
-
-  int ncc = NumConnectedComponents<CharImageType>(this->Domain);
-  if (ncc != 1)
-    {
-    std::cout<<"Number of Connected Components "
-      << ncc <<"!= 1 in domain."<<std::endl;
+    std::cerr<< "Could not initialize domain, armature is NULL" <<std::endl;
     return false;
     }
 
-  LabelType unknown = ArmatureEdge::DomainLabel;
-  regionSize += Expand(this->BodyPartition, this->GetLabel(), unknown,
-                       expansionDistance,
-                       this->Domain, ArmatureEdge::DomainLabel);
+  vtkPoints* points = armature->GetPoints();
+  vtkDoubleArray* radiuses = vtkDoubleArray::SafeDownCast(
+    armature->GetCellData()->GetArray("EnvelopeRadiuses"));
+  if (!points || !radiuses)
+    {
+    std::cerr<< "Could not initialize domain, armature point "
+      << "and/or envelope radiuses are null"<<std::endl;
+    return false;
+    }
+
+  double head[3], tail[3];
+  points->GetPoint(this->Id * 2, head);
+  points->GetPoint(this->Id * 2 + 1, tail);
+
+  // Convert to IJK
+  ConvertToIJK(head);
+  ConvertToIJK(tail);
+
+  double radius = radiuses->GetValue(this->Id);
+  double squareRadius = radius * radius;
+
+  double cylinderCenterLine[3];
+  vtkMath::Subtract(tail, head, cylinderCenterLine);
+  double cylinderLength = vtkMath::Normalize(cylinderCenterLine);
+
+  this->Domain = CharImageType::New();
+  Allocate<LabelImageType, CharImageType>(this->BodyPartition, this->Domain);
+
+  // Expand the region based on the envelope and the bodypartition
+  CharType edgeLabel = this->GetLabel();
+
+  // Scan through Domain and BodyPartition at the same time. (Same size)
+  itk::ImageRegionIteratorWithIndex<CharImageType> domainIt(
+    this->Domain, this->Domain->GetLargestPossibleRegion());
+  itk::ImageRegionIteratorWithIndex<LabelImageType> bodyPartitionIt(
+    this->BodyPartition, this->BodyPartition->GetLargestPossibleRegion());
+  for (domainIt.GoToBegin(); !domainIt.IsAtEnd();
+    ++domainIt, ++bodyPartitionIt)
+    {
+    // Most likely/simple operation done first to prevent overhead
+
+    LabelType label = bodyPartitionIt.Get();
+    if (label == ArmatureEdge::BackgroundLabel) // Is it backgtound ?
+      {
+      domainIt.Set(ArmatureEdge::BackgroundLabel);
+      }
+    else // Not background pixel
+      {
+      if (label == edgeLabel) // Correct label, no need to go further
+        {
+        domainIt.Set(ArmatureEdge::DomainLabel);
+        continue;
+        }
+
+      //
+      // Check if in envelope
+
+      // Create world position
+      double pos[3];
+      for (int i = 0; i < 3; ++i)
+        {
+        pos[i] = domainIt.GetIndex()[i] * this->Domain->GetSpacing()[i]
+          + this->Domain->GetOrigin()[i];
+        }
+
+      // Is the current pixel in the sphere around head ?
+      double headToPos[3];
+      vtkMath::Subtract(pos, head, headToPos);
+      if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
+        {
+        domainIt.Set(ArmatureEdge::DomainLabel);
+        continue;
+        }
+
+      // Is the current pixel the sphere around tail ?
+      double tailToPos[3];
+      vtkMath::Subtract(pos, tail, tailToPos);
+      if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
+        {
+        domainIt.Set(ArmatureEdge::DomainLabel);
+        continue;
+        }
+
+      // Is  the current pixel in the cylinder ?
+      double scale = vtkMath::Dot(cylinderCenterLine, headToPos);
+      if (scale >= 0 && scale <= cylinderLength) // Check in between lids
+        {
+        // Check distance from center
+        double distanceVect[3];
+        for (int i = 0; i < 3; ++i)
+          {
+          distanceVect[i] = pos[i] - (head[i] + cylinderCenterLine[i] * scale);
+          }
+
+        if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
+          {
+          domainIt.Set(ArmatureEdge::DomainLabel);
+          continue;
+          }
+        }
+
+      domainIt.Set(ArmatureEdge::BackgroundLabel); // Wasn't in the envelope
+      }
+    }
 
   // Debug
   if (this->GetDebug())
     {
-    bender::IOUtils::WriteImage<CharImageType>(this->Domain, "./region.mha");
-
-    std::cout << "Region size after expanding " << expansionDistance
-              << " : " << regionSize << std::endl;
-
-    VoxelType bbMin, bbMax;
-    for(int i=0; i<3; ++i)
-      {
-      bbMin[i] = imDomain.GetSize()[i]-1;
-      bbMax[i] = 0;
-      }
-    for (it.GoToBegin(); !it.IsAtEnd(); ++it)
-      {
-      VoxelType p  = it.GetIndex();
-      if (it.Get() == ArmatureEdge::BackgroundLabel)
-        {
-        continue;
-        }
-      for(int i=0; i<3; ++i)
-        {
-        if(p[i]<bbMin[i])
-          {
-          bbMin[i] = p[i];
-          }
-        if(p[i]>bbMax[i])
-          {
-          bbMax[i] = p[i];
-          }
-        }
-      }
-    std::cout << "Domain bounding box: "<<bbMin<<" "<<bbMax << std::endl;
+    std::stringstream filename;
+    filename << "./region" << this->Id << ".mha";
+    bender::IOUtils::WriteImage<CharImageType>(this->Domain,
+      filename.str().c_str());
     }
 
   return true;
@@ -302,38 +246,30 @@ WeightImageType::Pointer ArmatureEdge
               << static_cast<int>(this->GetLabel()) << std::endl;
     }
 
-  WeightImageType::Pointer weight = WeightImageType::New();
-  Allocate<LabelImageType,WeightImageType>(this->BodyPartition, weight);
-
-  size_t numBackground(0);
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(
-    this->BodyPartition, this->BodyPartition->GetLargestPossibleRegion());
-  for (it.GoToBegin();!it.IsAtEnd(); ++it)
-    {
-    if(it.Get() != ArmatureEdge::BackgroundLabel)
-      {
-      // \todo GetIndex/SetPixel is slow, use iterator instead.
-      weight->SetPixel(it.GetIndex(),0.0);
-      }
-    else
-      {
-      weight->SetPixel(it.GetIndex(),-1.0f);
-      ++numBackground;
-      }
-    }
-  std::cout << numBackground <<" background voxel" << std::endl;
+  // Attribute -1.0 to outside of the body, 0 inside.
+  typedef itk::BinaryThresholdImageFilter<LabelImageType, WeightImageType>
+    ThresholdFilterType;
+  ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
+  threshold->SetInput(this->BodyPartition);
+  threshold->SetLowerThreshold(ArmatureEdge::DomainLabel);
+  threshold->SetInsideValue(0.0f);
+  threshold->SetOutsideValue(-1.0f);
+  threshold->Update();
+  WeightImageType::Pointer weight = threshold->GetOutput();
 
   if (binaryWeight)
     {
-    itk::ImageRegionIteratorWithIndex<CharImageType> domainIt(
-      this->Domain,this->Domain->GetLargestPossibleRegion());
-    for (domainIt.GoToBegin(); !domainIt.IsAtEnd(); ++domainIt)
-      {
-      if (domainIt.Get()>0)
-        {
-        weight->SetPixel(domainIt.GetIndex(), 1.0);
-        }
-      }
+    // Domain is 0 everywhere expect on the edge region where it's 1.
+    // Weight is 0 in the body and -1 outside.
+    // Adding the two gives:
+    // -1 outside, 0 in the (body  and NOT Domain) and 1 in (body  and Domain)
+
+    typedef itk::AddImageFilter<WeightImageType, CharImageType> AddFilterType;
+    AddFilterType::Pointer add = AddFilterType::New();
+    add->SetInput1(weight);
+    add->SetInput2(this->Domain);
+    add->Update();
+    weight = add->GetOutput();
     }
   else
     {
@@ -348,6 +284,7 @@ WeightImageType::Pointer ArmatureEdge
     SolveHeatDiffusionProblem<WeightImageType>::SolveIteratively(
       globalProblem,weight,smoothingIterations);
     }
+
   return weight;
 }
 

@@ -24,7 +24,7 @@
       <index>0</index>
     </image>
 
-    <geometry>
+    <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Input Armature</label>
       <description><![CDATA[Resting armature]]></description>
@@ -68,14 +68,6 @@
       <label>End edge</label>
       <longflag>--last</longflag>
       <default>-1</default>
-    </integer>
-
-    <integer>
-      <name>ExpansionDistance</name>
-      <longflag>--expansion</longflag>
-      <label>Expansion Distance</label>
-      <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
-      <default>20</default>
     </integer>
 
     <integer>

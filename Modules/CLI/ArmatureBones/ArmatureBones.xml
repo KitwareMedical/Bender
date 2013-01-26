@@ -23,7 +23,7 @@
       <index>0</index>
     </image>
 
-    <geometry>
+    <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Input Armature</label>
       <description><![CDATA[Resting armature]]></description>

@@ -76,11 +76,11 @@ LabelImageType::Pointer SimpleBoneSegmentation(
 {
   // Select the bones and label them by componnets
   // \todo not needed if the threshold is done manually when boneInside is used
-  typedef itk::BinaryThresholdImageFilter<LabelImageType, CharImageType> ThresholdFilterType;
+  typedef itk::BinaryThresholdImageFilter<LabelImageType, CharImageType>
+    ThresholdFilterType;
   ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(body);
   threshold->SetLowerThreshold(209); //bone marrow
-  threshold->SetUpperThreshold(209);
   threshold->SetInsideValue(ArmatureEdge::DomainLabel);
   threshold->SetOutsideValue(ArmatureEdge::BackgroundLabel);
 
@@ -127,6 +127,13 @@ int main( int argc, char * argv[] )
     vtkSmartPointer<vtkPolyDataReader>::New();
   polyDataReader->SetFileName(ArmaturePoly.c_str());
   polyDataReader->Update();
+
+  if (! polyDataReader->GetOutput())
+    {
+    std::cerr<<"Could not read the poly data given: "
+      << ArmaturePoly <<". Stopping."<<std::endl;
+    return EXIT_FAILURE;
+    }
 
   //----------------------------
   // Get some statistics
@@ -190,7 +197,7 @@ int main( int argc, char * argv[] )
       <<static_cast<int>(edge.GetLabel()) << std::endl;
 
     // Compute weight
-    if (! edge.Initialize(BinaryWeight? 0 : ExpansionDistance))
+    if (! edge.Initialize(polyDataReader->GetOutput()))
       {
       std::cerr<<"Could not initialize edge "<< i <<" correctly."
         << " Stopping."<<std::endl;

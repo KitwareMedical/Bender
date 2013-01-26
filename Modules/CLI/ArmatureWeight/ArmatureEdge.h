@@ -88,7 +88,7 @@ public:
   ArmatureEdge(LabelImageType::Pointer bodyPartition,
     LabelImageType::Pointer bonesPartition, EdgeType id);
 
-  bool Initialize(int expansionDistance);
+  bool Initialize(vtkPolyData* armature);
 
   WeightImageType::Pointer ComputeWeight(
     bool binaryWeight, int smoothingIterations);
