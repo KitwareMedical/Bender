@@ -44,7 +44,6 @@
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
-#include <vtkMRMLScene.h>
 
 //-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidgetPrivate methods
@@ -147,6 +146,11 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
+  QObject::connect(this->ArmatureShowEnvelopesCheckBox,
+    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->EnvelopeRadiusSlider,
+    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLBoneNode()));
+
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -310,6 +314,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   this->updateHierarchy(boneNode);
   this->updatePositions(boneNode);
+  this->updateEnvelope(boneNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -400,6 +405,20 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
+::updateEnvelope(vtkMRMLBoneNode* boneNode)
+{
+  if (boneNode)
+    {
+    bool wasBlockingEnvelopeRadiusSignal =
+      this->EnvelopeRadiusSlider->blockSignals(true);
+    this->EnvelopeRadiusSlider->setValue(boneNode->GetEnvelopeRadiusRatio());
+    this->EnvelopeRadiusSlider->blockSignals(wasBlockingEnvelopeRadiusSignal);
+    }
+  this->EnvelopeRadiusSlider->setEnabled(boneNode != 0);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode)
 {
   if (armatureNode)
@@ -442,10 +461,13 @@ void qSlicerArmaturesModuleWidgetPrivate
       armatureNode->GetShowAxes());
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
+    this->ArmatureShowEnvelopesCheckBox->setChecked(
+      armatureNode->GetShowEnvelopes());
     }
 
   this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
+  this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -616,9 +638,11 @@ void qSlicerArmaturesModuleWidget
     return;
     }
 
-  if (armatureNode && armatureNode != d->ArmatureNodeComboBox->currentNode())
+  if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
     {
+    bool wasBlocking = d->ArmatureNodeComboBox->blockSignals(true);
     d->ArmatureNodeComboBox->setCurrentNode(armatureNode);
+    d->ArmatureNodeComboBox->blockSignals(wasBlocking);
     }
 
   this->qvtkReconnect(d->ArmatureNode, armatureNode,
@@ -714,15 +738,6 @@ void qSlicerArmaturesModuleWidget::enter()
         vtkMRMLInteractionNode::ViewTransform);
       }
     }
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::setMRMLScene(vtkMRMLScene* scene)
-{
-  vtkMRMLScene* oldMRMLScene = this->mrmlScene();
-  this->Superclass::setMRMLScene(scene);
-  this->qvtkReconnect(oldMRMLScene, scene, vtkMRMLScene::NodeAddedEvent, this,
-    SLOT(onMRMLNodeAdded(vtkObject*, void*)));
 }
 
 //-----------------------------------------------------------------------------
@@ -902,6 +917,9 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
 
+  d->ArmatureNode->SetShowEnvelopes(
+    d->ArmatureShowEnvelopesCheckBox->isChecked());
+
   d->ArmatureNode->SetBonesAlwaysOnTop(
     d->BonesAlwaysOnTopCheckBox->isChecked());
 
@@ -922,16 +940,7 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
 
   d->setCoordinatesToBoneNode(d->BoneNode);
 
-  d->BoneNode->EndModify(wasModifying);
-}
+  d->BoneNode->SetEnvelopeRadiusRatio(d->EnvelopeRadiusSlider->value());
 
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget
-::onMRMLNodeAdded(vtkObject* scene, void* callData)
-{
-  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
-  if (node && node->IsA("vtkMRMLArmatureNode"))
-    {
-    this->setMRMLArmatureNode(node);
-    }
+  d->BoneNode->EndModify(wasModifying);
 }

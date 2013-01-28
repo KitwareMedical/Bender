@@ -18,6 +18,20 @@
 #
 #============================================================================
 
-add_subdirectory(Common)
-add_subdirectory(Filters/Sources)
-add_subdirectory(Widgets)
+#
+# VTK Bone Widgets Testing
+#
+
+create_test_sourcelist(${KIT}_TEST_SRCS
+  vtkBenderSourcesTests.cxx
+  vtkCapsuleSourceTest.cxx
+  )
+
+add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
+target_link_libraries(${PROJECT_NAME}Tests
+  ${PROJECT_NAME}
+  )
+
+set(BenderSourcesTest_BINARY_DIR "${Bender_BINARY_DIR}/${Bender_INSTALL_BIN_DIR}")
+
+add_test(vtkCapsuleSourceTest ${BenderSourcesTest_BINARY_DIR}/BenderWidgetTests vtkCapsuleSourceTest)

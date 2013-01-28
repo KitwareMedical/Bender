@@ -24,7 +24,7 @@
 
 cmake_minimum_required(VERSION 2.6)
 
-set(KIT Widgets)
+set(KIT Sources)
 project(vtkBender${KIT})
 string(TOUPPER ${KIT} KIT_UPPER)
 
@@ -43,32 +43,17 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${vtkBenderCommon_SOURCE_DIR}
-  ${vtkBenderSources_SOURCE_DIR}
-  ${vtkBenderSources_BINARY_DIR}
   )
 
 set(${KIT}_SRCS
-  vtkArmatureRepresentation.cxx
-  vtkArmatureRepresentation.h
-  vtkArmatureWidget.cxx
-  vtkArmatureWidget.h
-  vtkBoneEnvelopeRepresentation.cxx
-  vtkBoneEnvelopeRepresentation.h
-  vtkBoneRepresentation.cxx
-  vtkBoneRepresentation.h
-  vtkBoneWidget.cxx
-  vtkBoneWidget.h
-  vtkCylinderBoneRepresentation.cxx
-  vtkCylinderBoneRepresentation.h
-  vtkDoubleConeBoneRepresentation.cxx
-  vtkDoubleConeBoneRepresentation.h
+  vtkCapsuleSource.cxx
+  vtkCapsuleSource.h
   )
 
 add_library(${PROJECT_NAME} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   ${OPENGL_LIBRARIES}
-  vtkBenderSources
   )
 bender_export_library()
 

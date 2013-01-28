@@ -38,6 +38,7 @@
 #include "vtkBoneRepresentation.h"
 
 class vtkActor;
+class vtkCellPicker;
 class vtkPolyDataMapper;
 class vtkPolyData;
 class vtkProperty;
@@ -105,6 +106,10 @@ public:
   // Helper method to highlight the line, the cylinder and the endpoints.
   virtual void Highlight(int highlight);
 
+  // Description:
+  // Reimplemented to translate the bone when clicking on the cylinder surface.
+  virtual int ComputeInteractionState(int X, int Y, int modifier);
+
 protected:
   vtkCylinderBoneRepresentation();
   ~vtkCylinderBoneRepresentation();
@@ -113,6 +118,7 @@ protected:
   vtkActor*          CylinderActor;
   vtkPolyDataMapper* CylinderMapper;
   vtkTubeFilter*     CylinderGenerator;
+  vtkCellPicker*     CylinderPicker;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

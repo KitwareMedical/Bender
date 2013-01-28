@@ -24,9 +24,10 @@
 //#include "vtkMRMLBoneStorageNode.h"
 
 // Bender includes
+#include <vtkBoneEnvelopeRepresentation.h>
+#include <vtkBoneRepresentation.h>
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
-#include <vtkBoneRepresentation.h>
 #include <vtkMRMLNodeHelper.h>
 #include <vtkQuaternion.h>
 
@@ -71,6 +72,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
   this->BoneRepresentationType = 0;
   this->LinkedWithParent = true;
   this->HasParent = false;
+  this->EnvelopeRadiusRatio = 0.5;
 
   this->Callback->SetCallback(MRMLBoneNodeCallback);
   this->Callback->SetClientData(this);
@@ -118,6 +120,9 @@ void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
 
   of << indent << " BoneLinkedWithParent=\""
     << this->GetBoneLinkedWithParent() << "\"";
+
+  of << indent << " EnvelopeRadiusRatio=\""
+    << this->GetEnvelopeRadiusRatio() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -203,6 +208,11 @@ void vtkMRMLBoneNode::ReadXMLAttributes(const char** atts)
       {
       this->SetBoneLinkedWithParent(
         vtkMRMLNodeHelper::StringToInt(attValue));
+      }
+    else if (!strcmp(attName, "EnvelopeRadiusRatio"))
+      {
+      this->SetEnvelopeRadiusRatio(
+        vtkMRMLNodeHelper::StringToDouble(attValue));
       }
     }
 
@@ -724,6 +734,10 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       boneWidget->SetRepresentation(rep.GetPointer());
       }
     }
+
+  // Envelope radius ratio
+  boneWidget->GetBoneRepresentation()->GetEnvelope()->SetRadius(
+    boneWidget->GetLength() * this->EnvelopeRadiusRatio);
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);

@@ -95,6 +95,7 @@ protected:
   ~vtkMRMLBoneDisplayNode();
 
   double InteractionColor[3];
+  int ShowEnvelope;
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented
