@@ -38,8 +38,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   )
 
 set(MODULE_ADDITIONAL_SRCS
-  ArmatureEdge.cxx
-  ArmatureEdge.h
+  ArmatureWeightWriter.cxx
+  ArmatureWeightWriter.h
   )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}

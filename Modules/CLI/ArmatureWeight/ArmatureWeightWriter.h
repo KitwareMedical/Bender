@@ -27,6 +27,8 @@
 #include <itkImage.h>
 
 // VTK includes
+#include <vtkObject.h>
+
 class vtkPolyData;
 
 // STD includes
@@ -71,9 +73,15 @@ public:
 };
 
 //-------------------------------------------------------------------------------
-class ArmatureEdge
+// VTK object so it can register the armature
+//
+class ArmatureWeightWriter : public vtkObject
 {
 public:
+  static ArmatureWeightWriter *New();
+
+  vtkTypeMacro(ArmatureWeightWriter,vtkObject);
+  void PrintSelf(ostream& os, vtkIndent indent) {};
 
   // \todo should be defined by the ArmatureWeight.cxx
   // Enums the types of label used
@@ -84,27 +92,66 @@ public:
     EdgeLabels
     };
 
-  // Constructor
-  ArmatureEdge(LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer bonesPartition, EdgeType id);
+  // Set/Get methods.
+  void SetArmature(vtkPolyData* armature);
+  vtkGetObjectMacro(Armature, vtkPolyData);
 
-  bool Initialize(vtkPolyData* armature);
+  void SetBodyPartition(LabelImageType::Pointer partition);
+  LabelImageType::Pointer GetBodyPartition();
 
-  WeightImageType::Pointer ComputeWeight(
-    bool binaryWeight, int smoothingIterations);
-  CharType GetLabel() const;
+  void SetBones(LabelImageType::Pointer bones);
+  LabelImageType::Pointer GetBones();
 
-  void SetDebug(bool);
-  bool GetDebug()const;
+  vtkSetMacro(SmoothingIterations, int);
+  vtkGetMacro(SmoothingIterations, int);
+
+  void SetFilename(std::string dir);
+  std::string GetFilename();
+
+  vtkSetMacro(BinaryWeight, bool);
+  vtkGetMacro(BinaryWeight, bool);
+
+  vtkSetMacro(DebugInfo, bool);
+  vtkGetMacro(DebugInfo, bool);
+
+  void SetId(EdgeType id);
+  EdgeType GetId() const;
+
+  // Computation methods
+  bool Write();
 
 protected:
+  ArmatureWeightWriter();
+  ~ArmatureWeightWriter();
+
+  // Input images and polydata
+  vtkPolyData* Armature;
   LabelImageType::Pointer BodyPartition;
   LabelImageType::Pointer BonesPartition;
+
+  // Edge Id
   EdgeType Id;
+  CharType GetLabel() const;
+  bool Initialize();
+  WeightImageType::Pointer ComputeWeight();
+
+  // Output necessary va
+  std::string Filename;
+  int NumDigits;
+
+  // Type of weight written
+  bool BinaryWeight;
+  int SmoothingIterations;
+
+  // Debug info
+  bool DebugInfo;
+
+private:
+  ArmatureWeightWriter(const ArmatureWeightWriter&);  //Not implemented
+  void operator=(const ArmatureWeightWriter&);  //Not implemented
+
   CharImageType::Pointer Domain;
   RegionType ROI;
-
-  bool Debug;
 };
 
 //-------------------------------------------------------------------------------

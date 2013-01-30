@@ -21,7 +21,7 @@
 =========================================================================*/
 
 // ArmatureWeight includes
-#include "ArmatureEdge.h"
+#include "ArmatureWeightWriter.h"
 #include "SolveHeatDiffusionProblem.h"
 #include <benderIOUtils.h>
 
@@ -37,10 +37,11 @@
 
 // VTK includes
 #include <vtkCellArray.h>
-#include <vtkDoubleArray.h>
 #include <vtkCellData.h>
-#include <vtkNew.h>
+#include <vtkDoubleArray.h>
 #include <vtkMath.h>
+#include <vtkNew.h>
+#include <vtkObjectFactory.h>
 #include <vtkTimerLog.h>
 
 // STD includes
@@ -85,48 +86,156 @@ void ConvertToIJK(double x[3])
 
 } // end namespace
 
+vtkStandardNewMacro(ArmatureWeightWriter);
+
 //-----------------------------------------------------------------------------
-ArmatureEdge::ArmatureEdge(LabelImageType::Pointer bodyPartition,
-                           LabelImageType::Pointer bonesPartition,
-                           EdgeType id)
+ArmatureWeightWriter::ArmatureWeightWriter()
 {
-  this->BodyPartition = bodyPartition;
-  this->BonesPartition = bonesPartition;
+  // Input images and polydata
+  this->Armature = 0;
+  this->BodyPartition = 0;
+  this->BonesPartition = 0;
+  this->Id = 0;
+  this->Filename = "./Weight";
+  this->BinaryWeight = false;
+  this->SmoothingIterations = 10;
   this->Debug = false;
+}
+
+//-----------------------------------------------------------------------------
+ArmatureWeightWriter::~ArmatureWeightWriter()
+{
+  if (this->Armature)
+    {
+    this->Armature->Delete();
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetArmature(vtkPolyData* arm)
+{
+  if (arm == this->Armature)
+    {
+    return;
+    }
+
+  arm->Register(this);
+  if (this->Armature)
+    {
+    this->Armature->Delete();
+    }
+  this->Armature = arm;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetBodyPartition(LabelImageType::Pointer partition)
+{
+  if (this->BodyPartition == partition)
+    {
+    return;
+    }
+
+  this->BodyPartition = partition;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+LabelImageType::Pointer ArmatureWeightWriter::GetBodyPartition()
+{
+  return this->BodyPartition;
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetBones(LabelImageType::Pointer bones)
+{
+  if (this->BonesPartition == bones)
+    {
+    return;
+    }
+
+  this->BonesPartition = bones;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+LabelImageType::Pointer ArmatureWeightWriter::GetBones()
+{
+  return this->BonesPartition;
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetFilename(std::string name)
+{
+  if (name == this->Filename)
+    {
+    return;
+    }
+
+  this->Filename = name;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+std::string ArmatureWeightWriter::GetFilename()
+{
+  return this->Filename;
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetId(EdgeType id)
+{
+if (id == this->Id)
+    {
+    return;
+    }
+
   this->Id = id;
-  this->Domain = 0;
+  this->Modified();
 }
 
 //-----------------------------------------------------------------------------
-void ArmatureEdge::SetDebug(bool debug)
+EdgeType ArmatureWeightWriter::GetId()const
 {
-  this->Debug = debug;
+  return this->Id;
 }
 
 //-----------------------------------------------------------------------------
-bool ArmatureEdge::GetDebug()const
+bool ArmatureWeightWriter::Write()
 {
-  return this->Debug;
+  // Compute weight
+  if (! this->Initialize())
+    {
+    std::cerr<<"Could not initialize edge correctly. Stopping."<<std::endl;
+    return false;
+    }
+
+  WeightImageType::Pointer weight = this->ComputeWeight();
+  bender::IOUtils::WriteImage<WeightImageType>(weight, this->Filename.c_str());
+  return true;
 }
 
 //-----------------------------------------------------------------------------
-bool ArmatureEdge::Initialize(vtkPolyData* armature)
+bool ArmatureWeightWriter::Initialize()
 {
-  if (! armature)
+  if (! this->Armature)
     {
     std::cerr<< "Could not initialize domain, armature is NULL" <<std::endl;
     return false;
     }
 
-  vtkPoints* points = armature->GetPoints();
+  vtkPoints* points = this->Armature->GetPoints();
   vtkDoubleArray* radiuses = vtkDoubleArray::SafeDownCast(
-    armature->GetCellData()->GetArray("EnvelopeRadiuses"));
+    this->Armature->GetCellData()->GetArray("EnvelopeRadiuses"));
   if (!points || !radiuses)
     {
     std::cerr<< "Could not initialize domain, armature point "
       << "and/or envelope radiuses are null"<<std::endl;
     return false;
     }
+
+  std::cout<<"Initalizing computation region for edge #"<<this->Id<<std::endl;
 
   double head[3], tail[3];
   points->GetPoint(this->Id * 2, head);
@@ -160,15 +269,15 @@ bool ArmatureEdge::Initialize(vtkPolyData* armature)
     // Most likely/simple operation done first to prevent overhead
 
     LabelType label = bodyPartitionIt.Get();
-    if (label == ArmatureEdge::BackgroundLabel) // Is it backgtound ?
+    if (label == ArmatureWeightWriter::BackgroundLabel) // Is it backgtound ?
       {
-      domainIt.Set(ArmatureEdge::BackgroundLabel);
+      domainIt.Set(ArmatureWeightWriter::BackgroundLabel);
       }
     else // Not background pixel
       {
       if (label == edgeLabel) // Correct label, no need to go further
         {
-        domainIt.Set(ArmatureEdge::DomainLabel);
+        domainIt.Set(ArmatureWeightWriter::DomainLabel);
         continue;
         }
 
@@ -188,7 +297,7 @@ bool ArmatureEdge::Initialize(vtkPolyData* armature)
       vtkMath::Subtract(pos, head, headToPos);
       if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
         {
-        domainIt.Set(ArmatureEdge::DomainLabel);
+        domainIt.Set(ArmatureWeightWriter::DomainLabel);
         continue;
         }
 
@@ -197,7 +306,7 @@ bool ArmatureEdge::Initialize(vtkPolyData* armature)
       vtkMath::Subtract(pos, tail, tailToPos);
       if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
         {
-        domainIt.Set(ArmatureEdge::DomainLabel);
+        domainIt.Set(ArmatureWeightWriter::DomainLabel);
         continue;
         }
 
@@ -214,20 +323,20 @@ bool ArmatureEdge::Initialize(vtkPolyData* armature)
 
         if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
           {
-          domainIt.Set(ArmatureEdge::DomainLabel);
+          domainIt.Set(ArmatureWeightWriter::DomainLabel);
           continue;
           }
         }
 
-      domainIt.Set(ArmatureEdge::BackgroundLabel); // Wasn't in the envelope
+      domainIt.Set(ArmatureWeightWriter::BackgroundLabel); // Wasn't in the envelope
       }
     }
 
   // Debug
-  if (this->GetDebug())
+  if (this->GetDebugInfo())
     {
     std::stringstream filename;
-    filename << "./region" << this->Id << ".mha";
+    filename<< this->Filename << "_region" << this->Id << ".mha";
     bender::IOUtils::WriteImage<CharImageType>(this->Domain,
       filename.str().c_str());
     }
@@ -236,10 +345,9 @@ bool ArmatureEdge::Initialize(vtkPolyData* armature)
 }
 
 //-----------------------------------------------------------------------------
-WeightImageType::Pointer ArmatureEdge
-::ComputeWeight(bool binaryWeight, int smoothingIterations)
+WeightImageType::Pointer ArmatureWeightWriter::ComputeWeight()
 {
-  if (this->GetDebug())
+  if (this->GetDebugInfo())
     {
     std::cout << "Compute weight for edge "<< this->Id
               <<" with label "
@@ -251,13 +359,13 @@ WeightImageType::Pointer ArmatureEdge
     ThresholdFilterType;
   ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(this->BodyPartition);
-  threshold->SetLowerThreshold(ArmatureEdge::DomainLabel);
+  threshold->SetLowerThreshold(ArmatureWeightWriter::DomainLabel);
   threshold->SetInsideValue(0.0f);
   threshold->SetOutsideValue(-1.0f);
   threshold->Update();
   WeightImageType::Pointer weight = threshold->GetOutput();
 
-  if (binaryWeight)
+  if (this->BinaryWeight)
     {
     // Domain is 0 everywhere expect on the edge region where it's 1.
     // Weight is 0 in the body and -1 outside.
@@ -273,24 +381,29 @@ WeightImageType::Pointer ArmatureEdge
     }
   else
     {
+    
+    std::cout<<"Solve localized version of the problem for edge #"<<this->Id<<std::endl;
+
     //First solve a localized verison of the problme exactly
     LocalizedBodyHeatDiffusionProblem localizedProblem(
       this->Domain, this->BonesPartition, this->GetLabel());
     SolveHeatDiffusionProblem<WeightImageType>::Solve(localizedProblem, weight);
 
+    std::cout<<"Solve global solution problem for edge #"<<this->Id<<std::endl;
+
     //Approximate the global solution by iterative solving
     GlobalBodyHeatDiffusionProblem globalProblem(
       this->BodyPartition, this->BonesPartition);
     SolveHeatDiffusionProblem<WeightImageType>::SolveIteratively(
-      globalProblem,weight,smoothingIterations);
+      globalProblem,weight, this->SmoothingIterations);
     }
 
   return weight;
 }
 
 //-----------------------------------------------------------------------------
-CharType ArmatureEdge::GetLabel() const
+CharType ArmatureWeightWriter::GetLabel() const
 {
   // 0 is background, 1 is body interior so Armature Edge must start with 2
-  return static_cast<CharType>(this->Id + ArmatureEdge::EdgeLabels);
+  return static_cast<CharType>(this->Id + ArmatureWeightWriter::EdgeLabels);
 }

@@ -22,17 +22,19 @@
 
 // Bender includes
 #include "ArmatureWeightCLP.h"
-#include "ArmatureEdge.h"
+#include "ArmatureWeightWriter.h"
 #include <benderIOUtils.h>
 
 // ITK includes
 #include <itkBinaryThresholdImageFilter.h>
+#include <itkIndex.h>
 #include <itkImage.h>
 #include <itkMaskImageFilter.h>
+#include <itkMultiThreader.h>
 #include <itkStatisticsImageFilter.h>
+#include <itkSimpleFastMutexLock.h>
 #include <itkPluginUtilities.h>
 #include <itkImageRegionIteratorWithIndex.h>
-#include <itkIndex.h>
 
 // STD includes
 #include <sstream>
@@ -56,6 +58,26 @@ typedef itk::ImageRegion<3> RegionType;
 
 namespace
 {
+#if defined(__WIN32__) || defined(WIN32)
+
+#include <windows.h>
+
+inline void delay( unsigned long ms )
+  {
+  Sleep( ms );
+  }
+
+#else  /* presume POSIX */
+
+#include <unistd.h>
+
+inline void delay( unsigned long ms )
+  {
+  usleep( ms * 1000 );
+  }
+
+#endif
+
 //-------------------------------------------------------------------------------
 inline int NumDigits(unsigned int a)
 {
@@ -81,8 +103,8 @@ LabelImageType::Pointer SimpleBoneSegmentation(
   ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(body);
   threshold->SetLowerThreshold(209); //bone marrow
-  threshold->SetInsideValue(ArmatureEdge::DomainLabel);
-  threshold->SetOutsideValue(ArmatureEdge::BackgroundLabel);
+  threshold->SetInsideValue(ArmatureWeightWriter::DomainLabel);
+  threshold->SetOutsideValue(ArmatureWeightWriter::BackgroundLabel);
 
   typedef itk::MaskImageFilter<LabelImageType, CharImageType> MaskFilterType;
   MaskFilterType::Pointer mask = MaskFilterType::New();
@@ -95,6 +117,55 @@ LabelImageType::Pointer SimpleBoneSegmentation(
 } // end namepaces
 
 //-------------------------------------------------------------------------------
+static int NumberOfRunningThreads = 0;
+static itk::SimpleFastMutexLock mutex;
+
+//-------------------------------------------------------------------------------
+ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
+{
+  typedef itk::MultiThreader::ThreadInfoStruct  ThreadInfoType;
+  ThreadInfoType * infoStruct = static_cast< ThreadInfoType* >( arg );
+  if (!infoStruct)
+    {
+    std::cerr<<"Could not find appropriate arguments. Stopping."<<std::endl;
+
+    mutex.Lock();
+    --NumberOfRunningThreads;
+    mutex.Unlock();
+    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    }
+
+  ArmatureWeightWriter* writer =
+    static_cast< ArmatureWeightWriter* >( infoStruct->UserData );
+  if (!writer)
+    {
+    std::cerr<<"Could not find weight writer. Stopping."<<std::endl;
+
+    mutex.Lock();
+    --NumberOfRunningThreads;
+    mutex.Unlock();
+    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    }
+
+  // Compute weight
+  if (! writer->Write())
+    {
+    std::cerr<<"There was a problem while trying to write the weight."
+      <<" Stopping"<<std::endl;
+
+    mutex.Lock();
+    --NumberOfRunningThreads;
+    mutex.Unlock();
+    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    }
+
+  mutex.Lock();
+  --NumberOfRunningThreads;
+  mutex.Unlock();
+  return ThreadInfoType::SUCCESS;
+}
+
+//-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
@@ -102,6 +173,10 @@ int main( int argc, char * argv[] )
   if(BinaryWeight)
     {
     std::cout << "Use binary weight: " << std::endl;
+    }
+  if(RunSequential)
+    {
+    std::cout << "Running Sequential: " << std::endl;
     }
 
   bender::IOUtils::FilterStart("Read inputs");
@@ -113,13 +188,31 @@ int main( int argc, char * argv[] )
   typedef itk::ImageFileReader<LabelImageType>  ReaderType;
   ReaderType::Pointer bodyPartitionReader = ReaderType::New();
   bodyPartitionReader->SetFileName(BodyPartition.c_str() );
-  bodyPartitionReader->Update();
+  try
+    {
+    bodyPartitionReader->Update();
+    }
+  catch (itk::ExceptionObject &e)
+    {
+    std::cerr<<"Could not read body partition, got error: "<<std::endl;
+    e.Print(std::cout);
+    return EXIT_FAILURE;
+    }
 
   bender::IOUtils::FilterProgress("Read inputs", 0.25, 0.1, 0.0);
 
   ReaderType::Pointer bodyReader = ReaderType::New();
   bodyReader->SetFileName(RestLabelmap.c_str() );
-  bodyReader->Update();
+  try
+    {
+    bodyReader->Update();;
+    }
+  catch (itk::ExceptionObject &e)
+    {
+    std::cerr<<"Could not read body, got error: "<<std::endl;
+    e.Print(std::cout);
+    return EXIT_FAILURE;
+    }
 
   bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
 
@@ -182,41 +275,77 @@ int main( int argc, char * argv[] )
 
   if (LastEdge < 0)
     {
-    LastEdge = maxLabel - 1;
+    LastEdge = maxLabel - 2;
     }
 
   int numDigits = NumDigits(maxLabel);
+
+  // Compute the weight of each bones in a separate thread
+  typedef itk::MultiThreader ThreaderType;
+  ThreaderType::Pointer threader = ThreaderType::New();
+  std::vector<ArmatureWeightWriter*> writers; // Memory management
+
+  std::cout<<"Compute from edge #"<<FirstEdge<<" to edge #"<<LastEdge
+    <<" (Processing in parrallel ? "<<! RunSequential<<" )"<<std::endl;
+
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
-    // Init edge
-    ArmatureEdge edge(bodyPartitionReader->GetOutput(),
-      bonesPartition, i);
-    edge.SetDebug(Debug);
-
-    std::cout << "Processing armature edge "<<i<<" with label "
-      <<static_cast<int>(edge.GetLabel()) << std::endl;
-
-    // Compute weight
-    if (! edge.Initialize(polyDataReader->GetOutput()))
+    // Wait if too many thread started
+    while (NumberOfRunningThreads >= threader->GetNumberOfThreads())
       {
-      std::cerr<<"Could not initialize edge "<< i <<" correctly."
-        << " Stopping."<<std::endl;
-      return EXIT_FAILURE;
+      delay(50);
       }
 
-    WeightImageType::Pointer weight =
-      edge.ComputeWeight(BinaryWeight, SmoothingIteration);
-
-    // Write weight file
+    ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
+    // Inputs
+    writeWeight->SetBodyPartition(bodyPartitionReader->GetOutput());
+    writeWeight->SetArmature(polyDataReader->GetOutput());
+    writeWeight->SetBones(bonesPartition);
+    // Output filename
     std::stringstream filename;
     filename << WeightDirectory << "/weight_"
              << std::setfill('0') << std::setw(numDigits) << i << ".mha";
-    bender::IOUtils::WriteImage<WeightImageType>(weight, filename.str().c_str());
+    writeWeight->SetFilename(filename.str());
 
-    double progress =
-      static_cast<double>(i - FirstEdge + 1) / (LastEdge-FirstEdge +1);
-    bender::IOUtils::FilterProgress("Compute weights", progress, 0.99, 0.1);
+    // Edge Id
+    writeWeight->SetId(i);
+
+    // Others
+    writeWeight->SetBinaryWeight(BinaryWeight);
+    writeWeight->SetSmoothingIterations(SmoothingIteration);
+    writeWeight->SetDebugInfo(Debug);
+
+    std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
+    if (! RunSequential)
+      {
+      ++NumberOfRunningThreads;
+      threader->SpawnThread(ThreaderCallback, writeWeight);
+      }
+    else
+      {
+      if (! writeWeight->Write())
+        {
+        std::cerr<<"There was a problem while trying to write the weight."
+          <<" Stopping"<<std::endl;
+        }
+      }
+
+    writers.push_back(writeWeight); //Memory manangement
     }
+
+  // Wait for all the threads to finish
+  while (NumberOfRunningThreads != 0)
+    {
+    delay(50);
+    }
+
+  // Delete all the writers
+  for(std::vector<ArmatureWeightWriter*>::iterator it = writers.begin();
+    it != writers.end(); ++it)
+    {
+    (*it)->Delete();
+    }
+
   bender::IOUtils::FilterEnd("Compute weights");
 
   return EXIT_SUCCESS;

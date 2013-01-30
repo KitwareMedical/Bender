@@ -8,9 +8,7 @@
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url></documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware)</contributor>
-  <contributor>Julien Finet (Kitware)</contributor>
-  <contributor>Johan Andruejol(Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -96,6 +94,14 @@
       <label>Dump Debug Images</label>
       <longflag>--dump</longflag>
       <description><![CDATA[Dump debugging images. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>RunSequential</name>
+      <label>Run Sequential</label>
+      <longflag>--sequential</longflag>
+      <description><![CDATA[Runs the computation of each bone sequential instead of parrallel.]]></description>
       <default>false</default>
     </boolean>
   </parameters>
