@@ -190,6 +190,11 @@ public:
     };
   //ETX
 
+  /// Show/Hide the bone's envelopes.
+  /// \sa SetShowEnvelopes(), GetShowEnvelopes()
+  void SetShowEnvelopes(int show);
+  int GetShowEnvelopes();
+
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>;Segmentation.Bender</category>
+  <index>1</index>
+  <title>Armature Bones</title>
+  <description><![CDATA[ TO DO]]>
+  </description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url></documentation-url>
+  <license/>
+  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <contributor>Julien Finet (Kitware)</contributor>
+  <contributor>Johan Andruejol(Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image>
+      <name>RestLabelmap</name>
+      <label>Input Rest Labelmap</label>
+      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </image>
+
+    <geometry fileExtensions=".vtk">
+      <name>ArmaturePoly</name>
+      <label>Input Armature</label>
+      <description><![CDATA[Resting armature]]></description>
+      <channel>input</channel>
+      <index>1</index>
+    </geometry>
+    
+    <image>
+      <name>BodyPartition</name>
+      <label>Output Body Partition</label>
+      <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+    </image>
+
+  </parameters>
+
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    
+    <integer>
+      <name>Padding</name>
+      <longflag>--padding</longflag>
+      <label>Padding</label>
+      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
+      <default>1</default>
+    </integer>
+
+  </parameters>
+  
+  <parameters>
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Outputs</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+</executable>

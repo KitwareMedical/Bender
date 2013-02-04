@@ -445,18 +445,6 @@ public:
   VoxelOffset Offsets[8];
 };
 
-
-//-----------------------------------------------------------------------------
-void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
-{
-  cout<<"Write polydata to "<<fileName<<endl;
-  vtkNew<vtkPolyDataWriter> pdWriter;
-  pdWriter->SetInput(polyData);
-  pdWriter->SetFileName(fileName.c_str() );
-  pdWriter->SetFileTypeToBinary();
-  pdWriter->Update();
-}
-
 //-------------------------------------------------------------------------------
 void TestQuarternion()
 {
@@ -754,7 +742,7 @@ int main( int argc, char * argv[] )
 
   if(0) //test whether the transform makes senses.
     {
-    WritePolyData(TransformArmature(armature,"Transforms",true),"./test.vtk");
+    bender::IOUtils::WritePolyData(TransformArmature(armature,"Transforms",true),"./test.vtk");
     }
 
   vtkCellArray* armatureSegments = armature->GetLines();
@@ -935,7 +923,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   // Write output
   //----------------------------
-  WritePolyData(outSurface,OutputSurface);
+  bender::IOUtils::WritePolyData(outSurface,OutputSurface);
 
   return EXIT_SUCCESS;
 }

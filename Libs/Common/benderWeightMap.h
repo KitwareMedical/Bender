@@ -18,8 +18,8 @@
 
 =========================================================================*/
 
-#ifndef __WeightMap_h
-#define __WeightMap_h
+#ifndef __benderWeightMap_h
+#define __benderWeightMap_h
 
 // .NAME WeightMap - sparse representation over weight vectors over a volume
 // .SECTION General Description

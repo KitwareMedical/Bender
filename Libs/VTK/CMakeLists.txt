@@ -19,4 +19,5 @@
 #============================================================================
 
 add_subdirectory(Common)
+add_subdirectory(Filters/Sources)
 add_subdirectory(Widgets)

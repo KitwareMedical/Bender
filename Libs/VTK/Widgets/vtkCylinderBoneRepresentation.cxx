@@ -19,17 +19,21 @@
 =========================================================================*/
 #include "vtkCylinderBoneRepresentation.h"
 
+// Bender includes
+#include "vtkBoneEnvelopeRepresentation.h"
+
 #include <vtkActor.h>
 #include <vtkAppendPolyData.h>
 #include <vtkBox.h>
 #include <vtkCamera.h>
 #include <vtkCallbackCommand.h>
-#include <vtkCylinderSource.h>
+#include <vtkCellPicker.h>
 #include <vtkFollower.h>
 #include <vtkInteractorObserver.h>
 #include <vtkLineSource.h>
 #include <vtkObjectFactory.h>
 #include <vtkOpenGL.h>
+#include <vtkPointHandleRepresentation3D.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -59,6 +63,12 @@ vtkCylinderBoneRepresentation::vtkCylinderBoneRepresentation()
   this->CylinderMapper->SetInput(this->CylinderGenerator->GetOutput());
   this->CylinderActor->SetMapper(this->CylinderMapper);
 
+  // Add a picker
+  this->CylinderPicker = vtkCellPicker::New();
+  this->CylinderPicker->SetTolerance(0.005);
+  this->CylinderPicker->AddPickList(this->CylinderActor);
+  this->CylinderPicker->PickFromListOn();
+
   // Set up the initial properties
   this->CreateDefaultProperties();
   this->CylinderActor->SetProperty(this->CylinderProperty);
@@ -70,6 +80,7 @@ vtkCylinderBoneRepresentation::~vtkCylinderBoneRepresentation()
   this->CylinderProperty->Delete();
   this->SelectedCylinderProperty->Delete();
 
+  this->CylinderPicker->Delete();
   this->CylinderGenerator->Delete();
   this->CylinderActor->Delete();
   this->CylinderMapper->Delete();
@@ -153,6 +164,10 @@ int vtkCylinderBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count += this->Envelope->RenderOpaqueGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOpaqueGeometry(v);
   // Cylinder actor
@@ -164,7 +179,6 @@ int vtkCylinderBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
     {
     count += this->TextActor->RenderOpaqueGeometry(v);
     }
-
   return count;
 }
 
@@ -174,6 +188,10 @@ int vtkCylinderBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
   // Cylinder actor
@@ -185,7 +203,6 @@ int vtkCylinderBoneRepresentation
     {
     count += this->TextActor->RenderTranslucentPolygonalGeometry(v);
     }
-
   return count;
 }
 
@@ -194,6 +211,10 @@ int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count += this->Envelope->RenderOverlay(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOverlay(v);
   // Cylinder actor
@@ -205,7 +226,6 @@ int vtkCylinderBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
     {
     count += this->TextActor->RenderOverlay(v);
     }
-
   return count;
 }
 
@@ -214,6 +234,10 @@ int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count |= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
   // Bone representation actors
   count |= this->LineActor->HasTranslucentPolygonalGeometry();
   // Cylinder actor
@@ -248,6 +272,28 @@ void vtkCylinderBoneRepresentation::Highlight(int highlight)
     {
     this->CylinderActor->SetProperty(this->CylinderProperty);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkCylinderBoneRepresentation
+::ComputeInteractionState(int X, int Y, int modifier)
+{
+  this->InteractionState =
+    this->Superclass::ComputeInteractionState(X, Y, modifier);
+  if (this->InteractionState == vtkBoneRepresentation::Outside && ! this->Pose)
+    {
+    if ( this->CylinderPicker->Pick(X,Y,0.0,this->Renderer) )
+      {
+      this->InteractionState = vtkBoneRepresentation::OnLine;
+      this->SetRepresentationState(this->InteractionState);
+
+      double closest[3];
+      this->CylinderPicker->GetPickPosition(closest);
+      this->LineHandleRepresentation->SetWorldPosition(closest);
+      }
+    }
+
+  return this->InteractionState;
 }
 
 //----------------------------------------------------------------------------

@@ -77,6 +77,9 @@ public slots:
   void updatePositions(vtkMRMLBoneNode* boneNode);
   void updateAdvancedPositions(vtkMRMLBoneNode* boneNode);
 
+  // Envelope update functions
+  void updateEnvelope(vtkMRMLBoneNode* boneNode);
+
   void setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode);
   void setCoordinatesToBoneNode(vtkMRMLBoneNode* boneNode);
 
