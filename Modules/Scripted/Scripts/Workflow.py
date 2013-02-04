@@ -91,8 +91,11 @@ class WorkflowWidget:
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 2) Armatures
-    self.get('ArmaturesApplyPushButton').connect('clicked()', self.runArmatures)
-    # 3) Resample
+    self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModules)
+    # 3) Armature Bones
+    self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
+    self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModules)
+    # 4) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
@@ -117,6 +120,7 @@ class WorkflowWidget:
       return
     self.setupLabelmap(volumeNode)
     self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
+    self.get('SegmentBonesInputVolumeNodeComboBox').setCurrentNode(volumeNode)
     #self.setupMergeLabels(volumeNode)
 
   def setupLabelmap(self, volumeNode):
@@ -368,10 +372,30 @@ class WorkflowWidget:
     self.openModule('VolumeRendering')
 
   # 2) Armatures first part
-  def runArmatures(self):
+  def openArmaturesModules(self):
     self.openModule('Armatures')
 
-  # 3) Resample NOTE: SHOULD BE LAST STEP
+  # 3) Armatures first part
+  def runSegmentBones(self):
+    parameters = {}
+    parameters["RestLabelmap"] = self.get('SegmentBonesInputVolumeNodeComboBox').currentNode().GetID()
+    parameters["ArmaturePoly"] = self.get('SegmentBonesAmartureNodeComboBox').currentNode().GetID()
+    parameters["BodyPartition"] = self.get('SegmentBonesOutputVolumeNodeComboBox').currentNode().GetID()
+    parameters["Padding"] = 1
+    parameters["Debug"] = False
+    parameters["ArmatureInRAS"] = False
+    cliNode = None
+    cliNode = slicer.cli.run(slicer.modules.armaturebones, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Armature Bones completed'
+    else:
+      print 'Armature Bones failed'
+
+  def openSegmentBonesModules(self):
+    self.openModule('ArmatureBones')
+
+  # 4) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):
     print('Resample')
 
