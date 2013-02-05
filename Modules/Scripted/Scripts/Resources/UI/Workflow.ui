@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>384</width>
+    <width>434</width>
     <height>640</height>
    </rect>
   </property>
@@ -219,7 +219,7 @@
           <item row="0" column="0">
            <widget class="QLabel" name="ModelMakerInputLabel">
             <property name="text">
-             <string>Input Labelmap</string>
+             <string>Input labelmap</string>
             </property>
            </widget>
           </item>
@@ -251,7 +251,7 @@
           <item row="2" column="0">
            <widget class="QLabel" name="ModelMakerBoneNodeLabel">
             <property name="text">
-             <string>Output Models</string>
+             <string>Output models</string>
             </property>
            </widget>
           </item>
@@ -276,7 +276,7 @@
           <item row="3" column="0" colspan="2">
            <widget class="QPushButton" name="ModelMakerApplyPushButton">
             <property name="text">
-             <string>Generate Models</string>
+             <string>Generate models</string>
             </property>
            </widget>
           </item>
@@ -372,7 +372,7 @@
          <property name="title">
           <string>Armatures</string>
          </property>
-         <property name="collapsed" stdset="0">
+         <property name="collapsed">
           <bool>false</bool>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -427,7 +427,7 @@
          <property name="title">
           <string>Segment Bones</string>
          </property>
-         <property name="collapsed" stdset="0">
+         <property name="collapsed">
           <bool>false</bool>
          </property>
          <layout class="QFormLayout" name="formLayout_5">
@@ -519,7 +519,234 @@
           <item row="3" column="0" colspan="2">
            <widget class="QPushButton" name="SegmentBonesApplyPushButton">
             <property name="text">
-             <string>Segment Bones</string>
+             <string>Segment bones</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="ArmatureWeightCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Armature weight</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_7">
+          <item row="1" column="0">
+           <widget class="QLabel" name="ArmatureWeightInputVolumeLabel">
+            <property name="text">
+             <string>Volume</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="ArmatureWeightArmatureLabel">
+            <property name="text">
+             <string>Armature</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="ArmatureWeightBodyPartitionLabel">
+            <property name="text">
+             <string>Body partition</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="ArmatureWeightOutputFolderLabel">
+            <property name="text">
+             <string>Output folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
+           <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
+            <property name="text">
+             <string>Compute weights</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
+            <property name="text">
+             <string>Go to Armature Weights module</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="ctkDirectoryButton" name="ArmatureWeightOutputDirectoryButton"/>
+          </item>
+          <item row="5" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string>BonesPartition</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="EvaluateWeightCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Evaluate weight</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_10">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="EvaluateWeightnputSurfaceLabel">
+            <property name="text">
+             <string>Input surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="EvaluateWeightInputSurfaceComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="EvaluateWeightInputFolderLabel">
+            <property name="text">
+             <string>Weight folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="ctkDirectoryButton" name="EvaluateWeightInputFolderDirectoryButton"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="EvaluateWeightOutputSurfaceLabel">
+            <property name="text">
+             <string>Output surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="EvaluateWeightOutputSurfaceComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="EvaluateWeightApplyPushButton">
+            <property name="text">
+             <string>Evaluate weights</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPushButton" name="EvaluateWeightGoToPushButton">
+            <property name="text">
+             <string>Go to Evalutate Weights module</string>
             </property>
            </widget>
           </item>
@@ -680,6 +907,11 @@
    <extends>QGroupBox</extends>
    <header>ctkCollapsibleGroupBox.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkDirectoryButton</class>
+   <extends>QWidget</extends>
+   <header>ctkDirectoryButton.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1001,6 +1233,102 @@
     <hint type="destinationlabel">
      <x>217</x>
      <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightBodyPartitionVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SegmentBonesInputVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>217</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>EvaluateWeightInputSurfaceComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>409</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>EvaluateWeightOutputSurfaceComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>216</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>256</x>
+     <y>465</y>
     </hint>
    </hints>
   </connection>

@@ -91,11 +91,19 @@ class WorkflowWidget:
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 2) Armatures
-    self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModules)
-    # 3) Armature Bones
+    self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
+    # 3) Armature Weight and Bones
+    # a) Aramtures Bones
     self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
-    self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModules)
-    # 4) Resample
+    self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
+    # b) Aramtures Weight
+    self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
+    self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
+    # c) Evaluate Weight
+    self.get('EvaluateWeightApplyPushButton').connect('clicked()',self.runEvaluateWeight)
+    self.get('EvaluateWeightGoToPushButton').connect('clicked()', self.openEvaluateWeightModule)
+    self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    # 5) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
@@ -372,18 +380,19 @@ class WorkflowWidget:
     self.openModule('VolumeRendering')
 
   # 2) Armatures first part
-  def openArmaturesModules(self):
+  def openArmaturesModule(self):
     self.openModule('Armatures')
 
-  # 3) Armatures first part
+  # 3) Armatures Weight and Bones
+  #  a) Armatures Bones
   def runSegmentBones(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('SegmentBonesInputVolumeNodeComboBox').currentNode().GetID()
     parameters["ArmaturePoly"] = self.get('SegmentBonesAmartureNodeComboBox').currentNode().GetID()
     parameters["BodyPartition"] = self.get('SegmentBonesOutputVolumeNodeComboBox').currentNode().GetID()
-    parameters["Padding"] = 1
-    parameters["Debug"] = False
-    parameters["ArmatureInRAS"] = False
+    #parameters["Padding"] = 1
+    #parameters["Debug"] = False
+    #parameters["ArmatureInRAS"] = False
     cliNode = None
     cliNode = slicer.cli.run(slicer.modules.armaturebones, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
@@ -392,8 +401,53 @@ class WorkflowWidget:
     else:
       print 'Armature Bones failed'
 
-  def openSegmentBonesModules(self):
-    self.openModule('ArmatureBones')
+  def openSegmentBonesModule(self):
+    self.openModule('ArmatureWeight')
+
+    #  b) Armature Weight
+  def runArmatureWeight(self):
+    parameters = {}
+    parameters["RestLabelmap"] = self.get('ArmatureWeightInputVolumeNodeComboBox').currentNode().GetID()
+    parameters["ArmaturePoly"] = self.get('ArmatureWeightAmartureNodeComboBox').currentNode().GetID()
+    parameters["BodyPartition"] = self.get('ArmatureWeightBodyPartitionVolumeNodeComboBox').currentNode().GetID()
+    parameters["WeightDirectory"] = str(self.get('ArmatureWeightOutputDirectoryButton').directory)
+    #parameters["FirstEdge"] = 0
+    #parameters["LastEdge"] = -1
+    #parameters["BinaryWeight"] = False
+    #parameters["SmoothingIteration"] = 10
+    #parameters["Debug"] = False
+    #parameters["RunSequential"] = False
+    cliNode = None
+    cliNode = slicer.cli.run(slicer.modules.armatureweight, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Armature Weight completed'
+    else:
+      print 'Armature Weight failed'
+
+  def openArmatureWeightModule(self):
+    self.openModule('ArmatureWeight')
+
+  #  c) Evaluate Weight
+  def runEvaluateWeight(self):
+    parameters = {}
+    parameters["InputSurface"] = self.get('EvaluateWeightInputSurfaceComboBox').currentNode().GetID()
+    parameters["WeightDirectory"] = str(self.get('EvaluateWeightInputFolderDirectoryButton').directory)
+    parameters["OutputSurface"] = self.get('EvaluateWeightOutputSurfaceComboBox').currentNode().GetID()
+    #parameters["IsSurfaceInRAS"] = False
+    cliNode = None
+    cliNode = slicer.cli.run(slicer.modules.evalweight, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Evaluate Weight completed'
+    else:
+      print 'Evaluate Weight failed'
+
+  def openEvaluateWeightModule(self):
+    self.openModule('EvalWeight')
+
+  def setWeightDirectory(self, dir):
+    self.get('EvaluateWeightInputFolderDirectoryButton').directory = dir
 
   # 4) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):
