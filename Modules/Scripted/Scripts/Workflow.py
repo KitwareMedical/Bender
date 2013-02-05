@@ -103,6 +103,13 @@ class WorkflowWidget:
     self.get('EvaluateWeightApplyPushButton').connect('clicked()',self.runEvaluateWeight)
     self.get('EvaluateWeightGoToPushButton').connect('clicked()', self.openEvaluateWeightModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    # 4) (Pose) Armature And Pose Body
+    # a) (Pose) Armatures
+    self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
+    # b) Pose Body
+    self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
+    self.get('PoseBodyGoToPushButton').connect('clicked()', self.openEvaluateWeightModule)
+    self.get('EvaluateWeightInputFolderDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 5) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
@@ -154,6 +161,8 @@ class WorkflowWidget:
     if colorNode != None:
       colorNodeID = colorNode.GetID()
     labelmapDisplayNode.SetAndObserveColorNodeID(colorNodeID)
+
+    self.setupMergeLabels(volumeNode)
 
   def openLabelmapModule(self):
     self.openModule('Volumes')
@@ -447,7 +456,36 @@ class WorkflowWidget:
     self.openModule('EvalWeight')
 
   def setWeightDirectory(self, dir):
-    self.get('EvaluateWeightInputFolderDirectoryButton').directory = dir
+    if self.get('EvaluateWeightInputFolderDirectoryButton').directory != dir:
+      self.get('EvaluateWeightInputFolderDirectoryButton').directory = dir
+
+    if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
+      self.get('PoseBodyWeightInputDirectoryButton').directory = dir
+
+  # 4) (Pose) Armature And Pose Body
+  # a) (Pose) Armatures
+  def openPosedArmatureModule(self):
+    self.openModule('Armatures')
+
+  # b) Pose Body
+  def runPoseBody(self):
+    parameters = {}
+    parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode().GetID()
+    parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode().GetID()
+    parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
+    parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode().GetID()
+    #parameters["IsSurfaceInRAS"] = False
+    #parameters["IsArmatureInRAS"] = False
+    cliNode = None
+    cliNode = slicer.cli.run(slicer.modules.posebody, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Pose Body completed'
+    else:
+      print 'Pose Body failed'
+
+  def openPoseBodyModule(self):
+    self.openModule('PoseBody')
 
   # 4) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):

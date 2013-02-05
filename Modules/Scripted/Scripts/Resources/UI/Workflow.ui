@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>434</width>
+    <width>542</width>
     <height>640</height>
    </rect>
   </property>
@@ -19,11 +19,51 @@
   <property name="windowTitle">
    <string>Workflow</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QGridLayout" name="gridLayout">
    <property name="margin">
     <number>0</number>
    </property>
-   <item>
+   <item row="1" column="0">
+    <widget class="QWidget" name="WorkflowControlWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QToolButton" name="FirstPageToolButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>&lt;&lt; First</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="PreviousPageToolButton">
+        <property name="text">
+         <string>&lt; Previous</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="NextPageToolButton">
+        <property name="text">
+         <string>Next &gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="LastPageToolButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Last &gt;&gt;</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
     <widget class="QStackedWidget" name="WorkflowWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -768,6 +808,193 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="PosePage">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Armatures</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_11">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="PoseArmaturesLabel">
+            <property name="text">
+             <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Go to Armatures module</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="PoseBodyCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Armature weight</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_12">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="PoseBodyArmaturesLabel">
+            <property name="text">
+             <string>Armature</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="PoseBodySurfaceInputLabel">
+            <property name="text">
+             <string>Input surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="PoseBodyWeightInputFolderLabel">
+            <property name="text">
+             <string>Weight folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="ctkDirectoryButton" name="PoseBodyWeightInputDirectoryButton"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="PoseBodySurfaceOutputLabel">
+            <property name="text">
+             <string>Output surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseBodyApplyPushButton">
+            <property name="text">
+             <string>Pose body</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseBodyGoToPushButton">
+            <property name="text">
+             <string>Go to Pose Body module</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
      <widget class="QWidget" name="ResamplePage">
       <layout class="QFormLayout" name="formLayout_9">
        <item row="0" column="0" colspan="2">
@@ -835,46 +1062,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QWidget" name="WorkflowControlWidget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QToolButton" name="FirstPageToolButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>&lt;&lt; First</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="PreviousPageToolButton">
-        <property name="text">
-         <string>&lt; Previous</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="NextPageToolButton">
-        <property name="text">
-         <string>Next &gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QToolButton" name="LastPageToolButton">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Last &gt;&gt;</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
     </widget>
    </item>
   </layout>
@@ -1329,6 +1516,70 @@
     <hint type="destinationlabel">
      <x>256</x>
      <y>465</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodyArmatureInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodySurfaceOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodySurfaceInputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>310</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SegmentBonesAmartureNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>248</y>
     </hint>
    </hints>
   </connection>
