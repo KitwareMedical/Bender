@@ -55,6 +55,7 @@ class WorkflowWidget:
     self.reloadButton.connect('clicked()', self.reloadModule)
 
     self.WorkflowWidget = self.get('WorkflowWidget')
+    self.TitleLabel = self.get('TitleLabel')
 
     self.volumeNodeMergeLabelsTag = 0
     self.labelmapDisplayNodeMergeLabelsTag = 0
@@ -99,17 +100,13 @@ class WorkflowWidget:
     # b) Aramtures Weight
     self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
-    # c) Evaluate Weight
-    self.get('EvaluateWeightApplyPushButton').connect('clicked()',self.runEvaluateWeight)
-    self.get('EvaluateWeightGoToPushButton').connect('clicked()', self.openEvaluateWeightModule)
-    self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 4) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Pose Body
     self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
-    self.get('PoseBodyGoToPushButton').connect('clicked()', self.openEvaluateWeightModule)
-    self.get('EvaluateWeightInputFolderDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
+    self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 5) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
@@ -118,14 +115,48 @@ class WorkflowWidget:
     # Initialize
     self.widget.setMRMLScene(slicer.mrmlScene)
 
+    self.updateTitle()
+
+  def updateTitle(self):
+    title = self.WorkflowWidget.currentWidget().toolTip
+    title = '<h2>%s</h2>' % title
+    self.TitleLabel.setText(title)
+
+    if self.WorkflowWidget.currentIndex > 0:
+      self.get('PreviousPageToolButton').setEnabled(True)
+      previousWidget = self.WorkflowWidget.widget(self.WorkflowWidget.currentIndex - 1)
+
+      previous = (previousWidget.toolTip.replace('</p>', '')).replace('p>', ' ')  # Ugly, but the string comes with <p> and </p>
+      self.get('PreviousPageToolButton').setText(previous)
+    else:
+      self.get('PreviousPageToolButton').setText('< Previous')
+      self.get('PreviousPageToolButton').setEnabled(False)
+
+    if self.WorkflowWidget.currentIndex < self.WorkflowWidget.count - 1:
+      self.get('NextPageToolButton').setEnabled(True)
+      nextWidget = self.WorkflowWidget.widget(self.WorkflowWidget.currentIndex + 1)
+
+      next = (nextWidget.toolTip.replace('<p>', '')).replace('</p', ' ')# Ugly, but the string comes with <p> and </p>
+      self.get('NextPageToolButton').setText(next)
+    else:
+      self.get('NextPageToolButton').setText('Next >')
+      self.get('NextPageToolButton').setEnabled(False)
+
   def goToFirst(self):
     self.WorkflowWidget.setCurrentIndex(0)
+    self.updateTitle()
+
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
+    self.updateTitle()
+
   def goToNext(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex + 1)
+    self.updateTitle()
+
   def goToLast(self):
-    self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.count() - 1)
+    self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.count - 1)
+    self.updateTitle()
 
   # 0) Bone Segmentation
   #     a) Labelmap
@@ -437,31 +468,6 @@ class WorkflowWidget:
   def openArmatureWeightModule(self):
     self.openModule('ArmatureWeight')
 
-  #  c) Evaluate Weight
-  def runEvaluateWeight(self):
-    parameters = {}
-    parameters["InputSurface"] = self.get('EvaluateWeightInputSurfaceComboBox').currentNode().GetID()
-    parameters["WeightDirectory"] = str(self.get('EvaluateWeightInputFolderDirectoryButton').directory)
-    parameters["OutputSurface"] = self.get('EvaluateWeightOutputSurfaceComboBox').currentNode().GetID()
-    #parameters["IsSurfaceInRAS"] = False
-    cliNode = None
-    cliNode = slicer.cli.run(slicer.modules.evalweight, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
-      print 'Evaluate Weight completed'
-    else:
-      print 'Evaluate Weight failed'
-
-  def openEvaluateWeightModule(self):
-    self.openModule('EvalWeight')
-
-  def setWeightDirectory(self, dir):
-    if self.get('EvaluateWeightInputFolderDirectoryButton').directory != dir:
-      self.get('EvaluateWeightInputFolderDirectoryButton').directory = dir
-
-    if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
-      self.get('PoseBodyWeightInputDirectoryButton').directory = dir
-
   # 4) (Pose) Armature And Pose Body
   # a) (Pose) Armatures
   def openPosedArmatureModule(self):
@@ -486,6 +492,10 @@ class WorkflowWidget:
 
   def openPoseBodyModule(self):
     self.openModule('PoseBody')
+
+  def setWeightDirectory(self, dir):
+    if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
+      self.get('PoseBodyWeightInputDirectoryButton').directory = dir
 
   # 4) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):
