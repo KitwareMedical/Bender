@@ -18,8 +18,8 @@
 
 =========================================================================*/
 
-#ifndef __WeightMapIO_h
-#define __WeightMapIO_h
+#ifndef __benderWeightMapIO_h
+#define __benderWeightMapIO_h
 
 // Bender includes
 #include "benderWeightMap.h"

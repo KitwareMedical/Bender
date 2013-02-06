@@ -23,11 +23,16 @@
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
 
+#include "vtkBoneEnvelopeRepresentation.h"
+
 // VTK includes
 #include <vtkCallbackCommand.h>
 #include <vtkCommand.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
+
+#include <vtkProperty.h>
+
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
@@ -105,6 +110,11 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
           }
         Widget->SetShowAxes(show);
         }
+      else if (key == "1")
+        {
+        Widget->GetBoneRepresentation()->SetShowEnvelope(
+          ! Widget->GetBoneRepresentation()->GetShowEnvelope());
+        }
       }
 
   vtkBoneWidget* Widget;
@@ -132,6 +142,7 @@ int vtkBoneWidgetRepresentationAndInteractionTest(int, char *[])
   boneWidget->SetInteractor(renderWindowInteractor);
   //Test Line
   boneWidget->CreateDefaultRepresentation();
+  boneWidget->GetBoneRepresentation()->GetEnvelope()->GetProperty()->SetOpacity(0.4);
 
   //Setup callbacks
   vtkSmartPointer<KeyPressInteractorStyle> style = 

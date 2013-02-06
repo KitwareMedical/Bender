@@ -147,18 +147,6 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     }
 }
 
-//-----------------------------------------------------------------------------
-void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
-{
-  cout<<"Wrote polydata to "<<fileName<<endl;
-  vtkNew<vtkPolyDataWriter> pdWriter;
-  pdWriter->SetInput(polyData);
-  pdWriter->SetFileName(fileName.c_str() );
-  pdWriter->SetFileTypeToBinary();
-  pdWriter->Update();
-}
-
-
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
@@ -294,7 +282,7 @@ int main( int argc, char * argv[] )
       }
     }
   cerr<<numZeros<<" points have zero weight"<<endl;
-  WritePolyData(surface,OutputSurface);
+  bender::IOUtils::WritePolyData(surface,OutputSurface);
 
   return EXIT_SUCCESS;
 }

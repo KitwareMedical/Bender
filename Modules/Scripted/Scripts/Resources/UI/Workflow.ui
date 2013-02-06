@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>334</width>
+    <width>542</width>
     <height>640</height>
    </rect>
   </property>
@@ -19,18 +19,112 @@
   <property name="windowTitle">
    <string>Workflow</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="margin">
-    <number>0</number>
+  <layout class="QVBoxLayout" name="verticalLayout_6">
+   <property name="leftMargin">
+    <number>9</number>
+   </property>
+   <property name="rightMargin">
+    <number>9</number>
    </property>
    <item>
+    <widget class="QLabel" name="TitleLabel">
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+     <property name="wordWrap">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QStackedWidget" name="WorkflowWidget">
+     <property name="toolTip">
+      <string/>
+     </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <widget class="QWidget" name="BoneSegmentationPage">
-      <layout class="QFormLayout" name="formLayout">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::FieldsStayAtSizeHint</enum>
+      <property name="toolTip">
+       <string>Initial data grooming</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_7">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-       <item row="2" column="0" colspan="2">
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="LabelmapCollapsibleGroupBox">
+         <property name="title">
+          <string>Labelmap</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_6">
+          <item row="0" column="0">
+           <widget class="QLabel" name="LabelmapVolumeLabel">
+            <property name="text">
+             <string>Volume</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="LabelmapColorLabel">
+            <property name="text">
+             <string>Lookup Table</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLColorTableNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="baseName">
+             <string>ColorTable</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QPushButton" name="LabelmapGoToModulePushButton">
+            <property name="text">
+             <string>Go To Volumes</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="ctkCollapsibleGroupBox" name="MergeLabelsCollapsibleGroupBox">
          <property name="title">
           <string>Merge Labels</string>
@@ -79,13 +173,6 @@
           <item row="5" column="1">
            <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox"/>
           </item>
-          <item row="7" column="0" colspan="2">
-           <widget class="QPushButton" name="MergeLabelsApplyPushButton">
-            <property name="text">
-             <string>Apply</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="MergeLabelsOutputLabel">
             <property name="text">
@@ -130,134 +217,62 @@
             </property>
            </widget>
           </item>
+          <item row="7" column="0" colspan="2">
+           <widget class="QPushButton" name="MergeLabelsApplyPushButton">
+            <property name="text">
+             <string>Merge Labels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
+           <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
+            <property name="text">
+             <string>Go To Change Label</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
-         <property name="title">
-          <string>Volume Render</string>
+       <item>
+        <spacer name="verticalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
          </property>
-         <layout class="QFormLayout" name="formLayout_6">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="VolumeRenderLabelmapNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="showChildNodeTypes">
-             <bool>false</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
-            <property name="text">
-             <string>Labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="VolumeRenderLabelsLabel">
-            <property name="text">
-             <string>Labels</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="LabelmapCollapsibleGroupBox">
-         <property name="title">
-          <string>Labelmap</string>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
          </property>
-         <layout class="QFormLayout" name="formLayout_10">
-          <item row="0" column="0">
-           <widget class="QLabel" name="LabelmapVolumeLabel">
-            <property name="text">
-             <string>Volume</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="LabelmapColorLabel">
-            <property name="text">
-             <string>Lookup Table</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLColorTableNode</string>
-             </stringlist>
-            </property>
-            <property name="noneEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="baseName">
-             <string>ColorTable</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QCheckBox" name="LabelmapLabelmapCheckBox">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="LabelmapLabelmapLabel">
-            <property name="text">
-             <string>Labelmap</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+        </spacer>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ModelMakerPage">
-      <layout class="QFormLayout" name="formLayout_3">
-       <item row="0" column="0" colspan="2">
+      <property name="toolTip">
+       <string>Bone and skin surfaces</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
         <widget class="ctkCollapsibleGroupBox" name="ModelMakerCollapsibleGroupBox">
          <property name="title">
           <string>Model Maker</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_4">
+         <layout class="QFormLayout" name="formLayout_3">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
           <item row="0" column="0">
            <widget class="QLabel" name="ModelMakerInputLabel">
             <property name="text">
-             <string>Input Labelmap</string>
+             <string>Input labelmap</string>
             </property>
            </widget>
           </item>
@@ -276,68 +291,168 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ModelMakerLabelsLabel">
+            <property name="text">
+             <string>Labels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="ModelMakerLabelsLineEdit"/>
+          </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="ModelMakerBoneLabelLabel">
+           <widget class="QLabel" name="ModelMakerBoneNodeLabel">
             <property name="text">
-             <string>Bone Label</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="ModelMakerSkinLabelLabel">
-            <property name="text">
-             <string>Skin Label</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QPushButton" name="ModelMakerApplyPushButton">
-            <property name="text">
-             <string>Apply</string>
+             <string>Output models</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLLabelComboBox" name="ModelMakerBoneLabelComboBox"/>
-          </item>
-          <item row="4" column="1">
-           <widget class="qMRMLLabelComboBox" name="ModelMakerSkinLabelComboBox"/>
-          </item>
-          <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ModelMakerBoneNodeComboBox"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="ModelMakerBoneNodeLabel">
-            <property name="text">
-             <string>Bone Model</string>
+           <widget class="qMRMLNodeComboBox" name="ModelMakerOutputNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelHierarchyNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string>Models</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="ModelMakerSkinNodeLabel">
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="ModelMakerApplyPushButton">
             <property name="text">
-             <string>Skin Model</string>
+             <string>Generate models</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="ModelMakerSkinNodeComboBox"/>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
+            <property name="text">
+             <string>Go To Model Maker</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
+         <property name="title">
+          <string>Volume Render</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout_4">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
+            <property name="text">
+             <string>Labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showChildNodeTypes">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="VolumeRenderLabelsLabel">
+            <property name="text">
+             <string>Labels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit"/>
+          </item>
+          <item row="2" column="0" colspan="2">
+           <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
+            <property name="text">
+             <string>Go To Volume Rendering</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ArmaturesPage">
-      <layout class="QFormLayout" name="formLayout_7">
-       <item row="0" column="0" colspan="2">
+      <property name="toolTip">
+       <string>Rest armature creation</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
         <widget class="ctkCollapsibleGroupBox" name="ArmaturesCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Armatures</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_5">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="ArmaturesApplyPushButton">
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Use the Armatures module to create the base skeleton of the label map.</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="ArmaturesGoToPushButton">
             <property name="text">
              <string>Go to Armatures module</string>
             </property>
@@ -346,11 +461,491 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="SegmentBonesPage">
+      <property name="toolTip">
+       <string>Weight computation</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="SegmentBonesCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Segment Bones</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_5">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SegmentBonesVolumeLabel">
+            <property name="text">
+             <string>Volume</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="SegmentBonesArmatureLabel">
+            <property name="text">
+             <string>Armature</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="SegmentBonesOutputVolumeLabel">
+            <property name="text">
+             <string>Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string>BonesPartition</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPushButton" name="SegmentBonesGoToPushButton">
+            <property name="text">
+             <string>Go to Armature Bones module</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="2">
+           <widget class="QPushButton" name="SegmentBonesApplyPushButton">
+            <property name="text">
+             <string>Segment bones</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="ArmatureWeightCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Armature weight</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_7">
+          <item row="1" column="0">
+           <widget class="QLabel" name="ArmatureWeightInputVolumeLabel">
+            <property name="text">
+             <string>Volume</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="ArmatureWeightArmatureLabel">
+            <property name="text">
+             <string>Armature</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="ArmatureWeightBodyPartitionLabel">
+            <property name="text">
+             <string>Body partition</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="ArmatureWeightOutputFolderLabel">
+            <property name="text">
+             <string>Output folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
+           <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
+            <property name="text">
+             <string>Compute weights</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
+            <property name="text">
+             <string>Go to Armature Weights module</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="ctkDirectoryButton" name="ArmatureWeightOutputDirectoryButton"/>
+          </item>
+          <item row="5" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string>BonesPartition</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="PosePage">
+      <property name="toolTip">
+       <string>Pose armature and surface</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Armatures</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_11">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="PoseArmaturesLabel">
+            <property name="text">
+             <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Go to Armatures module</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="PoseBodyCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Pose Body</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout_12">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="PoseBodyArmaturesLabel">
+            <property name="text">
+             <string>Armature</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="PoseBodySurfaceInputLabel">
+            <property name="text">
+             <string>Input surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="PoseBodyWeightInputFolderLabel">
+            <property name="text">
+             <string>Weight folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="ctkDirectoryButton" name="PoseBodyWeightInputDirectoryButton"/>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="PoseBodySurfaceOutputLabel">
+            <property name="text">
+             <string>Output surface</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseBodyApplyPushButton">
+            <property name="text">
+             <string>Pose body</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QPushButton" name="PoseBodyGoToPushButton">
+            <property name="text">
+             <string>Go to Pose Body module</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ResamplePage">
-      <layout class="QFormLayout" name="formLayout_9">
-       <item row="0" column="0" colspan="2">
+      <property name="toolTip">
+       <string>Final labelmap resampling</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_8">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item>
         <widget class="ctkCollapsibleGroupBox" name="ResampleCollapsibleGroupBox">
          <property name="title">
           <string>Resample Labelmap with pose</string>
@@ -413,6 +1008,19 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer_6">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -420,10 +1028,16 @@
    <item>
     <widget class="QWidget" name="WorkflowControlWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QToolButton" name="FirstPageToolButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>&lt;&lt; First</string>
@@ -432,6 +1046,18 @@
       </item>
       <item>
        <widget class="QToolButton" name="PreviousPageToolButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>&lt; Previous</string>
         </property>
@@ -439,6 +1065,18 @@
       </item>
       <item>
        <widget class="QToolButton" name="NextPageToolButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="text">
          <string>Next &gt;</string>
         </property>
@@ -447,7 +1085,7 @@
       <item>
        <widget class="QToolButton" name="LastPageToolButton">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>Last &gt;&gt;</string>
@@ -488,6 +1126,11 @@
    <header>ctkCollapsibleGroupBox.h</header>
    <container>1</container>
   </customwidget>
+  <customwidget>
+   <class>ctkDirectoryButton</class>
+   <extends>QWidget</extends>
+   <header>ctkDirectoryButton.h</header>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -503,7 +1146,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>185</x>
-     <y>212</y>
+     <y>246</y>
     </hint>
    </hints>
   </connection>
@@ -519,7 +1162,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>233</x>
-     <y>256</y>
+     <y>290</y>
     </hint>
    </hints>
   </connection>
@@ -535,7 +1178,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>168</x>
-     <y>326</y>
+     <y>360</y>
     </hint>
    </hints>
   </connection>
@@ -551,7 +1194,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>187</x>
-     <y>390</y>
+     <y>424</y>
     </hint>
    </hints>
   </connection>
@@ -574,7 +1217,7 @@
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerBoneNodeComboBox</receiver>
+   <receiver>ModelMakerOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -583,55 +1226,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>206</x>
-     <y>89</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerBoneLabelComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>9</x>
-     <y>206</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>152</x>
-     <y>125</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerSkinNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>3</x>
-     <y>149</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>148</x>
-     <y>160</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerSkinLabelComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>4</x>
-     <y>126</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>158</x>
-     <y>207</y>
+     <y>121</y>
     </hint>
    </hints>
   </connection>
@@ -668,38 +1263,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>MergeLabelsOutputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>VolumeRenderLabelmapNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>260</x>
-     <y>249</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>209</x>
-     <y>515</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>VolumeRenderLabelmapNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>35</x>
-     <y>447</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>125</x>
-     <y>513</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>MergeLabelsInputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>MergeLabelsOutputNodeComboBox</receiver>
@@ -707,11 +1270,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>217</x>
-     <y>213</y>
+     <y>247</y>
     </hint>
     <hint type="destinationlabel">
      <x>217</x>
-     <y>237</y>
+     <y>271</y>
     </hint>
    </hints>
   </connection>
@@ -759,7 +1322,279 @@
     </hint>
     <hint type="destinationlabel">
      <x>260</x>
-     <y>204</y>
+     <y>238</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeRenderLabelsLineEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>ModelMakerLabelsLineEdit</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>141</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>158</x>
+     <y>79</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ModelMakerLabelsLineEdit</sender>
+   <signal>textChanged(QString)</signal>
+   <receiver>VolumeRenderLabelsLineEdit</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>265</x>
+     <y>85</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>264</x>
+     <y>366</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ModelMakerInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>187</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>14</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ModelMakerInputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>VolumeRenderInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>231</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>VolumeRenderInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SegmentBonesAmartureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>67</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SegmentBonesOutputVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SegmentBonesInputVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>41</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>236</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightBodyPartitionVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>262</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>191</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SegmentBonesInputVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>217</x>
+     <y>41</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodyArmatureInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodySurfaceOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>308</x>
+     <y>230</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseBodySurfaceInputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>319</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>310</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SegmentBonesAmartureNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SegmentBonesOutputVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ArmatureWeightBodyPartitionVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>296</x>
+     <y>93</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>307</x>
+     <y>280</y>
     </hint>
    </hints>
   </connection>

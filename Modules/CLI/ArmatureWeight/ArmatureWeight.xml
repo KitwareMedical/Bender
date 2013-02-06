@@ -8,14 +8,15 @@
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url></documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
+
     <image>
       <name>RestLabelmap</name>
-      <label>Rest Labelmap</label>
+      <label>Input Rest Labelmap</label>
       <description><![CDATA[Labelmap volume in resting pose]]></description>
       <channel>input</channel>
       <index>0</index>
@@ -23,26 +24,26 @@
 
     <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
-      <label>Armature</label>
+      <label>Input Armature</label>
       <description><![CDATA[Resting armature]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
 
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
+    <image>
+      <name>BodyPartition</name>
+      <label>Body Partition Labelmap</label>
+      <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
+      <channel>input</channel>
+      <index>2</index>
+    </image>
 
     <directory>
       <name>WeightDirectory</name>
       <label>Weight Output Directory</label>
       <description><![CDATA[The directory to contain the weight files.]]></description>
       <channel>output</channel>
-      <index>2</index>
+      <index>3</index>
       <default>./</default>
     </directory>
 
@@ -68,21 +69,6 @@
     </integer>
 
     <integer>
-      <name>ExpansionDistance</name>
-      <longflag>--expansion</longflag>
-      <label>Expansion Distance</label>
-      <description><![CDATA[How far (in voxel units) to expand the diffusion region from the voronoi region.]]></description>
-      <default>20</default>
-    </integer>
-    <integer>
-      <name>Padding</name>
-      <longflag>--padding</longflag>
-      <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
-      <default>1</default>
-    </integer>
-
-    <integer>
       <name>SmoothingIteration</name>
       <longflag>--smooth</longflag>
       <label>Smoothing Iteration Number</label>
@@ -104,10 +90,18 @@
     </boolean>
 
     <boolean>
-      <name>DumpDebugImages</name>
-      <label>Dump Intermediate Images</label>
+      <name>Debug</name>
+      <label>Dump Debug Images</label>
       <longflag>--dump</longflag>
       <description><![CDATA[Dump debugging images. for Debugging only]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>RunSequential</name>
+      <label>Run Sequential</label>
+      <longflag>--sequential</longflag>
+      <description><![CDATA[Runs the computation of each bone sequential instead of parrallel.]]></description>
       <default>false</default>
     </boolean>
   </parameters>

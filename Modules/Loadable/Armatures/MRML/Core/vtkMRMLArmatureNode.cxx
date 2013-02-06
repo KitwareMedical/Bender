@@ -29,6 +29,7 @@
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
+#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
 #include <vtkCallbackCommand.h>
@@ -102,7 +103,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(1.0);
 
-  this->ArmatureProperties->SetBonesAlwaysOnTop(1);
+  this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
 
@@ -131,6 +132,8 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
     << this->ArmatureProperties->GetShowAxes() << "\"";
   of << indent << " ShowParenthood=\""
     << this->ArmatureProperties->GetShowParenthood() << "\"";
+  of << indent << " ShowEnvelopes=\""
+    << this->GetShowEnvelopes() << "\"";
 
   of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
   of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
@@ -139,7 +142,7 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
   this->GetColor(rgb);
   vtkMRMLNodeHelper::PrintQuotedVector3(of, rgb);
   of << indent << " BonesAlwaysOnTop=\""
-    << this->ArmatureProperties->GetBonesAlwaysOnTop() << "\"";
+    << this->GetBonesAlwaysOnTop() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -190,6 +193,11 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
       double rgb[3];
       vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
       this->SetColor(rgb);
+      }
+    else if (!strcmp(attName, "ShowEnvelopes"))
+      {
+      this->SetShowEnvelopes(
+        vtkMRMLNodeHelper::StringToInt(attValue));
       }
     }
   this->EndModify(disabledModify);
@@ -375,13 +383,40 @@ void vtkMRMLArmatureNode::GetColor(double rgb[3])
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetBonesAlwaysOnTop(int onTop)
 {
-  this->ArmatureProperties->SetBonesAlwaysOnTop(onTop);
+  if (onTop == this->GetBonesAlwaysOnTop())
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()
+    ->SetAlwaysOnTop(onTop);
+  this->Modified();
 }
 
 //---------------------------------------------------------------------------
 int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
 {
-  return this->ArmatureProperties->GetBonesAlwaysOnTop();
+  return this->ArmatureProperties->GetBonesRepresentation()->GetAlwaysOnTop();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetShowEnvelopes(int show)
+{
+  if (static_cast<bool>(show) ==
+    this->ArmatureProperties->GetBonesRepresentation()->GetShowEnvelope())
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()->SetShowEnvelope(show);
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+int vtkMRMLArmatureNode::GetShowEnvelopes()
+{
+  return this->ArmatureProperties->GetBonesRepresentation()
+    ->GetShowEnvelope();
 }
 
 /*
@@ -463,8 +498,8 @@ void vtkMRMLArmatureNode
     armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(
     armatureWidget->GetShowParenthood());
-  this->ArmatureProperties->SetBonesAlwaysOnTop(
-    armatureWidget->GetBonesAlwaysOnTop());
+  this->SetBonesAlwaysOnTop(
+    armatureWidget->GetBonesRepresentation()->GetAlwaysOnTop());
 
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetOpacity(
@@ -472,6 +507,9 @@ void vtkMRMLArmatureNode
   this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
     ->SetColor(
     armatureWidget->GetArmatureRepresentation()->GetProperty()->GetColor());
+
+  this->SetShowEnvelopes(
+    armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
 }
 
 //---------------------------------------------------------------------------
@@ -507,8 +545,10 @@ void vtkMRMLArmatureNode
   armatureWidget->SetWidgetState(this->WidgetState);
   armatureWidget->SetShowAxes(
     this->ArmatureProperties->GetShowAxes());
-  armatureWidget->SetBonesAlwaysOnTop(
-    this->ArmatureProperties->GetBonesAlwaysOnTop());
+  armatureWidget->GetBonesRepresentation()->SetAlwaysOnTop(
+    this->GetBonesAlwaysOnTop());
+  armatureWidget->GetBonesRepresentation()->SetShowEnvelope(
+    this->GetShowEnvelopes());
 
   double color[3];
   this->GetColor(color);
