@@ -94,6 +94,7 @@ class WorkflowWidget:
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupModelMaker)
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
+    self.get('ModelMakerSkinVisibleTogglePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('ModelMakerApplyPushButton').connect('clicked()', self.runModelMaker)
     self.get('ModelMakerGoToModulePushButton').connect('clicked()', self.openModelMakerModule)
     # b) Volume Render
@@ -359,6 +360,31 @@ class WorkflowWidget:
       return
     volumeNode.AddObserver('ModifiedEvent', self.updateModelMaker)
 
+  # Utility function, return the list of model that have skin in their names form a hierachy model
+  def getSkinModels(self, hierarchyModel):
+    if hierarchyModel == None:
+      return []
+
+    skinModelList = []
+    childrenModel = vtk.vtkCollection()
+    hierarchyModel.GetChildrenModelNodes(childrenModel)
+    for i in range(0, childrenModel.GetNumberOfItems()):
+      node = childrenModel.GetItemAsObject(i)
+      if (node != None
+          and node.IsA("vtkMRMLModelNode")
+          and node.GetName().lower().find('skin') != -1):
+          skinModelList.append(node)
+
+    return skinModelList
+
+  def updateSkinNodeVisibility(self):
+    model = self.get('ModelMakerOutputNodeComboBox').currentNode()
+    if model == None:
+      return
+
+    for skinModel in self.getSkinModels(model):
+        skinModel.SetDisplayVisibility(not skinModel.GetDisplayVisibility())
+
   def setupModelMakerLabels(self):
     """ Update the labels of the model maker
     """
@@ -384,6 +410,10 @@ class WorkflowWidget:
     status = cliNode.GetStatusString()
     if status == 'Completed':
       print 'ModelMaker completed'
+
+      for skinModel in self.getSkinModels(self.get('ModelMakerOutputNodeComboBox').currentNode()):
+        skinModel.GetModelDisplayNode().SetOpacity(0.2)
+
     else:
       print 'ModelMaker failed'
 

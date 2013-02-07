@@ -358,10 +358,10 @@
          <property name="title">
           <string>Model Maker</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_3">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
+         <property name="collapsedHeight">
+          <number>5</number>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
            <widget class="QLabel" name="ModelMakerInputLabel">
             <property name="text">
@@ -419,14 +419,38 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ModelMakerSkinVisibleTogglePushButtton">
+              <property name="text">
+               <string>Toggle output model skin visibility</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0" colspan="2">
            <widget class="QPushButton" name="ModelMakerApplyPushButton">
             <property name="text">
              <string>Generate models</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="5" column="0" colspan="2">
            <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
             <property name="text">
              <string>Go To Model Maker</string>
