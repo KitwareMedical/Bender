@@ -62,6 +62,9 @@ class WorkflowWidget:
     self.volumeNodeLabelMapTag = 0
     self.labelmapDisplayNodeLabelMapTag = 0
 
+    # Transform variables
+    self.TransformNode = None
+
     # Merge variables
     self.volumeNodeMergeLabelsTag = 0
     self.labelmapDisplayNodeMergeLabelsTag = 0
@@ -79,6 +82,9 @@ class WorkflowWidget:
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
     # b) Merge Labels
+    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
+    self.get('TransformGoToTransformButton').connect('clicked()', self.openTransformModule)
+    # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
     self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
@@ -127,6 +133,24 @@ class WorkflowWidget:
     # Init color node combo box <=> make 'Generic Colors' labelmap visible
     model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
     model.setProperty('visibleNodeIDs', slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
+
+    # Init transform node
+    self.TransformNode = slicer.mrmlScene.GetFirstNodeByName('WorflowTransformNode')
+    if self.TransformNode == None:
+      self.TransformNode = slicer.vtkMRMLLinearTransformNode()
+      self.TransformNode.SetName('WorflowTransformNode')
+      self.TransformNode.HideFromEditorsOn()
+
+      transform = vtk.vtkMatrix4x4()
+      transform.DeepCopy((-1.0, 0.0, 0.0, 0.0,
+                           0.0, -1.0, 0.0, 0.0,
+                           0.0, 0.0, 1.0, 0.0,
+                           0.0, 0.0, 0.0, 1.0))
+      self.TransformNode.ApplyTransformMatrix(transform)
+
+      slicer.mrmlScene.AddNode(self.TransformNode)
+
+    self.get('TransformMatrixWidget').setMRMLTransformNode(self.TransformNode)
 
   # Worflow
   def updateTitle(self):
@@ -208,7 +232,23 @@ class WorkflowWidget:
   def openLabelmapModule(self):
     self.openModule('Volumes')
 
-  #    b) Merge Labels
+  #    b) Transform
+  def runTransform(self):
+    volumeNode = self.get('TransformInputVolumeComboBox').currentNode()
+    if volumeNode == None:
+      return
+
+    volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
+    transformLogic = slicer.modules.transforms.logic()
+    if transformLogic.hardenTransform(volumeNode):
+      print "Transform succesful !"
+    else:
+      print "Transform failure !"
+
+  def openTransformModule(self):
+    self.openModule('Transforms')
+
+  #    c) Merge Labels
   def updateMergeLabels(self, node, event):
     volumeNode = self.get('MergeLabelsInputNodeComboBox').currentNode()
     if node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode:
