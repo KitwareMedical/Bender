@@ -57,6 +57,12 @@ class WorkflowWidget:
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
 
+    # Labelmap variables
+    self.oldLabelMapVolumeNode = None
+    self.volumeNodeLabelMapTag = 0
+    self.labelmapDisplayNodeLabelMapTag = 0
+
+    # Merge variables
     self.volumeNodeMergeLabelsTag = 0
     self.labelmapDisplayNodeMergeLabelsTag = 0
 
@@ -70,7 +76,7 @@ class WorkflowWidget:
     # 0) Bone Segmentations
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
-    self.get('LabelmapColorNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setVolumeColorNode)
+    self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
     # b) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
@@ -115,8 +121,14 @@ class WorkflowWidget:
     # Initialize
     self.widget.setMRMLScene(slicer.mrmlScene)
 
+    # Init title
     self.updateTitle()
 
+    # Init color node combo box <=> make 'Generic Colors' labelmap visible
+    model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
+    model.setProperty('visibleNodeIDs', slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
+
+  # Worflow
   def updateTitle(self):
     title = self.WorkflowWidget.currentWidget().toolTip
     title = '<h2>%s</h2>' % title
@@ -162,30 +174,28 @@ class WorkflowWidget:
   #     a) Labelmap
   def updateLabelmap(self, node, event):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
-    if node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode:
-      return
-    self.setupLabelmap(volumeNode)
-    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
-    self.get('SegmentBonesInputVolumeNodeComboBox').setCurrentNode(volumeNode)
-    #self.setupMergeLabels(volumeNode)
+    self.setupMergeLabels(volumeNode)
 
   def setupLabelmap(self, volumeNode):
     if volumeNode == None:
       return
-    labelmapDisplayNode = volumeNode.GetDisplayNode()
-    colorNode = labelmapDisplayNode.GetColorNode()
-    # set the color node first, just in case the checkbox needs it
-    self.get('LabelmapColorNodeComboBox').setCurrentNode(colorNode)
-    volumeNode.AddObserver('ModifiedEvent', self.updateLabelmap)
-    labelmapDisplayNode.AddObserver('ModifiedEvent', self.updateLabelmap)
 
-  def setVolumeColorNode(self, colorNode):
+    if self.oldLabelMapVolumeNode != None and self.oldLabelMapVolumeNode != volumeNode:
+      self.oldLabelMapVolumeNode.RemoveObserver(self.volumeNodeLabelMapTag)
+      self.oldLabelMapVolumeNode.GetDisplayNode().RemoveObserver(self.labelmapDisplayNodeLabelMapTag)
+
+    self.volumeNodeLabelMapTag = volumeNode.AddObserver('ModifiedEvent', self.updateLabelmap)
+    self.labelmapDisplayNodeLabelMapTag = volumeNode.GetDisplayNode().AddObserver('ModifiedEvent', self.updateLabelmap)
+    self.oldLabelMapVolumeNode = volumeNode
+
+  def applyColorNode(self):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
     if volumeNode == None:
       return
 
+    colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
     volumesLogic = slicer.modules.volumes.logic()
-    volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None)
+    volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None) # Greyscale is None
 
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     colorNodeID = ""
@@ -212,8 +222,6 @@ class WorkflowWidget:
     if volumeNode == None:
       return
     labelmapDisplayNode = volumeNode.GetDisplayNode()
-    if labelmapDisplayNode == None:
-      return
     colorNode = labelmapDisplayNode.GetColorNode()
     if colorNode == None:
       self.get('BoneLabelComboBox').setMRMLColorNode(None)

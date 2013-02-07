@@ -20,12 +20,6 @@
    <string>Workflow</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
-   <property name="leftMargin">
-    <number>9</number>
-   </property>
-   <property name="rightMargin">
-    <number>9</number>
-   </property>
    <item>
     <widget class="QLabel" name="TitleLabel">
      <property name="text">
@@ -66,10 +60,19 @@
        </property>
        <item>
         <widget class="ctkCollapsibleGroupBox" name="LabelmapCollapsibleGroupBox">
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
          <property name="title">
           <string>Labelmap</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_6">
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
            <widget class="QLabel" name="LabelmapVolumeLabel">
             <property name="text">
@@ -87,6 +90,9 @@
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="noneDisplay">
+             <string/>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -103,23 +109,56 @@
               <string>vtkMRMLColorTableNode</string>
              </stringlist>
             </property>
+            <property name="baseName">
+             <string>ColorTable</string>
+            </property>
             <property name="noneEnabled">
              <bool>true</bool>
             </property>
             <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="baseName">
-             <string>ColorTable</string>
+            <property name="noneDisplay">
+             <string>Greyscale</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="3" column="0" colspan="2">
            <widget class="QPushButton" name="LabelmapGoToModulePushButton">
             <property name="text">
              <string>Go To Volumes</string>
             </property>
            </widget>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="LabelMapApplyColorNodePushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Apply color node</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -133,6 +172,50 @@
           <property name="fieldGrowthPolicy">
            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
           </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="MergeLabelsInputLabel">
+            <property name="text">
+             <string>Input Labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>InputLabelMap</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="MergeLabelsOutputLabel">
+            <property name="text">
+             <string>Output Labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showChildNodeTypes">
+             <bool>true</bool>
+            </property>
+            <property name="baseName">
+             <string>MergedLabelmap</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="BoneLabelsLabel">
             <property name="text">
@@ -173,54 +256,10 @@
           <item row="5" column="1">
            <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox"/>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="MergeLabelsOutputLabel">
-            <property name="text">
-             <string>Output Labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="showChildNodeTypes">
-             <bool>true</bool>
-            </property>
-            <property name="baseName">
-             <string>MergedLabelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="MergeLabelsInputLabel">
-            <property name="text">
-             <string>Input Labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="baseName">
-             <string>InputLabelMap</string>
-            </property>
-           </widget>
-          </item>
           <item row="7" column="0" colspan="2">
            <widget class="QPushButton" name="MergeLabelsApplyPushButton">
             <property name="text">
-             <string>Merge Labels</string>
+             <string>Merge labels</string>
             </property>
            </widget>
           </item>
@@ -283,11 +322,11 @@
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
             <property name="baseName">
              <string>Labelmap</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -522,11 +561,11 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation">
-             <bool>true</bool>
-            </property>
             <property name="addEnabled">
              <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -547,11 +586,11 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
             <property name="baseName">
              <string/>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -569,14 +608,14 @@
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
+            <property name="baseName">
+             <string>BonesPartition</string>
+            </property>
             <property name="noneEnabled">
              <bool>false</bool>
             </property>
             <property name="addEnabled">
              <bool>true</bool>
-            </property>
-            <property name="baseName">
-             <string>BonesPartition</string>
             </property>
            </widget>
           </item>
@@ -653,11 +692,11 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation">
-             <bool>true</bool>
-            </property>
             <property name="addEnabled">
              <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -685,6 +724,9 @@
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
+            <property name="baseName">
+             <string>BonesPartition</string>
+            </property>
             <property name="noneEnabled">
              <bool>false</bool>
             </property>
@@ -693,9 +735,6 @@
             </property>
             <property name="removeEnabled">
              <bool>true</bool>
-            </property>
-            <property name="baseName">
-             <string>BonesPartition</string>
             </property>
            </widget>
           </item>
@@ -709,14 +748,14 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
+            <property name="baseName">
+             <string/>
+            </property>
             <property name="addEnabled">
              <bool>false</bool>
             </property>
             <property name="removeEnabled">
              <bool>true</bool>
-            </property>
-            <property name="baseName">
-             <string/>
             </property>
            </widget>
           </item>
@@ -831,11 +870,11 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
             <property name="baseName">
              <string/>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -853,6 +892,9 @@
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
+            <property name="baseName">
+             <string/>
+            </property>
             <property name="noneEnabled">
              <bool>false</bool>
             </property>
@@ -861,9 +903,6 @@
             </property>
             <property name="removeEnabled">
              <bool>true</bool>
-            </property>
-            <property name="baseName">
-             <string/>
             </property>
            </widget>
           </item>
@@ -894,11 +933,11 @@
             <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
-             <bool>true</bool>
-            </property>
             <property name="baseName">
              <string/>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -968,11 +1007,11 @@
             <property name="showChildNodeTypes">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
             <property name="baseName">
              <string>Labelmap</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -990,11 +1029,11 @@
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
             <property name="baseName">
              <string>Armature</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -1595,6 +1634,22 @@
     <hint type="destinationlabel">
      <x>307</x>
      <y>280</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>SegmentBonesInputVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>314</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>58</x>
+     <y>42</y>
     </hint>
    </hints>
   </connection>
