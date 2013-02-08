@@ -81,12 +81,12 @@ class WorkflowWidget:
     # 1) Bone Segmentations
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
-    self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
+    self.get('LabelMapApplyColorNodePushButton').connect('pressed()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
+    self.get('TransformApplyPushButton').connect('pressed()', self.runTransform)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
-    self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
+    self.get('MergeLabelsApplyPushButton').connect('pressed()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
     # a) Model Maker
@@ -94,7 +94,7 @@ class WorkflowWidget:
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
     self.get('ModelMakerSkinVisibleTogglePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('ModelMakerApplyPushButton').connect('clicked()', self.runModelMaker)
+    self.get('ModelMakerApplyPushButton').connect('pressed()', self.runModelMaker)
     self.get('ModelMakerGoToModulePushButton').connect('clicked()', self.openModelMakerModule)
     # b) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
@@ -107,22 +107,22 @@ class WorkflowWidget:
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Armature Weight and Bones
     # a) Aramtures Bones
-    self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
+    self.get('SegmentBonesApplyPushButton').connect('pressed()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
     # b) Aramtures Weight
-    self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
+    self.get('ArmatureWeightApplyPushButton').connect('pressed()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Pose Body
-    self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
+    self.get('PoseBodyApplyPushButton').connect('pressed()', self.runPoseBody)
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     self.get('ModelMakerOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseBodyInputSurface)
     # 6) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
-    self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
+    self.get('ResampleApplyPushButton').connect('pressed()', self.runResample)
 
     # --------------------------------------------------------------------------
     # Initialize
@@ -284,6 +284,8 @@ class WorkflowWidget:
     if volumeNode == None:
       return
 
+    self.get('LabelMapApplyColorNodePushButton').setChecked(True)
+      
     colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
     volumesLogic = slicer.modules.volumes.logic()
     volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None) # Greyscale is None
@@ -296,6 +298,8 @@ class WorkflowWidget:
 
     self.setupMergeLabels(volumeNode)
 
+    self.get('LabelMapApplyColorNodePushButton').setChecked(False)
+
   def openLabelmapModule(self):
     self.openModule('Volumes')
 
@@ -305,12 +309,16 @@ class WorkflowWidget:
     if volumeNode == None:
       return
 
+    self.get('TransformApplyPushButton').toggle(True)
+      
     volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
     transformLogic = slicer.modules.transforms.logic()
     if transformLogic.hardenTransform(volumeNode):
       print "Transform succesful !"
     else:
       print "Transform failure !"
+      
+    self.get('TransformApplyPushButton').toggle(False)
 
   #    c) Merge Labels
   def updateMergeLabels(self, node, event):

@@ -160,7 +160,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QLabel" name="LabelmapColorLabel">
             <property name="text">
-             <string>Lookup Table</string>
+             <string>Colors</string>
             </property>
            </widget>
           </item>
@@ -185,30 +185,47 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="LabelMapApplyColorNodePushButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Apply color node</string>
-            </property>
-           </widget>
+          <item row="2" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="TransformApplyPushButton">
+              <property name="text">
+               <string>LPS &lt;-&gt; RAS</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="LabelMapApplyColorNodePushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Apply colors</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
-          <item row="5" column="0" colspan="2">
+          <item row="3" column="0" colspan="2">
            <widget class="QPushButton" name="LabelmapGoToModulePushButton">
             <property name="text">
              <string>Go To Volumes</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="TransformApplyPushButton">
-            <property name="text">
-             <string>LPS &lt;-&gt; RAS</string>
             </property>
            </widget>
           </item>
@@ -319,19 +336,42 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QPushButton" name="MergeLabelsApplyPushButton">
-            <property name="text">
-             <string>Merge labels</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0" colspan="2">
+          <item row="10" column="0" colspan="2">
            <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
             <property name="text">
              <string>Go To Change Label</string>
             </property>
            </widget>
+          </item>
+          <item row="8" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MergeLabelsApplyPushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Merge labels</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -461,18 +501,18 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="ModelMakerSkinVisibleTogglePushButtton">
               <property name="text">
-               <string>Toggle output model skin visibility</string>
+               <string>Toggle skin visibility</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ModelMakerApplyPushButton">
+              <property name="text">
+               <string>Generate models</string>
               </property>
              </widget>
             </item>
            </layout>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QPushButton" name="ModelMakerApplyPushButton">
-            <property name="text">
-             <string>Generate models</string>
-            </property>
-           </widget>
           </item>
           <item row="5" column="0" colspan="2">
            <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
@@ -751,19 +791,36 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="SegmentBonesApplyPushButton">
-            <property name="text">
-             <string>Segment bones</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
+          <item row="6" column="0" colspan="2">
            <widget class="QPushButton" name="SegmentBonesGoToPushButton">
             <property name="text">
              <string>Go to Armature Bones module</string>
             </property>
            </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <spacer name="horizontalSpacer_7">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SegmentBonesApplyPushButton">
+              <property name="text">
+               <string>Segment bones</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -908,19 +965,36 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
-            <property name="text">
-             <string>Compute weights</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="2">
+          <item row="6" column="0" colspan="2">
            <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
             <property name="text">
              <string>Go to Armature Weights module</string>
             </property>
            </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <spacer name="horizontalSpacer_8">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
+              <property name="text">
+               <string>Compute weights</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -1123,19 +1197,36 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QPushButton" name="PoseBodyApplyPushButton">
-            <property name="text">
-             <string>Pose body</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="2">
+          <item row="6" column="0" colspan="2">
            <widget class="QPushButton" name="PoseBodyGoToPushButton">
             <property name="text">
              <string>Go to Pose Body module</string>
             </property>
            </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <item>
+             <spacer name="horizontalSpacer_9">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="PoseBodyApplyPushButton">
+              <property name="text">
+               <string>Pose body</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -1184,7 +1275,7 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>Resample Labelmap with pose</string>
          </property>
-         <layout class="QFormLayout" name="formLayout_8">
+         <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
            <widget class="QLabel" name="ResampleLabelmapLabel">
             <property name="text">
@@ -1233,11 +1324,28 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="ResampleApplyPushButton">
-            <property name="text">
-             <string>Apply</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <spacer name="horizontalSpacer_10">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ResampleApplyPushButton">
+              <property name="text">
+               <string>Apply</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
