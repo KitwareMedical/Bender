@@ -76,7 +76,9 @@ class WorkflowWidget:
     self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     self.get('NextPageToolButton').connect('clicked()', self.goToNext)
     self.get('LastPageToolButton').connect('clicked()', self.goToLast)
-    # 0) Bone Segmentations
+    # 0) Welcome
+    self.get('WelcomeSimpleWorkflowCheckBox').connect('stateChanged(int)', self.setupSimpleWorkflow)
+    # 1) Bone Segmentations
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
@@ -88,8 +90,7 @@ class WorkflowWidget:
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
     self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
-
-    # 1) Model Maker
+    # 2) Model Maker
     # a) Model Maker
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupModelMaker)
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
@@ -104,23 +105,24 @@ class WorkflowWidget:
     self.get('VolumeRenderLabelsLineEdit').connect('editingFinished()', self.updateVolumeRenderLabels)
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
-    # 2) Armatures
+    # 3) Armatures
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
-    # 3) Armature Weight and Bones
+    # 4) Armature Weight and Bones
     # a) Aramtures Bones
     self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
     # b) Aramtures Weight
     self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
-    # 4) (Pose) Armature And Pose Body
+    # 5) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Pose Body
     self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
-    # 5) Resample
+    self.get('ModelMakerOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseBodyInputSurface)
+    # 6) Resample
     self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
@@ -152,6 +154,9 @@ class WorkflowWidget:
       slicer.mrmlScene.AddNode(self.TransformNode)
 
     self.get('TransformMatrixWidget').setMRMLTransformNode(self.TransformNode)
+
+    # Workflow page
+    self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
 
   # Worflow
   def updateTitle(self):
@@ -195,7 +200,69 @@ class WorkflowWidget:
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.count - 1)
     self.updateTitle()
 
-  # 0) Bone Segmentation
+  # 0) Welcome
+  # Helper function for setting the visibility of a list of widgets
+  def setWidgetsVisibility(self, widgets, visible):
+    for widget in widgets:
+      self.get(widget).setVisible(visible)
+
+  def setupSimpleWorkflow(self, advanced):
+    # 1) LabelMap
+    # a)
+    self.get('LabelmapGoToModulePushButton').setVisible(advanced)
+
+    # b) Transform
+    # Just hide it completly
+    self.get('TransformCollapsibleGroupBox').setVisible(advanced)
+
+    # b) Merge Labels
+    # Hide all but the output
+    advancedMergeWidgets = ['MergeLabelsInputLabel', 'MergeLabelsInputNodeComboBox',
+                            'BoneLabelsLabel', 'BoneLabelsLineEdit',
+                            'BoneLabelLabel', 'BoneLabelComboBox',
+                            'SkinLabelsLabel', 'SkinLabelsLineEdit',
+                            'SkinLabelLabel', 'SkinLabelComboBox',
+                            'MergeLabelsGoToModulePushButton']
+    self.setWidgetsVisibility(advancedMergeWidgets, advanced)
+
+    # 2) Model Maker Page
+    # a) model maker
+    # Hide all but the output and the toggle button
+    advancedModelMakerWidgets = ['ModelMakerInputLabel', 'ModelMakerInputNodeComboBox',
+                                'ModelMakerLabelsLabel', 'ModelMakerLabelsLineEdit',
+                                'ModelMakerGoToModulePushButton']
+    self.setWidgetsVisibility(advancedModelMakerWidgets, advanced)
+
+    # b) Volume render
+    # Just hide it completly
+    self.get('VolumeRenderCollapsibleGroupBox').setVisible(advanced)
+
+    # 3) Armature
+    # Nothing
+
+    # 4) Weights
+    # a) Segment bones
+    # Just hide Go To
+    self.get('SegmentBonesGoToPushButton').setVisible(advanced)
+    # b) Weights
+    # Leave only weight folder
+    advancedComputeWeightWidgets = ['ArmatureWeightInputVolumeLabel', 'ArmatureWeightInputVolumeNodeComboBox',
+                                   'ArmatureWeightArmatureLabel', 'ArmatureWeightAmartureNodeComboBox',
+                                   'ArmatureWeightBodyPartitionLabel', 'ArmatureWeightBodyPartitionVolumeNodeComboBox',
+                                   'ArmatureWeightGoToPushButton']
+    self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
+
+    # 5) Pose Page
+    # a) Armatures
+    # Nothing
+    # b) Pose Body
+    # hide completely
+    self.get('PoseBodyCollapsibleGroupBox').setVisible(advanced)
+
+    # 6) Resample
+    # TO DO !!!
+
+  # 1) Bone Segmentation
   #     a) Labelmap
   def updateLabelmap(self, node, event):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
@@ -348,7 +415,7 @@ class WorkflowWidget:
   def openMergeLabelsModule(self):
     self.openModule('ChangeLabel')
 
-  # 1) Model Maker
+  # 2) Model Maker
   #     a) Model Maker
   def updateModelMaker(self, volumeNode, event):
     if volumeNode != self.get('ModelMakerInputNodeComboBox').currentNode():
@@ -496,11 +563,11 @@ class WorkflowWidget:
   def openVolumeRenderModule(self):
     self.openModule('VolumeRendering')
 
-  # 2) Armatures first part
+  # 3) Armatures first part
   def openArmaturesModule(self):
     self.openModule('Armatures')
 
-  # 3) Armatures Weight and Bones
+  # 4) Armatures Weight and Bones
   #  a) Armatures Bones
   def runSegmentBones(self):
     parameters = {}
@@ -545,7 +612,7 @@ class WorkflowWidget:
   def openArmatureWeightModule(self):
     self.openModule('ArmatureWeight')
 
-  # 4) (Pose) Armature And Pose Body
+  # 5) (Pose) Armature And Pose Body
   # a) (Pose) Armatures
   def openPosedArmatureModule(self):
     self.openModule('Armatures')
@@ -574,7 +641,15 @@ class WorkflowWidget:
     if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
       self.get('PoseBodyWeightInputDirectoryButton').directory = dir
 
-  # 4) Resample NOTE: SHOULD BE LAST STEP
+  def setPoseBodyInputSurface(self, node):
+    if node == None:
+      return
+
+    skinModels = self.getSkinModels(node)
+    if len(skinModels) >= 0:
+      self.get('PoseBodySurfaceInputComboBox').setCurrentNode(skinModels[0])
+
+  # 6) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):
     print('Resample')
 
