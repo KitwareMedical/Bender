@@ -83,9 +83,7 @@ class WorkflowWidget:
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    # b) Merge Labels
     self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
-    self.get('TransformGoToTransformButton').connect('clicked()', self.openTransformModule)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
     self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
@@ -152,10 +150,7 @@ class WorkflowWidget:
                            0.0, 0.0, 1.0, 0.0,
                            0.0, 0.0, 0.0, 1.0))
       self.TransformNode.ApplyTransformMatrix(transform)
-
       slicer.mrmlScene.AddNode(self.TransformNode)
-
-    self.get('TransformMatrixWidget').setMRMLTransformNode(self.TransformNode)
 
     # Workflow page
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
@@ -218,10 +213,6 @@ class WorkflowWidget:
     # 1) LabelMap
     # a)
     self.get('LabelmapGoToModulePushButton').setVisible(advanced)
-
-    # b) Transform
-    # Just hide it completly
-    self.get('TransformCollapsibleGroupBox').setVisible(advanced)
 
     # b) Merge Labels
     # Hide all but the output
@@ -310,7 +301,7 @@ class WorkflowWidget:
 
   #    b) Transform
   def runTransform(self):
-    volumeNode = self.get('TransformInputVolumeComboBox').currentNode()
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
     if volumeNode == None:
       return
 
@@ -320,9 +311,6 @@ class WorkflowWidget:
       print "Transform succesful !"
     else:
       print "Transform failure !"
-
-  def openTransformModule(self):
-    self.openModule('Transforms')
 
   #    c) Merge Labels
   def updateMergeLabels(self, node, event):

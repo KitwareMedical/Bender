@@ -185,7 +185,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="3" column="0" colspan="2">
            <widget class="QPushButton" name="LabelMapApplyColorNodePushButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -198,81 +198,17 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="5" column="0" colspan="2">
            <widget class="QPushButton" name="LabelmapGoToModulePushButton">
             <property name="text">
              <string>Go To Volumes</string>
             </property>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="ctkCollapsibleGroupBox" name="TransformCollapsibleGroupBox">
-         <property name="title">
-          <string>Transform</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_6">
-          <item row="0" column="0">
-           <widget class="QLabel" name="TransformVolumeLabel">
-            <property name="text">
-             <string>Volume</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="TransformInputVolumeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="TransformTransformLabel">
-            <property name="text">
-             <string>Transform</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="qMRMLMatrixWidget" name="TransformMatrixWidget">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>200</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="editable">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="0" colspan="2">
            <widget class="QPushButton" name="TransformApplyPushButton">
             <property name="text">
-             <string>Apply transform</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="TransformGoToTransformButton">
-            <property name="text">
-             <string>Go To Transform</string>
+             <string>LPS &lt;-&gt; RAS</string>
             </property>
            </widget>
           </item>
@@ -1442,11 +1378,6 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>qMRMLMatrixWidget</class>
-   <extends>ctkMatrixWidget</extends>
-   <header>qMRMLMatrixWidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>qMRMLNodeComboBox</class>
    <extends>QWidget</extends>
    <header>qMRMLNodeComboBox.h</header>
@@ -1478,11 +1409,6 @@ p, li { white-space: pre-wrap; }
    <class>ctkDirectoryButton</class>
    <extends>QWidget</extends>
    <header>ctkDirectoryButton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkMatrixWidget</class>
-   <extends>QWidget</extends>
-   <header>ctkMatrixWidget.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
@@ -1964,38 +1890,6 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>58</x>
      <y>42</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>TransformInputVolumeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>313</x>
-     <y>369</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>212</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>VolumeRenderInputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>TransformInputVolumeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>76</x>
-     <y>58</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>340</x>
-     <y>212</y>
     </hint>
    </hints>
   </connection>
