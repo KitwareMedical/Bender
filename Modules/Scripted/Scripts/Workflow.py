@@ -131,7 +131,9 @@ class WorkflowWidget:
     self.widget.setMRMLScene(slicer.mrmlScene)
 
     # Init title
-    self.updateTitle()
+    self.updateHeader()
+    self.get('FirstPageToolButton').setVisible(False)
+    self.get('LastPageToolButton').setVisible(False)
 
     # Init color node combo box <=> make 'Generic Colors' labelmap visible
     model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
@@ -159,46 +161,52 @@ class WorkflowWidget:
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
 
   # Worflow
-  def updateTitle(self):
-    title = self.WorkflowWidget.currentWidget().toolTip
-    title = '<h2>%s</h2>' % title
-    self.TitleLabel.setText(title)
+  def updateHeader(self):
+    # title
+    title = self.WorkflowWidget.currentWidget().accessibleName
+    self.TitleLabel.setText('<h2>%i: %s</h2>' % (self.WorkflowWidget.currentIndex + 1, title))
 
+    # help
+    self.get('HelpCollapsibleButton').setText('%s Help' % title)
+    self.get('HelpLabel').setText(self.WorkflowWidget.currentWidget().accessibleDescription)
+
+    # previous
     if self.WorkflowWidget.currentIndex > 0:
-      self.get('PreviousPageToolButton').setEnabled(True)
-      previousWidget = self.WorkflowWidget.widget(self.WorkflowWidget.currentIndex - 1)
+      self.get('PreviousPageToolButton').setVisible(True)
+      previousIndex = self.WorkflowWidget.currentIndex - 1
+      previousWidget = self.WorkflowWidget.widget(previousIndex)
 
-      previous = (previousWidget.toolTip.replace('</p>', '')).replace('p>', ' ')  # Ugly, but the string comes with <p> and </p>
-      self.get('PreviousPageToolButton').setText(previous)
+      previous = previousWidget.accessibleName
+      self.get('PreviousPageToolButton').setText('< %i: %s' %(previousIndex + 1, previous))
     else:
-      self.get('PreviousPageToolButton').setText('< Previous')
-      self.get('PreviousPageToolButton').setEnabled(False)
+      self.get('PreviousPageToolButton').setVisible(False)
 
+    # next
     if self.WorkflowWidget.currentIndex < self.WorkflowWidget.count - 1:
-      self.get('NextPageToolButton').setEnabled(True)
-      nextWidget = self.WorkflowWidget.widget(self.WorkflowWidget.currentIndex + 1)
+      self.get('NextPageToolButton').setVisible(True)
+      nextIndex = self.WorkflowWidget.currentIndex + 1
+      nextWidget = self.WorkflowWidget.widget(nextIndex)
 
-      next = (nextWidget.toolTip.replace('<p>', '')).replace('</p', ' ')# Ugly, but the string comes with <p> and </p>
-      self.get('NextPageToolButton').setText(next)
+      next = nextWidget.accessibleName
+      self.get('NextPageToolButton').setText('%i: %s >' %(nextIndex + 1, next))
     else:
-      self.get('NextPageToolButton').setText('Next >')
-      self.get('NextPageToolButton').setEnabled(False)
+      self.get('NextPageToolButton').setVisible(False)
 
   def goToFirst(self):
     self.WorkflowWidget.setCurrentIndex(0)
-    self.updateTitle()
+    self.updateHeader()
 
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
-    self.updateTitle()
+    self.updateHeader()
 
   def goToNext(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex + 1)
-    self.updateTitle()
+    self.updateHeader()
 
   def goToLast(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.count - 1)
-    self.updateTitle()
+    self.updateHeader()
 
   # 0) Welcome
   # Helper function for setting the visibility of a list of widgets
