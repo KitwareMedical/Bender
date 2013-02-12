@@ -288,16 +288,16 @@ class WorkflowWidget:
       
     colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
     volumesLogic = slicer.modules.volumes.logic()
+
+    wasModifying = volumeNode.StartModify()
     volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None) # Greyscale is None
 
     labelmapDisplayNode = volumeNode.GetDisplayNode()
-    colorNodeID = ""
     if colorNode != None:
-      colorNodeID = colorNode.GetID()
-    labelmapDisplayNode.SetAndObserveColorNodeID(colorNodeID)
+      labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
+    volumeNode.EndModify(wasModifying)
 
     self.setupMergeLabels(volumeNode)
-
     self.get('LabelMapApplyColorNodePushButton').setChecked(False)
 
   def openLabelmapModule(self):
