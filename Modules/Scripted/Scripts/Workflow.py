@@ -72,10 +72,8 @@ class WorkflowWidget:
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
-    self.get('FirstPageToolButton').connect('clicked()', self.goToFirst)
-    self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     self.get('NextPageToolButton').connect('clicked()', self.goToNext)
-    self.get('LastPageToolButton').connect('clicked()', self.goToLast)
+    self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     # 0) Welcome
     self.get('WelcomeSimpleWorkflowCheckBox').connect('stateChanged(int)', self.setupSimpleWorkflow)
     # 1) Bone Segmentations
@@ -130,8 +128,6 @@ class WorkflowWidget:
 
     # Init title
     self.updateHeader()
-    self.get('FirstPageToolButton').setVisible(False)
-    self.get('LastPageToolButton').setVisible(False)
 
     # Init color node combo box <=> make 'Generic Colors' labelmap visible
     model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
@@ -187,20 +183,12 @@ class WorkflowWidget:
     else:
       self.get('NextPageToolButton').setVisible(False)
 
-  def goToFirst(self):
-    self.WorkflowWidget.setCurrentIndex(0)
-    self.updateHeader()
-
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
     self.updateHeader()
 
   def goToNext(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex + 1)
-    self.updateHeader()
-
-  def goToLast(self):
-    self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.count - 1)
     self.updateHeader()
 
   # 0) Welcome

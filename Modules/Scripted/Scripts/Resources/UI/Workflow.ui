@@ -1433,73 +1433,6 @@ p, li { white-space: pre-wrap; }
     <layout class="QVBoxLayout" name="verticalLayout_9">
      <item>
       <layout class="QGridLayout" name="gridLayout_9">
-       <item row="1" column="0">
-        <widget class="QWidget" name="WorkflowControlWidget" native="true">
-         <layout class="QHBoxLayout" name="horizontalLayout_2">
-          <property name="margin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QToolButton" name="FirstPageToolButton">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>&lt;&lt; First</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="PreviousPageToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>&lt; Previous</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="NextPageToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Next &gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QToolButton" name="LastPageToolButton">
-            <property name="enabled">
-             <bool>true</bool>
-            </property>
-            <property name="text">
-             <string>Last &gt;&gt;</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
        <item row="0" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
@@ -1533,6 +1466,114 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
         </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QWidget" name="WorkflowControlWidget" native="true">
+         <layout class="QGridLayout" name="gridLayout_11">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="2" column="0">
+           <widget class="QToolButton" name="PreviousPageToolButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>&lt; Previous</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <spacer name="horizontalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>6</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="4">
+           <widget class="QToolButton" name="NextPageToolButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Next &gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="horizontalSpacer_13">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="3">
+           <spacer name="horizontalSpacer_14">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>6</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="4">
+           <spacer name="horizontalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </item>
@@ -1594,8 +1635,8 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>185</x>
-     <y>246</y>
+     <x>289</x>
+     <y>238</y>
     </hint>
    </hints>
   </connection>
@@ -1610,8 +1651,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>233</x>
-     <y>290</y>
+     <x>337</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -1626,8 +1667,8 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>168</x>
-     <y>360</y>
+     <x>272</x>
+     <y>316</y>
     </hint>
    </hints>
   </connection>
@@ -1642,8 +1683,8 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>187</x>
-     <y>424</y>
+     <x>291</x>
+     <y>368</y>
     </hint>
    </hints>
   </connection>
@@ -1658,8 +1699,8 @@ p, li { white-space: pre-wrap; }
      <y>7</y>
     </hint>
     <hint type="destinationlabel">
-     <x>188</x>
-     <y>58</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -1674,8 +1715,8 @@ p, li { white-space: pre-wrap; }
      <y>5</y>
     </hint>
     <hint type="destinationlabel">
-     <x>206</x>
-     <y>121</y>
+     <x>98</x>
+     <y>94</y>
     </hint>
    </hints>
   </connection>
@@ -1690,8 +1731,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>134</x>
-     <y>63</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -1706,8 +1747,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>124</x>
-     <y>98</y>
+     <x>98</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
@@ -1718,12 +1759,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>247</y>
+     <x>321</x>
+     <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>271</y>
+     <x>321</x>
+     <y>264</y>
     </hint>
    </hints>
   </connection>
@@ -1738,8 +1779,8 @@ p, li { white-space: pre-wrap; }
      <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>169</x>
-     <y>68</y>
+     <x>227</x>
+     <y>122</y>
     </hint>
    </hints>
   </connection>
@@ -1754,8 +1795,8 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>159</x>
-     <y>125</y>
+     <x>217</x>
+     <y>148</y>
     </hint>
    </hints>
   </connection>
@@ -1766,8 +1807,8 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>268</x>
-     <y>69</y>
+     <x>326</x>
+     <y>122</y>
     </hint>
     <hint type="destinationlabel">
      <x>260</x>
@@ -1782,12 +1823,12 @@ p, li { white-space: pre-wrap; }
    <slot>setText(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>141</x>
-     <y>366</y>
+     <x>98</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>158</x>
-     <y>79</y>
+     <x>98</x>
+     <y>98</y>
     </hint>
    </hints>
   </connection>
@@ -1798,12 +1839,12 @@ p, li { white-space: pre-wrap; }
    <slot>setText(QString)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>265</x>
-     <y>85</y>
+     <x>98</x>
+     <y>98</y>
     </hint>
     <hint type="destinationlabel">
-     <x>264</x>
-     <y>366</y>
+     <x>98</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
@@ -1814,12 +1855,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>235</x>
-     <y>187</y>
+     <x>339</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>14</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -1830,12 +1871,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>41</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>210</y>
+     <x>98</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -1850,8 +1891,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>210</y>
+     <x>98</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -1866,8 +1907,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>67</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -1882,8 +1923,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>93</y>
+     <x>98</x>
+     <y>100</y>
     </hint>
    </hints>
   </connection>
@@ -1898,8 +1939,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>41</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -1914,8 +1955,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>236</y>
+     <x>98</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
@@ -1930,8 +1971,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>262</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -1946,8 +1987,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>210</y>
+     <x>98</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -1958,12 +1999,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>217</x>
-     <y>41</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
     <hint type="destinationlabel">
-     <x>228</x>
-     <y>210</y>
+     <x>98</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -1978,8 +2019,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>308</x>
-     <y>148</y>
+     <x>98</x>
+     <y>108</y>
     </hint>
    </hints>
   </connection>
@@ -1994,8 +2035,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>308</x>
-     <y>230</y>
+     <x>98</x>
+     <y>98</y>
     </hint>
    </hints>
   </connection>
@@ -2010,8 +2051,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>310</x>
-     <y>148</y>
+     <x>98</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
@@ -2022,12 +2063,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>67</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
     <hint type="destinationlabel">
-     <x>307</x>
-     <y>248</y>
+     <x>98</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>
@@ -2038,12 +2079,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>296</x>
-     <y>93</y>
+     <x>98</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>307</x>
-     <y>280</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -2054,12 +2095,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>314</x>
-     <y>243</y>
+     <x>418</x>
+     <y>264</y>
     </hint>
     <hint type="destinationlabel">
-     <x>58</x>
-     <y>42</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
