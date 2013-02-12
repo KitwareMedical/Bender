@@ -68,6 +68,9 @@
         <property name="scaledContents">
          <bool>true</bool>
         </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -101,7 +104,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Adjust Labelmap</string>
+       <string>Adjust labelmap</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -109,9 +112,8 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the labelmap module to load a labelmap and its corresponding color table.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Mirroring the volume is possible using the mirror button.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Finally, skins and bones labels can be merged together to obtain a global&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;skin/skeleton volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Mirroring the volume is possible using the &amp;quot;LPS &amp;lt;-&amp;gt; RAS&amp;quot; button.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Finally, skins and bones labels can be merged together to obtain a global skin/skeleton volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_7">
        <property name="leftMargin">
@@ -204,6 +206,13 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="LabelmapGoToModulePushButton">
+              <property name="text">
+               <string>Go To Volumes</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="TransformApplyPushButton">
               <property name="text">
                <string>LPS &lt;-&gt; RAS</string>
@@ -225,26 +234,19 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="3" column="0" colspan="2">
-           <widget class="QPushButton" name="LabelmapGoToModulePushButton">
-            <property name="text">
-             <string>Go To Volumes</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="ctkCollapsibleGroupBox" name="MergeLabelsCollapsibleGroupBox">
          <property name="title">
-          <string>Merge Labels</string>
+          <string>Merge labels</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
            <widget class="QLabel" name="MergeLabelsInputLabel">
             <property name="text">
-             <string>Input Labelmap</string>
+             <string>Input labelmap</string>
             </property>
            </widget>
           </item>
@@ -266,7 +268,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QLabel" name="MergeLabelsOutputLabel">
             <property name="text">
-             <string>Output Labelmap</string>
+             <string>Output labelmap</string>
             </property>
            </widget>
           </item>
@@ -291,7 +293,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="BoneLabelsLabel">
             <property name="text">
-             <string>Bone Labels</string>
+             <string>Bone label(s)</string>
             </property>
            </widget>
           </item>
@@ -301,7 +303,7 @@ p, li { white-space: pre-wrap; }
           <item row="3" column="0">
            <widget class="QLabel" name="BoneLabelLabel">
             <property name="text">
-             <string>Bone Label</string>
+             <string>Bone label</string>
             </property>
            </widget>
           </item>
@@ -318,7 +320,7 @@ p, li { white-space: pre-wrap; }
           <item row="4" column="0">
            <widget class="QLabel" name="SkinLabelsLabel">
             <property name="text">
-             <string>Skin Labels</string>
+             <string>Skin label(s)</string>
             </property>
            </widget>
           </item>
@@ -328,7 +330,7 @@ p, li { white-space: pre-wrap; }
           <item row="5" column="0">
            <widget class="QLabel" name="SkinLabelLabel">
             <property name="text">
-             <string>Skin Label</string>
+             <string>Skin label</string>
             </property>
            </widget>
           </item>
@@ -339,13 +341,6 @@ p, li { white-space: pre-wrap; }
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
-            </property>
-           </widget>
-          </item>
-          <item row="10" column="0" colspan="2">
-           <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
-            <property name="text">
-             <string>Go To Change Label</string>
             </property>
            </widget>
           </item>
@@ -363,6 +358,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
+              <property name="text">
+               <string>Go To Change Label</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="MergeLabelsApplyPushButton">
@@ -402,19 +404,16 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Extract Bones and Skins</string>
+       <string>Extract bones and skin</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The model maker helps to extract the skin and bones label in surfaces grouped&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;under the same hierarchical model.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The toggle skin visibility button will toggle the visibility of any output&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;model with a name that contains &amp;quot;skin&amp;quot;.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The model maker helps to extract the skin and bones label in surfaces grouped under the same hierarchical model.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The toggle skin visibility button will toggle the visibility of any output model with a name that contains &amp;quot;skin&amp;quot;.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <property name="leftMargin">
@@ -426,7 +425,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="ModelMakerCollapsibleGroupBox">
          <property name="title">
-          <string>Model Maker</string>
+          <string>Model maker</string>
          </property>
          <property name="collapsedHeight">
           <number>5</number>
@@ -457,7 +456,7 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QLabel" name="ModelMakerLabelsLabel">
             <property name="text">
-             <string>Labels</string>
+             <string>Label(s)</string>
             </property>
            </widget>
           </item>
@@ -467,7 +466,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="ModelMakerBoneNodeLabel">
             <property name="text">
-             <string>Output models</string>
+             <string>Output model hierarchy</string>
             </property>
            </widget>
           </item>
@@ -508,6 +507,13 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
+              <property name="text">
+               <string>Go To Model Maker</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="ModelMakerSkinVisibleTogglePushButtton">
               <property name="text">
                <string>Toggle skin visibility</string>
@@ -523,20 +529,13 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="5" column="0" colspan="2">
-           <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
-            <property name="text">
-             <string>Go To Model Maker</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
        <item>
         <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
          <property name="title">
-          <string>Volume Render</string>
+          <string>Volume render</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -567,19 +566,36 @@ p, li { white-space: pre-wrap; }
           <item row="1" column="0">
            <widget class="QLabel" name="VolumeRenderLabelsLabel">
             <property name="text">
-             <string>Labels</string>
+             <string>Label(s)</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
            <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit"/>
           </item>
-          <item row="2" column="0" colspan="2">
-           <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
-            <property name="text">
-             <string>Go To Volume Rendering</string>
-            </property>
-           </widget>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
+              <property name="text">
+               <string>Go To Volume Rendering</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -659,11 +675,28 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="ArmaturesGoToPushButton">
-            <property name="text">
-             <string>Go to Armatures module</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ArmaturesGoToPushButton">
+              <property name="text">
+               <string>Go to Armatures module</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -695,10 +728,8 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the segment bones module to attribute each part of the input volume to its&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;closest bone. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armature weight computes the weight of all the voxel in relation with a&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;given bone that will be used to animate the volume. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the segment bones module to attribute each part of the input volume to its closest bone. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armature weight computes the weight of all the voxel in relation with a given bone that will be used to animate the volume. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
        <property name="leftMargin">
@@ -716,7 +747,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Segment Bones</string>
+          <string>Segment bones</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -803,13 +834,6 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QPushButton" name="SegmentBonesGoToPushButton">
-            <property name="text">
-             <string>Go to Armature Bones module</string>
-            </property>
-           </widget>
-          </item>
           <item row="5" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
@@ -824,6 +848,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SegmentBonesGoToPushButton">
+              <property name="text">
+               <string>Go to Armature Bones module</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="SegmentBonesApplyPushButton">
@@ -977,13 +1008,6 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
-            <property name="text">
-             <string>Go to Armature Weights module</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
@@ -998,6 +1022,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
+              <property name="text">
+               <string>Go to Armature Weights module</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
@@ -1034,7 +1065,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Pose Armature</string>
+       <string>Pose armature</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1042,8 +1073,7 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Move and animate the armature to a convenient pose. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the pose body module helps you to choose which surface can&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;be animated at the same time by the armature.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the pose body module helps you to choose which surface can be animated at the same time by the armature.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="leftMargin">
@@ -1072,29 +1102,43 @@ p, li { white-space: pre-wrap; }
          <property name="collapsed">
           <bool>false</bool>
          </property>
-         <layout class="QFormLayout" name="formLayout_11">
-          <property name="fieldGrowthPolicy">
-           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-          </property>
-          <item row="0" column="0" colspan="2">
+         <layout class="QGridLayout" name="gridLayout_10">
+          <item row="0" column="0">
            <widget class="QLabel" name="PoseArmaturesLabel">
             <property name="text">
              <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="2">
-           <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Go to Armatures module</string>
-            </property>
-           </widget>
+          <item row="1" column="0">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <spacer name="horizontalSpacer_11">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Go to Armatures module</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>
@@ -1212,13 +1256,6 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QPushButton" name="PoseBodyGoToPushButton">
-            <property name="text">
-             <string>Go to Pose Body module</string>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
@@ -1233,6 +1270,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="PoseBodyGoToPushButton">
+              <property name="text">
+               <string>Go to Pose Body module</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="PoseBodyApplyPushButton">
@@ -1269,7 +1313,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Pose Labelmap</string>
+       <string>Pose labelmap</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1288,7 +1332,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="ResampleCollapsibleGroupBox">
          <property name="title">
-          <string>Resample Labelmap with pose</string>
+          <string>Resample labelmap with pose</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
@@ -1461,7 +1505,7 @@ p, li { white-space: pre-wrap; }
          <item>
           <widget class="QLabel" name="WelcomeSimpleWorkflowLabel">
            <property name="text">
-            <string>Advanced Workflow</string>
+            <string>Advanced workflow</string>
            </property>
           </widget>
          </item>
