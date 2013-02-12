@@ -128,7 +128,7 @@ p, li { white-space: pre-wrap; }
           <enum>Qt::LeftToRight</enum>
          </property>
          <property name="title">
-          <string>Labelmap</string>
+          <string>A) Labelmap</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -240,7 +240,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="MergeLabelsCollapsibleGroupBox">
          <property name="title">
-          <string>Merge labels</string>
+          <string>B) Merge labels</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
           <item row="0" column="0">
@@ -425,7 +425,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="ModelMakerCollapsibleGroupBox">
          <property name="title">
-          <string>Model maker</string>
+          <string>A) Model maker</string>
          </property>
          <property name="collapsedHeight">
           <number>5</number>
@@ -535,7 +535,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
          <property name="title">
-          <string>Volume render</string>
+          <string>B) Volume render</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -655,7 +655,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armatures will enable to animate the input volume. For more details see the armature module.&lt;/span&gt; &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
-          <string>Armatures</string>
+          <string>A) Armatures</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -747,7 +747,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Segment bones</string>
+          <string>A) Segment bones</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -877,7 +877,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Armature weight</string>
+          <string>B) Armature weight</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1097,7 +1097,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>Armatures</string>
+          <string>A) Armatures</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1152,7 +1152,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>Pose Body</string>
+          <string>B) Pose Body</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1332,7 +1332,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="ResampleCollapsibleGroupBox">
          <property name="title">
-          <string>Resample labelmap with pose</string>
+          <string>A) Resample labelmap with pose</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
