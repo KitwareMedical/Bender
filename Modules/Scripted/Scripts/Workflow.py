@@ -87,14 +87,16 @@ class WorkflowWidget:
     self.get('MergeLabelsApplyPushButton').connect('pressed()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
-    # a) Model Maker
-    self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupModelMaker)
-    self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
-    self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupModelMakerLabels)
-    self.get('ModelMakerSkinVisibleTogglePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('ModelMakerApplyPushButton').connect('pressed()', self.runModelMaker)
-    self.get('ModelMakerGoToModulePushButton').connect('clicked()', self.openModelMakerModule)
-    # b) Volume Render
+    # a) Bone Model Maker
+    self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
+    self.get('BoneModelMakerApplyPushButton').connect('pressed()', self.runBoneModelMaker)
+    self.get('BoneModelMakerGoToModulePushButton').connect('clicked()', self.openBoneModelMakerModule)
+    # b) Skin Model Maker
+    self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
+    self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('SkinModelMakerApplyPushButton').connect('pressed()', self.runSkinModelMaker)
+    self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
+    # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('VolumeRenderInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupVolumeRender)
@@ -104,10 +106,10 @@ class WorkflowWidget:
     # 3) Armatures
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Armature Weight and Bones
-    # a) Aramtures Bones
+    # a) Armatures Bones
     self.get('SegmentBonesApplyPushButton').connect('pressed()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
-    # b) Aramtures Weight
+    # b) Armatures Weight
     self.get('ArmatureWeightApplyPushButton').connect('pressed()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
@@ -117,9 +119,7 @@ class WorkflowWidget:
     self.get('PoseBodyApplyPushButton').connect('pressed()', self.runPoseBody)
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
-    self.get('ModelMakerOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseBodyInputSurface)
     # 6) Resample
-    self.get('ModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.get('ResampleLabelMapNodeComboBox').setCurrentNode)
     self.get('ResampleApplyPushButton').connect('pressed()', self.runResample)
 
     # --------------------------------------------------------------------------
@@ -213,14 +213,21 @@ class WorkflowWidget:
     self.setWidgetsVisibility(advancedMergeWidgets, advanced)
 
     # 2) Model Maker Page
-    # a) model maker
+    # a) bone model maker
     # Hide all but the output and the toggle button
-    advancedModelMakerWidgets = ['ModelMakerInputLabel', 'ModelMakerInputNodeComboBox',
-                                'ModelMakerLabelsLabel', 'ModelMakerLabelsLineEdit',
-                                'ModelMakerGoToModulePushButton']
-    self.setWidgetsVisibility(advancedModelMakerWidgets, advanced)
+    advancedBoneModelMakerWidgets = ['BoneModelMakerInputLabel', 'BoneModelMakerInputNodeComboBox',
+                                     'BoneModelMakerLabelsLabel', 'BoneModelMakerLabelsLineEdit',
+                                     'BoneModelMakerGoToModulePushButton']
+    self.setWidgetsVisibility(advancedBoneModelMakerWidgets, advanced)
 
-    # b) Volume render
+    # b) Skin model maker
+    # Hide all but the output and the toggle button
+    advancedSkinModelMakerWidgets = ['SkinModelMakerNodeInputLabel', 'SkinModelMakerInputNodeComboBox',
+                                     'SkinModelMakerThresholdLabel', 'SkinModelMakerThresholdSpinBox',
+                                     'SkinModelMakerGoToModulePushButton']
+    self.setWidgetsVisibility(advancedSkinModelMakerWidgets, advanced)
+
+    # c) Volume render
     # Just hide it completly
     self.get('VolumeRenderCollapsibleGroupBox').setVisible(advanced)
 
@@ -348,6 +355,7 @@ class WorkflowWidget:
 
       self.volumeNodeMergeLabelsTag = volumeNode.AddObserver('ModifiedEvent', self.updateMergeLabels)
       self.labelmapDisplayNodeMergeLabelsTag = labelmapDisplayNode.AddObserver('ModifiedEvent', self.updateMergeLabels)
+
   def searchLabels(self, colorNode, label):
     """ Search the color node for all the labels that contain the word 'label'
     """
@@ -397,9 +405,11 @@ class WorkflowWidget:
       colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
       if newNode != None and colorNode != None:
         volumesLogic = slicer.modules.volumes.logic()
+        wasModifying = newNode.StartModify()
         volumesLogic.SetVolumeAsLabelMap(newNode, True)
 
         newNode.GetDisplayNode().SetAndObserveColorNodeID(colorNode.GetID())
+        newNode.EndModify(wasModifying)
 
     else:
       print 'MergeLabels failed'
@@ -408,55 +418,20 @@ class WorkflowWidget:
     self.openModule('ChangeLabel')
 
   # 2) Model Maker
-  #     a) Model Maker
-  def updateModelMaker(self, volumeNode, event):
-    if volumeNode != self.get('ModelMakerInputNodeComboBox').currentNode():
-      return
-    self.setupModelMaker(volumeNode)
-
-  def setupModelMaker(self, volumeNode):
-    if volumeNode == None:
-      return
-    volumeNode.AddObserver('ModifiedEvent', self.updateModelMaker)
-
-  # Utility function, return the list of model that have skin in their names form a hierachy model
-  def getSkinModels(self, hierarchyModel):
-    if hierarchyModel == None:
-      return []
-
-    skinModelList = []
-    childrenModel = vtk.vtkCollection()
-    hierarchyModel.GetChildrenModelNodes(childrenModel)
-    for i in range(0, childrenModel.GetNumberOfItems()):
-      node = childrenModel.GetItemAsObject(i)
-      if (node != None
-          and node.IsA("vtkMRMLModelNode")
-          and node.GetName().lower().find('skin') != -1):
-          skinModelList.append(node)
-
-    return skinModelList
-
-  def updateSkinNodeVisibility(self):
-    model = self.get('ModelMakerOutputNodeComboBox').currentNode()
-    if model == None:
-      return
-
-    for skinModel in self.getSkinModels(model):
-        skinModel.SetDisplayVisibility(not skinModel.GetDisplayVisibility())
-
-  def setupModelMakerLabels(self):
-    """ Update the labels of the model maker
+  #     a) Bone Model Maker
+  def setupBoneModelMakerLabels(self):
+    """ Update the labels of the bone model maker
     """
     labels = []
     labels.append(self.get('BoneLabelComboBox').currentColor)
-    #labels.append(self.get('SkinLabelComboBox').currentColor)
-    self.get('ModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
+    self.get('BoneModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
 
-  def runModelMaker(self):
+  def runBoneModelMaker(self):
     parameters = {}
-    parameters["InputVolume"] = self.get('ModelMakerInputNodeComboBox').currentNode().GetID()
-    parameters["ModelSceneFile"] = self.get('ModelMakerOutputNodeComboBox').currentNode().GetID()
-    parameters["Labels"] = self.get('ModelMakerLabelsLineEdit').text
+    parameters["InputVolume"] = self.get('BoneModelMakerInputNodeComboBox').currentNode().GetID()
+    parameters["ModelSceneFile"] = self.get('BoneModelMakerOutputNodeComboBox').currentNode().GetID()
+    parameters["Labels"] = self.get('BoneModelMakerLabelsLineEdit').text
+    parameters["Name"] = 'Skeleton'
     parameters['GenerateAll'] = False
     parameters["JointSmoothing"] = False
     parameters["SplitNormals"] = True
@@ -470,16 +445,62 @@ class WorkflowWidget:
     if status == 'Completed':
       print 'ModelMaker completed'
 
-      for skinModel in self.getSkinModels(self.get('ModelMakerOutputNodeComboBox').currentNode()):
-        skinModel.GetModelDisplayNode().SetOpacity(0.2)
-
     else:
       print 'ModelMaker failed'
 
-  def openModelMakerModule(self):
+  def openBoneModelMakerModule(self):
     self.openModule('ModelMaker')
 
-  #     b) Volume Render
+  #     b) Skin Model Maker
+  def setupSkinModelMakerLabels(self, volumeNode):
+    """ Update the labels of the skin model maker
+    """
+    if volumeNode == None:
+      return
+
+    labelmapDisplayNode = volumeNode.GetDisplayNode()
+    if labelmapDisplayNode == None:
+      return
+
+    colorNode = labelmapDisplayNode.GetColorNode()
+    if colorNode == None:
+      self.get('SkinModelMakerLabelsLineEdit').setText('')
+    else:
+      airLabels = self.searchLabels(colorNode, 'air')
+      if len(airLabels) > 0:
+        self.get('SkinModelMakerThresholdSpinBox').setValue( min(airLabels) + 0.1 ) # highly probable outside is lowest label
+      else:
+        self.get('SkinModelMakerThresholdSpinBox').setValue(0.1) # highly probable outside is 0
+
+  def runSkinModelMaker(self):
+    parameters = {}
+    parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode().GetID()
+    parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode().GetID()
+    parameters["Threshold"] = self.get('SkinModelMakerThresholdSpinBox').value + 0.1
+    #parameters["SplitNormals"] = True
+    #parameters["PointNormals"] = True
+    #parameters["Decimate"] = 0.25
+    parameters["Smooth"] = 10
+    cliNode = None
+    cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Grayscale ModelMaker completed'
+
+      self.get('SkinModelMakerOutputNodeComboBox').currentNode().GetModelDisplayNode().SetOpacity(0.2)
+
+    else:
+      print 'Grayscale ModelMaker failed'
+
+  def openSkinModelMakerModule(self):
+    self.openModule('GrayscaleModelMaker')
+
+  def updateSkinNodeVisibility(self):
+    skinModel = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+    if skinModel != None:
+      skinModel.SetDisplayVisibility(not skinModel.GetDisplayVisibility())
+
+  #     c) Volume Render
   def updateVolumeRender(self, volumeNode, event):
     if volumeNode != self.get('VolumeRenderInputNodeComboBox').currentNode():
       return
@@ -632,14 +653,6 @@ class WorkflowWidget:
   def setWeightDirectory(self, dir):
     if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
       self.get('PoseBodyWeightInputDirectoryButton').directory = dir
-
-  def setPoseBodyInputSurface(self, node):
-    if node == None:
-      return
-
-    skinModels = self.getSkinModels(node)
-    if len(skinModels) >= 0:
-      self.get('PoseBodySurfaceInputComboBox').setCurrentNode(skinModels[0])
 
   # 6) Resample NOTE: SHOULD BE LAST STEP
   def runResample(self):

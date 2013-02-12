@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>612</width>
+    <width>614</width>
     <height>760</height>
    </rect>
   </property>
@@ -411,8 +411,9 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The model maker helps to extract the skin and bones label in surfaces grouped under the same hierarchical model.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The toggle skin visibility button will toggle the visibility of any output model with a name that contains &amp;quot;skin&amp;quot;.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The two model maker helps to extract the skin and bones label in surfaces.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The first model maker uses the bones labels to extract the skeleton.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The second model maker is based on a threshold that separate the air from the body and then extract the skin. The toggle skin visibility button will toggle the visibility of the Skin model maker output (which opacity is automatically set to 0.2).&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -423,23 +424,23 @@ p, li { white-space: pre-wrap; }
         <number>0</number>
        </property>
        <item>
-        <widget class="ctkCollapsibleGroupBox" name="ModelMakerCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="BoneModelMakerCollapsibleGroupBox">
          <property name="title">
-          <string>A) Model maker</string>
+          <string>A) Bone model maker</string>
          </property>
          <property name="collapsedHeight">
           <number>5</number>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
-           <widget class="QLabel" name="ModelMakerInputLabel">
+           <widget class="QLabel" name="BoneModelMakerInputLabel">
             <property name="text">
              <string>Input labelmap</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ModelMakerInputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
@@ -454,24 +455,24 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="ModelMakerLabelsLabel">
+           <widget class="QLabel" name="BoneModelMakerLabelsLabel">
             <property name="text">
              <string>Label(s)</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="ModelMakerLabelsLineEdit"/>
+           <widget class="QLineEdit" name="BoneModelMakerLabelsLineEdit"/>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="ModelMakerBoneNodeLabel">
+           <widget class="QLabel" name="BoneModelMakerNodeOutputLabel">
             <property name="text">
              <string>Output model hierarchy</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="ModelMakerOutputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerOutputNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -507,23 +508,120 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="ModelMakerGoToModulePushButton">
+             <widget class="QPushButton" name="BoneModelMakerGoToModulePushButton">
               <property name="text">
                <string>Go To Model Maker</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ModelMakerSkinVisibleTogglePushButtton">
+             <widget class="QPushButton" name="BoneModelMakerApplyPushButton">
+              <property name="text">
+               <string>Generate bone model</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="ctkCollapsibleGroupBox" name="SkinModelMakerCollapsibleGroupBox">
+         <property name="title">
+          <string>B) Skin model maker</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
+            <property name="text">
+             <string>Input labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="SkinModelMakerThresholdLabel">
+            <property name="text">
+             <string>Threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="SkinModelMakerThresholdSpinBox"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
+            <property name="text">
+             <string>Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Skin</string>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
+              <property name="text">
+               <string>Go To Greyscale Model Maker</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButtton">
               <property name="text">
                <string>Toggle skin visibility</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ModelMakerApplyPushButton">
+             <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
               <property name="text">
-               <string>Generate models</string>
+               <string>Generate skin model</string>
               </property>
              </widget>
             </item>
@@ -535,7 +633,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
          <property name="title">
-          <string>B) Volume render</string>
+          <string>C) Volume render</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_7">
           <item row="0" column="0">
@@ -1691,7 +1789,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerInputNodeComboBox</receiver>
+   <receiver>BoneModelMakerInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1707,7 +1805,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ModelMakerOutputNodeComboBox</receiver>
+   <receiver>BoneModelMakerOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1817,41 +1915,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>VolumeRenderLabelsLineEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>ModelMakerLabelsLineEdit</receiver>
-   <slot>setText(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>103</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>98</x>
-     <y>98</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ModelMakerLabelsLineEdit</sender>
-   <signal>textChanged(QString)</signal>
-   <receiver>VolumeRenderLabelsLineEdit</receiver>
-   <slot>setText(QString)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>98</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>98</x>
-     <y>103</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>MergeLabelsOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ModelMakerInputNodeComboBox</receiver>
+   <receiver>BoneModelMakerInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1865,7 +1931,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ModelMakerInputNodeComboBox</sender>
+   <sender>BoneModelMakerInputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>VolumeRenderInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
@@ -2101,6 +2167,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>98</x>
      <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SkinModelMakerInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>345</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SkinModelMakerOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>306</x>
+     <y>379</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>345</x>
+     <y>306</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>SkinModelMakerInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>349</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>345</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinModelMakerOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PoseBodySurfaceInputComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>345</x>
+     <y>306</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>346</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
