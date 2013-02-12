@@ -152,6 +152,9 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="renameEnabled">
+             <bool>false</bool>
+            </property>
             <property name="noneDisplay">
              <string/>
             </property>
@@ -279,6 +282,9 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="baseName">
              <string>MergedLabelmap</string>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -480,6 +486,9 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="baseName">
              <string>Models</string>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
@@ -787,6 +796,9 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1195,6 +1207,9 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>true</bool>
             </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
           </item>
           <item row="6" column="0" colspan="2">
@@ -1320,6 +1335,9 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="addEnabled">
              <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
             </property>
            </widget>
           </item>
