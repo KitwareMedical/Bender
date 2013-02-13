@@ -262,6 +262,10 @@ protected:
   /// \sa GetPolyData(), SetArmatureModel()
   void SetArmaturePolyData(vtkPolyData* polyData);
 
+  /// Update the given bones representation to non-propagated property.
+  /// For example, the opacity is not automatically propagated.
+  void UpdateBoneRepresentation(vtkBoneRepresentation* rep);
+
   vtkArmatureWidget* ArmatureProperties;
   int WidgetState;
   int BonesRepresentationType;
