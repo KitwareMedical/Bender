@@ -578,6 +578,15 @@ class WorkflowWidget:
 
   # 3) Armatures first part
   def openArmaturesModule(self):
+    # First reset focal view around volumes
+    manager = slicer.app.layoutManager()
+    for i in range(0, manager.threeDViewCount):
+      manager.threeDWidget(i).threeDView().resetFocalPoint()
+
+    # Switch to 3D View only
+    manager.setLayout(slicer.vtkMRMLLayoutNode().SlicerLayoutOneUp3DView)
+
+    # Finaly open armature module
     self.openModule('Armatures')
 
   # 4) Armatures Weight and Bones
