@@ -904,8 +904,12 @@ int main( int argc, char * argv[] )
       }
 
     assert(wSum>=0);
-    Vec3 y(xraw);
-    if (wSum > 0.0)
+    Vec3 y(0.0);
+    if (wSum <= 0.0)
+      {
+      y = xraw;
+      }
+    else
       {
       if(LinearBlend)
         {
@@ -931,7 +935,7 @@ int main( int argc, char * argv[] )
         Vec4 q;
         Vec3 t;
         DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-        y = Vec3(xraw);
+        y = xraw;
         ApplyQT(q,t,&y[0]);
         }
       }
