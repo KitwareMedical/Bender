@@ -301,7 +301,6 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
         }
       }
     InvertXY(T);
-    InvertXY(RCenter);
     }
 
   F.SetRotation(&R[0][0]);
@@ -364,21 +363,14 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
 
     Vec3 ax(inPoints->GetPoint(a));
     Vec3 bx(inPoints->GetPoint(b));
-    Vec3 ax1;
-    Vec3 bx1;
-    if(!invertXY)
-      {
-      ax1 = R*(ax-ax)+ax+T;
-      bx1 = R*(bx-ax)+ax+T;
-      }
-    else
-      {
-      InvertXY(ax);
-      InvertXY(bx);
-      ax1 = R*(ax-ax)+ax+T;
-      bx1 = R*(bx-ax)+ax+T;
-      }
+    Vec3 ax1 = R*(ax-ax)+ax+T;
+    Vec3 bx1 = R*(bx-ax)+ax+T;
 
+    if(invertXY)
+      {
+      InvertXY(ax1);
+      InvertXY(bx1);
+      }
     cout<<"Set point "<<a<<" to "<<Vec3(ax1)<<endl;
     outPoints->SetPoint(a,&ax1[0]);
 
@@ -777,7 +769,7 @@ int main( int argc, char * argv[] )
     armature->GetPoints()->GetPoint(b, bx);
 
     RigidTransform transform;
-    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform,true);
+    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform, !IsArmatureInRAS);
     transforms.push_back(transform);
     if (Debug)
       {
@@ -944,6 +936,10 @@ int main( int argc, char * argv[] )
         }
       }
 
+    if (!IsSurfaceInRAS)
+      {
+      InvertXY(y);
+      }
     outPoints->SetPoint(pi,y[0],y[1],y[2]);
 
     }
