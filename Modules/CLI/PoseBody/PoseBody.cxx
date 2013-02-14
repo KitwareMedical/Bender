@@ -626,8 +626,10 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   CubeNeighborhood cubeNeighborhood;
   VoxelOffset* offsets = cubeNeighborhood.Offsets;
 
-  WeightImage::RegionType region = image->GetLargestPossibleRegion();
   BoolImage::Pointer domain = BoolImage::New();
+  domain->CopyInformation(image);
+
+  WeightImage::RegionType region = image->GetLargestPossibleRegion();
   domain->SetRegions(region);
   domain->Allocate();
   domain->FillBuffer(false);
