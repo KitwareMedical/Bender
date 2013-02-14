@@ -81,6 +81,14 @@
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
     <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
       <name>BinaryWeight</name>
       <label>Use Binary Weight</label>
       <flag>-b</flag>

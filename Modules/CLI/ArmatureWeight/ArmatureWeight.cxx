@@ -170,6 +170,11 @@ int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
 
+  if(!IsArmatureInRAS)
+    {
+    std::cout << "Input armature is not in RAS coordinate system;"
+      << "will convert it to RAS." << std::endl;
+    }
   if(BinaryWeight)
     {
     std::cout << "Use binary weight: " << std::endl;
@@ -216,15 +221,11 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
 
-  vtkSmartPointer<vtkPolyDataReader> polyDataReader =
-    vtkSmartPointer<vtkPolyDataReader>::New();
-  polyDataReader->SetFileName(ArmaturePoly.c_str());
-  polyDataReader->Update();
-
-  if (! polyDataReader->GetOutput())
+  vtkPolyData* armaturePolyData =
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS);
+  if (!armaturePolyData)
     {
-    std::cerr<<"Could not read the poly data given: "
-      << ArmaturePoly <<". Stopping."<<std::endl;
+    std::cerr << "Can't read armature " << ArmaturePoly << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -299,7 +300,7 @@ int main( int argc, char * argv[] )
     ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
     // Inputs
     writeWeight->SetBodyPartition(bodyPartitionReader->GetOutput());
-    writeWeight->SetArmature(polyDataReader->GetOutput());
+    writeWeight->SetArmature(armaturePolyData);
     writeWeight->SetBones(bonesPartition);
     // Output filename
     std::stringstream filename;
@@ -347,6 +348,8 @@ int main( int argc, char * argv[] )
     }
 
   bender::IOUtils::FilterEnd("Compute weights");
+
+  armaturePolyData->Delete();
 
   return EXIT_SUCCESS;
 }
