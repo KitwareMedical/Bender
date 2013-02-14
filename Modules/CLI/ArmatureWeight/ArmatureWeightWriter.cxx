@@ -111,6 +111,19 @@ ArmatureWeightWriter::~ArmatureWeightWriter()
     }
 }
 
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Id: " << this->Id << "\n";
+  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "NumDigits: " << this->NumDigits << "\n";
+  os << indent << "Binary: " << this->BinaryWeight << "\n";
+  os << indent << "Smoothing Iterations" << this->SmoothingIterations << "\n";
+  os << indent << "Debug: " << this->Debug << "\n";
+  os << indent << "Domain: " << this->Domain << "\n";
+  os << indent << "ROI: " << this->ROI << "\n";
+}
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter::SetArmature(vtkPolyData* arm)
@@ -186,7 +199,7 @@ std::string ArmatureWeightWriter::GetFilename()
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter::SetId(EdgeType id)
 {
-if (id == this->Id)
+  if (id == this->Id)
     {
     return;
     }

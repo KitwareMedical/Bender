@@ -263,7 +263,9 @@ struct RigidTransform
 };
 
 //-------------------------------------------------------------------------------
-void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId, const char* arrayName, const double* rcenter, RigidTransform& F,bool invertXY =true)
+void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
+                          const char* arrayName, const double* rcenter,
+                          RigidTransform& F,bool invertXY = true)
 {
   double A[12];
   polyData->GetCellData()->GetArray(arrayName)->GetTuple(cellId, A);
@@ -668,20 +670,20 @@ int main( int argc, char * argv[] )
 
   if (!IsSurfaceInRAS)
     {
-    std::cout<<"Surface x,y coordinates will be inverted\n";
+    std::cout<<"Surface x,y coordinates will be inverted" << std::endl;
     }
   if (!IsArmatureInRAS)
     {
-    std::cout<<"Armature x,y coordinates will be inverted\n";
+    std::cout<<"Armature x,y coordinates will be inverted" << std::endl;
     }
 
   if(LinearBlend)
     {
-    cout<<"Use Linear Blend"<<endl;
+    std::cout<<"Use Linear Blend\n" << std::endl;
     }
   else
     {
-    cout<<"Use Dual Quaternion blend"<<endl;
+    std::cout<<"Use Dual Quaternion blend" << std::endl;
     }
 
   //----------------------------
@@ -704,8 +706,8 @@ int main( int argc, char * argv[] )
 
   WeightImage::Pointer weight0 =  reader->GetOutput();
   Region weightRegion = weight0->GetLargestPossibleRegion();
-  cout<<"Weight volume description: "<<endl;
-  cout<<weightRegion<<endl;
+  std::cout << "Weight volume description: " << std::endl;
+  std::cout << weightRegion << std::endl;
 
   int numForeGround(0);
   for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
