@@ -70,19 +70,12 @@ namespace
 template<class InImage, class OutImage>
 void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 {
-  out->SetOrigin(in->GetOrigin());
-  out->SetSpacing(in->GetSpacing());
+  out->CopyInformation(in);
   out->SetRegions(in->GetLargestPossibleRegion());
   out->Allocate();
 }
 
 //-----------------------------------------------------------------------------
-void ConvertToIJK(double x[3])
-{
-  x[0] = -x[0];
-  x[1] = -x[1];
-  x[2] = x[2];
-}
 
 } // end namespace
 
@@ -255,8 +248,6 @@ bool ArmatureWeightWriter::Initialize()
   points->GetPoint(this->Id * 2 + 1, tail);
 
   // Convert to IJK
-  ConvertToIJK(head);
-  ConvertToIJK(tail);
 
   double radius = radiuses->GetValue(this->Id);
   double squareRadius = radius * radius;

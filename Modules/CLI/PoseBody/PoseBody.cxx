@@ -301,7 +301,6 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
         }
       }
     InvertXY(T);
-    InvertXY(RCenter);
     }
 
   F.SetRotation(&R[0][0]);
@@ -364,21 +363,14 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
 
     Vec3 ax(inPoints->GetPoint(a));
     Vec3 bx(inPoints->GetPoint(b));
-    Vec3 ax1;
-    Vec3 bx1;
-    if(!invertXY)
-      {
-      ax1 = R*(ax-ax)+ax+T;
-      bx1 = R*(bx-ax)+ax+T;
-      }
-    else
-      {
-      InvertXY(ax);
-      InvertXY(bx);
-      ax1 = R*(ax-ax)+ax+T;
-      bx1 = R*(bx-ax)+ax+T;
-      }
+    Vec3 ax1 = R*(ax-ax)+ax+T;
+    Vec3 bx1 = R*(bx-ax)+ax+T;
 
+    if(invertXY)
+      {
+      InvertXY(ax1);
+      InvertXY(bx1);
+      }
     cout<<"Set point "<<a<<" to "<<Vec3(ax1)<<endl;
     outPoints->SetPoint(a,&ax1[0]);
 
@@ -626,8 +618,10 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   CubeNeighborhood cubeNeighborhood;
   VoxelOffset* offsets = cubeNeighborhood.Offsets;
 
-  WeightImage::RegionType region = image->GetLargestPossibleRegion();
   BoolImage::Pointer domain = BoolImage::New();
+  domain->CopyInformation(image);
+
+  WeightImage::RegionType region = image->GetLargestPossibleRegion();
   domain->SetRegions(region);
   domain->Allocate();
   domain->FillBuffer(false);
@@ -709,12 +703,15 @@ int main( int argc, char * argv[] )
   std::cout << "Weight volume description: " << std::endl;
   std::cout << weightRegion << std::endl;
 
-  int numForeGround(0);
-  for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
+  if (Debug)
     {
-    numForeGround+= it.Get()>=0;
+    int numForeGround(0);
+    for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
+      {
+      numForeGround+= it.Get()>=0;
+      }
+    std::cout << numForeGround << " foreground voxels" << std::endl;
     }
-  cout<<numForeGround<<" foreground voxels"<<endl;
 
   //----------------------------
   // Read in the surface file
@@ -742,9 +739,10 @@ int main( int argc, char * argv[] )
   vtkSmartPointer<vtkPolyData> armature;
   armature.TakeReference(bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
 
-  if(0) //test whether the transform makes senses.
+  if (Debug) //test whether the transform makes senses.
     {
-    bender::IOUtils::WritePolyData(TransformArmature(armature,"Transforms",true),"./test.vtk");
+    vtkSmartPointer<vtkPolyData> posedArmature = TransformArmature(armature,"Transforms",!IsArmatureInRAS);
+    bender::IOUtils::WritePolyData(posedArmature,"./PosedArmature.vtk");
     }
 
   vtkCellArray* armatureSegments = armature->GetLines();
@@ -752,7 +750,15 @@ int main( int argc, char * argv[] )
   vtkNew<vtkIdList> cell;
   armatureSegments->InitTraversal();
   int edgeId(0);
-  cout<<"# components: "<<armatureCellData->GetArray("Transforms")->GetNumberOfComponents()<<endl;
+  if (!armatureCellData->GetArray("Transforms"))
+    {
+    std::cerr << "No 'Transforms' cell array in armature" << std::endl;
+    }
+  else
+    {
+    std::cout << "# components: " << armatureCellData->GetArray("Transforms")->GetNumberOfComponents()
+         << std::endl;
+    }
   while(armatureSegments->GetNextCell(cell.GetPointer()))
     {
     vtkIdType a = cell->GetId(0);
@@ -763,8 +769,15 @@ int main( int argc, char * argv[] )
     armature->GetPoints()->GetPoint(b, bx);
 
     RigidTransform transform;
-    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform,true);
+    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform, !IsArmatureInRAS);
     transforms.push_back(transform);
+    if (Debug)
+      {
+      std::cout << "Transform: o=" << transform.O
+                << " t= " << transform.T
+                << " r= " << transform.R
+                << std::endl;
+      }
     ++edgeId;
     }
 
@@ -796,7 +809,12 @@ int main( int argc, char * argv[] )
     itk::Point<double,3> x(xraw);
 
     itk::ContinuousIndex<double,3> coord;
-    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+    bool isTransformSuccessful =
+      weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+    if (!isTransformSuccessful)
+      {
+      std::cerr << "Point x: " << x << " is not inside the image weight0." << std::endl;
+      }
 
     Voxel p;
     p.CopyWithCast(coord);
@@ -886,8 +904,12 @@ int main( int argc, char * argv[] )
       }
 
     assert(wSum>=0);
-    Vec3 y(xraw);
-    if (wSum > 0.0)
+    Vec3 y(0.0);
+    if (wSum <= 0.0)
+      {
+      y = xraw;
+      }
+    else
       {
       if(LinearBlend)
         {
@@ -913,11 +935,15 @@ int main( int argc, char * argv[] )
         Vec4 q;
         Vec3 t;
         DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-        y = Vec3(xraw);
+        y = xraw;
         ApplyQT(q,t,&y[0]);
         }
       }
 
+    if (!IsSurfaceInRAS)
+      {
+      InvertXY(y);
+      }
     outPoints->SetPoint(pi,y[0],y[1],y[2]);
 
     }
