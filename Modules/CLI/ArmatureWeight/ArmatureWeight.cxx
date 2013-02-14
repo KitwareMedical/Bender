@@ -124,7 +124,7 @@ static itk::SimpleFastMutexLock mutex;
 ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
 {
   typedef itk::MultiThreader::ThreadInfoStruct  ThreadInfoType;
-  ThreadInfoType * infoStruct = static_cast< ThreadInfoType* >( arg );
+  ThreadInfoType * infoStruct = reinterpret_cast< ThreadInfoType* >( arg );
   if (!infoStruct)
     {
     std::cerr<<"Could not find appropriate arguments. Stopping."<<std::endl;
@@ -132,11 +132,11 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   ArmatureWeightWriter* writer =
-    static_cast< ArmatureWeightWriter* >( infoStruct->UserData );
+    reinterpret_cast< ArmatureWeightWriter* >( infoStruct->UserData );
   if (!writer)
     {
     std::cerr<<"Could not find weight writer. Stopping."<<std::endl;
@@ -144,7 +144,7 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   // Compute weight
@@ -156,13 +156,13 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   mutex.Lock();
   --NumberOfRunningThreads;
   mutex.Unlock();
-  return ThreadInfoType::SUCCESS;
+  return ITK_THREAD_RETURN_VALUE;
 }
 
 //-------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.75, 0.1, 0.0);
 
-  LabelImageType::PixelType minLabel = statistics->GetMinimum();
+  //LabelImageType::PixelType minLabel = statistics->GetMinimum();
   LabelImageType::PixelType maxLabel = statistics->GetMaximum();
 
   bender::IOUtils::FilterEnd("Read inputs");
