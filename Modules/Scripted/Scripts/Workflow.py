@@ -82,22 +82,22 @@ class WorkflowWidget:
     # 1) Bone Segmentations
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
-    self.get('LabelMapApplyColorNodePushButton').connect('pressed()', self.applyColorNode)
+    self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    self.get('TransformApplyPushButton').connect('pressed()', self.runTransform)
+    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
-    self.get('MergeLabelsApplyPushButton').connect('pressed()', self.runMergeLabels)
+    self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
     # a) Bone Model Maker
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
-    self.get('BoneModelMakerApplyPushButton').connect('pressed()', self.runBoneModelMaker)
+    self.get('BoneModelMakerApplyPushButton').connect('clicked()', self.runBoneModelMaker)
     self.get('BoneModelMakerGoToModulePushButton').connect('clicked()', self.openBoneModelMakerModule)
     # b) Skin Model Maker
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
     self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('SkinModelMakerApplyPushButton').connect('pressed()', self.runSkinModelMaker)
+    self.get('SkinModelMakerApplyPushButton').connect('clicked()', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
     # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
@@ -110,10 +110,10 @@ class WorkflowWidget:
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Armature Weight and Bones
     # a) Armatures Bones
-    self.get('SegmentBonesApplyPushButton').connect('pressed()',self.runSegmentBones)
+    self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
     # b) Armatures Weight
-    self.get('ArmatureWeightApplyPushButton').connect('pressed()',self.runArmatureWeight)
+    self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
@@ -128,7 +128,7 @@ class WorkflowWidget:
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 6) Resample
-    self.get('ResampleApplyPushButton').connect('pressed()', self.runResample)
+    self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
     # --------------------------------------------------------------------------
     # Initialize
@@ -319,16 +319,17 @@ class WorkflowWidget:
     if volumeNode == None:
       return
 
-    self.get('TransformApplyPushButton').toggle(True)
+    self.get('TransformApplyPushButton').setChecked(True)
       
     volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
     transformLogic = slicer.modules.transforms.logic()
+
     if transformLogic.hardenTransform(volumeNode):
       print "Transform succesful !"
     else:
       print "Transform failure !"
       
-    self.get('TransformApplyPushButton').toggle(False)
+    self.get('TransformApplyPushButton').setChecked(False)
 
   #    c) Merge Labels
   def updateMergeLabels(self, node, event):
@@ -410,6 +411,9 @@ class WorkflowWidget:
     parameters["InputLabel"] = boneLabels + ', ' + skinLabels
     parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
     cliNode = None
+
+    self.get('MergeLabelsApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -428,6 +432,8 @@ class WorkflowWidget:
 
     else:
       print 'MergeLabels failed'
+
+    self.get('MergeLabelsApplyPushButton').setChecked(False)
 
   def openMergeLabelsModule(self):
     self.openModule('ChangeLabel')
@@ -455,6 +461,9 @@ class WorkflowWidget:
     parameters["Decimate"] = 0.25
     parameters["Smooth"] = 10
     cliNode = None
+
+    self.get('BoneModelMakerApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -462,6 +471,8 @@ class WorkflowWidget:
 
     else:
       print 'ModelMaker failed'
+
+    self.get('BoneModelMakerApplyPushButton').setChecked(False)
 
   def openBoneModelMakerModule(self):
     self.openModule('ModelMaker')
@@ -497,6 +508,9 @@ class WorkflowWidget:
     #parameters["Decimate"] = 0.25
     parameters["Smooth"] = 10
     cliNode = None
+
+    self.get('SkinModelMakerApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -506,6 +520,8 @@ class WorkflowWidget:
 
     else:
       print 'Grayscale ModelMaker failed'
+
+    self.get('SkinModelMakerApplyPushButton').setChecked(False)
 
   def openSkinModelMakerModule(self):
     self.openModule('GrayscaleModelMaker')
@@ -615,12 +631,17 @@ class WorkflowWidget:
     #parameters["Debug"] = False
     #parameters["ArmatureInRAS"] = False
     cliNode = None
+
+    self.get('SegmentBonesApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.armaturebones, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
       print 'Armature Bones completed'
     else:
       print 'Armature Bones failed'
+
+    self.get('SegmentBonesApplyPushButton').setChecked(False)
 
   def openSegmentBonesModule(self):
     self.openModule('ArmatureWeight')
@@ -639,12 +660,17 @@ class WorkflowWidget:
     #parameters["Debug"] = False
     #parameters["RunSequential"] = False
     cliNode = None
+
+    self.get('ArmatureWeightApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.armatureweight, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
       print 'Armature Weight completed'
     else:
       print 'Armature Weight failed'
+
+    self.get('ArmatureWeightApplyPushButton').setChecked(False)
 
   def openArmatureWeightModule(self):
     self.openModule('ArmatureWeight')
@@ -702,7 +728,10 @@ class WorkflowWidget:
     if shouldRun == True:
       logic = slicer.modules.posebody.logic()
       if self.get("PoseBodyApplyPushButton").isChecked() == False:
+
+        self.get('PoseBodyApplyPushButton').setChecked(True)
         logic.ApplyAndWait(self.PoseBodyCLI)
+        self.get('PoseBodyApplyPushButton').setChecked(False)
       else:
         logic.Apply(self.PoseBodyCLI)
 
