@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>614</width>
+    <width>602</width>
     <height>760</height>
    </rect>
   </property>
@@ -1377,9 +1377,12 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="PoseBodyApplyPushButton">
+             <widget class="ctkCheckablePushButton" name="PoseBodyApplyPushButton">
               <property name="text">
                <string>Pose body</string>
+              </property>
+              <property name="checkState">
+               <enum>Qt::Checked</enum>
               </property>
              </widget>
             </item>
@@ -1696,6 +1699,11 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>qMRMLWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCheckablePushButton</class>
+   <extends>QPushButton</extends>
+   <header>ctkCheckablePushButton.h</header>
   </customwidget>
   <customwidget>
    <class>ctkCheckBox</class>

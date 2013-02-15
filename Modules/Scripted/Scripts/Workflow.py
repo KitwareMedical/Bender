@@ -69,6 +69,9 @@ class WorkflowWidget:
     self.volumeNodeMergeLabelsTag = 0
     self.labelmapDisplayNodeMergeLabelsTag = 0
 
+    # Pose Body variables
+    self.PoseBodyCLI = None
+
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
@@ -116,7 +119,12 @@ class WorkflowWidget:
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Pose Body
-    self.get('PoseBodyApplyPushButton').connect('pressed()', self.runPoseBody)
+    self.get('PoseBodySurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyWeightInputDirectoryButton').connect('directoryChanged(QString)', self.setupPoseBody)
+    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyApplyPushButton').connect('checkBoxToggled(bool)', self.setupApplySignals)
+
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 6) Resample
@@ -150,6 +158,9 @@ class WorkflowWidget:
 
     # Workflow page
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
+
+    # Init Pose body signals
+    self.setupApplySignals(self.get('PoseBodyApplyPushButton').isCheckable())
 
   # Worflow
   def updateHeader(self):
@@ -251,7 +262,11 @@ class WorkflowWidget:
     # Nothing
     # b) Pose Body
     # hide completely
-    self.get('PoseBodyCollapsibleGroupBox').setVisible(advanced)
+    advancedPoseBodyWidgets = ['PoseBodyArmaturesLabel', 'PoseBodyArmatureInputNodeComboBox',
+                               'PoseBodySurfaceInputLabel', 'PoseBodySurfaceInputComboBox',
+                               'PoseBodyWeightInputFolderLabel', 'PoseBodyWeightInputDirectoryButton',
+                               'PoseBodyGoToPushButton']
+    self.setWidgetsVisibility(advancedPoseBodyWidgets, advanced)
 
     # 6) Resample
     # TO DO !!!
@@ -640,21 +655,56 @@ class WorkflowWidget:
     self.openModule('Armatures')
 
   # b) Pose Body
-  def runPoseBody(self):
-    parameters = {}
-    parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode().GetID()
-    parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode().GetID()
-    parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
-    parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode().GetID()
-    #parameters["IsSurfaceInRAS"] = False
-    #parameters["IsArmatureInRAS"] = False
-    cliNode = None
-    cliNode = slicer.cli.run(slicer.modules.posebody, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
-      print 'Pose Body completed'
+  def setupApplySignals(self, checked):
+    if checked == True:
+      self.get('PoseBodyApplyPushButton').disconnect('clicked()', self.runPoseBody)
+      self.get('PoseBodyApplyPushButton').connect('toggled(bool)', self.runPoseBody)
     else:
-      print 'Pose Body failed'
+      self.get('PoseBodyApplyPushButton').disconnect('toggled(bool)', self.runPoseBody)
+      self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
+
+    self.setupPoseBody()
+
+  def setupPoseBody(self):
+
+    # Create CLI node if none exists
+    if self.PoseBodyCLI == None:
+      self.PoseBodyCLI = slicer.cli.createNode(slicer.modules.posebody)
+
+    # Setup CLI node on input changed or apply changed
+    if self.PoseBodyCLI != None:
+      cli = slicer.vtkMRMLCommandLineModuleNode()
+      autorunFlags = cli.NoAutoRun
+
+      parametersAreValid = (self.get('PoseBodyArmatureInputNodeComboBox').currentNode() != None
+                            and self.get('PoseBodySurfaceInputComboBox').currentNode() != None
+                            and self.get('PoseBodySurfaceOutputNodeComboBox').currentNode() != None)
+      parameters = {}
+      if parametersAreValid == True:
+        parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode().GetID()
+        parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode().GetID()
+        parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
+        parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode().GetID()
+        #parameters["IsSurfaceInRAS"] = False
+        #parameters["IsArmatureInRAS"] = False
+        parameters["LinearBlend"] = True
+
+      if (self.get("PoseBodyApplyPushButton").isCheckable() and parametersAreValid) == True :
+        autorunFlags = cli.AutoRunOn or cli.AutoRunEnabledMask
+
+      self.PoseBodyCLI.SetAutoRun(autorunFlags)
+      slicer.cli.setNodeParameters(self.PoseBodyCLI, parameters)
+
+  def runPoseBody(self, shouldRun = True):
+    if self.PoseBodyCLI == None:
+      return
+
+    if shouldRun == True:
+      logic = slicer.modules.posebody.logic()
+      if self.get("PoseBodyApplyPushButton").isChecked() == False:
+        logic.ApplyAndWait(self.PoseBodyCLI)
+      else:
+        logic.Apply(self.PoseBodyCLI)
 
   def openPoseBodyModule(self):
     self.openModule('PoseBody')
