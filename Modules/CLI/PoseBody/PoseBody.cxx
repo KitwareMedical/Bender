@@ -797,48 +797,55 @@ int main( int argc, char * argv[] )
   //----------------------------
   // Check surface points
   //----------------------------
-  int numBad(0);
-  int numInterior(0);
-  CubeNeighborhood cubeNeighborhood;
-  VoxelOffset* offsets = cubeNeighborhood.Offsets ;
-  for(int pi=0; pi<numPoints;++pi)
+
+  if (Debug)
     {
-    double xraw[3];
-    inputPoints->GetPoint(pi,xraw);
-
-    itk::Point<double,3> x(xraw);
-
-    itk::ContinuousIndex<double,3> coord;
-    bool isTransformSuccessful =
-      weight0->TransformPhysicalPointToContinuousIndex(x, coord);
-    if (!isTransformSuccessful)
+    int numBad = 0;
+    int numInterior = 0;
+    CubeNeighborhood cubeNeighborhood;
+    VoxelOffset* offsets = cubeNeighborhood.Offsets ;
+    for(int pi=0; pi<numPoints;++pi)
       {
-      std::cerr << "Point x: " << x << " is not inside the image weight0." << std::endl;
+      double xraw[3];
+      inputPoints->GetPoint(pi,xraw);
+
+      itk::Point<double,3> x(xraw);
+
+      itk::ContinuousIndex<double,3> coord;
+      bool isTransformSuccessful =
+        weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+      if (!isTransformSuccessful)
+        {
+        std::cerr << "Point x: " << x
+          << " is not inside the image weight0." << std::endl;
+        }
+
+      Voxel p;
+      p.CopyWithCast(coord);
+
+      bool hasInside(false);
+      bool hasOutside(false);
+      WeightImage::RegionType weight0Region =
+        weight0->GetLargestPossibleRegion();
+      for(int iOff=0; iOff<8; ++iOff)
+        {
+        Voxel q = p + offsets[iOff];
+        if(weight0Region.IsInside(q) && weight0->GetPixel(q) >= 0)
+          {
+          hasInside=true;
+          }
+        else
+          {
+          hasOutside=true;
+          }
+        }
+      numBad+= hasInside? 0 : 1;
+      numInterior+= hasOutside? 0: 1;
       }
-
-    Voxel p;
-    p.CopyWithCast(coord);
-
-    bool hasInside(false);
-    bool hasOutside(false);
-    for(int iOff=0; iOff<8; ++iOff)
+    if(numBad>0)
       {
-      Voxel q = p + offsets[iOff];
-      if(weight0->GetPixel(q)>=0)
-        {
-        hasInside=true;
-        }
-      else
-        {
-        hasOutside=true;
-        }
+      cout<<"WARNING: "<<numBad<<" bad surface vertices."<<endl;
       }
-    numBad+= hasInside? 0 : 1;
-    numInterior+= hasOutside? 0: 1;
-    }
-  if(numBad>0)
-    {
-    cout<<"WARNING: "<<numBad<<" bad surface vertices."<<endl;
     }
 
 
