@@ -206,7 +206,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && !this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
@@ -230,7 +230,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }

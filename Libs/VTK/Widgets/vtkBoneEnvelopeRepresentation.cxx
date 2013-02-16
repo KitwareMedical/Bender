@@ -122,6 +122,7 @@ void vtkBoneEnvelopeRepresentation::CreateDefaultProperties()
   this->Property = vtkProperty::New();
   this->Property->SetColor(0.99, 0.99 ,1); // Ghost white
   this->Property->SetEdgeVisibility(0);
+  this->Property->SetFrontfaceCulling(true);
 }
 
 //----------------------------------------------------------------------------

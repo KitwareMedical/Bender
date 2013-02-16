@@ -518,7 +518,7 @@ int vtkBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }
@@ -531,7 +531,7 @@ int vtkBoneRepresentation::RenderOpaqueGeometryInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && !this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
