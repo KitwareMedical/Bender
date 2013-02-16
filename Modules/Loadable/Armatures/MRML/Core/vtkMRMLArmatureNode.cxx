@@ -107,6 +107,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
 
   this->ShouldResetPoseMode = 0;
   this->OverallRadiusRatio = 1.0;
+  this->SetEnvelopesOpacity(0.2);
 
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(MRMLArmatureNodeCallback);
@@ -420,6 +421,26 @@ int vtkMRMLArmatureNode::GetShowEnvelopes()
     ->GetShowEnvelope();
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetEnvelopesOpacity(double opacity)
+{
+  if (fabs(opacity - this->GetOpacity()) < 1e-6)
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
+    ->GetProperty()->SetOpacity(opacity);
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+double vtkMRMLArmatureNode::GetEnvelopesOpacity()
+{
+  return this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
+    ->GetProperty()->GetOpacity();
+}
+
 /*
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
@@ -509,6 +530,9 @@ void vtkMRMLArmatureNode
 
   this->SetShowEnvelopes(
     armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
+  this->SetEnvelopesOpacity(
+    armatureWidget->GetBonesRepresentation()->GetEnvelope()->GetProperty()
+      ->GetOpacity());
 }
 
 //---------------------------------------------------------------------------
@@ -581,12 +605,12 @@ void vtkMRMLArmatureNode
         {
         boneDisplayNode->SetColor(color);
         boneDisplayNode->SetOpacity(this->GetOpacity());
-
-        this->UpdateBoneRepresentation(
-          armatureWidget->GetBonesRepresentation());
+        boneDisplayNode->SetEnvelopeOpacity(this->GetEnvelopesOpacity());
         }
       }
     }
+
+  this->UpdateBoneRepresentation(armatureWidget->GetBonesRepresentation());
 
   if (ShouldResetPoseMode)
     {
@@ -642,6 +666,7 @@ void vtkMRMLArmatureNode::UpdateBoneRepresentation(vtkBoneRepresentation* rep)
   this->GetColor(color);
 
   rep->SetOpacity(this->GetOpacity());
+  rep->GetEnvelope()->GetProperty()->SetOpacity(this->GetEnvelopesOpacity());
   rep->GetLineProperty()->SetColor(color);
 }
 

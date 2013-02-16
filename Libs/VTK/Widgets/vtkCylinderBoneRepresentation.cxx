@@ -253,6 +253,30 @@ int vtkCylinderBoneRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+int vtkCylinderBoneRepresentation::HasOnlyTranslucentPolygonalGeometry()
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count |= this->LineActor->HasTranslucentPolygonalGeometry();
+  // Cylinder actor
+  count &= this->CylinderActor->HasTranslucentPolygonalGeometry();
+  // Handles after cylinder
+  count &= this->Handle[0]->HasTranslucentPolygonalGeometry();
+  count &= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  if (this->DistanceAnnotationVisibility)
+    {
+    count &= this->TextActor->HasTranslucentPolygonalGeometry();
+    }
+  if (this->ShowEnvelope)
+    {
+    count &= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
 void vtkCylinderBoneRepresentation::SetOpacity(double opacity)
 {
   this->Superclass::SetOpacity(opacity);

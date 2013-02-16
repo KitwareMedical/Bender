@@ -201,8 +201,8 @@ public:
 
   /// Set/Get the envelopes opacity.
   /// The envelopes opacity will be propagated to all the bones' envelopes.
-  void SetEnvelopeOpacity(double opacity);
-  double GetEnvelopeOpacity();
+  void SetEnvelopesOpacity(double opacity);
+  double GetEnvelopesOpacity();
 
 
   //--------------------------------------------------------------------------

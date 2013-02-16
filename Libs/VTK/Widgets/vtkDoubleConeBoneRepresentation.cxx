@@ -295,6 +295,30 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
+int vtkDoubleConeBoneRepresentation::HasOnlyTranslucentPolygonalGeometry()
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count |= this->LineActor->HasTranslucentPolygonalGeometry();
+  // Cones actor
+  count &= this->ConesActor->HasTranslucentPolygonalGeometry();
+  // Handles after cones
+  count &= this->Handle[0]->HasTranslucentPolygonalGeometry();
+  count &= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  if (this->DistanceAnnotationVisibility)
+    {
+    count &= this->TextActor->HasTranslucentPolygonalGeometry();
+    }
+  if (this->ShowEnvelope)
+    {
+    count &= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
+
+  return count;
+}
+
+//----------------------------------------------------------------------------
 void vtkDoubleConeBoneRepresentation::SetOpacity(double opacity)
 {
   this->Superclass::SetOpacity(opacity);

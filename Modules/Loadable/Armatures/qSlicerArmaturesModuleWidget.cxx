@@ -137,6 +137,8 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureOpacitySlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureOpacitySlider,
+    SIGNAL(valueChanged(double)), this, SLOT(onArmatureOpacityChanged(double)));
   QObject::connect(this->ArmatureShowAxesCheckBox,
     SIGNAL(stateChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
@@ -149,6 +151,8 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureShowEnvelopesCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureEnvelopeRadiusRatioSliderWidget,
+    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->ArmatureEnvelopeOpacitySliderWidget,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->BoneEnvelopeRadiusSlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLBoneNode()));
@@ -465,10 +469,14 @@ void qSlicerArmaturesModuleWidgetPrivate
 
     this->ArmatureShowEnvelopesCheckBox->setChecked(
       armatureNode->GetShowEnvelopes());
+
+    this->ArmatureEnvelopeOpacitySliderWidget->setValue(
+      armatureNode->GetEnvelopesOpacity());
     }
 
   this->ArmatureEnvelopeRadiusRatioSliderWidget->setEnabled(armatureNode != 0);
   this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
+  this->ArmatureEnvelopeOpacitySliderWidget->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -605,6 +613,20 @@ void qSlicerArmaturesModuleWidgetPrivate::onLinkedWithParentChanged(int linked)
     }
 
   this->BoneNode->SetBoneLinkedWithParent(linked);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
+::onArmatureOpacityChanged(double opacity)
+{
+  if (fabs(opacity - 1.0) < 1e-2)
+    {
+    this->ArmatureEnvelopeOpacitySliderWidget->setMaximum(1.0);
+    }
+  else
+    {
+    this->ArmatureEnvelopeOpacitySliderWidget->setMaximum(opacity);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -943,6 +965,9 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
 
   d->ArmatureNode->SetOverallRadiusRatio(
     d->ArmatureEnvelopeRadiusRatioSliderWidget->value());
+
+  d->ArmatureNode->SetEnvelopesOpacity(
+    d->ArmatureEnvelopeOpacitySliderWidget->value());
 
   d->ArmatureNode->EndModify(wasModifying);
 }
