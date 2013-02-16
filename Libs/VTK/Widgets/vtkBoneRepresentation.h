@@ -118,6 +118,7 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow*);
 
   virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasOnlyTranslucentPolygonalGeometry();
 
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
