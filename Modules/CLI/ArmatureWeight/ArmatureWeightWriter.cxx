@@ -70,19 +70,12 @@ namespace
 template<class InImage, class OutImage>
 void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 {
-  out->SetOrigin(in->GetOrigin());
-  out->SetSpacing(in->GetSpacing());
+  out->CopyInformation(in);
   out->SetRegions(in->GetLargestPossibleRegion());
   out->Allocate();
 }
 
 //-----------------------------------------------------------------------------
-void ConvertToIJK(double x[3])
-{
-  x[0] = -x[0];
-  x[1] = -x[1];
-  x[2] = x[2];
-}
 
 } // end namespace
 
@@ -111,6 +104,19 @@ ArmatureWeightWriter::~ArmatureWeightWriter()
     }
 }
 
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "Id: " << this->Id << "\n";
+  os << indent << "Filename: " << this->Filename << "\n";
+  os << indent << "NumDigits: " << this->NumDigits << "\n";
+  os << indent << "Binary: " << this->BinaryWeight << "\n";
+  os << indent << "Smoothing Iterations" << this->SmoothingIterations << "\n";
+  os << indent << "Debug: " << this->Debug << "\n";
+  os << indent << "Domain: " << this->Domain << "\n";
+  os << indent << "ROI: " << this->ROI << "\n";
+}
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter::SetArmature(vtkPolyData* arm)
@@ -186,7 +192,7 @@ std::string ArmatureWeightWriter::GetFilename()
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter::SetId(EdgeType id)
 {
-if (id == this->Id)
+  if (id == this->Id)
     {
     return;
     }
@@ -242,8 +248,6 @@ bool ArmatureWeightWriter::Initialize()
   points->GetPoint(this->Id * 2 + 1, tail);
 
   // Convert to IJK
-  ConvertToIJK(head);
-  ConvertToIJK(tail);
 
   double radius = radiuses->GetValue(this->Id);
   double squareRadius = radius * radius;

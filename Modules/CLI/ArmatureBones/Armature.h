@@ -120,7 +120,7 @@ protected:
   LabelImageType::Pointer BodyMap; // Reference on the input volume
   LabelImageType::Pointer BodyPartition; //the partition of body by armature edges
 
-  std::vector<std::vector<Voxel>> SkeletonVoxels;
+  std::vector<std::vector<Voxel> > SkeletonVoxels;
   std::vector<typename CharImageType::Pointer> Domains;
   std::vector<Voxel> Fixed;
   std::vector<typename WeightImage::Pointer> Weights;

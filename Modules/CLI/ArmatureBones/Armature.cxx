@@ -55,8 +55,7 @@ namespace
 template<class InImage, class OutImage>
 void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 {
-  out->SetOrigin(in->GetOrigin());
-  out->SetSpacing(in->GetSpacing());
+  out->CopyInformation(in);
   out->SetRegions(in->GetLargestPossibleRegion());
   out->Allocate();
 }

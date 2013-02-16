@@ -12,6 +12,8 @@
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+
     <directory>
       <name>WeightDirectory</name>
       <label>Directories containing all the weights</label>
@@ -19,16 +21,23 @@
       <index>0</index>
       <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
     </directory>
-    <description><![CDATA[Input/output parameters]]></description>
-    <geometry fileExtensions=".vtk">
+
+    <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
       <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
 
-    <geometry fileExtensions=".vtk">
+    <geometry>
       <name>SurfaceInput</name>
       <label>Surface</label>
       <description><![CDATA[Input surface to be posed.]]></description>
@@ -50,13 +59,6 @@
       <channel>output</channel>
       <index>3</index>
     </geometry>
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
   </parameters>
 
@@ -68,6 +70,19 @@
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
       <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Outputs</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
       <default>false</default>
     </boolean>
   </parameters>

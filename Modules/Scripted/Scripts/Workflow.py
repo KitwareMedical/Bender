@@ -69,6 +69,9 @@ class WorkflowWidget:
     self.volumeNodeMergeLabelsTag = 0
     self.labelmapDisplayNodeMergeLabelsTag = 0
 
+    # Pose Body variables
+    self.PoseBodyCLI = None
+
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
@@ -79,22 +82,22 @@ class WorkflowWidget:
     # 1) Bone Segmentations
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
-    self.get('LabelMapApplyColorNodePushButton').connect('pressed()', self.applyColorNode)
+    self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    self.get('TransformApplyPushButton').connect('pressed()', self.runTransform)
+    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
-    self.get('MergeLabelsApplyPushButton').connect('pressed()', self.runMergeLabels)
+    self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
     # a) Bone Model Maker
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
-    self.get('BoneModelMakerApplyPushButton').connect('pressed()', self.runBoneModelMaker)
+    self.get('BoneModelMakerApplyPushButton').connect('clicked()', self.runBoneModelMaker)
     self.get('BoneModelMakerGoToModulePushButton').connect('clicked()', self.openBoneModelMakerModule)
     # b) Skin Model Maker
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
     self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('SkinModelMakerApplyPushButton').connect('pressed()', self.runSkinModelMaker)
+    self.get('SkinModelMakerApplyPushButton').connect('clicked()', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
     # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
@@ -107,20 +110,25 @@ class WorkflowWidget:
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Armature Weight and Bones
     # a) Armatures Bones
-    self.get('SegmentBonesApplyPushButton').connect('pressed()',self.runSegmentBones)
+    self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
     # b) Armatures Weight
-    self.get('ArmatureWeightApplyPushButton').connect('pressed()',self.runArmatureWeight)
+    self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Pose Body
-    self.get('PoseBodyApplyPushButton').connect('pressed()', self.runPoseBody)
+    self.get('PoseBodySurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyWeightInputDirectoryButton').connect('directoryChanged(QString)', self.setupPoseBody)
+    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodyApplyPushButton').connect('checkBoxToggled(bool)', self.setupApplySignals)
+
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 6) Resample
-    self.get('ResampleApplyPushButton').connect('pressed()', self.runResample)
+    self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
     # --------------------------------------------------------------------------
     # Initialize
@@ -150,6 +158,9 @@ class WorkflowWidget:
 
     # Workflow page
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
+
+    # Init Pose body signals
+    self.setupApplySignals(self.get('PoseBodyApplyPushButton').isCheckable())
 
   # Worflow
   def updateHeader(self):
@@ -251,7 +262,11 @@ class WorkflowWidget:
     # Nothing
     # b) Pose Body
     # hide completely
-    self.get('PoseBodyCollapsibleGroupBox').setVisible(advanced)
+    advancedPoseBodyWidgets = ['PoseBodyArmaturesLabel', 'PoseBodyArmatureInputNodeComboBox',
+                               'PoseBodySurfaceInputLabel', 'PoseBodySurfaceInputComboBox',
+                               'PoseBodyWeightInputFolderLabel', 'PoseBodyWeightInputDirectoryButton',
+                               'PoseBodyGoToPushButton']
+    self.setWidgetsVisibility(advancedPoseBodyWidgets, advanced)
 
     # 6) Resample
     # TO DO !!!
@@ -304,16 +319,17 @@ class WorkflowWidget:
     if volumeNode == None:
       return
 
-    self.get('TransformApplyPushButton').toggle(True)
+    self.get('TransformApplyPushButton').setChecked(True)
       
     volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
     transformLogic = slicer.modules.transforms.logic()
+
     if transformLogic.hardenTransform(volumeNode):
       print "Transform succesful !"
     else:
       print "Transform failure !"
       
-    self.get('TransformApplyPushButton').toggle(False)
+    self.get('TransformApplyPushButton').setChecked(False)
 
   #    c) Merge Labels
   def updateMergeLabels(self, node, event):
@@ -395,6 +411,9 @@ class WorkflowWidget:
     parameters["InputLabel"] = boneLabels + ', ' + skinLabels
     parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
     cliNode = None
+
+    self.get('MergeLabelsApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -413,6 +432,8 @@ class WorkflowWidget:
 
     else:
       print 'MergeLabels failed'
+
+    self.get('MergeLabelsApplyPushButton').setChecked(False)
 
   def openMergeLabelsModule(self):
     self.openModule('ChangeLabel')
@@ -440,6 +461,9 @@ class WorkflowWidget:
     parameters["Decimate"] = 0.25
     parameters["Smooth"] = 10
     cliNode = None
+
+    self.get('BoneModelMakerApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -447,6 +471,8 @@ class WorkflowWidget:
 
     else:
       print 'ModelMaker failed'
+
+    self.get('BoneModelMakerApplyPushButton').setChecked(False)
 
   def openBoneModelMakerModule(self):
     self.openModule('ModelMaker')
@@ -482,6 +508,9 @@ class WorkflowWidget:
     #parameters["Decimate"] = 0.25
     parameters["Smooth"] = 10
     cliNode = None
+
+    self.get('SkinModelMakerApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
@@ -491,6 +520,8 @@ class WorkflowWidget:
 
     else:
       print 'Grayscale ModelMaker failed'
+
+    self.get('SkinModelMakerApplyPushButton').setChecked(False)
 
   def openSkinModelMakerModule(self):
     self.openModule('GrayscaleModelMaker')
@@ -600,12 +631,17 @@ class WorkflowWidget:
     #parameters["Debug"] = False
     #parameters["ArmatureInRAS"] = False
     cliNode = None
+
+    self.get('SegmentBonesApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.armaturebones, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
       print 'Armature Bones completed'
     else:
       print 'Armature Bones failed'
+
+    self.get('SegmentBonesApplyPushButton').setChecked(False)
 
   def openSegmentBonesModule(self):
     self.openModule('ArmatureWeight')
@@ -624,12 +660,17 @@ class WorkflowWidget:
     #parameters["Debug"] = False
     #parameters["RunSequential"] = False
     cliNode = None
+
+    self.get('ArmatureWeightApplyPushButton').setChecked(True)
+
     cliNode = slicer.cli.run(slicer.modules.armatureweight, cliNode, parameters, wait_for_completion = True)
     status = cliNode.GetStatusString()
     if status == 'Completed':
       print 'Armature Weight completed'
     else:
       print 'Armature Weight failed'
+
+    self.get('ArmatureWeightApplyPushButton').setChecked(False)
 
   def openArmatureWeightModule(self):
     self.openModule('ArmatureWeight')
@@ -640,21 +681,59 @@ class WorkflowWidget:
     self.openModule('Armatures')
 
   # b) Pose Body
-  def runPoseBody(self):
-    parameters = {}
-    parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode().GetID()
-    parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode().GetID()
-    parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
-    parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode().GetID()
-    #parameters["IsSurfaceInRAS"] = False
-    #parameters["IsArmatureInRAS"] = False
-    cliNode = None
-    cliNode = slicer.cli.run(slicer.modules.posebody, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
-      print 'Pose Body completed'
+  def setupApplySignals(self, checked):
+    if checked == True:
+      self.get('PoseBodyApplyPushButton').disconnect('clicked()', self.runPoseBody)
+      self.get('PoseBodyApplyPushButton').connect('toggled(bool)', self.runPoseBody)
     else:
-      print 'Pose Body failed'
+      self.get('PoseBodyApplyPushButton').disconnect('toggled(bool)', self.runPoseBody)
+      self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
+
+    self.setupPoseBody()
+
+  def setupPoseBody(self):
+
+    # Create CLI node if none exists
+    if self.PoseBodyCLI == None:
+      self.PoseBodyCLI = slicer.cli.createNode(slicer.modules.posebody)
+
+    # Setup CLI node on input changed or apply changed
+    if self.PoseBodyCLI != None:
+      cli = slicer.vtkMRMLCommandLineModuleNode()
+      autorunFlags = cli.NoAutoRun
+
+      parametersAreValid = (self.get('PoseBodyArmatureInputNodeComboBox').currentNode() != None
+                            and self.get('PoseBodySurfaceInputComboBox').currentNode() != None
+                            and self.get('PoseBodySurfaceOutputNodeComboBox').currentNode() != None)
+      parameters = {}
+      if parametersAreValid == True:
+        parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode().GetID()
+        parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode().GetID()
+        parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
+        parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode().GetID()
+        #parameters["IsSurfaceInRAS"] = False
+        #parameters["IsArmatureInRAS"] = False
+        parameters["LinearBlend"] = True
+
+      if (self.get("PoseBodyApplyPushButton").isCheckable() and parametersAreValid) == True :
+        autorunFlags = cli.AutoRunOn or cli.AutoRunEnabledMask
+
+      self.PoseBodyCLI.SetAutoRun(autorunFlags)
+      slicer.cli.setNodeParameters(self.PoseBodyCLI, parameters)
+
+  def runPoseBody(self, shouldRun = True):
+    if self.PoseBodyCLI == None:
+      return
+
+    if shouldRun == True:
+      logic = slicer.modules.posebody.logic()
+      if self.get("PoseBodyApplyPushButton").isChecked() == False:
+
+        self.get('PoseBodyApplyPushButton').setChecked(True)
+        logic.ApplyAndWait(self.PoseBodyCLI)
+        self.get('PoseBodyApplyPushButton').setChecked(False)
+      else:
+        logic.Apply(self.PoseBodyCLI)
 
   def openPoseBodyModule(self):
     self.openModule('PoseBody')

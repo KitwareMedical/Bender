@@ -124,7 +124,7 @@ static itk::SimpleFastMutexLock mutex;
 ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
 {
   typedef itk::MultiThreader::ThreadInfoStruct  ThreadInfoType;
-  ThreadInfoType * infoStruct = static_cast< ThreadInfoType* >( arg );
+  ThreadInfoType * infoStruct = reinterpret_cast< ThreadInfoType* >( arg );
   if (!infoStruct)
     {
     std::cerr<<"Could not find appropriate arguments. Stopping."<<std::endl;
@@ -132,11 +132,11 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   ArmatureWeightWriter* writer =
-    static_cast< ArmatureWeightWriter* >( infoStruct->UserData );
+    reinterpret_cast< ArmatureWeightWriter* >( infoStruct->UserData );
   if (!writer)
     {
     std::cerr<<"Could not find weight writer. Stopping."<<std::endl;
@@ -144,7 +144,7 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   // Compute weight
@@ -156,13 +156,13 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     mutex.Lock();
     --NumberOfRunningThreads;
     mutex.Unlock();
-    return ThreadInfoType::ITK_PROCESS_ABORTED_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   mutex.Lock();
   --NumberOfRunningThreads;
   mutex.Unlock();
-  return ThreadInfoType::SUCCESS;
+  return ITK_THREAD_RETURN_VALUE;
 }
 
 //-------------------------------------------------------------------------------
@@ -170,6 +170,11 @@ int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
 
+  if(!IsArmatureInRAS)
+    {
+    std::cout << "Input armature is not in RAS coordinate system;"
+      << "will convert it to RAS." << std::endl;
+    }
   if(BinaryWeight)
     {
     std::cout << "Use binary weight: " << std::endl;
@@ -216,15 +221,11 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
 
-  vtkSmartPointer<vtkPolyDataReader> polyDataReader =
-    vtkSmartPointer<vtkPolyDataReader>::New();
-  polyDataReader->SetFileName(ArmaturePoly.c_str());
-  polyDataReader->Update();
-
-  if (! polyDataReader->GetOutput())
+  vtkPolyData* armaturePolyData =
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS);
+  if (!armaturePolyData)
     {
-    std::cerr<<"Could not read the poly data given: "
-      << ArmaturePoly <<". Stopping."<<std::endl;
+    std::cerr << "Can't read armature " << ArmaturePoly << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -244,7 +245,7 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.75, 0.1, 0.0);
 
-  LabelImageType::PixelType minLabel = statistics->GetMinimum();
+  //LabelImageType::PixelType minLabel = statistics->GetMinimum();
   LabelImageType::PixelType maxLabel = statistics->GetMaximum();
 
   bender::IOUtils::FilterEnd("Read inputs");
@@ -299,7 +300,7 @@ int main( int argc, char * argv[] )
     ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
     // Inputs
     writeWeight->SetBodyPartition(bodyPartitionReader->GetOutput());
-    writeWeight->SetArmature(polyDataReader->GetOutput());
+    writeWeight->SetArmature(armaturePolyData);
     writeWeight->SetBones(bonesPartition);
     // Output filename
     std::stringstream filename;
@@ -347,6 +348,8 @@ int main( int argc, char * argv[] )
     }
 
   bender::IOUtils::FilterEnd("Compute weights");
+
+  armaturePolyData->Delete();
 
   return EXIT_SUCCESS;
 }
