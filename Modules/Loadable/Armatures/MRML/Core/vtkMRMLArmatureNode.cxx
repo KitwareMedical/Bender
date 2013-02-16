@@ -106,6 +106,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
+  this->OverallRadiusRatio = 1.0;
 
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(MRMLArmatureNodeCallback);
@@ -569,6 +570,8 @@ void vtkMRMLArmatureNode
       boneNode->SetShowParenthood(
         this->ArmatureProperties->GetShowParenthood()
         && boneNode->GetHasParent());
+
+      boneNode->SetOverallRadiusRatio(this->GetOverallRadiusRatio());
 
       // Color and opacity are tricky.
       // Each display node needs to be updated as well as the

@@ -148,7 +148,9 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
   QObject::connect(this->ArmatureShowEnvelopesCheckBox,
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->EnvelopeRadiusSlider,
+  QObject::connect(this->ArmatureEnvelopeRadiusRatioSliderWidget,
+    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->BoneEnvelopeRadiusSlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLBoneNode()));
 
 
@@ -314,7 +316,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   this->updateHierarchy(boneNode);
   this->updatePositions(boneNode);
-  this->updateEnvelope(boneNode);
+  this->updateBoneEnvelope(boneNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -322,6 +324,7 @@ void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureWidget(vtkMRMLArmatureNode* armatureNode)
 {
   this->updateArmatureDisplay(armatureNode);
+  this->updateArmatureEnvelopes(armatureNode);
   this->BonesTreeView->setEnabled(armatureNode != 0);
 }
 
@@ -405,16 +408,16 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::updateEnvelope(vtkMRMLBoneNode* boneNode)
+::updateBoneEnvelope(vtkMRMLBoneNode* boneNode)
 {
   if (boneNode)
     {
     bool wasBlockingEnvelopeRadiusSignal =
-      this->EnvelopeRadiusSlider->blockSignals(true);
-    this->EnvelopeRadiusSlider->setValue(boneNode->GetEnvelopeRadiusRatio());
-    this->EnvelopeRadiusSlider->blockSignals(wasBlockingEnvelopeRadiusSignal);
+      this->BoneEnvelopeRadiusSlider->blockSignals(true);
+    this->BoneEnvelopeRadiusSlider->setValue(boneNode->GetEnvelopeRadiusRatio());
+    this->BoneEnvelopeRadiusSlider->blockSignals(wasBlockingEnvelopeRadiusSignal);
     }
-  this->EnvelopeRadiusSlider->setEnabled(boneNode != 0);
+  this->BoneEnvelopeRadiusSlider->setEnabled(boneNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -453,6 +456,23 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
+::updateArmatureEnvelopes(vtkMRMLArmatureNode* armatureNode)
+{
+  if (armatureNode)
+    {
+    this->ArmatureEnvelopeRadiusRatioSliderWidget->setValue(
+      armatureNode->GetOverallRadiusRatio());
+
+    this->ArmatureShowEnvelopesCheckBox->setChecked(
+      armatureNode->GetShowEnvelopes());
+    }
+
+  this->ArmatureEnvelopeRadiusRatioSliderWidget->setEnabled(armatureNode != 0);
+  this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureAdvancedDisplay(vtkMRMLArmatureNode* armatureNode)
 {
   if (armatureNode)
@@ -461,13 +481,10 @@ void qSlicerArmaturesModuleWidgetPrivate
       armatureNode->GetShowAxes());
     this->ArmatureShowParenthoodCheckBox->setChecked(
       armatureNode->GetShowParenthood());
-    this->ArmatureShowEnvelopesCheckBox->setChecked(
-      armatureNode->GetShowEnvelopes());
     }
 
   this->ArmatureShowAxesCheckBox->setEnabled(armatureNode != 0);
   this->ArmatureShowParenthoodCheckBox->setEnabled(armatureNode != 0);
-  this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -917,11 +934,15 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   d->ArmatureNode->SetShowParenthood(
     d->ArmatureShowParenthoodCheckBox->isChecked());
 
+  d->ArmatureNode->SetBonesAlwaysOnTop(
+    d->BonesAlwaysOnTopCheckBox->isChecked());
+
+  // Envelopes:
   d->ArmatureNode->SetShowEnvelopes(
     d->ArmatureShowEnvelopesCheckBox->isChecked());
 
-  d->ArmatureNode->SetBonesAlwaysOnTop(
-    d->BonesAlwaysOnTopCheckBox->isChecked());
+  d->ArmatureNode->SetOverallRadiusRatio(
+    d->ArmatureEnvelopeRadiusRatioSliderWidget->value());
 
   d->ArmatureNode->EndModify(wasModifying);
 }
@@ -940,7 +961,7 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
 
   d->setCoordinatesToBoneNode(d->BoneNode);
 
-  d->BoneNode->SetEnvelopeRadiusRatio(d->EnvelopeRadiusSlider->value());
+  d->BoneNode->SetEnvelopeRadiusRatio(d->BoneEnvelopeRadiusSlider->value());
 
   d->BoneNode->EndModify(wasModifying);
 }

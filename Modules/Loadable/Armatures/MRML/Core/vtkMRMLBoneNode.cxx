@@ -73,6 +73,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
   this->LinkedWithParent = true;
   this->HasParent = false;
   this->EnvelopeRadiusRatio = 0.5;
+  this->OverallRadiusRatio = 1.0;
 
   this->Callback->SetCallback(MRMLBoneNodeCallback);
   this->Callback->SetClientData(this);
@@ -737,7 +738,8 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 
   // Envelope radius ratio
   boneWidget->GetBoneRepresentation()->GetEnvelope()->SetRadius(
-    boneWidget->GetLength() * this->EnvelopeRadiusRatio);
+    boneWidget->GetLength()
+      * this->EnvelopeRadiusRatio * this->OverallRadiusRatio);
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);
