@@ -37,7 +37,7 @@
       <default></default>
     </geometry>
 
-    <boolean>
+    <boolean advanced="true">
       <name>IsSurfaceInRAS</name>
       <label>Surface in RAS</label>
       <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
