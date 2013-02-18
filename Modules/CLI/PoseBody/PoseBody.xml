@@ -29,13 +29,6 @@
       <channel>input</channel>
       <index>1</index>
     </geometry>
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
     <geometry>
       <name>SurfaceInput</name>
@@ -44,13 +37,6 @@
       <channel>input</channel>
       <index>2</index>
     </geometry>
-    <boolean>
-      <name>IsSurfaceInRAS</name>
-      <label>Surface in RAS</label>
-      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
-      <longflag>--surfaceInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
     <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
@@ -70,6 +56,22 @@
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
       <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsSurfaceInRAS</name>
+      <label>Surface in RAS</label>
+      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
   </parameters>
