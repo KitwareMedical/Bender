@@ -159,6 +159,8 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     return ITK_THREAD_RETURN_VALUE;
     }
 
+  writer->Delete();
+
   mutex.Lock();
   --NumberOfRunningThreads;
   mutex.Unlock();
@@ -221,8 +223,9 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
 
-  vtkPolyData* armaturePolyData =
-    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS);
+  vtkSmartPointer<vtkPolyData> armaturePolyData;
+  armaturePolyData.TakeReference(
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS));
   if (!armaturePolyData)
     {
     std::cerr << "Can't read armature " << ArmaturePoly << std::endl;
@@ -284,7 +287,6 @@ int main( int argc, char * argv[] )
   // Compute the weight of each bones in a separate thread
   typedef itk::MultiThreader ThreaderType;
   ThreaderType::Pointer threader = ThreaderType::New();
-  std::vector<ArmatureWeightWriter*> writers; // Memory management
 
   std::cout<<"Compute from edge #"<<FirstEdge<<" to edge #"<<LastEdge
     <<" (Processing in parrallel ? "<<! RunSequential<<" )"<<std::endl;
@@ -292,7 +294,8 @@ int main( int argc, char * argv[] )
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
     // Wait if too many thread started
-    while (NumberOfRunningThreads >= threader->GetNumberOfThreads())
+    while (!RunSequential
+      && NumberOfRunningThreads >= threader->GetNumberOfThreads())
       {
       delay(50);
       }
@@ -319,7 +322,9 @@ int main( int argc, char * argv[] )
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)
       {
+      mutex.Lock();
       ++NumberOfRunningThreads;
+      mutex.Unlock();
       threader->SpawnThread(ThreaderCallback, writeWeight);
       }
     else
@@ -329,9 +334,8 @@ int main( int argc, char * argv[] )
         std::cerr<<"There was a problem while trying to write the weight."
           <<" Stopping"<<std::endl;
         }
+      writeWeight->Delete();
       }
-
-    writers.push_back(writeWeight); //Memory manangement
     }
 
   // Wait for all the threads to finish
@@ -340,16 +344,6 @@ int main( int argc, char * argv[] )
     delay(50);
     }
 
-  // Delete all the writers
-  for(std::vector<ArmatureWeightWriter*>::iterator it = writers.begin();
-    it != writers.end(); ++it)
-    {
-    (*it)->Delete();
-    }
-
   bender::IOUtils::FilterEnd("Compute weights");
-
-  armaturePolyData->Delete();
-
   return EXIT_SUCCESS;
 }
