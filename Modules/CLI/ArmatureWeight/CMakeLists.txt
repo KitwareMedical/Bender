@@ -40,6 +40,8 @@ set(MODULE_INCLUDE_DIRECTORIES
 set(MODULE_ADDITIONAL_SRCS
   ArmatureWeightWriter.cxx
   ArmatureWeightWriter.h
+  ArmatureWeightThreader.cxx
+  ArmatureWeightThreader.h
   )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
