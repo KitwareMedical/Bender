@@ -25,7 +25,7 @@
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
+      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms".]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
@@ -33,7 +33,7 @@
     <geometry>
       <name>SurfaceInput</name>
       <label>Surface</label>
-      <description><![CDATA[Input surface to be posed.]]></description>
+      <description><![CDATA[Input surface to be posed. If the point data of the surface contains the weight informations, they will automatically be used to compute the new posed surface. If not, then the images in the weight directory will be used.]]></description>
       <channel>input</channel>
       <index>2</index>
     </geometry>
@@ -41,7 +41,7 @@
     <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
       <label>Output posed surface</label>
-      <description><![CDATA[Output surface posed by the armature transforms.]]></description>
+      <description><![CDATA[Output surface posed by the armature transforms. The weight information is added to the point data.]]></description>
       <channel>output</channel>
       <index>3</index>
     </geometry>
@@ -72,6 +72,14 @@
       <label>Surface in RAS</label>
       <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
       <longflag>--surfaceInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>ForceWeightFromImage</name>
+      <label>Use weights from image</label>
+      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight have changed.]]></description>
+      <longflag>--forceUseImage</longflag>
       <default>false</default>
     </boolean>
   </parameters>
