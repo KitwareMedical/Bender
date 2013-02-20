@@ -60,38 +60,53 @@ void ArmatureWeightThreader::AddThread(itk::ThreadFunctionType f, void* data)
   TheadStatusType status;
   status.ErrorMessage = "Started";
   status.ReturnCode = ArmatureWeightThreader::Started;
+  this->Mutex.Unlock();
+
   status.Id = this->Threader->SpawnThread(f, data);
 
+  this->Mutex.Lock();
   this->Status.push_back(status);
   this->Mutex.Unlock();
+
 }
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightThreader::Success(int id)
 {
-  this->Mutex.Lock();
-  this->Status[id].ReturnCode = ArmatureWeightThreader::Successed;
-  this->Status[id].ErrorMessage = "Success";
-  this->Mutex.Unlock();
+  for (std::vector<TheadStatusType>::iterator it = this->Status.begin();
+    it != this->Status.end(); ++it)
+    {
+    if ((*it).Id == id)
+      {
+      this->Mutex.Lock();
+      it->ReturnCode = ArmatureWeightThreader::Successed;
+      it->ErrorMessage = "Success";
+      this->Mutex.Unlock();
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightThreader::Fail(int id, std::string msg)
 {
-  this->Mutex.Lock();
+  for (std::vector<TheadStatusType>::iterator it = this->Status.begin();
+    it != this->Status.end(); ++it)
+    {
+    if ((*it).Id == id)
+      {
+      this->Mutex.Lock();
+      it->ReturnCode = ArmatureWeightThreader::Failed;
+      it->ErrorMessage = msg;
+      this->Mutex.Unlock();
+      }
+    }
 
-  this->Status[id].ReturnCode = ArmatureWeightThreader::Failed;
-  this->Status[id].ErrorMessage = msg;
-
-  this->KillAllThreads();
-  this->Mutex.Unlock();
+  this->KillAll();
 }
 
 //-----------------------------------------------------------------------------
 int ArmatureWeightThreader::GetNumberOfRunningThreads()
 {
-  this->Mutex.Lock();
-
   int runningThread = 0;
   for (std::vector<TheadStatusType>::iterator it = this->Status.begin();
     it != this->Status.end(); ++it)
@@ -101,8 +116,6 @@ int ArmatureWeightThreader::GetNumberOfRunningThreads()
       ++runningThread;
       }
     }
-
-  this->Mutex.Unlock();
   return runningThread;
 }
 
@@ -134,6 +147,15 @@ void ArmatureWeightThreader::PrintErrors()
     }
 }
 
+//-----------------------------------------------------------------------------
+void ArmatureWeightThreader::KillAll()
+{
+  this->KillAllThreads();
+  while (this->GetNumberOfRunningThreads() > 0)
+    {
+    itksys::SystemTools::Delay(100);
+    }
+}
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightThreader::KillAllThreads()
@@ -145,8 +167,20 @@ void ArmatureWeightThreader::KillAllThreads()
       {
       this->Threader->TerminateThread((*it).Id);
 
+      this->Mutex.Lock();
       (*it).ReturnCode = ArmatureWeightThreader::Failed;
       (*it).ErrorMessage = "Killed";
+      this->Mutex.Unlock();
       }
     }
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightThreader::ClearThreads()
+{
+  this->KillAll();
+
+  this->Mutex.Lock();
+  this->Status.clear();
+  this->Mutex.Unlock();
 }

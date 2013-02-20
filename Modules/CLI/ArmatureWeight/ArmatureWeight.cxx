@@ -115,7 +115,7 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     writer->Delete();
     ThreadHandler.Fail(infoStruct->ThreadID,
       "Could not find weight writer. Stopping.");
-    return ThreadInfoType::ITK_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   // Compute weight
@@ -124,12 +124,12 @@ ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
     writer->Delete();
     ThreadHandler.Fail(infoStruct->ThreadID,
       "There was a problem while trying to write the weight. Stopping.");
-    return ThreadInfoType::ITK_EXCEPTION;
+    return ITK_THREAD_RETURN_VALUE;
     }
 
   writer->Delete();
   ThreadHandler.Success(infoStruct->ThreadID);
-  return ThreadInfoType::SUCCESS;
+  return ITK_THREAD_RETURN_VALUE;
 }
 
 //-------------------------------------------------------------------------------
@@ -150,6 +150,7 @@ int main( int argc, char * argv[] )
     {
     std::cout << "Running Sequential: " << std::endl;
     }
+  ThreadHandler.ClearThreads();
 
   bender::IOUtils::FilterStart("Read inputs");
   bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.1, 0.0);
@@ -177,7 +178,7 @@ int main( int argc, char * argv[] )
   bodyReader->SetFileName(RestLabelmap.c_str() );
   try
     {
-    bodyReader->Update();;
+    bodyReader->Update();
     }
   catch (itk::ExceptionObject &e)
     {
@@ -208,6 +209,9 @@ int main( int argc, char * argv[] )
 
   typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
   StatisticsType::Pointer statistics = StatisticsType::New();
+  itk::PluginFilterWatcher watchStatistics(statistics,
+                                       "Get Statistics",
+                                       CLPProcessInformation);
   statistics->SetInput( bodyPartitionReader->GetOutput() );
   statistics->Update();
 
@@ -255,6 +259,12 @@ int main( int argc, char * argv[] )
 
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
+    if (CLPProcessInformation->Abort)
+      {
+      ThreadHandler.KillAll();
+      return EXIT_FAILURE;
+      }
+
     if (!RunSequential)
       {
       if (ThreadHandler.HasError())
@@ -265,6 +275,7 @@ int main( int argc, char * argv[] )
       }
 
     ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
+
     // Inputs
     writeWeight->SetBodyPartition(bodyPartitionReader->GetOutput());
     writeWeight->SetArmature(armaturePolyData);
@@ -295,6 +306,7 @@ int main( int argc, char * argv[] )
         std::cerr<<"There was a problem while trying to write the weight."
           <<" Stopping"<<std::endl;
         }
+
       writeWeight->Delete();
       }
     }
@@ -304,6 +316,11 @@ int main( int argc, char * argv[] )
     {
     while (ThreadHandler.GetNumberOfRunningThreads() != 0)
       {
+      if (CLPProcessInformation->Abort)
+        {
+        ThreadHandler.KillAll();
+        return EXIT_FAILURE;
+        }
       if (ThreadHandler.HasError())
         {
         ThreadHandler.PrintErrors();
@@ -311,8 +328,6 @@ int main( int argc, char * argv[] )
         }
       itksys::SystemTools::Delay(100);
       }
-
-
     }
 
   bender::IOUtils::FilterEnd("Compute weights");
