@@ -22,6 +22,7 @@
 
 // Bender includes
 #include "ArmatureWeightCLP.h"
+#include "ArmatureWeightThreader.h"
 #include "ArmatureWeightWriter.h"
 #include <benderIOUtils.h>
 
@@ -35,6 +36,7 @@
 #include <itkSimpleFastMutexLock.h>
 #include <itkPluginUtilities.h>
 #include <itkImageRegionIteratorWithIndex.h>
+#include <itksys/SystemTools.hxx>
 
 // STD includes
 #include <sstream>
@@ -58,25 +60,6 @@ typedef itk::ImageRegion<3> RegionType;
 
 namespace
 {
-#if defined(__WIN32__) || defined(WIN32)
-
-#include <windows.h>
-
-inline void delay( unsigned long ms )
-  {
-  Sleep( ms );
-  }
-
-#else  /* presume POSIX */
-
-#include <unistd.h>
-
-inline void delay( unsigned long ms )
-  {
-  usleep( ms * 1000 );
-  }
-
-#endif
 
 //-------------------------------------------------------------------------------
 inline int NumDigits(unsigned int a)
@@ -114,55 +97,39 @@ LabelImageType::Pointer SimpleBoneSegmentation(
   return mask->GetOutput();
 }
 
-} // end namepaces
+} // end namespace
 
 //-------------------------------------------------------------------------------
-static int NumberOfRunningThreads = 0;
-static itk::SimpleFastMutexLock mutex;
+static ArmatureWeightThreader ThreadHandler;
 
 //-------------------------------------------------------------------------------
 ITK_THREAD_RETURN_TYPE ThreaderCallback(void* arg)
 {
   typedef itk::MultiThreader::ThreadInfoStruct  ThreadInfoType;
   ThreadInfoType * infoStruct = reinterpret_cast< ThreadInfoType* >( arg );
-  if (!infoStruct)
-    {
-    std::cerr<<"Could not find appropriate arguments. Stopping."<<std::endl;
-
-    mutex.Lock();
-    --NumberOfRunningThreads;
-    mutex.Unlock();
-    return ITK_THREAD_RETURN_VALUE;
-    }
 
   ArmatureWeightWriter* writer =
     reinterpret_cast< ArmatureWeightWriter* >( infoStruct->UserData );
   if (!writer)
     {
-    std::cerr<<"Could not find weight writer. Stopping."<<std::endl;
-
-    mutex.Lock();
-    --NumberOfRunningThreads;
-    mutex.Unlock();
-    return ITK_THREAD_RETURN_VALUE;
+    writer->Delete();
+    ThreadHandler.Fail(infoStruct->ThreadID,
+      "Could not find weight writer. Stopping.");
+    return ThreadInfoType::ITK_EXCEPTION;
     }
 
   // Compute weight
   if (! writer->Write())
     {
-    std::cerr<<"There was a problem while trying to write the weight."
-      <<" Stopping"<<std::endl;
-
-    mutex.Lock();
-    --NumberOfRunningThreads;
-    mutex.Unlock();
-    return ITK_THREAD_RETURN_VALUE;
+    writer->Delete();
+    ThreadHandler.Fail(infoStruct->ThreadID,
+      "There was a problem while trying to write the weight. Stopping.");
+    return ThreadInfoType::ITK_EXCEPTION;
     }
 
-  mutex.Lock();
-  --NumberOfRunningThreads;
-  mutex.Unlock();
-  return ITK_THREAD_RETURN_VALUE;
+  writer->Delete();
+  ThreadHandler.Success(infoStruct->ThreadID);
+  return ThreadInfoType::SUCCESS;
 }
 
 //-------------------------------------------------------------------------------
@@ -221,8 +188,9 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.50, 0.1, 0.0);
 
-  vtkPolyData* armaturePolyData =
-    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS);
+  vtkSmartPointer<vtkPolyData> armaturePolyData;
+  armaturePolyData.TakeReference(
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(), !IsArmatureInRAS));
   if (!armaturePolyData)
     {
     std::cerr << "Can't read armature " << ArmaturePoly << std::endl;
@@ -282,19 +250,18 @@ int main( int argc, char * argv[] )
   int numDigits = NumDigits(maxLabel);
 
   // Compute the weight of each bones in a separate thread
-  typedef itk::MultiThreader ThreaderType;
-  ThreaderType::Pointer threader = ThreaderType::New();
-  std::vector<ArmatureWeightWriter*> writers; // Memory management
-
   std::cout<<"Compute from edge #"<<FirstEdge<<" to edge #"<<LastEdge
     <<" (Processing in parrallel ? "<<! RunSequential<<" )"<<std::endl;
 
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
-    // Wait if too many thread started
-    while (NumberOfRunningThreads >= threader->GetNumberOfThreads())
+    if (!RunSequential)
       {
-      delay(50);
+      if (ThreadHandler.HasError())
+        {
+        ThreadHandler.PrintErrors();
+        return EXIT_FAILURE;
+        }
       }
 
     ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
@@ -319,8 +286,7 @@ int main( int argc, char * argv[] )
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)
       {
-      ++NumberOfRunningThreads;
-      threader->SpawnThread(ThreaderCallback, writeWeight);
+      ThreadHandler.AddThread(ThreaderCallback, writeWeight);
       }
     else
       {
@@ -329,27 +295,26 @@ int main( int argc, char * argv[] )
         std::cerr<<"There was a problem while trying to write the weight."
           <<" Stopping"<<std::endl;
         }
+      writeWeight->Delete();
+      }
+    }
+
+  // Wait for all the threads to finish.
+  if (!RunSequential)
+    {
+    while (ThreadHandler.GetNumberOfRunningThreads() != 0)
+      {
+      if (ThreadHandler.HasError())
+        {
+        ThreadHandler.PrintErrors();
+        return EXIT_FAILURE;
+        }
+      itksys::SystemTools::Delay(100);
       }
 
-    writers.push_back(writeWeight); //Memory manangement
-    }
 
-  // Wait for all the threads to finish
-  while (NumberOfRunningThreads != 0)
-    {
-    delay(50);
-    }
-
-  // Delete all the writers
-  for(std::vector<ArmatureWeightWriter*>::iterator it = writers.begin();
-    it != writers.end(); ++it)
-    {
-    (*it)->Delete();
     }
 
   bender::IOUtils::FilterEnd("Compute weights");
-
-  armaturePolyData->Delete();
-
   return EXIT_SUCCESS;
 }
