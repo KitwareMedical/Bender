@@ -53,6 +53,7 @@ SEMMacroBuildCLI(
   LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
   INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
   TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
+  EXECUTABLE_ONLY
   )
 
 #-----------------------------------------------------------------------------
