@@ -80,6 +80,12 @@ public:
   // Print errors to std::cerr
   void PrintErrors();
 
+  // Kill all threads
+  void KillAll();
+
+  // Clear the thread history
+  void ClearThreads();
+
 private:
   std::vector<TheadStatusType> Status;
   itk::SimpleFastMutexLock Mutex;
