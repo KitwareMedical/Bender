@@ -15,7 +15,7 @@
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
-    <image>
+    <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
       <description><![CDATA[Labelmap volume in resting pose]]></description>
@@ -41,7 +41,7 @@
 
   </parameters>
 
-  <parameters>
+  <parameters advanced="true">
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     
@@ -55,7 +55,7 @@
 
   </parameters>
   
-  <parameters>
+  <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
 
