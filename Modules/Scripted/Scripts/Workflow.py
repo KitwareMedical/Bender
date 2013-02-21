@@ -123,7 +123,11 @@ class WorkflowWidget:
     # 5) (Pose) Armature And Pose Body
     # a) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
-    # b) Pose Body
+    # b) Eval Weight
+    self.get('EvalWeightApplyPushButton').connect('clicked()', self.runEvalWeight)
+    self.get('EvalWeightGoToPushButton').connect('clicked()', self.openEvalWeight)
+    self.get('EvalWeightWeightDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    # c) Pose Body
     self.get('PoseBodySurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
     self.get('PoseBodyWeightInputDirectoryButton').connect('directoryChanged(QString)', self.setupPoseBody)
     self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
@@ -255,15 +259,20 @@ class WorkflowWidget:
     # Leave only weight folder
     advancedComputeWeightWidgets = ['ArmatureWeightInputVolumeLabel', 'ArmatureWeightInputVolumeNodeComboBox',
                                    'ArmatureWeightArmatureLabel', 'ArmatureWeightAmartureNodeComboBox',
-                                   'ArmatureWeightBodyPartitionLabel', 'ArmatureWeightBodyPartitionVolumeNodeComboBox',
-                                   'ArmatureWeightGoToPushButton']
+                                   'EvalWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
 
     # 5) Pose Page
     # a) Armatures
     # Nothing
-    # b) Pose Body
-    # hide completely
+    # b) Eval Weight
+    advancedEvalWeightWidgets = ['EvalWeightInputSurfaceLabel', 'EvalWeightInputNodeComboBox',
+                                 'EvalWeightWeightDirectoryLabel', 'EvalWeightWeightDirectoryButton',
+                                 'EvalWeightGoToPushButton']
+    self.setWidgetsVisibility(advancedEvalWeightWidgets, advanced)
+
+    # c) Pose Body
+    # hide almost completely
     advancedPoseBodyWidgets = ['PoseBodyArmaturesLabel', 'PoseBodyArmatureInputNodeComboBox',
                                'PoseBodySurfaceInputLabel', 'PoseBodySurfaceInputComboBox',
                                'PoseBodyWeightInputFolderLabel', 'PoseBodyWeightInputDirectoryButton',
@@ -683,6 +692,30 @@ class WorkflowWidget:
     self.openModule('Armatures')
 
   # b) Pose Body
+  def runEvalWeight(self):
+    parameters = {}
+    parameters["InputSurface"] = self.get('EvalWeightInputNodeComboBox').currentNode()
+    parameters["OutputSurface"] = self.get('EvalWeightOutputNodeComboBox').currentNode()
+    parameters["WeightDirectory"] = str(self.get('EvalWeightWeightDirectoryButton').directory)
+    #parameters["IsSurfaceInRAS"] = False
+    #parameters["PrintDebug"] = False
+    cliNode = None
+
+    self.get('EvalWeightApplyPushButton').setChecked(True)
+
+    cliNode = slicer.cli.run(slicer.modules.evalweight, cliNode, parameters, wait_for_completion = True)
+    status = cliNode.GetStatusString()
+    if status == 'Completed':
+      print 'Evaluate Weight completed'
+    else:
+      print 'Evaluate Weight failed'
+
+    self.get('EvalWeightApplyPushButton').setChecked(False)
+
+  def openEvalWeight(self):
+    self.openModule('EvalWeight')
+
+  # c) Pose Body
   def updatePoseBodyFromCLI(self, node, event):
     if node != self.PoseBodyCLI:
       return
@@ -733,6 +766,9 @@ class WorkflowWidget:
     self.openModule('PoseBody')
 
   def setWeightDirectory(self, dir):
+    if self.get('EvalWeightWeightDirectoryButton').directory != dir:
+      self.get('EvalWeightWeightDirectoryButton').directory = dir
+
     if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
       self.get('PoseBodyWeightInputDirectoryButton').directory = dir
 
