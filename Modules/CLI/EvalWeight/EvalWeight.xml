@@ -20,28 +20,38 @@
       <index>0</index>
       <default>./</default>
     </directory>
-    <geometry type="model" fileExtensions=".vtk">
+    <geometry fileExtensions=".vtk">
       <name>InputSurface</name>
       <label>Surface vertices to evaluate at</label>
       <description><![CDATA[The weight vectors will be evaluated at these surface vertices]]></description>
       <channel>input</channel>
       <index>1</index>
-      <default></default>
     </geometry>
-    <geometry type="model" fileExtensions=".vtk">
+    <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
-      <label>Surface output file</label>
+      <label>Weighted Surface</label>
       <description><![CDATA[Output surface in VTK format. The weight vectors are stored as point data.]]></description>
       <channel>output</channel>
       <index>2</index>
-      <default></default>
     </geometry>
+  </parameters>
 
-    <boolean>
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced parameters]]></description>
+    <boolean advanced="true">
       <name>IsSurfaceInRAS</name>
       <label>Surface in RAS</label>
       <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
       <longflag>--surfaceInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>PrintDebug</name>
+      <label>Print debug info</label>
+      <description><![CDATA[Print debug information or not.]]></description>
+      <longflag>--debug</longflag>
       <default>false</default>
     </boolean>
   </parameters>
