@@ -34,6 +34,9 @@ class WorkflowWidget:
     self.parent.show()
 
   def setup(self):
+
+    self.Observations = []
+
     import imp, sys, os, slicer
     loader = qt.QUiLoader()
     moduleName = 'Workflow'
@@ -58,16 +61,11 @@ class WorkflowWidget:
     self.TitleLabel = self.get('TitleLabel')
 
     # Labelmap variables
-    self.oldLabelMapVolumeNode = None
-    self.volumeNodeLabelMapTag = 0
-    self.labelmapDisplayNodeLabelMapTag = 0
 
     # Transform variables
     self.TransformNode = None
 
     # Merge variables
-    self.volumeNodeMergeLabelsTag = 0
-    self.labelmapDisplayNodeMergeLabelsTag = 0
 
     # Pose Body variables
     self.PoseBodyCLI = slicer.mrmlScene.GetFirstNodeByName("Pose Body")
@@ -286,19 +284,17 @@ class WorkflowWidget:
   #     a) Labelmap
   def updateLabelmap(self, node, event):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    if node != volumeNode and node != volumeNode.GetDisplayNode():
+      return
+    self.setupLabelmap(volumeNode)
     self.setupMergeLabels(volumeNode)
 
   def setupLabelmap(self, volumeNode):
     if volumeNode == None:
       return
 
-    if self.oldLabelMapVolumeNode != None and self.oldLabelMapVolumeNode != volumeNode:
-      self.oldLabelMapVolumeNode.RemoveObserver(self.volumeNodeLabelMapTag)
-      self.oldLabelMapVolumeNode.GetDisplayNode().RemoveObserver(self.labelmapDisplayNodeLabelMapTag)
-
-    self.volumeNodeLabelMapTag = volumeNode.AddObserver('ModifiedEvent', self.updateLabelmap)
-    self.labelmapDisplayNodeLabelMapTag = volumeNode.GetDisplayNode().AddObserver('ModifiedEvent', self.updateLabelmap)
-    self.oldLabelMapVolumeNode = volumeNode
+    self.addObserver(volumeNode, 'ModifiedEvent', self.updateLabelmap)
+    self.addObserver(volumeNode.GetDisplayNode(), 'ModifiedEvent', self.updateLabelmap)
 
   def applyColorNode(self):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
@@ -356,6 +352,7 @@ class WorkflowWidget:
     if volumeNode == None:
       return
     labelmapDisplayNode = volumeNode.GetDisplayNode()
+    self.removeObservers(self.updateMergeLabels)
     colorNode = labelmapDisplayNode.GetColorNode()
     if colorNode == None:
       self.get('BoneLabelComboBox').setMRMLColorNode(None)
@@ -365,8 +362,6 @@ class WorkflowWidget:
       self.get('SkinLabelsLineEdit').setText('')
       self.get('SkinLabelComboBox').setCurrentColor(None)
 
-      volumeNode.RemoveObserver(self.volumeNodeMergeLabelsTag)
-      labelmapDisplayNode.RemoveObserver(self.labelmapDisplayNodeMergeLabelsTag)
     else:
       self.get('BoneLabelComboBox').setMRMLColorNode(colorNode)
       self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
@@ -380,8 +375,8 @@ class WorkflowWidget:
       skinLabel = self.bestLabel(skinLabels, 'skin')
       self.get('SkinLabelComboBox').setCurrentColor(skinLabel)
 
-      self.volumeNodeMergeLabelsTag = volumeNode.AddObserver('ModifiedEvent', self.updateMergeLabels)
-      self.labelmapDisplayNodeMergeLabelsTag = labelmapDisplayNode.AddObserver('ModifiedEvent', self.updateMergeLabels)
+      self.addObserver(volumeNode, 'ModifiedEvent', self.updateMergeLabels)
+      self.addObserver(labelmapDisplayNode, 'ModifiedEvent', self.updateMergeLabels)
 
   def searchLabels(self, colorNode, label):
     """ Search the color node for all the labels that contain the word 'label'
@@ -549,6 +544,7 @@ class WorkflowWidget:
     self.setupVolumeRender(volumeNode)
 
   def setupVolumeRender(self, volumeNode):
+    self.removeObservers(self.updateVolumeRender)#volumeNode.RemoveObserver('ModifiedEvent', self.updateVolumeRender)
     if volumeNode == None:
       return
     displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
@@ -557,7 +553,7 @@ class WorkflowWidget:
       visible = displayNode.GetVisibility()
     self.get('VolumeRenderCheckBox').setChecked(visible)
     self.setupVolumeRenderLabels()
-    volumeNode.AddObserver('ModifiedEvent', self.updateVolumeRender)
+    self.addObserver(volumeNode, 'ModifiedEvent', self.updateVolumeRender)
 
   def setupVolumeRenderLabels(self):
     """ Update the labels of the volume rendering
@@ -790,6 +786,23 @@ class WorkflowWidget:
             if resulting_widget:
                 return resulting_widget
         return None
+
+  def removeObservers(self, method):
+    for object, event, method, group, tag in self.Observations:
+      if method == method:
+        object.RemoveObserver(tag)
+
+  def addObserver(self, object, event, method, group = 'none'):
+    if self.hasObserver(object, event, method):
+      return
+    tag = object.AddObserver(event, method)
+    self.Observations.append([object, event, method, group, tag])
+
+  def hasObserver(self, object, event, method):
+    for o, e, m, g, t in self.Observations:
+      if o == object and e == event and m == method:
+        return True
+    return False
 
   def openModule(self, moduleName):
     slicer.util.selectModule(moduleName)
