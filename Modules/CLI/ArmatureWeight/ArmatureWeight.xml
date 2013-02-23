@@ -76,6 +76,14 @@
       <default>10</default>
     </integer>
 
+    <double>
+      <name>Spacing</name>
+      <longflag>--spacing</longflag>
+      <label>Computation spacing</label>
+      <description><![CDATA[Spacing used in the computation to speed up the processing. It is highly encouraged to use a sparser spacing than the input image.]]></description>
+      <default>5</default>
+    </double>
+
   </parameters>
   <parameters advanced="true">
     <label>Advanced</label>
