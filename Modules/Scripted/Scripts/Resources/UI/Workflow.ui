@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
-    <height>760</height>
+    <width>877</width>
+    <height>809</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>Workflow</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_9">
    <item>
     <widget class="QLabel" name="TitleLabel">
      <property name="text">
@@ -82,7 +82,7 @@
       <string/>
      </property>
      <property name="accessibleName">
-      <string>Extract Bones And Skin</string>
+      <string>Extract Bones And Skin (surfacing)</string>
      </property>
      <property name="accessibleDescription">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -145,19 +145,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="noneDisplay">
+            <property name="noneDisplay" stdset="0">
              <string/>
             </property>
            </widget>
@@ -170,22 +170,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLColorTableNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>ColorTable</string>
             </property>
-            <property name="noneEnabled">
+            <property name="noneEnabled" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="noneDisplay">
+            <property name="noneDisplay" stdset="0">
              <string>Greyscale</string>
             </property>
            </widget>
@@ -251,16 +251,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>InputLabelMap</string>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -273,19 +273,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showChildNodeTypes">
+            <property name="showChildNodeTypes" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>MergedLabelmap</string>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -308,7 +308,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox">
+           <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -335,7 +335,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="5" column="1">
-           <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox">
+           <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox" native="true">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -440,16 +440,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>Labelmap</string>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -472,22 +472,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="BoneModelMakerOutputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerOutputNodeComboBox" native="true">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelHierarchyNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>Models</string>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -506,6 +506,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="BoneModelMakerGoToModelsModulePushButton">
+              <property name="text">
+               <string>Go To Models</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="BoneModelMakerGoToModulePushButton">
@@ -540,16 +547,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled">
+            <property name="removeEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -562,7 +569,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QSpinBox" name="SkinModelMakerThresholdSpinBox"/>
+           <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox"/>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
@@ -572,19 +579,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>Skin</string>
             </property>
-            <property name="removeEnabled">
+            <property name="removeEnabled" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -605,6 +612,13 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModelsModulePushButton">
+              <property name="text">
+               <string>Go To Models</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
               <property name="text">
                <string>Go To Greyscale Model Maker</string>
@@ -622,74 +636,6 @@ p, li { white-space: pre-wrap; }
              <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
               <property name="text">
                <string>Generate skin model</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
-         <property name="title">
-          <string>C) Volume render</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_7">
-          <item row="0" column="0">
-           <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
-            <property name="text">
-             <string>Labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="showChildNodeTypes">
-             <bool>false</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="VolumeRenderLabelsLabel">
-            <property name="text">
-             <string>Label(s)</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit"/>
-          </item>
-          <item row="2" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
-            <item>
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
-              <property name="text">
-               <string>Go To Volume Rendering</string>
               </property>
              </widget>
             </item>
@@ -721,7 +667,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Create Rest Armature</string>
+       <string>Create armature (rigging)</string>
       </property>
       <property name="accessibleDescription">
        <string>The armature will enable to animate the volume.
@@ -788,6 +734,20 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="ArmaturesToggleVisiblePushButtton">
+              <property name="text">
+               <string>Toggle skin visibility</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ArmaturesLoadArmaturePushButton">
+              <property name="text">
+               <string>Load Armature</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="ArmaturesGoToPushButton">
               <property name="text">
                <string>Go to Armatures module</string>
@@ -815,11 +775,8 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="SegmentBonesPage">
-      <property name="toolTip">
-       <string>Weight computation</string>
-      </property>
       <property name="accessibleName">
-       <string>Skinning</string>
+       <string>Compute weights (skinning)</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -859,22 +816,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox" native="true">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation">
+            <property name="selectNodeUponCreation" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -887,19 +844,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string/>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -912,22 +869,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>BonesPartition</string>
             </property>
-            <property name="noneEnabled">
+            <property name="noneEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -995,22 +952,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox" native="true">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation">
+            <property name="selectNodeUponCreation" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1029,22 +986,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string/>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled">
+            <property name="removeEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1063,22 +1020,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>BonesPartition</string>
             </property>
-            <property name="noneEnabled">
+            <property name="noneEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled">
+            <property name="removeEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1163,7 +1120,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Pose armature</string>
+       <string>Pose armature (posing)</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1270,13 +1227,13 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightInputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="EvalWeightInputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -1285,8 +1242,8 @@ p, li { white-space: pre-wrap; }
            <widget class="ctkDirectoryButton" name="EvalWeightWeightDirectoryButton"/>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightOutputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="EvalWeightOutputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
@@ -1350,19 +1307,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string/>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -1375,22 +1332,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string/>
             </property>
-            <property name="noneEnabled">
+            <property name="noneEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled">
+            <property name="removeEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1420,22 +1377,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden">
+            <property name="showHidden" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string/>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1493,14 +1450,8 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="ResamplePage">
-      <property name="toolTip">
-       <string>Final labelmap resampling</string>
-      </property>
-      <property name="whatsThis">
-       <string/>
-      </property>
       <property name="accessibleName">
-       <string>Pose labelmap</string>
+       <string>Pose labelmap (resampling)</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1530,19 +1481,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleLabelMapNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="ResampleLabelMapNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showChildNodeTypes">
+            <property name="showChildNodeTypes" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>Labelmap</string>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
            </widget>
@@ -1555,19 +1506,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleArmatureNodeNodeComboBox">
-            <property name="nodeTypes">
+           <widget class="qMRMLNodeComboBox" name="ResampleArmatureNodeNodeComboBox" native="true">
+            <property name="nodeTypes" stdset="0">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName">
+            <property name="baseName" stdset="0">
              <string>Armature</string>
             </property>
-            <property name="addEnabled">
+            <property name="addEnabled" stdset="0">
              <bool>false</bool>
             </property>
-            <property name="renameEnabled">
+            <property name="renameEnabled" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -1617,32 +1568,112 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_9">
-     <item>
-      <layout class="QGridLayout" name="gridLayout_9">
-       <item row="0" column="0">
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
+    <widget class="QWidget" name="BottomWidget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_6">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="ctkExpandButton" name="ExpandAdvancedPropertiesButton">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="mirrorOnExpand">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="AdvancedPropertiesWidget" native="true">
+        <layout class="QFormLayout" name="formLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="2" column="0" colspan="2">
+          <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
+           <property name="title">
+            <string>Volume render</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_7">
+            <item row="0" column="0">
+             <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
+              <property name="text">
+               <string>Labelmap</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox" native="true">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="nodeTypes" stdset="0">
+               <stringlist>
+                <string>vtkMRMLScalarVolumeNode</string>
+               </stringlist>
+              </property>
+              <property name="showChildNodeTypes" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="addEnabled" stdset="0">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="VolumeRenderLabelsLabel">
+              <property name="text">
+               <string>Label(s)</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit"/>
+            </item>
+            <item row="2" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <spacer name="horizontalSpacer_3">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>40</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item>
+               <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
+                <property name="text">
+                 <string>Go To Volume Rendering</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0">
           <widget class="QLabel" name="WelcomeSimpleWorkflowLabel">
            <property name="text">
             <string>Advanced workflow</string>
            </property>
           </widget>
          </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
+         <item row="0" column="1">
           <widget class="QCheckBox" name="WelcomeSimpleWorkflowCheckBox">
            <property name="text">
             <string/>
@@ -1653,139 +1684,134 @@ p, li { white-space: pre-wrap; }
           </widget>
          </item>
         </layout>
-       </item>
-       <item row="1" column="0">
-        <widget class="QWidget" name="WorkflowControlWidget" native="true">
-         <layout class="QGridLayout" name="gridLayout_11">
-          <property name="margin">
-           <number>0</number>
-          </property>
-          <property name="spacing">
-           <number>0</number>
-          </property>
-          <item row="2" column="0">
-           <widget class="QToolButton" name="PreviousPageToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="WorkflowWidget_2" native="true">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="WorkflowControlWidget" native="true">
+           <layout class="QGridLayout" name="gridLayout_11">
+            <property name="margin">
+             <number>0</number>
             </property>
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>0</height>
-             </size>
+            <property name="spacing">
+             <number>0</number>
             </property>
-            <property name="text">
-             <string>&lt; Previous</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3">
-           <spacer name="horizontalSpacer_12">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>6</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="2" column="4">
-           <widget class="QToolButton" name="NextPageToolButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>20</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Next &gt;</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <spacer name="horizontalSpacer_13">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>0</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="3">
-           <spacer name="horizontalSpacer_14">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Fixed</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>6</width>
-              <height>0</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="1" column="4">
-           <spacer name="horizontalSpacer_15">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>0</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </item>
-    </layout>
+            <item row="2" column="0">
+             <widget class="QToolButton" name="PreviousPageToolButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>&lt; Previous</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="3">
+             <spacer name="horizontalSpacer_12">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>6</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="2" column="4">
+             <widget class="QToolButton" name="NextPageToolButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Next &gt;</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <spacer name="horizontalSpacer_13">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="3">
+             <spacer name="horizontalSpacer_14">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>6</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="4">
+             <spacer name="horizontalSpacer_15">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+     <zorder>AdvancedPropertiesWidget</zorder>
+     <zorder>WorkflowWidget_2</zorder>
+     <zorder>ExpandAdvancedPropertiesButton</zorder>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>qMRMLLabelComboBox</class>
-   <extends>qMRMLWidget</extends>
-   <header>qMRMLLabelComboBox.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLWidget</class>
-   <extends>QWidget</extends>
-   <header>qMRMLWidget.h</header>
-   <container>1</container>
-  </customwidget>
   <customwidget>
    <class>ctkCheckablePushButton</class>
    <extends>QPushButton</extends>
@@ -1813,6 +1839,28 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>ctkDirectoryButton.h</header>
   </customwidget>
+  <customwidget>
+   <class>ctkExpandButton</class>
+   <extends>QToolButton</extends>
+   <header>ctkExpandButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLLabelComboBox</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLLabelComboBox.h</header>
+   <container>1</container>
+  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -1827,8 +1875,8 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>289</x>
-     <y>238</y>
+     <x>432</x>
+     <y>286</y>
     </hint>
    </hints>
   </connection>
@@ -1843,8 +1891,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>337</x>
-     <y>264</y>
+     <x>480</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>
@@ -1859,8 +1907,8 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>272</x>
-     <y>316</y>
+     <x>415</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>
@@ -1875,8 +1923,8 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>291</x>
-     <y>368</y>
+     <x>434</x>
+     <y>420</y>
     </hint>
    </hints>
   </connection>
@@ -1891,8 +1939,8 @@ p, li { white-space: pre-wrap; }
      <y>7</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -1907,8 +1955,8 @@ p, li { white-space: pre-wrap; }
      <y>5</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>94</y>
+     <x>96</x>
+     <y>119</y>
     </hint>
    </hints>
   </connection>
@@ -1923,8 +1971,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -1939,8 +1987,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>99</y>
+     <x>96</x>
+     <y>123</y>
     </hint>
    </hints>
   </connection>
@@ -1951,28 +1999,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>321</x>
-     <y>238</y>
+     <x>464</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
-     <x>321</x>
-     <y>264</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>LabelmapVolumeNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>19</x>
-     <y>585</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>227</x>
-     <y>122</y>
+     <x>464</x>
+     <y>312</y>
     </hint>
    </hints>
   </connection>
@@ -1987,8 +2019,24 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>217</x>
-     <y>148</y>
+     <x>660</x>
+     <y>171</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>LabelmapVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>19</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>670</x>
+     <y>145</y>
     </hint>
    </hints>
   </connection>
@@ -1999,12 +2047,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>326</x>
-     <y>122</y>
+     <x>769</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
-     <y>238</y>
+     <x>403</x>
+     <y>286</y>
     </hint>
    </hints>
   </connection>
@@ -2015,12 +2063,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
-     <y>264</y>
+     <x>482</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -2031,12 +2079,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>108</y>
+     <x>222</x>
+     <y>769</y>
     </hint>
    </hints>
   </connection>
@@ -2051,8 +2099,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>108</y>
+     <x>222</x>
+     <y>769</y>
     </hint>
    </hints>
   </connection>
@@ -2067,8 +2115,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>101</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -2083,8 +2131,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>100</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
@@ -2099,8 +2147,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -2115,8 +2163,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>105</y>
+     <x>96</x>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -2131,8 +2179,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>101</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
@@ -2147,8 +2195,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>108</y>
+     <x>96</x>
+     <y>136</y>
     </hint>
    </hints>
   </connection>
@@ -2159,12 +2207,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>108</y>
+     <x>96</x>
+     <y>136</y>
     </hint>
    </hints>
   </connection>
@@ -2179,8 +2227,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>108</y>
+     <x>96</x>
+     <y>147</y>
     </hint>
    </hints>
   </connection>
@@ -2195,8 +2243,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>98</y>
+     <x>96</x>
+     <y>133</y>
     </hint>
    </hints>
   </connection>
@@ -2211,8 +2259,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>105</y>
+     <x>96</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -2223,12 +2271,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>101</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>105</y>
+     <x>96</x>
+     <y>132</y>
     </hint>
    </hints>
   </connection>
@@ -2239,12 +2287,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>100</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>101</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
@@ -2255,12 +2303,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>418</x>
-     <y>264</y>
+     <x>561</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>96</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -2275,8 +2323,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>345</x>
-     <y>254</y>
+     <x>96</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -2291,8 +2339,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>345</x>
-     <y>306</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
    </hints>
   </connection>
@@ -2303,12 +2351,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>349</x>
-     <y>254</y>
+     <x>492</x>
+     <y>312</y>
     </hint>
     <hint type="destinationlabel">
-     <x>345</x>
-     <y>254</y>
+     <x>96</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -2319,12 +2367,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>345</x>
-     <y>306</y>
+     <x>96</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>195</y>
+     <x>96</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -2339,8 +2387,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>195</y>
+     <x>96</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
@@ -2355,8 +2403,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>251</y>
+     <x>96</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -2367,12 +2415,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>340</x>
-     <y>251</y>
+     <x>96</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>367</y>
+     <x>96</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -2383,12 +2431,28 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>337</x>
-     <y>280</y>
+     <x>96</x>
+     <y>132</y>
     </hint>
     <hint type="destinationlabel">
-     <x>340</x>
-     <y>341</y>
+     <x>96</x>
+     <y>147</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExpandAdvancedPropertiesButton</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>AdvancedPropertiesWidget</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>313</x>
+     <y>657</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>318</x>
+     <y>679</y>
     </hint>
    </hints>
   </connection>
