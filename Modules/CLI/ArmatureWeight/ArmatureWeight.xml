@@ -84,6 +84,14 @@
       <default>5</default>
     </double>
 
+    <integer>
+      <name>Padding</name>
+      <longflag>--padding</longflag>
+      <label>Padding</label>
+      <description><![CDATA[How far (in voxel units) outside the body the weights region will be computed. A little padding is strongly advised to make sure every voxel of the input as an attributed weight.]]></description>
+      <default>1</default>
+    </integer>
+
   </parameters>
   <parameters advanced="true">
     <label>Advanced</label>

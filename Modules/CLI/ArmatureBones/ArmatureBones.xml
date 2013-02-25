@@ -42,20 +42,6 @@
   </parameters>
 
   <parameters advanced="true">
-    <label>Controls</label>
-    <description><![CDATA[Control how the module operates]]></description>
-    
-    <integer>
-      <name>Padding</name>
-      <longflag>--padding</longflag>
-      <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
-      <default>1</default>
-    </integer>
-
-  </parameters>
-  
-  <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
 
