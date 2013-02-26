@@ -118,8 +118,8 @@ public:
   void SetId(EdgeType id);
   EdgeType GetId() const;
 
-  vtkSetMacro(WeightComputationSpacing, double);
-  vtkGetMacro(WeightComputationSpacing, double);
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
 
   // Computation methods
   bool Write();
@@ -148,7 +148,7 @@ protected:
   WeightImageType::Pointer CreateWeight(
     CharImageType::Pointer domain,
     LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer BonesPartition);
+    LabelImageType::Pointer bonesPartition);
 
   // Output necessary variables
   std::string Filename;
@@ -157,7 +157,7 @@ protected:
   // Type of weight written
   bool BinaryWeight;
   int SmoothingIterations;
-  double WeightComputationSpacing;
+  double ScaleFactor;
 
   // Debug info
   bool DebugInfo;

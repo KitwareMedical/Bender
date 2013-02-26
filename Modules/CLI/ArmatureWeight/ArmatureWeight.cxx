@@ -416,7 +416,7 @@ int main( int argc, char * argv[] )
     // Others
     writeWeight->SetBinaryWeight(BinaryWeight);
     writeWeight->SetSmoothingIterations(SmoothingIteration);
-    writeWeight->SetWeightComputationSpacing(Spacing);
+    writeWeight->SetScaleFactor(ScaleFactor);
     writeWeight->SetDebugInfo(Debug);
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;

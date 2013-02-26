@@ -295,7 +295,7 @@ bool ArmatureType::InitSkeleton(vtkPolyData* armaturePolyData)
       std::cerr << "WARNING: armature edge "<< edgeId <<" has "
                 << numOutside <<" outside voxels out of "<< edgeVoxels.size()
                 << std::endl;
-      std::cerr << "This probably means that the armature doesn't fit"
+      std::cerr << "This probably means that the armature doesn't fit "
                 << "perfectly inside the body labelmap." << std::endl;
       success = false;
       }

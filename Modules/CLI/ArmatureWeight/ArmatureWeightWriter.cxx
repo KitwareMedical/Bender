@@ -24,6 +24,7 @@
 #include "ArmatureWeightWriter.h"
 #include "SolveHeatDiffusionProblem.h"
 #include <benderIOUtils.h>
+#include "itkThresholdMedianImageFunction.h"
 
 // ITK includes
 #include <itkAddImageFilter.h>
@@ -35,7 +36,6 @@
 #include <itkLabelGeometryImageFilter.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkMath.h>
-#include <itkNearestNeighborInterpolateImageFunction.h>
 #include <itkResampleImageFilter.h>
 
 // VTK includes
@@ -82,40 +82,47 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 //-----------------------------------------------------------------------------
 template <class ImageType, class InterpolatorType> typename ImageType::Pointer
 ResampleImage(typename ImageType::Pointer inputImage,
-              typename ImageType::SpacingType newSpacing,
+              double scaleFactor[3],
               typename InterpolatorType::Pointer interpolator)
 {
-  typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleFilterType;
-  ResampleFilterType::Pointer resample = ResampleFilterType::New();
-  resample->SetInput( inputImage );
-
-  resample->SetInterpolator(interpolator);
-
-  const typename ImageType::SpacingType& inputSpacing =
-    inputImage->GetSpacing();
-  ImageType::SpacingType outSpacing;
-  for( unsigned int i = 0; i < 3; i++ )
-    {
-    outSpacing[i] = newSpacing[i];
-    if( outSpacing[i] == 0.0 )
-      {
-      outSpacing[i] = inputSpacing[i];
-      }
-    }
-
   const typename ImageType::SizeType& inputSize =
     inputImage->GetLargestPossibleRegion().GetSize();
   typename ImageType::SizeType outSize;
-
   typedef typename ImageType::SizeType::SizeValueType SizeValueType;
-  outSize[0] = static_cast<SizeValueType>(
-    inputSize[0] * inputSpacing[0] / newSpacing[0] + .5);
-  outSize[1] = static_cast<SizeValueType>(
-    inputSize[1] * inputSpacing[1] / newSpacing[1] + .5);
-  outSize[2] = static_cast<SizeValueType>(
-    inputSize[2] * inputSpacing[2] / newSpacing[2] + .5);
+  outSize[0] = static_cast<SizeValueType>(inputSize[0] / scaleFactor[0]);
+  outSize[1] = static_cast<SizeValueType>(inputSize[1] / scaleFactor[1]);
+  outSize[2] = static_cast<SizeValueType>(inputSize[2] / scaleFactor[2]);
 
-  resample->SetOutputOrigin( inputImage->GetOrigin() );
+  const typename ImageType::SpacingType& inputSpacing =
+    inputImage->GetSpacing();
+  typename ImageType::SpacingType outSpacing;
+  outSpacing[0] = inputSpacing[0] * scaleFactor[0];
+  outSpacing[1] = inputSpacing[1] * scaleFactor[1];
+  outSpacing[2] = inputSpacing[2] * scaleFactor[2];
+
+  double sign[3];
+  sign[0] = inputImage->GetDirection()[0][0];
+  sign[1] = inputImage->GetDirection()[1][1];
+  sign[2] = inputImage->GetDirection()[2][2];
+  const typename ImageType::PointType& inputOrigin =
+    inputImage->GetOrigin();
+  double outOrigin[3];
+  outOrigin[0] = inputOrigin[0] + sign[0] * (outSpacing[0] - inputSpacing[0]) /2.;
+  outOrigin[1] = inputOrigin[1] + sign[1] * (outSpacing[1] - inputSpacing[1]) /2.;
+  outOrigin[2] = inputOrigin[2] + sign[2] * (outSpacing[2] - inputSpacing[2]) /2.;
+  if (false)
+    {
+    std::cout << "ScaleFactor: " << scaleFactor[0] << "," << scaleFactor[1] << "," << scaleFactor[2] << std::endl;
+    std::cout << "OutputOrigin: " << outOrigin[0] << "," << outOrigin[1] << "," << outOrigin[2] << std::endl;
+    std::cout << "OutputSpacing: " << outSpacing[0] << "," << outSpacing[1] << "," << outSpacing[2] << std::endl;
+    std::cout << "OutputSize: " << outSize[0] << "," << outSize[1] << "," << outSize[2] << std::endl;
+    }
+
+  typedef itk::ResampleImageFilter<ImageType, ImageType> ResampleFilterType;
+  typename ResampleFilterType::Pointer resample = ResampleFilterType::New();
+  resample->SetInput( inputImage );
+  resample->SetInterpolator(interpolator);
+  resample->SetOutputOrigin( outOrigin );
   resample->SetOutputSpacing( outSpacing );
   resample->SetOutputDirection( inputImage->GetDirection() );
   resample->SetSize( outSize );
@@ -125,27 +132,56 @@ ResampleImage(typename ImageType::Pointer inputImage,
 }
 
 //-----------------------------------------------------------------------------
+template <class ImageType, class InterpolatorType> typename ImageType::Pointer
+ResampleImage(typename ImageType::Pointer inputImage,
+              double scaleFactor,
+              typename InterpolatorType::Pointer interpolator)
+{
+  const typename ImageType::SizeType& inputSize =
+    inputImage->GetLargestPossibleRegion().GetSize();
+  typename ImageType::SizeType outSize;
+  typedef typename ImageType::SizeType::SizeValueType SizeValueType;
+  outSize[0] = static_cast<SizeValueType>(ceil(inputSize[0] / scaleFactor));
+  outSize[1] = static_cast<SizeValueType>(ceil(inputSize[1] / scaleFactor));
+  outSize[2] = static_cast<SizeValueType>(ceil(inputSize[2] / scaleFactor));
+
+  double realScaleFactor[3];
+  realScaleFactor[0] = static_cast<double>(inputSize[0]) / outSize[0];
+  realScaleFactor[1] = static_cast<double>(inputSize[1]) / outSize[1];
+  realScaleFactor[2] = static_cast<double>(inputSize[2]) / outSize[2];
+  return ResampleImage<ImageType, InterpolatorType>(inputImage, realScaleFactor, interpolator);
+}
+
+//-----------------------------------------------------------------------------
 template <class ImageType> typename ImageType::Pointer
 DownsampleImage(typename ImageType::Pointer inputImage,
-              typename ImageType::SpacingType newSpacing)
+                double scaleFactor[3])
 {
-  typedef itk::NearestNeighborInterpolateImageFunction<ImageType> InterpolatorType;
+  //typedef itk::NearestNeighborInterpolateImageFunction<ImageType> InterpolatorType;
+  typedef itk::ThresholdMedianImageFunction<ImageType> InterpolatorType;
   typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
+  interpolator->SetRejectPixel(ArmatureWeightWriter::BackgroundLabel);
+  unsigned int radius = ceil(scaleFactor[0] / 2.);
+  interpolator->SetNeighborhoodRadius( radius );
 
   return ResampleImage<ImageType, InterpolatorType>(
-    inputImage, newSpacing, interpolator);
+    inputImage, scaleFactor, interpolator);
 }
 
 //-----------------------------------------------------------------------------
 template <class ImageType> typename ImageType::Pointer
 UpsampleImage(typename ImageType::Pointer inputImage,
-              typename ImageType::SpacingType newSpacing)
+              double scaleFactor[3])
 {
   typedef itk::LinearInterpolateImageFunction<ImageType> InterpolatorType;
   typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
+  double invertScaleFactor[3];
+  invertScaleFactor[0] = 1. / scaleFactor[0];
+  invertScaleFactor[1] = 1. / scaleFactor[1];
+  invertScaleFactor[2] = 1. / scaleFactor[2];
   return ResampleImage<ImageType, InterpolatorType>(
-    inputImage, newSpacing, interpolator);
+    inputImage, invertScaleFactor, interpolator);
 }
 
 } // end namespace
@@ -165,7 +201,7 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->BinaryWeight = false;
   this->SmoothingIterations = 10;
   this->Debug = false;
-  this->WeightComputationSpacing = 5.0;
+  this->ScaleFactor = 2.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -189,8 +225,7 @@ void ArmatureWeightWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Debug: " << this->Debug << "\n";
   os << indent << "Domain: " << this->Domain << "\n";
   os << indent << "ROI: " << this->ROI << "\n";
-  os << indent << "WeightComputationSpacing: "
-    << this->WeightComputationSpacing << "\n";
+  os << indent << "ScaleFactor: " << this->ScaleFactor << "\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -285,24 +320,25 @@ EdgeType ArmatureWeightWriter::GetId()const
 //-----------------------------------------------------------------------------
 bool ArmatureWeightWriter::Write()
 {
-  LabelImageType::SpacingType originalImageSpacing;
-  for (int i = 0; i < 3; ++i)
-    {
-    originalImageSpacing = this->BodyPartition->GetSpacing()[i];
+  // Only downsample when not using weights
+  bool downsample = !this->BinaryWeight && this->ScaleFactor != 1.0;
 
-    LabelImageType::SpacingValueType spacing =
-      this->BonesPartition->GetSpacing()[i];
-    if (fabs(spacing - originalImageSpacing[i]))
-      {
-      std::cerr<<"Error, the Bones and the Body partition "
-        "do not have the same spacing"<<std::endl;
-      return false;
-      }
-    }
+  const typename LabelImageType::SizeType& inputSize =
+    this->BodyPartition->GetLargestPossibleRegion().GetSize();
+  typename LabelImageType::SizeType outSize;
+  typedef typename LabelImageType::SizeType::SizeValueType SizeValueType;
+  outSize[0] = static_cast<SizeValueType>(ceil(inputSize[0] / this->ScaleFactor));
+  outSize[1] = static_cast<SizeValueType>(ceil(inputSize[1] / this->ScaleFactor));
+  outSize[2] = static_cast<SizeValueType>(ceil(inputSize[2] / this->ScaleFactor));
+
+  double realScaleFactor[3];
+  realScaleFactor[0] = static_cast<double>(inputSize[0]) / outSize[0];
+  realScaleFactor[1] = static_cast<double>(inputSize[1]) / outSize[1];
+  realScaleFactor[2] = static_cast<double>(inputSize[2]) / outSize[2];
 
   LabelImageType::Pointer downSampledBodyPartition;
   LabelImageType::Pointer downSampledBonesPartition;
-  if (this->BinaryWeight) // no need to downsample
+  if (!downsample)
     {
     downSampledBodyPartition = this->BodyPartition;
     downSampledBonesPartition = this->BonesPartition;
@@ -310,10 +346,17 @@ bool ArmatureWeightWriter::Write()
   else
     {
     downSampledBodyPartition = DownsampleImage<LabelImageType>(
-      this->BodyPartition, this->WeightComputationSpacing);
+      this->BodyPartition, realScaleFactor);
 
     downSampledBonesPartition = DownsampleImage<LabelImageType>(
-      this->BonesPartition, this->WeightComputationSpacing);
+      this->BonesPartition, realScaleFactor);
+    }
+  if ( downsample && this->GetDebugInfo() )
+    {
+    bender::IOUtils::WriteImage<LabelImageType>(
+      downSampledBodyPartition, "./DEBUG_DownsampledBodyPartition.nrrd");
+    bender::IOUtils::WriteImage<LabelImageType>(
+      downSampledBonesPartition, "./DEBUG_DownsampledBonesPartition.nrrd");
     }
 
   // Compute weight
@@ -327,18 +370,18 @@ bool ArmatureWeightWriter::Write()
 
   WeightImageType::Pointer downSampledWeight =
     this->CreateWeight(domain, downSampledBodyPartition, downSampledBonesPartition);
-
-  if (! this->BinaryWeight)
+  WeightImageType::Pointer weight;
+  if (!downsample)
     {
-    bender::IOUtils::WriteImage<WeightImageType>(
-      downSampledWeight, this->Filename.c_str());
+    weight = downSampledWeight;
     }
   else
     {
-    WeightImageType::Pointer weight =
-      UpsampleImage<WeightImageType>(downSampledWeight, originalImageSpacing);
-    bender::IOUtils::WriteImage<WeightImageType>(weight, this->Filename.c_str());
+    weight =
+      UpsampleImage<WeightImageType>(downSampledWeight, realScaleFactor);
     }
+  bender::IOUtils::WriteImage<WeightImageType>(
+    weight, this->Filename.c_str());
 
   return true;
 }
@@ -460,11 +503,10 @@ CharImageType::Pointer ArmatureWeightWriter
       }
     }
 
-  // Debug
   if (this->GetDebugInfo())
     {
     std::stringstream filename;
-    filename<< this->Filename << "_region" << this->Id << ".mha";
+    filename<< this->Filename << "_region.nrrd";
     bender::IOUtils::WriteImage<CharImageType>(domain,
       filename.str().c_str());
     }
@@ -499,7 +541,7 @@ WeightImageType::Pointer ArmatureWeightWriter
 
   if (this->BinaryWeight)
     {
-    // Domain is 0 everywhere expect on the edge region where it's 1.
+    // Domain is 0 everywhere except on the edge region where it's 1.
     // Weight is 0 in the body and -1 outside.
     // Adding the two gives:
     // -1 outside, 0 in the (body  and NOT Domain) and 1 in (body  and Domain)
@@ -522,11 +564,25 @@ WeightImageType::Pointer ArmatureWeightWriter
 
     std::cout<<"Solve global solution problem for edge #"<<this->Id<<std::endl;
 
+    if ( this->GetDebugInfo() )
+      {
+      std::string filename = this->Filename + "_localized.nrrd";
+      bender::IOUtils::WriteImage<WeightImageType>(
+        weight, filename.c_str());
+      }
+
     //Approximate the global solution by iterative solving
     GlobalBodyHeatDiffusionProblem globalProblem(
       bodyPartition, bonesPartition);
     SolveHeatDiffusionProblem<WeightImageType>::SolveIteratively(
       globalProblem,weight, this->SmoothingIterations);
+    }
+
+  if ( this->GetDebugInfo() )
+    {
+    std::string filename = this->Filename + "_global.nrrd";
+    bender::IOUtils::WriteImage<WeightImageType>(
+      weight, filename.c_str());
     }
 
   return weight;
