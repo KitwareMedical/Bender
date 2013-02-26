@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>3</index>
+  <index>4</index>
   <title>Pose Body</title>
   <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
   <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending. ]]></description>
@@ -60,6 +60,27 @@
     </boolean>
 
     <boolean>
+      <name>ForceWeightFromImage</name>
+      <label>Use weights from image</label>
+      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight have changed.]]></description>
+      <longflag>--forceUseImage</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
       <name>IsArmatureInRAS</name>
       <label>Armature in RAS</label>
       <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
@@ -75,26 +96,6 @@
       <default>false</default>
     </boolean>
 
-    <boolean>
-      <name>ForceWeightFromImage</name>
-      <label>Use weights from image</label>
-      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight have changed.]]></description>
-      <longflag>--forceUseImage</longflag>
-      <default>false</default>
-    </boolean>
-  </parameters>
-
-  <parameters advanced="true">
-    <label>Advanced</label>
-    <description><![CDATA[Advanced properties]]></description>
-
-    <boolean>
-      <name>Debug</name>
-      <label>Debug Outputs</label>
-      <longflag>--debug</longflag>
-      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
-      <default>false</default>
-    </boolean>
   </parameters>
 
 </executable>
