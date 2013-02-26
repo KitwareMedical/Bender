@@ -573,7 +573,21 @@ class WorkflowWidget:
     self.get('SkinModelMakerApplyPushButton').setChecked(False)
     if cliNode.GetStatusString() == 'Completed':
       print 'Skin ModelMaker completed'
-      self.get('SkinModelMakerOutputNodeComboBox').currentNode().GetModelDisplayNode().SetOpacity(0.2)
+      # Set opacity
+      newNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      newNodeDisplayNode.SetOpacity(0.2)
+
+      # Set color
+      colorNode = self.get('SkinModelMakerInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      color = [0, 0, 0]
+      lookupTable = colorNode.GetLookupTable().GetColor(self.get('SkinLabelComboBox').currentColor, color)
+      newNodeDisplayNode.SetColor(color)
+
+      # Set Clip intersection ON
+      newNodeDisplayNode.SetSliceIntersectionVisibility(1)
+
+      # Reset camera
       self.resetCamera()
     else:
       print 'Skin ModelMaker failed'
