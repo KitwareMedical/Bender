@@ -131,7 +131,8 @@ class WorkflowWidget:
 
     self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSurface)
     # 6) Resample
-    self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
+    self.get('PoseLabelmapApplyPushButton').connect('clicked()', self.runPoseLabelmap)
+    self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
 
     self.openPage = { 0 : self.openAdjustPage,
                       1 : self.openExtractPage,
@@ -282,7 +283,12 @@ class WorkflowWidget:
     self.setWidgetsVisibility(advancedPoseBodyWidgets, advanced)
 
     # 6) Resample
-    # TO DO !!!
+    # Hide all but output
+    advancedPoseLabemapWidgets = ['PoseLabelmapInputLabel', 'PoseLabelmapInputNodeComboBox',
+                                  'PoseLabelmapArmatureLabel', 'PoseLabelmapArmatureNodeComboBox',
+                                  'PoseLabelmapWeightDirectoryLabel', 'PoseLabelmapWeightDirectoryButton',
+                                  'PoseLabelmapGoToPushButton']
+    self.setWidgetsVisibility(advancedPoseLabemapWidgets, advanced)
 
   # 1) Bone Segmentation
   def openAdjustPage(self):
@@ -834,6 +840,9 @@ class WorkflowWidget:
     if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
       self.get('PoseBodyWeightInputDirectoryButton').directory = dir
 
+    if self.get('PoseLabelmapWeightDirectoryButton').directory != dir:
+      self.get('PoseLabelmapWeightDirectoryButton').directory = dir
+
   def createOutputSurface(self, node):
     if node == None:
       return
@@ -848,8 +857,35 @@ class WorkflowWidget:
   def openPoseLabelmapPage(self):
     pass
 
-  def runResample(self):
-    print('Resample')
+  def poseLabelmapParameters(self):
+    parameters = {}
+    parameters["RestLabelmap"] = self.get('PoseLabelmapInputNodeComboBox').currentNode()
+    parameters["ArmaturePoly"] = self.get('PoseLabelmapArmatureNodeComboBox').currentNode()
+    parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightDirectoryButton').directory)
+    parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
+    parameters["LinearBlend"] = True
+    #parameters["MaximumPass"] = 4
+    #parameters["Debug"] = False
+    #parameters["IsArmatureInRAS"] = False
+    return parameters
+
+  def runPoseLabelmap(self):
+    cliNode = self.getCLINode(slicer.modules.poselabelmap)
+    parameters = self.poseLabelmapParameters()
+    self.get('PoseLabelmapApplyPushButton').setChecked(True)
+    cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = True)
+    self.get('PoseLabelmapApplyPushButton').setChecked(False)
+    if cliNode.GetStatusString() == 'Completed':
+      print 'Pose Labelmap completed'
+    else:
+      print 'Pose Labelmap failed'
+
+  def openPoseLabelmap(self):
+    cliNode = self.getCLINode(slicer.modules.poselabelmap)
+    parameters = self.poseLabelmapParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+    self.openModule('PoseLabelmap')
 
   # =================== END ==============
   def get(self, objectName):

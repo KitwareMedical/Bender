@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>877</width>
+    <width>716</width>
     <height>809</height>
    </rect>
   </property>
@@ -1474,14 +1474,14 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QGridLayout" name="gridLayout_6">
           <item row="0" column="0">
-           <widget class="QLabel" name="ResampleLabelmapLabel">
+           <widget class="QLabel" name="PoseLabelmapInputLabel">
             <property name="text">
-             <string>Labelmap</string>
+             <string>Input labelmap</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleLabelMapNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseLabelmapInputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
@@ -1499,14 +1499,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="ResampleArmatureNodeLabel">
+           <widget class="QLabel" name="PoseLabelmapArmatureLabel">
             <property name="text">
              <string>Armature</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleArmatureNodeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseLabelmapArmatureNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1519,11 +1519,11 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="renameEnabled">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="4" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <spacer name="horizontalSpacer_10">
@@ -1539,13 +1539,49 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="ResampleApplyPushButton">
+             <widget class="QPushButton" name="PoseLabelmapGoToPushButton">
+              <property name="text">
+               <string>Go To Pose Labelmap</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="PoseLabelmapApplyPushButton">
               <property name="text">
                <string>Apply</string>
               </property>
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="2" column="1">
+           <widget class="ctkDirectoryButton" name="PoseLabelmapWeightDirectoryButton"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="PoseLabelmapWeightDirectoryLabel">
+            <property name="text">
+             <string>Weight folder</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="PoseLabelmapOutputLabel">
+            <property name="text">
+             <string>Output posed labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseLabelmapOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Posed Labelmap</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1963,7 +1999,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ResampleLabelMapNodeComboBox</receiver>
+   <receiver>PoseLabelmapInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -1979,7 +2015,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ResampleArmatureNodeNodeComboBox</receiver>
+   <receiver>PoseLabelmapArmatureNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2469,6 +2505,54 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>477</x>
      <y>168</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseLabelmapOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>357</x>
+     <y>404</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>416</x>
+     <y>194</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LabelmapVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PoseLabelmapInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>377</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>416</x>
+     <y>112</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseBodyArmatureInputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PoseLabelmapArmatureNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>397</x>
+     <y>341</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>416</x>
+     <y>138</y>
     </hint>
    </hints>
   </connection>
