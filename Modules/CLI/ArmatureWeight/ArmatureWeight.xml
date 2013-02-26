@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>1</index>
+  <index>2</index>
   <title>Armature Weight</title>
   <description><![CDATA[ Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
   </description>
@@ -30,7 +30,7 @@
       <index>1</index>
     </geometry>
 
-    <image>
+    <image type="label">
       <name>BodyPartition</name>
       <label>Body Partition Labelmap</label>
       <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
@@ -49,7 +49,7 @@
 
   </parameters>
 
-  <parameters advanced="true">
+  <parameters>
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     <integer>
@@ -80,6 +80,15 @@
   <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <default>false</default>
+    </boolean>
+
     <boolean>
       <name>IsArmatureInRAS</name>
       <label>Armature in RAS</label>
@@ -98,18 +107,10 @@
     </boolean>
 
     <boolean>
-      <name>Debug</name>
-      <label>Dump Debug Images</label>
-      <longflag>--dump</longflag>
-      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
-      <default>false</default>
-    </boolean>
-
-    <boolean>
       <name>RunSequential</name>
       <label>Run Sequential</label>
       <longflag>--sequential</longflag>
-      <description><![CDATA[Runs the computation of each bone sequential instead of parrallel.]]></description>
+      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded.]]></description>
       <default>false</default>
     </boolean>
   </parameters>
