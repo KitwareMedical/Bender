@@ -18,20 +18,27 @@
 #
 #============================================================================
 
-# List all the modules (ordered by dependencies) to build by Slicer
-set(modules
-  ArmatureBones
-  ArmatureWeight
-  EvalWeight
-  PoseBody
-  PoseLabelmap
+#-----------------------------------------------------------------------------
+set(MODULE_NAME PoseLabelmap) # Do not use 'project()'
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
+
+find_package(ITK REQUIRED)
+find_package(VTK REQUIRED)
+find_package(Bender REQUIRED)
+include(${Bender_USE_FILE})
+
+set(MODULE_INCLUDE_DIRECTORIES
+  ${Bender_INCLUDE_DIRS}
   )
 
-set(Bender_MODULES)
+set(MODULE_TARGET_LIBRARIES
+  ${Bender_LIBRARIES}
+  )
 
-foreach(module ${modules})
-  list(APPEND Bender_MODULES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
-endforeach()
-
-set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
+SEMMacroBuildCLI(
+  NAME ${MODULE_NAME}
+  LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
+  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
+  TARGET_LIBRARIES ${ITK_LIBRARIES} vtkIO vtkGraphics ${MODULE_TARGET_LIBRARIES}
+  )

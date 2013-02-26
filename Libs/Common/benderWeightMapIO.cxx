@@ -56,7 +56,9 @@ namespace bender
 
 //-------------------------------------------------------------------------------
 //create a weight map from a series of files
-int ReadWeights(const std::vector<std::string>& fnames, const std::vector<WeightMap::Voxel>& bodyVoxels, WeightMap& weightMap)
+int ReadWeights(const std::vector<std::string>& fnames,
+                const std::vector<WeightMap::Voxel>& bodyVoxels,
+                WeightMap& weightMap)
 {
   typedef std::vector<WeightMap::Voxel> Voxels;
   Region region;
@@ -99,6 +101,7 @@ int ReadWeights(const std::vector<std::string>& fnames, const std::vector<Weight
     }
   return numSites;
 }
+
 };
 
 
