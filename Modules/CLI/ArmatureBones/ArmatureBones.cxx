@@ -48,8 +48,9 @@ int main( int argc, char * argv[] )
 
   if(!IsArmatureInRAS)
     {
-    std::cout << "Input armature is not in RAS coordinate system;"
-      << "will convert it to RAS." << std::endl;
+    std::cout << "Input armature is not in RAS coordinate system; it will be "
+              << "converted to RAS: X and Y coordinates will be flipped."
+              << std::endl;
     }
 
   bender::IOUtils::FilterStart("Read inputs");
@@ -66,7 +67,7 @@ int main( int argc, char * argv[] )
   LabelImageType::Pointer labelMap = labelMapReader->GetOutput();
   if (!labelMap)
     {
-    std::cerr << "Can't labelmap " << RestLabelmap << std::endl;
+    std::cerr << "Can't read labelmap " << RestLabelmap << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -80,41 +81,44 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.1, 0.0);
 
-  //----------------------------
-  // Print out some statistics
-  //----------------------------
-
-  typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
-  StatisticsType::Pointer statistics = StatisticsType::New();
-  statistics->SetInput( labelMapReader->GetOutput() );
-  statistics->Update();
-
-  RegionType allRegion = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,
-    labelMap->GetLargestPossibleRegion());
-  LabelType bodyIntensity = 1;
-  LabelType boneIntensity = 209; //marrow
-  int numBodyVoxels(0),numBoneVoxels(0);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+  if (Debug)
     {
-    if(it.Get()>=bodyIntensity)
-      {
-      ++numBodyVoxels;
-      }
-    if(it.Get()>=boneIntensity)
-      {
-      ++numBoneVoxels;
-      }
-    }
-  int totalVoxels =
-    allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
+    //----------------------------
+    // Print out some statistics
+    //----------------------------
 
-  std::cout << "Image statistics\n";
-  std::cout << "  min: "<<static_cast<int>(statistics->GetMinimum())
-    <<" max: "<<static_cast<int>(statistics->GetMaximum()) << std::endl;
-  std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
-  std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
-  std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
+    typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
+    StatisticsType::Pointer statistics = StatisticsType::New();
+    statistics->SetInput( labelMapReader->GetOutput() );
+    statistics->Update();
+
+    RegionType allRegion = labelMap->GetLargestPossibleRegion();
+    itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,
+                                                         labelMap->GetLargestPossibleRegion());
+    LabelType bodyIntensity = 1;
+    LabelType boneIntensity = 209; //marrow
+    int numBodyVoxels(0),numBoneVoxels(0);
+    for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+      {
+      if(it.Get()>=bodyIntensity)
+        {
+        ++numBodyVoxels;
+        }
+      if(it.Get()>=boneIntensity)
+        {
+        ++numBoneVoxels;
+        }
+      }
+    int totalVoxels =
+      allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
+
+    std::cout << "Image statistics\n";
+    std::cout << "  min: "<<static_cast<int>(statistics->GetMinimum())
+              <<" max: "<<static_cast<int>(statistics->GetMaximum()) << std::endl;
+    std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
+    std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
+    std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
+    }
 
   bender::IOUtils::FilterProgress("Read inputs", 0.99, 0.1, 0.0);
   bender::IOUtils::FilterEnd("Read inputs");
@@ -140,5 +144,5 @@ int main( int argc, char * argv[] )
   // Don't forget to delete polydata :)
   armaturePolyData->Delete();
 
-  return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+  return (success || IgnoreErrors ? EXIT_SUCCESS : EXIT_FAILURE);
 }

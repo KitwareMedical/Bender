@@ -60,5 +60,14 @@
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>IgnoreErrors</name>
+      <label>Ignore Errors</label>
+      <longflag>--ignoreErrors</longflag>
+      <description><![CDATA[Exit successfully even if errors are generated.]]></description>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 </executable>
