@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>2</index>
+  <index>3</index>
   <title>Evaluate Weight</title>
   <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
   <version>0.1.0.$Revision$(alpha)</version>

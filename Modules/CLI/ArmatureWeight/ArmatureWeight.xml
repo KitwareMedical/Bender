@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>1</index>
+  <index>2</index>
   <title>Armature Weight</title>
   <description><![CDATA[ Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
   </description>
