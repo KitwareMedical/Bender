@@ -307,7 +307,15 @@ void vtkMRMLArmatureNode::SetWidgetState(int state)
     }
 
   this->WidgetState = state;
+
+  int wasModifying = this->StartModify();
+  if (this->WidgetState == vtkMRMLArmatureNode::Pose)
+    {
+    this->SetShowEnvelopes(0);
+    this->Modified();
+    }
   this->Modified();
+  this->EndModify(wasModifying);
 }
 
 //---------------------------------------------------------------------------
