@@ -100,41 +100,6 @@ LabelImageType::Pointer SimpleBoneSegmentation(
 }
 
 //-------------------------------------------------------------------------------
-template <class ImageType> void
-RemoveSingleVoxelIsland(typename ImageType::Pointer labelMap)
-{
-  typedef typename ImageType::IndexType VoxelType;
-
-  Neighborhood<3> neighbors;
-  const typename ImageType::OffsetType* offsets = neighbors.Offsets;
-
-  typename ImageType::RegionType region = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,region);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get() > 0)
-      {
-      VoxelType p = it.GetIndex();
-      int numNeighbors = 0;
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        VoxelType q = p + offsets[iOff];
-        if( region.IsInside(q) && labelMap->GetPixel(q) > 0)
-          {
-          ++numNeighbors;
-          }
-        }
-
-      if(numNeighbors==0)
-        {
-        std::cout<<"Paint isolated voxel "<<p<<" to background" << std::endl;
-        labelMap->SetPixel(p, 0);
-        }
-      }
-    }
-}
-
-//-------------------------------------------------------------------------------
 //Expand the foreground once in place.
 // The new foreground pixels are assigned foreGroundMin and the number of pixel
 // pushed is returned
@@ -316,7 +281,6 @@ int main( int argc, char * argv[] )
 
   LabelImageType::Pointer dilatedBodyPartition =
     bodyPartitionReader->GetOutput();
-  RemoveSingleVoxelIsland<LabelImageType>(dilatedBodyPartition);
   bender::IOUtils::FilterProgress("Dilate body partition", 0.25, 1.0, 0.0);
 
   int numPaddedVoxels =0;

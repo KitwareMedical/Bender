@@ -141,10 +141,13 @@ protected:
   CharType GetLabel() const;
 
   // Create weight domain based on the armature
-  // and the given body and bones partitions
+  // and the given body and bones partitions.
+  // The returned image contains 1 (DomainLabel) at each voxel when the Id edge
+  // has weight, 0 otherwise.
+  // The domain is later used to compute the interpolated and diffused  weights.
   CharImageType::Pointer CreateDomain(
     LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer BonesPartition);
+    LabelImageType::Pointer bonesPartition);
 
   // Create weight based on the domain
   // and the given body and bones partitions

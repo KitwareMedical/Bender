@@ -29,6 +29,7 @@
 // ITK includes
 #include <itkAddImageFilter.h>
 #include <itkBinaryThresholdImageFilter.h>
+#include <itkConnectedComponentImageFilter.h>
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
@@ -37,6 +38,7 @@
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkMath.h>
 #include <itkResampleImageFilter.h>
+#include <itkVotingBinaryHoleFillingImageFilter.h>
 
 // VTK includes
 #include <vtkCellArray.h>
@@ -183,6 +185,107 @@ UpsampleImage(typename ImageType::Pointer inputImage,
   return ResampleImage<ImageType, InterpolatorType>(
     inputImage, invertScaleFactor, interpolator);
 }
+
+//-------------------------------------------------------------------------------
+template <class ImageType> void
+RemoveSingleVoxelIsland(typename ImageType::Pointer labelMap)
+{
+  typedef typename ImageType::IndexType VoxelType;
+
+  Neighborhood<3> neighbors;
+  const typename ImageType::OffsetType* offsets = neighbors.Offsets;
+
+  typename ImageType::RegionType region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<ImageType> it(labelMap,region);
+  for (it.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    if (it.Get() == ArmatureWeightWriter::BackgroundLabel)
+      {
+      continue;
+      }
+    VoxelType p = it.GetIndex();
+    int numNeighbors = 0;
+    for (int iOff=0; iOff < 6; ++iOff)
+      {
+      VoxelType q = p + offsets[iOff];
+      if ( region.IsInside(q) && labelMap->GetPixel(q) != ArmatureWeightWriter::BackgroundLabel)
+        {
+        ++numNeighbors;
+        }
+      }
+
+    if (numNeighbors==0)
+      {
+      std::cout<<"Paint isolated voxel "<<p<<" to background" << std::endl;
+      labelMap->SetPixel(p, ArmatureWeightWriter::BackgroundLabel);
+      }
+    }
+}
+
+//-------------------------------------------------------------------------------
+template <class ImageType> void
+RemoveVoxelIsland(typename ImageType::Pointer labelMap)
+{
+  // Identify all the connected components.
+  //  _________
+  // |   2     |
+  // |_________|_
+  //     0     |1|
+  //           |_|
+  typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectedFilter;
+  typename ConnectedFilter::Pointer connectedFilter = ConnectedFilter::New();
+  connectedFilter->SetInput(labelMap);
+  connectedFilter->SetBackgroundValue(ArmatureWeightWriter::BackgroundLabel);
+  connectedFilter->Update();
+  typename ImageType::Pointer connectedImage = connectedFilter->GetOutput();
+
+  if (connectedFilter->GetObjectCount() == 0)
+    {
+    return;
+    }
+  // Search the largest connected components
+  // In the previous schema it was (2)
+  std::vector<unsigned int> histogram(connectedFilter->GetObjectCount() + 1, 0);
+
+  typename ImageType::RegionType connectedRegion = connectedImage->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<ImageType> connectedIt(connectedImage, connectedRegion);
+  for (connectedIt.GoToBegin(); !connectedIt.IsAtEnd(); ++connectedIt)
+    {
+    if (connectedIt.Get() != ArmatureWeightWriter::BackgroundLabel)
+      {
+      ++histogram[connectedIt.Get()];
+      }
+    }
+  typename ImageType::PixelType largestComponent =
+    std::distance(histogram.begin(), std::max_element(histogram.begin(), histogram.end()));
+  std::cout << "Histogram:" << histogram.size() << std::endl;
+  for (size_t i = 0; i < histogram.size(); ++i)
+    {
+    std::cout << i << ": " << histogram[i] << std::endl;
+    }
+  std::cout << "Largest Component:" << static_cast<unsigned int>(largestComponent) << std::endl;
+
+  // Only keep the largest connected components
+  //  _________
+  // |domainLbl|
+  // |_________|
+  //  backgrdLbl
+  //
+  typename ImageType::RegionType region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<ImageType> it(labelMap,region);
+  for (it.GoToBegin(), connectedIt.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    if (it.Get() == ArmatureWeightWriter::BackgroundLabel)
+      {
+      continue;
+      }
+    if (it.Get() != largestComponent)
+      {
+      it.Set(ArmatureWeightWriter::BackgroundLabel);
+      }
+    }
+}
+
 
 } // end namespace
 
@@ -523,6 +626,30 @@ CharImageType::Pointer ArmatureWeightWriter
       filename.str().c_str());
     }
 
+  // Doesn't remove the case:
+  //  ________
+  // |        |
+  // |________|__
+  //          |__|
+  //
+  //RemoveSingleVoxelIsland<CharImageType>(domain);
+  RemoveVoxelIsland<CharImageType>(domain);
+//   Can't use it, it removes regions that are 1 slice thick
+//   typedef itk::VotingBinaryHoleFillingImageFilter<CharImageType, CharImageType> VotingFilter;
+//   VotingFilter::Pointer votingFilter = VotingFilter::New();
+//   votingFilter->SetInput(domain);
+//   votingFilter->SetBackgroundValue(ArmatureWeightWriter::DomainLabel);
+//   votingFilter->SetForegroundValue(ArmatureWeightWriter::BackgroundLabel);
+//   votingFilter->Update();
+//   domain = votingFilter->GetOutput();
+
+  if (this->GetDebugInfo())
+    {
+    std::stringstream filename;
+    filename<< this->Filename << "_region_cleaned.nrrd";
+    bender::IOUtils::WriteImage<CharImageType>(domain,
+      filename.str().c_str());
+    }
   return domain;
 }
 
