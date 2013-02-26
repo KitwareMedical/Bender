@@ -332,6 +332,8 @@ class WorkflowWidget:
       labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
     volumeNode.EndModify(wasModifying)
 
+    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(
+      self.get('LabelmapVolumeNodeComboBox').currentNode())
     self.setupMergeLabels(volumeNode)
     self.get('LabelMapApplyColorNodePushButton').setChecked(False)
 
