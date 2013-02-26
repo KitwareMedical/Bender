@@ -65,16 +65,6 @@ class WorkflowWidget:
     # Transform variables
     self.TransformNode = None
 
-    # Merge variables
-
-    # Pose Body variables
-    self.PoseBodyCLI = slicer.mrmlScene.GetFirstNodeByName("Pose Body")
-    if self.PoseBodyCLI == None:
-      self.PoseBodyCLI = slicer.cli.createNode(slicer.modules.posebody)
-      self.PoseBodyCLI.SetName("Pose Body")
-
-    self.PoseBodyCLI.AddObserver('ParameterChangedEvent', self.updatePoseBodyFromCLI)
-
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
@@ -123,21 +113,23 @@ class WorkflowWidget:
     self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
-    # a) (Pose) Armatures
-    self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
-    # b) Eval Weight
+    # a) Eval Weight
     self.get('EvalWeightApplyPushButton').connect('clicked()', self.runEvalWeight)
     self.get('EvalWeightGoToPushButton').connect('clicked()', self.openEvalWeight)
     self.get('EvalWeightWeightDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    # b) (Pose) Armatures
+    self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # c) Pose Body
-    self.get('PoseBodySurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
-    self.get('PoseBodyWeightInputDirectoryButton').connect('directoryChanged(QString)', self.setupPoseBody)
-    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
-    self.get('PoseBodyArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPoseBody)
+    self.get('PoseBodySurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseBodyParameterChanged)
+    self.get('PoseBodyWeightInputDirectoryButton').connect('directoryChanged(QString)', self.poseBodyParameterChanged)
+    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseBodyParameterChanged)
+    self.get('PoseBodyArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseBodyParameterChanged)
     self.get('PoseBodyApplyPushButton').connect('clicked()', self.runPoseBody)
 
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+
+    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSurface)
     # 6) Resample
     self.get('ResampleApplyPushButton').connect('clicked()', self.runResample)
 
@@ -755,84 +747,82 @@ class WorkflowWidget:
 
   # 5) (Pose) Armature And Pose Body
   def openPoseArmaturePage(self):
-    pass
+    armatureLogic = slicer.modules.armatures.logic()
+    if armatureLogic != None:
+      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
 
-  # a) (Pose) Armatures
-  def openPosedArmatureModule(self):
-    self.openModule('Armatures')
-
-  # b) Pose Body
-  def runEvalWeight(self):
+  # a) Eval Weight
+  def evalWeightParameters(self):
     parameters = {}
     parameters["InputSurface"] = self.get('EvalWeightInputNodeComboBox').currentNode()
     parameters["OutputSurface"] = self.get('EvalWeightOutputNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('EvalWeightWeightDirectoryButton').directory)
     #parameters["IsSurfaceInRAS"] = False
     #parameters["PrintDebug"] = False
-    cliNode = None
+    return parameters
 
+  def runEvalWeight(self):
+    cliNode = self.getCLINode(slicer.modules.armaturebones)
+    parameters = self.segmentBonesParameters()
     self.get('EvalWeightApplyPushButton').setChecked(True)
-
     cliNode = slicer.cli.run(slicer.modules.evalweight, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
+    self.get('EvalWeightApplyPushButton').setChecked(False)
+
+    if cliNode.GetStatusString() == 'Completed':
       print 'Evaluate Weight completed'
     else:
       print 'Evaluate Weight failed'
 
-    self.get('EvalWeightApplyPushButton').setChecked(False)
-
   def openEvalWeight(self):
+    cliNode = self.getCLINode(slicer.modules.evalweight)
+    parameters = self.evalWeightParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
     self.openModule('EvalWeight')
 
+  # b) (Pose) Armatures
+  def openPosedArmatureModule(self):
+    self.openModule('Armatures')
+
   # c) Pose Body
-  def updatePoseBodyFromCLI(self, node, event):
-    if node != self.PoseBodyCLI:
-      return
+  def poseBodyParameterChanged(self):
+    cliNode = self.getCLINode(slicer.modules.posebody)
+    if cliNode.IsBusy() == True:
+      cliNode.Cancel()
 
-    self.get('PoseBodyArmatureInputNodeComboBox').setCurrentNode(
-      slicer.mrmlScene.GetNodeByID(
-        self.PoseBodyCLI.GetParameterAsString('ArmaturePoly')))
-    self.get('PoseBodySurfaceInputComboBox').setCurrentNode(
-      slicer.mrmlScene.GetNodeByID(
-        self.PoseBodyCLI.GetParameterAsString('SurfaceInput')))
-    self.get('PoseBodyWeightInputDirectoryButton').directory = (
-      self.PoseBodyCLI.GetParameterAsString('WeightDirectory'))
-    self.get('PoseBodySurfaceOutputNodeComboBox').setCurrentNode(
-      slicer.mrmlScene.GetNodeByID(
-        self.PoseBodyCLI.GetParameterAsString('OutputSurface')))
-
-  def setupPoseBody(self):
+  def poseBodyParameters(self):
     # Setup CLI node on input changed or apply changed
-    self.PoseBodyCLI.SetAutoRunMode(self.PoseBodyCLI.AutoRunOnAnyInputEvent)
-
-    parametersAreValid = (self.get('PoseBodyArmatureInputNodeComboBox').currentNode() != None
-                          and self.get('PoseBodySurfaceInputComboBox').currentNode() != None
-                          and self.get('PoseBodySurfaceOutputNodeComboBox').currentNode() != None)
     parameters = {}
-    if parametersAreValid == True:
-      parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode()
-      parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode()
-      parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
-      parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode()
-      parameters["IsSurfaceInRAS"] = False
-      parameters["IsArmatureInRAS"] = False
-      parameters["LinearBlend"] = True
-
-    slicer.cli.setNodeParameters(self.PoseBodyCLI, parameters)
+    parameters["ArmaturePoly"] = self.get('PoseBodyArmatureInputNodeComboBox').currentNode()
+    parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode()
+    parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
+    parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode()
+    parameters["IsSurfaceInRAS"] = False
+    parameters["IsArmatureInRAS"] = False
+    parameters["LinearBlend"] = True
+    return parameters
 
   def runPoseBody(self):
+    cliNode = self.getCLINode(slicer.modules.posebody)
+    parameters = self.poseBodyParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+    cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
+
     if self.get('PoseBodyApplyPushButton').checkState == False:
-      if self.PoseBodyCLI.IsBusy() == False:
+      if cliNode.IsBusy() == False:
         self.get('PoseBodyApplyPushButton').setChecked(True)
-        slicer.modules.posebody.logic().ApplyAndWait(self.PoseBodyCLI)
+        slicer.modules.posebody.logic().ApplyAndWait(cliNode)
         self.get('PoseBodyApplyPushButton').setChecked(False)
       else:
-        self.PoseBodyCLI.Cancel()
+        cliNode.Cancel()
     else:
-      self.PoseBodyCLI.SetAutoRun(self.get('PoseBodyApplyPushButton').isChecked())
+      cliNode.SetAutoRun(self.get('PoseBodyApplyPushButton').isChecked())
 
   def openPoseBodyModule(self):
+    cliNode = self.getCLINode(slicer.modules.evalweight)
+    parameters = self.poseBodyParameterss()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
     self.openModule('PoseBody')
 
   def setWeightDirectory(self, dir):
@@ -841,6 +831,16 @@ class WorkflowWidget:
 
     if self.get('PoseBodyWeightInputDirectoryButton').directory != dir:
       self.get('PoseBodyWeightInputDirectoryButton').directory = dir
+
+  def createOutputSurface(self, node):
+    if node == None:
+      return
+
+    if self.get('PoseBodySurfaceOutputNodeComboBox').currentNode() != None:
+      return
+
+    newNode = self.get('PoseBodySurfaceOutputNodeComboBox').addNode()
+    newNode.SetName('%s-posed' % node.GetName())
 
   # 6) Resample NOTE: SHOULD BE LAST STEP
   def openPoseLabelmapPage(self):
