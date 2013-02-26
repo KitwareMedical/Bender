@@ -268,7 +268,8 @@ class WorkflowWidget:
     # Leave only weight folder
     advancedComputeWeightWidgets = ['ArmatureWeightInputVolumeLabel', 'ArmatureWeightInputVolumeNodeComboBox',
                                    'ArmatureWeightArmatureLabel', 'ArmatureWeightAmartureNodeComboBox',
-                                   'EvalWeightGoToPushButton']
+                                   'ArmatureWeightBodyPartitionLabel', 'ArmatureWeightBodyPartitionVolumeNodeComboBox',
+                                   'ArmatureWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
 
     # 5) Pose Page
@@ -684,10 +685,12 @@ class WorkflowWidget:
 
   # 4) Armatures Weight and Bones
   def openSkinningPage(self):
-    pass
+    activeArmatureNode = slicer.modules.armatures.logic().GetActiveArmature()
+    if activeArmatureNode != None:
+      self.get('SegmentBonesAmartureNodeComboBox').setCurrentNode(activeArmatureNode.GetAssociatedNode())
 
   #  a) Armatures Bones
-  def runSegmentBones(self):
+  def segmentBonesParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('SegmentBonesInputVolumeNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('SegmentBonesAmartureNodeComboBox').currentNode()
@@ -695,24 +698,29 @@ class WorkflowWidget:
     #parameters["Padding"] = 1
     #parameters["Debug"] = False
     #parameters["ArmatureInRAS"] = False
-    cliNode = None
+    return parameters
 
+  def runSegmentBones(self):
+    cliNode = self.getCLINode(slicer.modules.armaturebones)
+    parameters = self.segmentBonesParameters()
     self.get('SegmentBonesApplyPushButton').setChecked(True)
-
     cliNode = slicer.cli.run(slicer.modules.armaturebones, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
+    self.get('SegmentBonesApplyPushButton').setChecked(False)
+
+    if cliNode.GetStatusString() == 'Completed':
       print 'Armature Bones completed'
     else:
       print 'Armature Bones failed'
 
-    self.get('SegmentBonesApplyPushButton').setChecked(False)
-
   def openSegmentBonesModule(self):
-    self.openModule('ArmatureWeight')
+    cliNode = self.getCLINode(slicer.modules.armaturebones)
+    parameters = self.segmentBonesParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+    self.openModule('ArmatureBones')
 
     #  b) Armature Weight
-  def runArmatureWeight(self):
+  def armatureWeightParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('ArmatureWeightInputVolumeNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('ArmatureWeightAmartureNodeComboBox').currentNode()
@@ -724,20 +732,25 @@ class WorkflowWidget:
     #parameters["SmoothingIteration"] = 10
     #parameters["Debug"] = False
     #parameters["RunSequential"] = False
-    cliNode = None
+    return parameters
 
+  def runArmatureWeight(self):
+    cliNode = self.getCLINode(slicer.modules.armatureweight)
+    parameters = self.armatureWeightParameters()
     self.get('ArmatureWeightApplyPushButton').setChecked(True)
-
     cliNode = slicer.cli.run(slicer.modules.armatureweight, cliNode, parameters, wait_for_completion = True)
-    status = cliNode.GetStatusString()
-    if status == 'Completed':
+    self.get('ArmatureWeightApplyPushButton').setChecked(False)
+
+    if cliNode.GetStatusString() == 'Completed':
       print 'Armature Weight completed'
     else:
       print 'Armature Weight failed'
 
-    self.get('ArmatureWeightApplyPushButton').setChecked(False)
-
   def openArmatureWeightModule(self):
+    cliNode = self.getCLINode(slicer.modules.armatureweight)
+    parameters = self.armatureWeightParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
     self.openModule('ArmatureWeight')
 
   # 5) (Pose) Armature And Pose Body

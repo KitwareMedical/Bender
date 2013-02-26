@@ -145,19 +145,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="LabelmapVolumeNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>false</bool>
             </property>
-            <property name="noneDisplay" stdset="0">
+            <property name="noneDisplay">
              <string/>
             </property>
            </widget>
@@ -170,22 +170,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="LabelmapColorNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLColorTableNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>ColorTable</string>
             </property>
-            <property name="noneEnabled" stdset="0">
+            <property name="noneEnabled">
              <bool>true</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="noneDisplay" stdset="0">
+            <property name="noneDisplay">
              <string>Greyscale</string>
             </property>
            </widget>
@@ -251,16 +251,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>InputLabelMap</string>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -273,19 +273,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="MergeLabelsOutputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showChildNodeTypes" stdset="0">
+            <property name="showChildNodeTypes">
              <bool>true</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>MergedLabelmap</string>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -308,7 +308,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox" native="true">
+           <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -335,7 +335,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="5" column="1">
-           <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox" native="true">
+           <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -440,16 +440,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>Labelmap</string>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -472,22 +472,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="BoneModelMakerOutputNodeComboBox" native="true">
+           <widget class="qMRMLNodeComboBox" name="BoneModelMakerOutputNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes" stdset="0">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelHierarchyNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>true</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>Models</string>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -547,16 +547,16 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled" stdset="0">
+            <property name="removeEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -579,19 +579,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>Skin</string>
             </property>
-            <property name="removeEnabled" stdset="0">
+            <property name="removeEnabled">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -816,22 +816,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox" native="true">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes" stdset="0">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation" stdset="0">
+            <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
            </widget>
@@ -844,19 +844,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string/>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -864,27 +864,27 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="SegmentBonesOutputVolumeLabel">
             <property name="text">
-             <string>Output</string>
+             <string>Output body partition</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>BonesPartition</string>
             </property>
-            <property name="noneEnabled" stdset="0">
+            <property name="noneEnabled">
              <bool>false</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -952,22 +952,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox" native="true">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="nodeTypes" stdset="0">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="selectNodeUponCreation" stdset="0">
+            <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
            </widget>
@@ -986,22 +986,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string/>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled" stdset="0">
+            <property name="removeEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1015,27 +1015,27 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Body partition</string>
+             <string>Input body partition</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>BonesPartition</string>
             </property>
-            <property name="noneEnabled" stdset="0">
+            <property name="noneEnabled">
              <bool>false</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled" stdset="0">
+            <property name="removeEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1227,13 +1227,13 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightInputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="EvalWeightInputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -1242,8 +1242,8 @@ p, li { white-space: pre-wrap; }
            <widget class="ctkDirectoryButton" name="EvalWeightWeightDirectoryButton"/>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightOutputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="EvalWeightOutputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
@@ -1307,19 +1307,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string/>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -1332,22 +1332,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string/>
             </property>
-            <property name="noneEnabled" stdset="0">
+            <property name="noneEnabled">
              <bool>false</bool>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled" stdset="0">
+            <property name="removeEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1377,22 +1377,22 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="showHidden" stdset="0">
+            <property name="showHidden">
              <bool>false</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string/>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>true</bool>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1481,19 +1481,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleLabelMapNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="ResampleLabelMapNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
-            <property name="showChildNodeTypes" stdset="0">
+            <property name="showChildNodeTypes">
              <bool>false</bool>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>Labelmap</string>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
            </widget>
@@ -1506,19 +1506,19 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ResampleArmatureNodeNodeComboBox" native="true">
-            <property name="nodeTypes" stdset="0">
+           <widget class="qMRMLNodeComboBox" name="ResampleArmatureNodeNodeComboBox">
+            <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
-            <property name="baseName" stdset="0">
+            <property name="baseName">
              <string>Armature</string>
             </property>
-            <property name="addEnabled" stdset="0">
+            <property name="addEnabled">
              <bool>false</bool>
             </property>
-            <property name="renameEnabled" stdset="0">
+            <property name="renameEnabled">
              <bool>true</bool>
             </property>
            </widget>
@@ -1612,19 +1612,19 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox" native="true">
+             <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
               <property name="enabled">
                <bool>false</bool>
               </property>
-              <property name="nodeTypes" stdset="0">
+              <property name="nodeTypes">
                <stringlist>
                 <string>vtkMRMLScalarVolumeNode</string>
                </stringlist>
               </property>
-              <property name="showChildNodeTypes" stdset="0">
+              <property name="showChildNodeTypes">
                <bool>false</bool>
               </property>
-              <property name="addEnabled" stdset="0">
+              <property name="addEnabled">
                <bool>false</bool>
               </property>
              </widget>
@@ -1813,6 +1813,23 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
+   <class>qMRMLLabelComboBox</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLLabelComboBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>ctkCheckablePushButton</class>
    <extends>QPushButton</extends>
    <header>ctkCheckablePushButton.h</header>
@@ -1843,23 +1860,6 @@ p, li { white-space: pre-wrap; }
    <class>ctkExpandButton</class>
    <extends>QToolButton</extends>
    <header>ctkExpandButton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLNodeComboBox</class>
-   <extends>QWidget</extends>
-   <header>qMRMLNodeComboBox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLWidget</class>
-   <extends>QWidget</extends>
-   <header>qMRMLWidget.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>qMRMLLabelComboBox</class>
-   <extends>qMRMLWidget</extends>
-   <header>qMRMLLabelComboBox.h</header>
-   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>
