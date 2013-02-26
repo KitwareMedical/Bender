@@ -76,6 +76,30 @@
       <default>10</default>
     </integer>
 
+    <double>
+      <name>ScaleFactor</name>
+      <longflag>--scaleFactor</longflag>
+      <label>Computation Scale Factor</label>
+      <description><![CDATA[Scale factor applied to the input images to speed up the processing. It is highly encouraged to use a sparser spacing than the input image.]]></description>
+      <default>2</default>
+    </double>
+
+    <integer>
+      <name>Padding</name>
+      <longflag>--padding</longflag>
+      <label>Padding</label>
+      <description><![CDATA[How far (in voxel units) outside the body the weights region will be computed. A little padding is strongly advised to make sure every voxel of the input as an attributed weight.]]></description>
+      <default>1</default>
+    </integer>
+
+    <boolean>
+      <name>UseEnvelopes</name>
+      <label>Use Armature Envelopes</label>
+      <longflag>--useEnvelopes</longflag>
+      <description><![CDATA[Use the envelope radius of each armature bone segment or not.]]></description>
+      <default>true</default>
+    </boolean>
+
   </parameters>
   <parameters advanced="true">
     <label>Advanced</label>

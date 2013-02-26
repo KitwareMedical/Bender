@@ -27,7 +27,9 @@
 #include <benderIOUtils.h>
 
 // ITK includes
+#include <itkBinaryBallStructuringElement.h>
 #include <itkBinaryThresholdImageFilter.h>
+#include <itkGrayscaleDilateImageFilter.h>
 #include <itkIndex.h>
 #include <itkImage.h>
 #include <itkMaskImageFilter.h>
@@ -95,6 +97,55 @@ LabelImageType::Pointer SimpleBoneSegmentation(
   mask->SetInput2(threshold->GetOutput());
   mask->Update();
   return mask->GetOutput();
+}
+
+//-------------------------------------------------------------------------------
+//Expand the foreground once in place.
+// The new foreground pixels are assigned foreGroundMin and the number of pixel
+// pushed is returned
+template <class ImageType> int ExpandForegroundOnce(
+  typename ImageType::Pointer labelMap,
+  typename ImageType::PixelType foreGroundMin)
+{
+  typedef typename ImageType::IndexType VoxelType;
+  typedef std::pair<VoxelType, typename ImageType::PixelType> ImagePixelType;
+
+  int numNewVoxels=0;
+  typename ImageType::RegionType region = labelMap->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<ImageType> it(labelMap,region);
+  Neighborhood<3> neighbors;
+
+  typename ImageType::OffsetType* offsets = neighbors.Offsets;
+
+  std::vector<ImagePixelType> front;
+  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    {
+    VoxelType p = it.GetIndex();
+    if(it.Get() >= foreGroundMin)
+      {
+      for(int iOff=0; iOff<6; ++iOff)
+        {
+        const typename ImageType::OffsetType& offset = offsets[iOff];
+        VoxelType q = p + offset;
+        if(region.IsInside(q) && labelMap->GetPixel(q) < foreGroundMin)
+          {
+          front.push_back(std::make_pair(q, labelMap->GetPixel(p)));
+          }
+        }
+      }
+    }
+
+  for (typename std::vector<ImagePixelType>::const_iterator i = front.begin();
+       i!=front.end(); i++)
+    {
+    if(labelMap->GetPixel(i->first) < foreGroundMin)
+      {
+      labelMap->SetPixel(i->first, i->second);
+      ++numNewVoxels;
+      }
+    }
+
+  return numNewVoxels;
 }
 
 } // end namespace
@@ -223,6 +274,36 @@ int main( int argc, char * argv[] )
   bender::IOUtils::FilterEnd("Read inputs");
 
   //--------------------------------------------
+  // Dilate the body partition
+  //--------------------------------------------
+
+  bender::IOUtils::FilterStart("Dilate body partition");
+
+  LabelImageType::Pointer dilatedBodyPartition =
+    bodyPartitionReader->GetOutput();
+  bender::IOUtils::FilterProgress("Dilate body partition", 0.25, 1.0, 0.0);
+
+  int numPaddedVoxels =0;
+  for(int i = 0; i < Padding; i++)
+    {
+    numPaddedVoxels += ExpandForegroundOnce<LabelImageType>(
+      dilatedBodyPartition,
+      static_cast<LabelImageType::PixelType>(ArmatureWeightWriter::DomainLabel));
+    std::cout<<"Padded "<<numPaddedVoxels<<" voxels"<<std::endl;
+
+    bender::IOUtils::FilterProgress(
+      "Dilate body partition", 0.75, 1.0 / Padding, 0.25);
+    }
+
+  if (Debug)
+    {
+    bender::IOUtils::WriteImage<LabelImageType>(
+      dilatedBodyPartition, "./DEBUG_DilatedBodyPartition.nrrd");
+    }
+
+  bender::IOUtils::FilterEnd("Dilate body partition");
+
+  //--------------------------------------------
   // Compute the bone partition
   //--------------------------------------------
 
@@ -230,7 +311,7 @@ int main( int argc, char * argv[] )
 
   LabelImageType::Pointer bonesPartition =
     SimpleBoneSegmentation(bodyReader->GetOutput(),
-      bodyPartitionReader->GetOutput());
+      dilatedBodyPartition);
   if (Debug)
     {
     bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
@@ -238,6 +319,7 @@ int main( int argc, char * argv[] )
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
+
 
   //--------------------------------------------
   // Compute the domain of reach Armature Edge part
@@ -254,30 +336,36 @@ int main( int argc, char * argv[] )
   int numDigits = NumDigits(maxLabel);
 
   // Compute the weight of each bones in a separate thread
-  std::cout<<"Compute from edge #"<<FirstEdge<<" to edge #"<<LastEdge
-    <<" (Processing in parrallel ? "<<! RunSequential<<" )"<<std::endl;
+  std::cout << "Compute from edge #" << FirstEdge << " to edge #" << LastEdge
+            << " (Processing in parrallel ? " << !RunSequential<<" )"
+            << std::endl;
 
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
-    if (CLPProcessInformation->Abort)
+    std::cout << "Setup edge #" << i << std::endl;
+    if (CLPProcessInformation)
       {
-      ThreadHandler.KillAll();
-      return EXIT_FAILURE;
-      }
-
-    if (!RunSequential)
-      {
-      if (ThreadHandler.HasError())
+      if (CLPProcessInformation->Abort)
         {
-        ThreadHandler.PrintErrors();
+        ThreadHandler.KillAll();
+        std::cout << "Aborted" << std::endl;
         return EXIT_FAILURE;
+        }
+      if (!RunSequential)
+        {
+        if (ThreadHandler.HasError())
+          {
+          std::cout << "Error:" << std::endl;
+          ThreadHandler.PrintErrors();
+          return EXIT_FAILURE;
+          }
         }
       }
 
     ArmatureWeightWriter* writeWeight = ArmatureWeightWriter::New();
 
     // Inputs
-    writeWeight->SetBodyPartition(bodyPartitionReader->GetOutput());
+    writeWeight->SetBodyPartition(dilatedBodyPartition);
     writeWeight->SetArmature(armaturePolyData);
     writeWeight->SetBones(bonesPartition);
     // Output filename
@@ -292,6 +380,8 @@ int main( int argc, char * argv[] )
     // Others
     writeWeight->SetBinaryWeight(BinaryWeight);
     writeWeight->SetSmoothingIterations(SmoothingIteration);
+    writeWeight->SetScaleFactor(ScaleFactor);
+    writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
@@ -316,15 +406,18 @@ int main( int argc, char * argv[] )
     {
     while (ThreadHandler.GetNumberOfRunningThreads() != 0)
       {
-      if (CLPProcessInformation->Abort)
+      if (CLPProcessInformation)
         {
-        ThreadHandler.KillAll();
-        return EXIT_FAILURE;
-        }
-      if (ThreadHandler.HasError())
-        {
-        ThreadHandler.PrintErrors();
-        return EXIT_FAILURE;
+        if (CLPProcessInformation->Abort)
+          {
+          ThreadHandler.KillAll();
+          return EXIT_FAILURE;
+          }
+        if (ThreadHandler.HasError())
+          {
+          ThreadHandler.PrintErrors();
+          return EXIT_FAILURE;
+          }
         }
       itksys::SystemTools::Delay(100);
       }

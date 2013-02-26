@@ -50,6 +50,7 @@ typedef itk::Image<WeightImagePixelType, 3>  WeightImageType;
 typedef itk::Index<3> VoxelType;
 typedef itk::Offset<3> VoxelOffsetType;
 typedef itk::ImageRegion<3> RegionType;
+typedef itk::Point<float, 3> PointType;
 
 //-------------------------------------------------------------------------------
 template<unsigned int dimension>
@@ -117,6 +118,12 @@ public:
   void SetId(EdgeType id);
   EdgeType GetId() const;
 
+  vtkSetMacro(ScaleFactor, double);
+  vtkGetMacro(ScaleFactor, double);
+
+  vtkSetMacro(UseEnvelopes, bool);
+  vtkGetMacro(UseEnvelopes, bool);
+
   // Computation methods
   bool Write();
 
@@ -132,16 +139,32 @@ protected:
   // Edge Id
   EdgeType Id;
   CharType GetLabel() const;
-  bool Initialize();
-  WeightImageType::Pointer ComputeWeight();
 
-  // Output necessary va
+  // Create weight domain based on the armature
+  // and the given body and bones partitions.
+  // The returned image contains 1 (DomainLabel) at each voxel when the Id edge
+  // has weight, 0 otherwise.
+  // The domain is later used to compute the interpolated and diffused  weights.
+  CharImageType::Pointer CreateDomain(
+    LabelImageType::Pointer bodyPartition,
+    LabelImageType::Pointer bonesPartition);
+
+  // Create weight based on the domain
+  // and the given body and bones partitions
+  WeightImageType::Pointer CreateWeight(
+    CharImageType::Pointer domain,
+    LabelImageType::Pointer bodyPartition,
+    LabelImageType::Pointer bonesPartition);
+
+  // Output necessary variables
   std::string Filename;
   int NumDigits;
 
   // Type of weight written
   bool BinaryWeight;
   int SmoothingIterations;
+  double ScaleFactor;
+  bool UseEnvelopes;
 
   // Debug info
   bool DebugInfo;

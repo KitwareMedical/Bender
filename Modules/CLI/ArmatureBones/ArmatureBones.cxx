@@ -39,80 +39,7 @@
 typedef itk::Image<unsigned short, 3>  LabelImageType;
 typedef itk::Image<unsigned char, 3>  CharImageType;
 
-typedef itk::Index<3> VoxelType;
-typedef itk::Offset<3> VoxelOffsetType;
 typedef itk::ImageRegion<3> RegionType;
-
-//-------------------------------------------------------------------------------
-//Expand the foreground once. The new foreground pixels are assigned foreGroundMin
-int ExpandForegroundOnce(LabelImageType::Pointer labelMap,
-                         unsigned short foreGroundMin)
-{
-  int numNewVoxels=0;
-  CharImageType::RegionType region = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,region);
-  Neighborhood<3> neighbors;
-  VoxelOffsetType* offsets = neighbors.Offsets;
-
-  std::vector<VoxelType> front;
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    VoxelType p = it.GetIndex();
-    LabelImageType::PixelType value = it.Get();
-    if(value>=foreGroundMin)
-      {
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        const VoxelOffsetType& offset = offsets[iOff];
-        VoxelType q = p + offset;
-        if(region.IsInside(q) && labelMap->GetPixel(q)<foreGroundMin)
-          {
-          front.push_back(q);
-          }
-        }
-      }
-    }
-  for(std::vector<VoxelType>::const_iterator i = front.begin(); i!=front.end();i++)
-    {
-    if(labelMap->GetPixel(*i)<foreGroundMin)
-      {
-      labelMap->SetPixel( *i, foreGroundMin);
-      ++numNewVoxels;
-      }
-    }
-  return numNewVoxels;
-}
-
-//-------------------------------------------------------------------------------
-void RemoveSingleVoxelIsland(LabelImageType::Pointer labelMap)
-{
-  Neighborhood<3> neighbors;
-  const VoxelOffsetType* offsets = neighbors.Offsets;
-
-  RegionType region = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,region);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    if(it.Get()>0)
-      {
-      VoxelType p = it.GetIndex();
-      int numNeighbors(0);
-      for(int iOff=0; iOff<6; ++iOff)
-        {
-        VoxelType q = p + offsets[iOff];
-        if( region.IsInside(q) && labelMap->GetPixel(q)>0)
-          {
-          ++numNeighbors;
-          }
-        }
-      if(numNeighbors==0)
-        {
-        std::cout<<"Paint isolated voxel "<<p<<" to background" << std::endl;
-        labelMap->SetPixel(p, 0);
-        }
-      }
-    }
-}
 
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
@@ -121,11 +48,10 @@ int main( int argc, char * argv[] )
 
   if(!IsArmatureInRAS)
     {
-    std::cout << "Input armature is not in RAS coordinate system;"
-      << "will convert it to RAS." << std::endl;
+    std::cout << "Input armature is not in RAS coordinate system; it will be "
+              << "converted to RAS: X and Y coordinates will be flipped."
+              << std::endl;
     }
-
-  std::cout << "Padding distance: " << Padding << std::endl;
 
   bender::IOUtils::FilterStart("Read inputs");
   bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.33, 0.);
@@ -141,7 +67,7 @@ int main( int argc, char * argv[] )
   LabelImageType::Pointer labelMap = labelMapReader->GetOutput();
   if (!labelMap)
     {
-    std::cerr << "Can't labelmap " << RestLabelmap << std::endl;
+    std::cerr << "Can't read labelmap " << RestLabelmap << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -155,55 +81,45 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.1, 0.0);
 
-  //----------------------------
-  // Print out some statistics
-  //----------------------------
-
-  typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
-  StatisticsType::Pointer statistics = StatisticsType::New();
-  statistics->SetInput( labelMapReader->GetOutput() );
-  statistics->Update();
-
-  RegionType allRegion = labelMap->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,
-    labelMap->GetLargestPossibleRegion());
-  LabelType bodyIntensity = 1;
-  LabelType boneIntensity = 209; //marrow
-  int numBodyVoxels(0),numBoneVoxels(0);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+  if (Debug)
     {
-    if(it.Get()>=bodyIntensity)
+    //----------------------------
+    // Print out some statistics
+    //----------------------------
+
+    typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
+    StatisticsType::Pointer statistics = StatisticsType::New();
+    statistics->SetInput( labelMapReader->GetOutput() );
+    statistics->Update();
+
+    RegionType allRegion = labelMap->GetLargestPossibleRegion();
+    itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,
+                                                         labelMap->GetLargestPossibleRegion());
+    LabelType bodyIntensity = 1;
+    LabelType boneIntensity = 209; //marrow
+    int numBodyVoxels(0),numBoneVoxels(0);
+    for(it.GoToBegin(); !it.IsAtEnd(); ++it)
       {
-      ++numBodyVoxels;
+      if(it.Get()>=bodyIntensity)
+        {
+        ++numBodyVoxels;
+        }
+      if(it.Get()>=boneIntensity)
+        {
+        ++numBoneVoxels;
+        }
       }
-    if(it.Get()>=boneIntensity)
-      {
-      ++numBoneVoxels;
-      }
+    int totalVoxels =
+      allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
+
+    std::cout << "Image statistics\n";
+    std::cout << "  min: "<<static_cast<int>(statistics->GetMinimum())
+              <<" max: "<<static_cast<int>(statistics->GetMaximum()) << std::endl;
+    std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
+    std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
+    std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
     }
-  int totalVoxels =
-    allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
 
-  std::cout << "Image statistics\n";
-  std::cout << "  min: "<<static_cast<int>(statistics->GetMinimum())
-    <<" max: "<<static_cast<int>(statistics->GetMaximum()) << std::endl;
-  std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
-  std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
-  std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
-
-  bender::IOUtils::FilterProgress("Read inputs", 0.66, 0.1, 0.0);
-
-  //----------------------------
-  // Preprocess of the labelmap
-  //----------------------------
-
-  RemoveSingleVoxelIsland(labelMap);
-  int numPaddedVoxels =0;
-  for(int i=0; i<Padding; i++)
-    {
-    numPaddedVoxels+=ExpandForegroundOnce(labelMap,bodyIntensity);
-    std::cout<<"Padded "<<numPaddedVoxels<<" voxels"<<std::endl;
-    }
   bender::IOUtils::FilterProgress("Read inputs", 0.99, 0.1, 0.0);
   bender::IOUtils::FilterEnd("Read inputs");
   bender::IOUtils::FilterStart("Segment bones");
@@ -228,5 +144,5 @@ int main( int argc, char * argv[] )
   // Don't forget to delete polydata :)
   armaturePolyData->Delete();
 
-  return (success ? EXIT_SUCCESS : EXIT_FAILURE);
+  return (success || IgnoreErrors ? EXIT_SUCCESS : EXIT_FAILURE);
 }
