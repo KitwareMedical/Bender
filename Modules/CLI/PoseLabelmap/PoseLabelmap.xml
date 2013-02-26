@@ -26,7 +26,7 @@
       <label>Armature</label>
       <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
       <channel>input</channel>
-      <index>2</index>
+      <index>1</index>
     </geometry>
 
     <directory>
