@@ -121,9 +121,9 @@ protected:
   LabelImageType::Pointer BodyPartition; //the partition of body by armature edges
 
   std::vector<std::vector<Voxel> > SkeletonVoxels;
-  std::vector<typename CharImageType::Pointer> Domains;
+  std::vector<CharImageType::Pointer> Domains;
   std::vector<Voxel> Fixed;
-  std::vector<typename WeightImage::Pointer> Weights;
+  std::vector<WeightImage::Pointer> Weights;
 
   bool InitBones();
 

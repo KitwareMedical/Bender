@@ -10,11 +10,12 @@
   <license/>
   <contributor>Yuanxin Liu (Kitware)</contributor>
   <contributor>Julien Finet (Kitware)</contributor>
-  <contributor>Johan Andruejol(Kitware)</contributor>
+  <contributor>Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
+
     <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
@@ -30,8 +31,8 @@
       <channel>input</channel>
       <index>1</index>
     </geometry>
-    
-    <image>
+
+    <image type="label">
       <name>BodyPartition</name>
       <label>Output Body Partition</label>
       <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
@@ -41,10 +42,10 @@
 
   </parameters>
 
-  <parameters advanced="true">
+  <parameters>
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
-    
+
     <integer>
       <name>Padding</name>
       <longflag>--padding</longflag>
@@ -54,16 +55,16 @@
     </integer>
 
   </parameters>
-  
+
   <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
 
     <boolean>
       <name>Debug</name>
-      <label>Debug Outputs</label>
+      <label>Debug Mode</label>
       <longflag>--debug</longflag>
-      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
       <default>false</default>
     </boolean>
 

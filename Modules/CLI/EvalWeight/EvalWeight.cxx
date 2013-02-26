@@ -153,7 +153,7 @@ int main( int argc, char * argv[] )
   typedef bender::WeightMap WeightMap;
   typedef std::vector<vtkIdType> IdArray;
 
-  if (PrintDebug)
+  if (Debug)
     {
     std::cout<<"Evaluate weight in  "<<WeightDirectory<<std::endl;
     std::cout<<"Evaluating surface: "<<InputSurface<<std::endl;
@@ -185,7 +185,7 @@ int main( int argc, char * argv[] )
   WeightImage::Pointer weight0 = reader->GetOutput();
   Region weightRegion = weight0->GetLargestPossibleRegion();
 
-  if (PrintDebug)
+  if (Debug)
     {
     std::cout<<"Weight volume description: "<<std::endl;
     std::cout<<weightRegion<<std::endl;
@@ -239,7 +239,7 @@ int main( int argc, char * argv[] )
   std::vector<Voxel> domainVoxels;
   ComputeDomainVoxels(weight0,points,sampleVertices,domainVoxels);
 
-  if (PrintDebug)
+  if (Debug)
     {
     std::cout<<domainVoxels.size()<<" voxels in the weight domain"<<std::endl;
     }
@@ -310,7 +310,7 @@ int main( int argc, char * argv[] )
         }
       }
     }
-  if (PrintDebug)
+  if (Debug)
     {
     std::cout<<numZeros<<" points have zero weight"<<std::endl;
     }
