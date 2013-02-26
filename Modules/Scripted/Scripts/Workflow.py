@@ -784,8 +784,8 @@ class WorkflowWidget:
     return parameters
 
   def runEvalWeight(self):
-    cliNode = self.getCLINode(slicer.modules.armaturebones)
-    parameters = self.segmentBonesParameters()
+    cliNode = self.getCLINode(slicer.modules.evalweight)
+    parameters = self.evalWeightParameters()
     self.get('EvalWeightApplyPushButton').setChecked(True)
     cliNode = slicer.cli.run(slicer.modules.evalweight, cliNode, parameters, wait_for_completion = True)
     self.get('EvalWeightApplyPushButton').setChecked(False)
@@ -841,7 +841,7 @@ class WorkflowWidget:
       cliNode.SetAutoRun(self.get('PoseBodyApplyPushButton').isChecked())
 
   def openPoseBodyModule(self):
-    cliNode = self.getCLINode(slicer.modules.evalweight)
+    cliNode = self.getCLINode(slicer.modules.posebody)
     parameters = self.poseBodyParameterss()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
