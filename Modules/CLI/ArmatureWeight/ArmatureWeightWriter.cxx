@@ -202,6 +202,7 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->SmoothingIterations = 10;
   this->Debug = false;
   this->ScaleFactor = 2.0;
+  this->UseEnvelopes = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -391,6 +392,9 @@ CharImageType::Pointer ArmatureWeightWriter
 ::CreateDomain(LabelImageType::Pointer bodyPartition,
                LabelImageType::Pointer bonesPartition)
 {
+  std::cout<<"Initalizing computation region for edge #"
+    << this->Id << std::endl;
+
   if (! this->Armature)
     {
     std::cerr<< "Could not initialize domain, armature is NULL" <<std::endl;
@@ -398,26 +402,32 @@ CharImageType::Pointer ArmatureWeightWriter
     }
 
   vtkPoints* points = this->Armature->GetPoints();
-  vtkDoubleArray* radiuses = vtkDoubleArray::SafeDownCast(
-    this->Armature->GetCellData()->GetArray("EnvelopeRadiuses"));
-  if (!points || !radiuses)
+  if (!points)
     {
-    std::cerr<< "Could not initialize domain, armature point "
-      << "and/or envelope radiuses are null"<<std::endl;
+    std::cerr << "Could not initialize domain, no armature point found."
+              << std::endl;
     return 0;
     }
 
-  std::cout<<"Initalizing computation region for edge #"
-    <<this->Id<<std::endl;
+  vtkDoubleArray* radiuses = this->UseEnvelopes ?
+    vtkDoubleArray::SafeDownCast(
+      this->Armature->GetCellData()->GetArray("EnvelopeRadiuses")) : 0;
+  double radius = radiuses ? radiuses->GetValue(this->Id) : 0;
+  double squareRadius = radius * radius;
+  if (!radiuses)
+    {
+    if (this->UseEnvelopes)
+      {
+      std::cerr << "WARNING: No envelopes found." << std::endl;
+      }
+    std::cout << "Not using envelopes." << std::endl;
+    }
 
   double head[3], tail[3];
   points->GetPoint(this->Id * 2, head);
   points->GetPoint(this->Id * 2 + 1, tail);
 
   // Convert to IJK
-
-  double radius = radiuses->GetValue(this->Id);
-  double squareRadius = radius * radius;
 
   double cylinderCenterLine[3];
   vtkMath::Subtract(tail, head, cylinderCenterLine);
@@ -426,7 +436,7 @@ CharImageType::Pointer ArmatureWeightWriter
   CharImageType::Pointer domain = CharImageType::New();
   Allocate<LabelImageType, CharImageType>(bodyPartition, domain);
 
-  // Expand the region based on the envelope and the bodypartition
+  // Expand the region based on the bodypartition and optionally the envelopes.
   CharType edgeLabel = this->GetLabel();
 
   // Scan through Domain and BodyPartition at the same time. (Same size)
@@ -454,48 +464,50 @@ CharImageType::Pointer ArmatureWeightWriter
 
       //
       // Check if in envelope
-
-      // Create world position
-      double pos[3];
-      for (int i = 0; i < 3; ++i)
+      if (radiuses)
         {
-        pos[i] = domainIt.GetIndex()[i] * domain->GetSpacing()[i]
-          + domain->GetOrigin()[i];
-        }
-
-      // Is the current pixel in the sphere around head ?
-      double headToPos[3];
-      vtkMath::Subtract(pos, head, headToPos);
-      if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
-        {
-        domainIt.Set(ArmatureWeightWriter::DomainLabel);
-        continue;
-        }
-
-      // Is the current pixel the sphere around tail ?
-      double tailToPos[3];
-      vtkMath::Subtract(pos, tail, tailToPos);
-      if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
-        {
-        domainIt.Set(ArmatureWeightWriter::DomainLabel);
-        continue;
-        }
-
-      // Is  the current pixel in the cylinder ?
-      double scale = vtkMath::Dot(cylinderCenterLine, headToPos);
-      if (scale >= 0 && scale <= cylinderLength) // Check in between lids
-        {
-        // Check distance from center
-        double distanceVect[3];
+        // Create world position
+        double pos[3];
         for (int i = 0; i < 3; ++i)
           {
-          distanceVect[i] = pos[i] - (head[i] + cylinderCenterLine[i] * scale);
+          pos[i] = domainIt.GetIndex()[i] * domain->GetSpacing()[i]
+            + domain->GetOrigin()[i];
           }
 
-        if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
+        // Is the current pixel in the sphere around head ?
+        double headToPos[3];
+        vtkMath::Subtract(pos, head, headToPos);
+        if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
           {
           domainIt.Set(ArmatureWeightWriter::DomainLabel);
           continue;
+          }
+
+        // Is the current pixel the sphere around tail ?
+        double tailToPos[3];
+        vtkMath::Subtract(pos, tail, tailToPos);
+        if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
+          {
+          domainIt.Set(ArmatureWeightWriter::DomainLabel);
+          continue;
+          }
+
+        // Is  the current pixel in the cylinder ?
+        double scale = vtkMath::Dot(cylinderCenterLine, headToPos);
+        if (scale >= 0 && scale <= cylinderLength) // Check in between lids
+          {
+          // Check distance from center
+          double distanceVect[3];
+          for (int i = 0; i < 3; ++i)
+            {
+            distanceVect[i] = pos[i] - (head[i] + cylinderCenterLine[i] * scale);
+            }
+
+          if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
+            {
+            domainIt.Set(ArmatureWeightWriter::DomainLabel);
+            continue;
+            }
           }
         }
 
