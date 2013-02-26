@@ -170,8 +170,8 @@ template <class ImageType> int ExpandForegroundOnce(
       }
     }
 
-  for(std::vector<ImagePixelType>::const_iterator i = front.begin();
-    i!=front.end();i++)
+  for (typename std::vector<ImagePixelType>::const_iterator i = front.begin();
+       i!=front.end(); i++)
     {
     if(labelMap->GetPixel(i->first) < foreGroundMin)
       {
@@ -372,23 +372,29 @@ int main( int argc, char * argv[] )
   int numDigits = NumDigits(maxLabel);
 
   // Compute the weight of each bones in a separate thread
-  std::cout<<"Compute from edge #"<<FirstEdge<<" to edge #"<<LastEdge
-    <<" (Processing in parrallel ? "<<! RunSequential<<" )"<<std::endl;
+  std::cout << "Compute from edge #" << FirstEdge << " to edge #" << LastEdge
+            << " (Processing in parrallel ? " << !RunSequential<<" )"
+            << std::endl;
 
   for(int i = FirstEdge; i <= LastEdge; ++i)
     {
-    if (CLPProcessInformation->Abort)
+    std::cout << "Setup edge #" << i << std::endl;
+    if (CLPProcessInformation)
       {
-      ThreadHandler.KillAll();
-      return EXIT_FAILURE;
-      }
-
-    if (!RunSequential)
-      {
-      if (ThreadHandler.HasError())
+      if (CLPProcessInformation->Abort)
         {
-        ThreadHandler.PrintErrors();
+        ThreadHandler.KillAll();
+        std::cout << "Aborted" << std::endl;
         return EXIT_FAILURE;
+        }
+      if (!RunSequential)
+        {
+        if (ThreadHandler.HasError())
+          {
+          std::cout << "Error:" << std::endl;
+          ThreadHandler.PrintErrors();
+          return EXIT_FAILURE;
+          }
         }
       }
 
@@ -435,15 +441,18 @@ int main( int argc, char * argv[] )
     {
     while (ThreadHandler.GetNumberOfRunningThreads() != 0)
       {
-      if (CLPProcessInformation->Abort)
+      if (CLPProcessInformation)
         {
-        ThreadHandler.KillAll();
-        return EXIT_FAILURE;
-        }
-      if (ThreadHandler.HasError())
-        {
-        ThreadHandler.PrintErrors();
-        return EXIT_FAILURE;
+        if (CLPProcessInformation->Abort)
+          {
+          ThreadHandler.KillAll();
+          return EXIT_FAILURE;
+          }
+        if (ThreadHandler.HasError())
+          {
+          ThreadHandler.PrintErrors();
+          return EXIT_FAILURE;
+          }
         }
       itksys::SystemTools::Delay(100);
       }

@@ -130,7 +130,7 @@ DownsampleImage(typename ImageType::Pointer inputImage,
               typename ImageType::SpacingType newSpacing)
 {
   typedef itk::NearestNeighborInterpolateImageFunction<ImageType> InterpolatorType;
-  InterpolatorType::Pointer interpolator = InterpolatorType::New();
+  typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
   return ResampleImage<ImageType, InterpolatorType>(
     inputImage, newSpacing, interpolator);
@@ -142,7 +142,7 @@ UpsampleImage(typename ImageType::Pointer inputImage,
               typename ImageType::SpacingType newSpacing)
 {
   typedef itk::LinearInterpolateImageFunction<ImageType> InterpolatorType;
-  InterpolatorType::Pointer interpolator = InterpolatorType::New();
+  typename InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
   return ResampleImage<ImageType, InterpolatorType>(
     inputImage, newSpacing, interpolator);
@@ -351,7 +351,7 @@ CharImageType::Pointer ArmatureWeightWriter
   if (! this->Armature)
     {
     std::cerr<< "Could not initialize domain, armature is NULL" <<std::endl;
-    return false;
+    return 0;
     }
 
   vtkPoints* points = this->Armature->GetPoints();
@@ -361,7 +361,7 @@ CharImageType::Pointer ArmatureWeightWriter
     {
     std::cerr<< "Could not initialize domain, armature point "
       << "and/or envelope radiuses are null"<<std::endl;
-    return false;
+    return 0;
     }
 
   std::cout<<"Initalizing computation region for edge #"
