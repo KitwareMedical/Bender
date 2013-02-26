@@ -30,7 +30,7 @@
       <index>1</index>
     </geometry>
 
-    <image>
+    <image type="label">
       <name>BodyPartition</name>
       <label>Body Partition Labelmap</label>
       <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
@@ -49,7 +49,7 @@
 
   </parameters>
 
-  <parameters advanced="true">
+  <parameters>
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     <integer>
@@ -80,6 +80,15 @@
   <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <default>false</default>
+    </boolean>
+
     <boolean>
       <name>IsArmatureInRAS</name>
       <label>Armature in RAS</label>
@@ -98,18 +107,10 @@
     </boolean>
 
     <boolean>
-      <name>Debug</name>
-      <label>Dump Debug Images</label>
-      <longflag>--dump</longflag>
-      <description><![CDATA[Dump debugging images. for Debugging only]]></description>
-      <default>false</default>
-    </boolean>
-
-    <boolean>
       <name>RunSequential</name>
       <label>Run Sequential</label>
       <longflag>--sequential</longflag>
-      <description><![CDATA[Runs the computation of each bone sequential instead of parrallel.]]></description>
+      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded.]]></description>
       <default>false</default>
     </boolean>
   </parameters>

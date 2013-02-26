@@ -28,13 +28,6 @@
       <channel>input</channel>
       <index>2</index>
     </geometry>
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
     <directory>
       <name>WeightDirectory</name>
@@ -44,7 +37,7 @@
       <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
     </directory>
 
-    <image>
+    <image type="label">
       <name>PosedLabelmap</name>
       <label>Output Posed Labelmap</label>
       <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
@@ -57,6 +50,7 @@
   <parameters>
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
+
     <boolean>
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
@@ -81,11 +75,20 @@
 
     <boolean>
       <name>Debug</name>
-      <label>Debug Outputs</label>
+      <label>Debug Mode</label>
       <longflag>--debug</longflag>
-      <description><![CDATA[Debug information and dump intermediate images.]]></description>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 
 </executable>

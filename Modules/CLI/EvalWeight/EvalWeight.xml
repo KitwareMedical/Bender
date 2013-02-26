@@ -39,7 +39,16 @@
   <parameters advanced="true">
     <label>Advanced</label>
     <description><![CDATA[Advanced parameters]]></description>
-    <boolean advanced="true">
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <longflag>--debug</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
       <name>IsSurfaceInRAS</name>
       <label>Surface in RAS</label>
       <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
@@ -47,13 +56,6 @@
       <default>false</default>
     </boolean>
 
-    <boolean>
-      <name>PrintDebug</name>
-      <label>Print debug info</label>
-      <description><![CDATA[Print debug information or not.]]></description>
-      <longflag>--debug</longflag>
-      <default>false</default>
-    </boolean>
   </parameters>
 
 </executable>
