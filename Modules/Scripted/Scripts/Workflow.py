@@ -109,6 +109,8 @@ class WorkflowWidget:
     # a) Armatures Bones
     self.get('SegmentBonesApplyPushButton').connect('clicked()',self.runSegmentBones)
     self.get('SegmentBonesGoToPushButton').connect('clicked()', self.openSegmentBonesModule)
+
+    self.get('SegmentBonesInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputBodyPartition)
     # b) Armatures Weight
     self.get('ArmatureWeightApplyPushButton').connect('clicked()',self.runArmatureWeight)
     self.get('ArmatureWeightGoToPushButton').connect('clicked()', self.openArmatureWeightModule)
@@ -129,10 +131,12 @@ class WorkflowWidget:
     self.get('PoseBodyGoToPushButton').connect('clicked()', self.openPoseBodyModule)
     self.get('ArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
 
-    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSurface)
+    self.get('PoseBodySurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseBody)
     # 6) Resample
     self.get('PoseLabelmapApplyPushButton').connect('clicked()', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
+
+    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
 
     self.openPage = { 0 : self.openAdjustPage,
                       1 : self.openExtractPage,
@@ -144,6 +148,7 @@ class WorkflowWidget:
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
     # Lots of setup methods are called from this line
+    self.setupComboboxes()
     self.widget.setMRMLScene(slicer.mrmlScene)
 
     # Init title
@@ -290,6 +295,16 @@ class WorkflowWidget:
                                   'PoseLabelmapGoToPushButton']
     self.setWidgetsVisibility(advancedPoseLabemapWidgets, advanced)
 
+  def setupComboboxes(self):
+    # Add here the combo box that should only see labelmaps
+    labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox', 'MergeLabelsOutputNodeComboBox',
+                           'SegmentBonesInputVolumeNodeComboBox', 'SegmentBonesOutputVolumeNodeComboBox',
+                           'ArmatureWeightInputVolumeNodeComboBox', 'ArmatureWeightBodyPartitionVolumeNodeComboBox',
+                           'PoseLabelmapInputNodeComboBox', 'PoseLabelmapOutputNodeComboBox']
+
+    for combobox in labeldMapComboBoxes:
+      self.get(combobox).addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
+
   # 1) Bone Segmentation
   def openAdjustPage(self):
     # Switch to 3D View only
@@ -338,9 +353,9 @@ class WorkflowWidget:
       labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
     volumeNode.EndModify(wasModifying)
 
-    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(
-      self.get('LabelmapVolumeNodeComboBox').currentNode())
+    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
     self.setupMergeLabels(volumeNode)
+    self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
     self.get('LabelMapApplyColorNodePushButton').setChecked(False)
 
   def openLabelmapModule(self):
@@ -733,6 +748,15 @@ class WorkflowWidget:
 
     self.openModule('ArmatureBones')
 
+  def createOutputBodyPartition(self, node):
+    if node == None:
+      return
+
+    nodeName = '%s-BodyPartition' % node.GetName()
+    if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode') == None:
+      newNode = self.get('SegmentBonesOutputVolumeNodeComboBox').addNode()
+      newNode.SetName(nodeName)
+
     #  b) Armature Weight
   def armatureWeightParameters(self):
     parameters = {}
@@ -857,15 +881,14 @@ class WorkflowWidget:
     if self.get('PoseLabelmapWeightDirectoryButton').directory != dir:
       self.get('PoseLabelmapWeightDirectoryButton').directory = dir
 
-  def createOutputSurface(self, node):
+  def createOutputPoseBody(self, node):
     if node == None:
       return
 
-    if self.get('PoseBodySurfaceOutputNodeComboBox').currentNode() != None:
-      return
-
-    newNode = self.get('PoseBodySurfaceOutputNodeComboBox').addNode()
-    newNode.SetName('%s-posed' % node.GetName())
+    nodeName = '%s-posed' % node.GetName()
+    if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode') == None:
+      newNode = self.get('PoseBodySurfaceOutputNodeComboBox').addNode()
+      newNode.SetName(nodeName)
 
   # 6) Resample NOTE: SHOULD BE LAST STEP
   def openPoseLabelmapPage(self):
@@ -900,6 +923,15 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
     self.openModule('PoseLabelmap')
+
+  def createOutputPoseLabelmap(self, node):
+    if node == None:
+      return
+
+    nodeName = '%s-Posed' % node.GetName()
+    if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode') == None:
+      newNode = self.get('PoseLabelmapOutputNodeComboBox').addNode()
+      newNode.SetName(nodeName)
 
   # =================== END ==============
   def get(self, objectName):
@@ -951,6 +983,14 @@ class WorkflowWidget:
 
   def openModule(self, moduleName):
     slicer.util.selectModule(moduleName)
+
+  def getFirstNodeByNameAndClass(self, name, className):
+    nodes = slicer.mrmlScene.GetNodesByClass(className)
+    for i in range(0, nodes.GetNumberOfItems()):
+      node = nodes.GetItemAsObject(i)
+      if node.GetName() == name:
+        return node
+    return None
 
   def reloadModule(self,moduleName="Workflow"):
     """Generic reload method for any scripted module.
