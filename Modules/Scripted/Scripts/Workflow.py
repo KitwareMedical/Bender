@@ -714,6 +714,9 @@ class WorkflowWidget:
 
   # 4) Armatures Weight and Bones
   def openSkinningPage(self):
+    # Switch to 3D View only
+    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
+    # Get model from armature
     activeArmatureNode = slicer.modules.armatures.logic().GetActiveArmature()
     if activeArmatureNode != None:
       self.get('SegmentBonesAmartureNodeComboBox').setCurrentNode(activeArmatureNode.GetAssociatedNode())
