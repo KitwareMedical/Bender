@@ -474,9 +474,13 @@ void qSlicerArmaturesModuleWidgetPrivate
       armatureNode->GetEnvelopesOpacity());
     }
 
-  this->ArmatureEnvelopeRadiusRatioSliderWidget->setEnabled(armatureNode != 0);
-  this->ArmatureShowEnvelopesCheckBox->setEnabled(armatureNode != 0);
-  this->ArmatureEnvelopeOpacitySliderWidget->setEnabled(armatureNode != 0);
+  // Enable only in Rest mode
+  bool enable = armatureNode ?
+    armatureNode->GetWidgetState() == vtkMRMLArmatureNode::Rest : 0;
+
+  this->ArmatureEnvelopeRadiusRatioSliderWidget->setEnabled(enable);
+  this->ArmatureShowEnvelopesCheckBox->setEnabled(enable);
+  this->ArmatureEnvelopeOpacitySliderWidget->setEnabled(enable);
 }
 
 //-----------------------------------------------------------------------------
@@ -960,8 +964,10 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
     d->BonesAlwaysOnTopCheckBox->isChecked());
 
   // Envelopes:
+  // Show envelopes only in armature mode
   d->ArmatureNode->SetShowEnvelopes(
-    d->ArmatureShowEnvelopesCheckBox->isChecked());
+    d->ArmatureShowEnvelopesCheckBox->isChecked()
+      && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Rest);
 
   d->ArmatureNode->SetOverallRadiusRatio(
     d->ArmatureEnvelopeRadiusRatioSliderWidget->value());

@@ -308,6 +308,90 @@
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="EnvelopesCollapsibleGroupBox">
+        <property name="title">
+         <string>Envelopes</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="ArmatureShowEnvelopesLabel">
+           <property name="toolTip">
+            <string>Show/Hide the bones envelope</string>
+           </property>
+           <property name="text">
+            <string>Show Envelopes:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="ArmatureShowEnvelopesCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Show/Hide the bones envelope</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="ArmatureEnvelopeRadiusRatioLabel">
+           <property name="text">
+            <string>Envelopes Overall Radius Ratio:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="ctkSliderWidget" name="ArmatureEnvelopeRadiusRatioSliderWidget">
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>10.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Envelopes Overall Opacity:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="ctkSliderWidget" name="ArmatureEnvelopeOpacitySliderWidget">
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.200000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -336,93 +420,6 @@
         </property>
         <property name="showRootNode">
          <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="ctkCollapsibleButton" name="EnvelopeCollapsibleButton">
-     <property name="text">
-      <string>Envelopes</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <property name="contentsFrameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_5">
-      <item row="0" column="0">
-       <widget class="QLabel" name="ArmatureShowEnvelopesLabel">
-        <property name="toolTip">
-         <string>Show/Hide the bones envelope</string>
-        </property>
-        <property name="text">
-         <string>Show Envelopes:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="ArmatureShowEnvelopesCheckBox">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="toolTip">
-         <string>Show/Hide the bones envelope</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="ArmatureEnvelopeRadiusRatioLabel">
-        <property name="text">
-         <string>Envelopes Overall Radius Ratio:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="ctkSliderWidget" name="ArmatureEnvelopeRadiusRatioSliderWidget">
-        <property name="decimals">
-         <number>2</number>
-        </property>
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="pageStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>1.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Envelopes Overall Opacity:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="1">
-       <widget class="ctkSliderWidget" name="ArmatureEnvelopeOpacitySliderWidget">
-        <property name="singleStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="pageStep">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>1.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>0.200000000000000</double>
         </property>
        </widget>
       </item>
