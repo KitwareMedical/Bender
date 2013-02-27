@@ -491,11 +491,11 @@ class WorkflowWidget:
 
 
   def openMergeLabelsModule(self):
+    self.openModule('ChangeLabel')
+
     cliNode = self.getCLINode(slicer.modules.changelabel)
     parameters = self.mergeLabelsParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('ChangeLabel')
 
   # 2) Model Maker
   def openExtractPage(self):
@@ -543,10 +543,11 @@ class WorkflowWidget:
     self.openModule('Models')
 
   def openBoneModelMakerModule(self):
+    self.openModule('ModelMaker')
+
     cliNode = self.getCLINode(slicer.modules.modelmaker)
     parameters = self.boneModelMakerParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-    self.openModule('ModelMaker')
 
   #     b) Skin Model Maker
   def setupSkinModelMakerLabels(self, volumeNode):
@@ -608,11 +609,11 @@ class WorkflowWidget:
       print 'Skin ModelMaker failed'
 
   def openSkinModelMakerModule(self):
+    self.openModule('GrayscaleModelMaker')
+
     cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
     parameters = self.skinModelMakerParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('GrayscaleModelMaker')
 
   def updateSkinNodeVisibility(self):
     skinModel = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
@@ -745,11 +746,11 @@ class WorkflowWidget:
       print 'Armature Bones failed'
 
   def openSegmentBonesModule(self):
+    self.openModule('ArmatureBones')
+
     cliNode = self.getCLINode(slicer.modules.armaturebones)
     parameters = self.segmentBonesParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('ArmatureBones')
 
   def createOutputBodyPartition(self, node):
     if node == None:
@@ -788,11 +789,11 @@ class WorkflowWidget:
       print 'Armature Weight failed'
 
   def openArmatureWeightModule(self):
+    self.openModule('ArmatureWeight')
+
     cliNode = self.getCLINode(slicer.modules.armatureweight)
     parameters = self.armatureWeightParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('ArmatureWeight')
 
   # 5) (Pose) Armature And Pose Body
   def openPoseArmaturePage(self):
@@ -823,11 +824,11 @@ class WorkflowWidget:
       print 'Evaluate Weight failed'
 
   def openEvalWeight(self):
+    self.openModule('EvalWeight')
+
     cliNode = self.getCLINode(slicer.modules.evalweight)
     parameters = self.evalWeightParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('EvalWeight')
 
   # b) (Pose) Armatures
   def openPosedArmatureModule(self):
@@ -846,8 +847,8 @@ class WorkflowWidget:
     parameters["SurfaceInput"] = self.get('PoseBodySurfaceInputComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('PoseBodyWeightInputDirectoryButton').directory)
     parameters["OutputSurface"] = self.get('PoseBodySurfaceOutputNodeComboBox').currentNode()
-    parameters["IsSurfaceInRAS"] = False
-    parameters["IsArmatureInRAS"] = False
+    #parameters["IsSurfaceInRAS"] = False
+    #parameters["IsArmatureInRAS"] = False
     parameters["LinearBlend"] = True
     return parameters
 
@@ -868,11 +869,11 @@ class WorkflowWidget:
       cliNode.SetAutoRun(self.get('PoseBodyApplyPushButton').isChecked())
 
   def openPoseBodyModule(self):
+    self.openModule('PoseBody')
+
     cliNode = self.getCLINode(slicer.modules.posebody)
     parameters = self.poseBodyParameterss()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('PoseBody')
 
   def setWeightDirectory(self, dir):
     if self.get('EvalWeightWeightDirectoryButton').directory != dir:
@@ -921,11 +922,11 @@ class WorkflowWidget:
       print 'Pose Labelmap failed'
 
   def openPoseLabelmap(self):
+    self.openModule('PoseLabelmap')
+
     cliNode = self.getCLINode(slicer.modules.poselabelmap)
     parameters = self.poseLabelmapParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
-
-    self.openModule('PoseLabelmap')
 
   def createOutputPoseLabelmap(self, node):
     if node == None:
