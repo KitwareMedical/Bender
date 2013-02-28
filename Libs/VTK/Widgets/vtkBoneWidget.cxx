@@ -1988,7 +1988,11 @@ void vtkBoneWidget::UpdateRepresentation()
     this->GetCurrentWorldTail(tail);
     rep->SetWorldTailPosition(tail);
 
-    rep->SetPose(this->WidgetState == vtkBoneWidget::Pose);
+    bool stateIsPose = this->WidgetState == vtkBoneWidget::Pose;
+    rep->SetPose(stateIsPose);
+    rep->SetWorldToBoneRotation(
+      stateIsPose ? this->CreateWorldToBonePoseRotation() :
+      this->CreateWorldToBoneRestRotation());
     }
 }
 

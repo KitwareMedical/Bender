@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>798</width>
-    <height>807</height>
+    <width>675</width>
+    <height>856</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <property name="toolTip">
    <string/>
   </property>
-  <layout class="QFormLayout" name="formLayout">
-   <item row="0" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
     <layout class="QGridLayout" name="gridLayout_3">
      <property name="margin">
       <number>9</number>
@@ -106,7 +106,7 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item>
     <widget class="ctkCollapsibleButton" name="ArmatureDisplayCollapsibleButton">
      <property name="cursor">
       <cursorShape>ArrowCursor</cursorShape>
@@ -124,7 +124,7 @@
          <string>Armature Display</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0">
+         <item row="0" column="1">
           <widget class="QLabel" name="ArmatureBoneRepresentationLabel">
            <property name="text">
             <string>Representation:</string>
@@ -134,153 +134,7 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="ArmatureColorLabel">
-           <property name="text">
-            <string>Color:</string>
-           </property>
-           <property name="buddy">
-            <cstring>ArmatureColorPickerButton</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="3">
-          <widget class="ctkColorPickerButton" name="ArmatureColorPickerButton">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Change the bones normal color.</string>
-           </property>
-           <property name="color">
-            <color>
-             <red>241</red>
-             <green>214</green>
-             <blue>145</blue>
-            </color>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="ArmatureOpacityLabel">
-           <property name="text">
-            <string>Opacity:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="3">
-          <widget class="ctkSliderWidget" name="ArmatureOpacitySlider">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>Change the bones opacity.</string>
-           </property>
-           <property name="singleStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="pageStep">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="4">
-          <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
-           <property name="title">
-            <string>Advanced</string>
-           </property>
-           <property name="collapsed">
-            <bool>true</bool>
-           </property>
-           <layout class="QFormLayout" name="formLayout_7">
-            <property name="fieldGrowthPolicy">
-             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-            </property>
-            <item row="0" column="0">
-             <widget class="QLabel" name="ArmatureShowAxesLabel">
-              <property name="toolTip">
-               <string>Show the direction axes of the bones.</string>
-              </property>
-              <property name="text">
-               <string>Show Axes:</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="ArmatureShowParenthoodLabel">
-              <property name="text">
-               <string>Show Parenthood:</string>
-              </property>
-              <property name="buddy">
-               <cstring>ArmatureShowParenthoodCheckBox</cstring>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QCheckBox" name="ArmatureShowParenthoodCheckBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Show the bones parent location.</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="checked">
-               <bool>true</bool>
-              </property>
-              <property name="tristate">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QCheckBox" name="ArmatureShowAxesCheckBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Show the direction axes of the bones.</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="BonesAlwaysOnTopLabel">
-           <property name="text">
-            <string>X-Ray mode:</string>
-           </property>
-           <property name="buddy">
-            <cstring>BonesAlwaysOnTopCheckBox</cstring>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1" colspan="3">
-          <widget class="QCheckBox" name="BonesAlwaysOnTopCheckBox">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="toolTip">
-            <string>In x-ray mode, the bones are overlayed on top of every object of the scene.</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1" colspan="3">
+         <item row="0" column="2" colspan="3">
           <widget class="QComboBox" name="ArmatureRepresentationComboBox">
            <property name="enabled">
             <bool>false</bool>
@@ -308,13 +162,240 @@
            </item>
           </widget>
          </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="ArmatureColorLabel">
+           <property name="text">
+            <string>Color:</string>
+           </property>
+           <property name="buddy">
+            <cstring>ArmatureColorPickerButton</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2" colspan="3">
+          <widget class="ctkColorPickerButton" name="ArmatureColorPickerButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the bones normal color.</string>
+           </property>
+           <property name="color">
+            <color>
+             <red>241</red>
+             <green>214</green>
+             <blue>145</blue>
+            </color>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="ArmatureOpacityLabel">
+           <property name="text">
+            <string>Bone Opacity:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2" colspan="3">
+          <widget class="ctkSliderWidget" name="ArmatureOpacitySlider">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the bones opacity.</string>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="BonesAlwaysOnTopLabel">
+           <property name="text">
+            <string>X-Ray mode:</string>
+           </property>
+           <property name="buddy">
+            <cstring>BonesAlwaysOnTopCheckBox</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="2" colspan="3">
+          <widget class="QCheckBox" name="BonesAlwaysOnTopCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>In x-ray mode, the bones are overlayed on top of every object of the scene.</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1" colspan="4">
+          <widget class="ctkCollapsibleGroupBox" name="ArmatureAdvancedDisplayCollapsibleGroupBox">
+           <property name="title">
+            <string>Advanced</string>
+           </property>
+           <property name="collapsed">
+            <bool>true</bool>
+           </property>
+           <layout class="QGridLayout" name="gridLayout_4">
+            <item row="0" column="0">
+             <widget class="QLabel" name="ArmatureShowAxesLabel">
+              <property name="toolTip">
+               <string>Show the direction axes of the bones.</string>
+              </property>
+              <property name="text">
+               <string>Show Axes:</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QCheckBox" name="ArmatureShowAxesCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Show the direction axes of the bones.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="ArmatureShowParenthoodLabel">
+              <property name="text">
+               <string>Show Parenthood:</string>
+              </property>
+              <property name="buddy">
+               <cstring>ArmatureShowParenthoodCheckBox</cstring>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QCheckBox" name="ArmatureShowParenthoodCheckBox">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Show the bones parent location.</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="EnvelopesCollapsibleGroupBox">
+        <property name="title">
+         <string>Envelopes</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QLabel" name="ArmatureShowEnvelopesLabel">
+           <property name="toolTip">
+            <string>Show/Hide the bones envelope</string>
+           </property>
+           <property name="text">
+            <string>Show Envelopes:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QCheckBox" name="ArmatureShowEnvelopesCheckBox">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Show/Hide the bones envelope</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="ArmatureEnvelopeRadiusRatioLabel">
+           <property name="text">
+            <string>Envelopes Overall Radius Ratio:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="ctkSliderWidget" name="ArmatureEnvelopeRadiusRatioSliderWidget">
+           <property name="decimals">
+            <number>2</number>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>10.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>Envelopes Overall Opacity:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="ctkSliderWidget" name="ArmatureEnvelopeOpacitySliderWidget">
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.200000000000000</double>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="0" colspan="2">
+   <item>
     <widget class="ctkCollapsibleButton" name="BonesCollapsibleButton">
      <property name="text">
       <string>Bones</string>
@@ -345,7 +426,7 @@
      </layout>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item>
     <widget class="ctkCollapsibleButton" name="BoneCollapsibleButton">
      <property name="text">
       <string>Bone</string>
@@ -358,17 +439,95 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
+       <widget class="ctkCollapsibleGroupBox" name="EnvelopeCollapsibleGroupBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="title">
+         <string>Bone Envelope</string>
+        </property>
+        <property name="collapsed">
+         <bool>true</bool>
+        </property>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <widget class="QLabel" name="BoneEnvelopeRadiusLabel">
+           <property name="toolTip">
+            <string>Change the envelope radius ratio</string>
+           </property>
+           <property name="text">
+            <string>Bone Envelope Radius Ratio:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="ctkSliderWidget" name="BoneEnvelopeRadiusSlider">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="toolTip">
+            <string>Change the envelope radius ratio</string>
+           </property>
+           <property name="singleStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="pageStep">
+            <double>0.010000000000000</double>
+           </property>
+           <property name="minimum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>0.100000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="ctkCollapsibleGroupBox" name="HierarchyCollapsibleGroupBox">
         <property name="title">
          <string>Hierarchy</string>
         </property>
         <property name="collapsed">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <layout class="QFormLayout" name="formLayout_2">
          <property name="fieldGrowthPolicy">
           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
          </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="ParentBoneLabel">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Bone Parent:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="qMRMLNodeComboBox" name="ParentBoneNodeComboBox">
+           <property name="toolTip">
+            <string>Reparent the selected bone.</string>
+           </property>
+           <property name="nodeTypes">
+            <stringlist>
+             <string>vtkMRMLBoneNode</string>
+            </stringlist>
+           </property>
+           <property name="noneEnabled">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item row="1" column="0">
           <widget class="QLabel" name="LinkedToParentLabel">
            <property name="text">
@@ -389,31 +548,6 @@
            </property>
            <property name="text">
             <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QLabel" name="ParentBoneLabel">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="text">
-            <string>Bone Parent:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="qMRMLNodeComboBox" name="ParentBoneNodeComboBox">
-           <property name="toolTip">
-            <string>Reparent the selected bone.</string>
-           </property>
-           <property name="nodeTypes">
-            <stringlist>
-             <string>vtkMRMLBoneNode</string>
-            </stringlist>
-           </property>
-           <property name="noneEnabled">
-            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -554,7 +688,7 @@
      </layout>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

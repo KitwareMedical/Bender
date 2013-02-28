@@ -40,6 +40,7 @@
 
 class vtkActor;
 class vtkAppendPolyData;
+class vtkCellPicker;
 class vtkConeSource;
 class vtkPolyDataMapper;
 class vtkPolyData;
@@ -105,6 +106,7 @@ public:
   virtual void GetActors(vtkPropCollection *pc);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasOnlyTranslucentPolygonalGeometry();
 
   // Description:
   // Helper function to set the opacity of all the cones
@@ -114,6 +116,10 @@ public:
   // Description:
   // Helper method to highlight the line, the cones and the endpoints.
   virtual void Highlight(int highlight);
+
+  // Description:
+  // Reimplemented to translate the bone when clicking on the cones surface.
+  virtual int ComputeInteractionState(int X, int Y, int modifier);
 
 protected:
   vtkDoubleConeBoneRepresentation();
@@ -125,6 +131,7 @@ protected:
   vtkConeSource*     Cone1;
   vtkConeSource*     Cone2;
   vtkAppendPolyData* GlueFilter;
+  vtkCellPicker*     ConesPicker;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.

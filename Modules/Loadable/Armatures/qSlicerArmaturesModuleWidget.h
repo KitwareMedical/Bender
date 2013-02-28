@@ -63,11 +63,6 @@ public:
   virtual void enter();
 
 public slots:
-   /// Set the mrml scene.
-   /// Listens to add added node to select the newly added armature node
-   /// as selected.
-    virtual void setMRMLScene(vtkMRMLScene* scene);
-
   /// Set \a armatureNode as current.
   /// \sa setMRMLArmatureNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
   void setMRMLArmatureNode(vtkMRMLArmatureNode* armatureNode);
@@ -113,9 +108,6 @@ protected slots:
 
   void updateCurrentMRMLArmatureNode();
   void updateCurrentMRMLBoneNode();
-
-  /// Update the selected armature if the new bone added is an armature
-  void onMRMLNodeAdded(vtkObject*, void*);
 
 protected:
   QScopedPointer<qSlicerArmaturesModuleWidgetPrivate> d_ptr;

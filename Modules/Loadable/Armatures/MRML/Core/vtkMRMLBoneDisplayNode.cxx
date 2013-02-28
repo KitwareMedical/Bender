@@ -27,10 +27,11 @@
 #include <vtkProperty.h>
 
 // Bender includes
-#include <vtkCylinderBoneRepresentation.h>
-#include <vtkDoubleConeBoneRepresentation.h>
+#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
+#include <vtkCylinderBoneRepresentation.h>
+#include <vtkDoubleConeBoneRepresentation.h>
 
 //----------------------------------------------------------------------------
 vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
@@ -38,6 +39,7 @@ vtkMRMLNodeNewMacro(vtkMRMLBoneDisplayNode);
 //----------------------------------------------------------------------------
 vtkMRMLBoneDisplayNode::vtkMRMLBoneDisplayNode()
 {
+  this->EnvelopeOpacity = 0.2;
   this->SetVisibility(1);
 }
 
@@ -55,7 +57,7 @@ void vtkMRMLBoneDisplayNode::WriteXML(ostream& of, int nIndent)
   of << indent << " InteractionColor=\""
     << this->InteractionColor[0] << " "
     << this->InteractionColor[1] << " "
-    << this->InteractionColor[2] << " " << "\"";
+    << this->InteractionColor[2] << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -144,6 +146,9 @@ void vtkMRMLBoneDisplayNode
   // -- Opacity --
   this->SetOpacity(
     boneWidget->GetBoneRepresentation()->GetLineProperty()->GetOpacity());
+
+  this->SetEnvelopeOpacity(
+    boneWidget->GetBoneRepresentation()->GetEnvelope()->GetProperty()->GetOpacity());
 }
 
 //---------------------------------------------------------------------------
@@ -187,6 +192,9 @@ void vtkMRMLBoneDisplayNode
   boneWidget->GetBoneRepresentation()->GetLineProperty()->SetColor(color);
   boneWidget->GetBoneRepresentation()->GetSelectedLineProperty()
     ->SetColor(interactionColor);
+
+  boneWidget->GetBoneRepresentation()->GetEnvelope()->GetProperty()->SetOpacity(
+    this->GetEnvelopeOpacity());
 
   // -- Opacity --
   boneWidget->GetBoneRepresentation()->SetOpacity(this->GetOpacity());
