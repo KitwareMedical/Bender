@@ -427,10 +427,10 @@ bool ArmatureWeightWriter::Write()
   // Only downsample when not using weights
   bool downsample = !this->BinaryWeight && this->ScaleFactor != 1.0;
 
-  const typename LabelImageType::SizeType& inputSize =
+  const LabelImageType::SizeType& inputSize =
     this->BodyPartition->GetLargestPossibleRegion().GetSize();
-  typename LabelImageType::SizeType outSize;
-  typedef typename LabelImageType::SizeType::SizeValueType SizeValueType;
+  LabelImageType::SizeType outSize;
+  typedef LabelImageType::SizeType::SizeValueType SizeValueType;
   outSize[0] = static_cast<SizeValueType>(ceil(inputSize[0] / this->ScaleFactor));
   outSize[1] = static_cast<SizeValueType>(ceil(inputSize[1] / this->ScaleFactor));
   outSize[2] = static_cast<SizeValueType>(ceil(inputSize[2] / this->ScaleFactor));
