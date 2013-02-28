@@ -29,7 +29,7 @@
 
 namespace bender
 {
-//-------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
 {
   vtkPolyData* polyData = 0;
@@ -91,4 +91,71 @@ vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
   polyData->Register(0);
   return polyData;
 }
+
+//-----------------------------------------------------------------------------
+void IOUtils::WritePolyData(vtkPolyData* polyData, const std::string& fileName)
+{
+  cout<<"Write polydata to "<<fileName<<endl;
+  vtkNew<vtkPolyDataWriter> pdWriter;
+  pdWriter->SetInput(polyData);
+  pdWriter->SetFileName(fileName.c_str() );
+  pdWriter->SetFileTypeToBinary();
+  pdWriter->Update();
+}
+
+//-----------------------------------------------------------------------------
+void IOUtils::FilterStart(const char* filterName, const char* comment)
+{
+  assert(filterName);
+  std::cout << "<filter-start>\n";
+  std::cout << "<filter-name>"
+            << filterName
+            << "</filter-name>\n";
+  if (comment)
+    {
+    std::cout << "filter-comment>"
+              << comment
+              << "</filter-comment>\n";
+    }
+  std::cout << "</filter-start>\n";
+  std::cout << std::flush;
+}
+
+//-----------------------------------------------------------------------------
+void IOUtils::FilterProgress(const char* filterName, float progress,
+                             double fraction, double start)
+{
+  assert(filterName);
+  assert(progress >= 0. && progress <= 1.0);
+  assert(fraction > 0. && fraction <= 1.0 );
+  assert(start >= 0. && start < 1.0);
+  std::cout << "<filter-progress>"
+            << start + (progress * fraction)
+            << "</filter-progress>\n";
+  if (fraction != 1.0)
+    {
+    std::cout << "<filter-stage-progress>"
+              << progress
+              << "</filter-stage-progress>\n";
+    }
+  std::cout << std::flush;
+}
+
+//-----------------------------------------------------------------------------
+void IOUtils::FilterEnd(const char* filterName, size_t time)
+{
+  assert(filterName);
+  std::cout << "<filter-end>\n";
+  std::cout << "<filter-name>"
+            << filterName
+            << "</filter-name>\n";
+  // Not supported in old slicer versions
+  //std::cout << "  <filter-time>"
+  //          << time
+  //          << "</filter-time>\n";
+  std::cout << "</filter-end>\n";
+  std::cout << std::flush;
+}
+
+
 };

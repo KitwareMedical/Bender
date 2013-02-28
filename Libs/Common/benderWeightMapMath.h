@@ -37,8 +37,6 @@ namespace bender
     typedef WeightMap::Voxel Voxel;
     typename MaskImageType::RegionType region = mask->GetLargestPossibleRegion();
     w_pi.Fill(0);
-    WeightMap::WeightVector w_corner=w_pi;
-    w_corner.Fill(0);
 
     Voxel m; //min index of the cell containing the point
     m.CopyWithCast(coord);
@@ -64,6 +62,7 @@ namespace bender
          && region.IsInside(q)
          && mask->GetPixel(q)>=foreground_minimum)
         {
+        WeightMap::WeightVector w_corner(w_pi.GetSize());
         w_corner.Fill(0);
         cornerWSum+=cornerW;
         weightMap.Get(q, w_corner);

@@ -19,7 +19,7 @@
 #============================================================================
 
 #-----------------------------------------------------------------------------
-set(MODULE_NAME ArmatureWeight) # Do not use 'project()'
+set(MODULE_NAME ArmatureBones) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
@@ -38,10 +38,8 @@ set(MODULE_INCLUDE_DIRECTORIES
   )
 
 set(MODULE_ADDITIONAL_SRCS
-  ArmatureWeightWriter.cxx
-  ArmatureWeightWriter.h
-  ArmatureWeightThreader.cxx
-  ArmatureWeightThreader.h
+  Armature.cxx
+  Armature.h
   )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
@@ -56,6 +54,7 @@ SEMMacroBuildCLI(
   )
 
 #-----------------------------------------------------------------------------
+message(${BUILD_TESTING})
 if(BUILD_TESTING)
-  add_subdirectory(Testing)
+  #add_subdirectory(Testing) # No testing right now
 endif()

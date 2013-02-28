@@ -18,8 +18,8 @@
 
 =========================================================================*/
 
-#ifndef __WeightMapIO_h
-#define __WeightMapIO_h
+#ifndef __benderWeightMapIO_h
+#define __benderWeightMapIO_h
 
 // Bender includes
 #include "benderWeightMap.h"
@@ -33,8 +33,18 @@ namespace bender
 // Get the weight files from a directory
 void BENDER_COMMON_EXPORT GetWeightFileNames(const std::string& dirName, std::vector<std::string>& fnames);
 
-// Create a weight map from a series of files
-int BENDER_COMMON_EXPORT ReadWeights(const std::vector<std::string>& fnames,  const std::vector<bender::WeightMap::Voxel>& bodyVoxels, bender::WeightMap& weightMap);
+// Create a weight map from a list of voxels
+int BENDER_COMMON_EXPORT ReadWeights(const std::vector<std::string>& fnames,
+                                     const std::vector<WeightMap::Voxel>& bodyVoxels,
+                                     WeightMap& weightMap);
+
+// Create a weight map from an image (labelmap).
+template <class T>
+int BENDER_COMMON_EXPORT ReadWeightsFromImage(const std::vector<std::string>& fnames,
+                                              const typename itk::Image<T, 3>::Pointer image,
+                                              bender::WeightMap& weightMap);
 };
+
+#include "benderWeightMapIO.txx"
 
 #endif

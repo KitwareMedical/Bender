@@ -18,8 +18,8 @@
 
 =========================================================================*/
 
-#ifndef __WeightMap_h
-#define __WeightMap_h
+#ifndef __benderWeightMap_h
+#define __benderWeightMap_h
 
 // .NAME WeightMap - sparse representation over weight vectors over a volume
 // .SECTION General Description
@@ -62,14 +62,19 @@ class BENDER_COMMON_EXPORT WeightMap
   typedef itk::VariableLengthVector<float> WeightVector;
 
   typedef std::vector<WeightEntries> WeightLUT; //for any j, WeightTable[...][j] correspond to
-  //the weights at a vixel
+  //the weights at a voxel
 
   typedef itk::Image<size_t,3> WeightLUTIndex; //for each voxel v, WeightLUTIndex[v] index into the
   //the "column" of WeightLUT
 
 
   WeightMap();
+  /// Init from a list of points
   void Init(const std::vector<Voxel>& voxels, const Region& region);
+  /// Init from an image
+  template <class T>
+  void Init(const typename itk::Image<T, 3>::Pointer image,
+            const itk::ImageRegion<3>& region);
   bool Insert(const Voxel& v, SiteIndex index, float value);
   void Get(const Voxel& v, WeightVector& values) const;
   void AddRow();
@@ -81,6 +86,9 @@ class BENDER_COMMON_EXPORT WeightMap
   RowSizes RowSize;
   size_t Cols;
 };
+
 };
+
+#include "benderWeightMap.txx"
 
 #endif
