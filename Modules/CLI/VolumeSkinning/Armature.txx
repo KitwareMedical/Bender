@@ -20,7 +20,7 @@
 
 =========================================================================*/
 
-// ArmatureWeight includes
+// VolumeSkinning includes
 #include "Armature.h"
 #include "benderIOUtils.h"
 
@@ -180,24 +180,28 @@ void ComputeManhattanVoronoi(typename InputImageType::Pointer siteMap,
 } // end namespace
 
 //-------------------------------------------------------------------------------
-ArmatureType::ArmatureType(LabelImageType::Pointer image)
+template<class T>
+ArmatureType<T>::ArmatureType(typename ImageType::Pointer image)
+  : BackgroundValue(0)
 {
   this->BodyMap = image;
 
   this->BodyPartition = LabelImageType::New();
-  Allocate<LabelImageType,LabelImageType>(image, this->BodyPartition);
+  Allocate<ImageType,LabelImageType>(image, this->BodyPartition);
   this->BodyPartition->FillBuffer(ArmatureType::BackgroundLabel);
 }
 
 //-------------------------------------------------------------------------------
-CharType ArmatureType::GetEdgeLabel(EdgeType i) const
+template<class T>
+CharType ArmatureType<T>::GetEdgeLabel(EdgeType i) const
 {
   // 0 is background, 1 is body interior so armature must start with 2
   return static_cast<CharType>(i + ArmatureType::EdgeLabels);
 }
 
 //-------------------------------------------------------------------------------
-CharType ArmatureType::GetMaxEdgeLabel() const
+template<class T>
+CharType ArmatureType<T>::GetMaxEdgeLabel() const
 {
   assert(this->GetNumberOfEdges() > 0 &&
          this->GetNumberOfEdges() <= std::numeric_limits<CharType>::max());
@@ -207,31 +211,50 @@ CharType ArmatureType::GetMaxEdgeLabel() const
 }
 
 //-------------------------------------------------------------------------------
-size_t ArmatureType::GetNumberOfEdges() const
+template<class T>
+size_t ArmatureType<T>::GetNumberOfEdges() const
 {
   return this->SkeletonVoxels.size();
 }
 
 //-------------------------------------------------------------------------------
-void ArmatureType::SetDebug(bool debug)
+template<class T>
+void ArmatureType<T>::SetDebug(bool debug)
 {
   this->Debug = debug;
 }
 
 //-------------------------------------------------------------------------------
-bool ArmatureType::GetDebug()const
+template<class T>
+bool ArmatureType<T>::GetDebug()const
 {
   return this->Debug;
 }
 
 //-------------------------------------------------------------------------------
-LabelImageType::Pointer ArmatureType::GetBodyPartition()
+template<class T>
+void ArmatureType<T>::SetBackgroundValue(T value)
+{
+  this->BackgroundValue = value;
+}
+
+//-------------------------------------------------------------------------------
+template<class T>
+T ArmatureType<T>::GetBackgroundValue()const
+{
+  return this->BackgroundValue;
+}
+
+//-------------------------------------------------------------------------------
+template<class T>
+LabelImageType::Pointer ArmatureType<T>::GetBodyPartition()
 {
   return this->BodyPartition;
 }
 
 //-------------------------------------------------------------------------------
-bool ArmatureType::InitSkeleton(vtkPolyData* armaturePolyData)
+template<class T>
+bool ArmatureType<T>::InitSkeleton(vtkPolyData* armaturePolyData)
 {
   bool success = true;
 
@@ -277,7 +300,7 @@ bool ArmatureType::InitSkeleton(vtkPolyData* armaturePolyData)
     for (std::vector<VoxelType>::iterator vi = edgeVoxels.begin();
          vi != edgeVoxels.end(); ++vi)
       {
-      if (this->BodyMap->GetPixel(*vi) != ArmatureType::BackgroundLabel)
+      if (this->BodyMap->GetPixel(*vi) != this->BackgroundValue)
         {
         /// \tbd what to do when the pixel has already a label associated.
         if (this->BodyPartition->GetPixel(*vi) == ArmatureType::BackgroundLabel)
@@ -312,11 +335,11 @@ bool ArmatureType::InitSkeleton(vtkPolyData* armaturePolyData)
   // Compute the voronoi of the skeleton
   // Step 1: color the non-skeleton body voxels by value unkwn
   LabelType unknown = ArmatureType::DomainLabel;
-  itk::ImageRegionIteratorWithIndex<LabelImageType> it(
+  itk::ImageRegionIteratorWithIndex<ImageType> it(
     this->BodyMap, this->BodyMap->GetLargestPossibleRegion());
   for (it.GoToBegin(); !it.IsAtEnd(); ++it)
     {
-    if (it.Get() != ArmatureType::BackgroundLabel)
+    if (it.Get() != this->BackgroundValue)
       {
       /// \todo: GetIndex is expensive, use instead an iterator for BodyPartition
       VoxelType voxel = it.GetIndex();
