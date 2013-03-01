@@ -20,6 +20,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QFileDialog>
 #include <QVector3D>
 
 // Armatures includes
@@ -79,6 +80,10 @@ void qSlicerArmaturesModuleWidgetPrivate
                    q, SLOT(setMRMLArmatureNode(vtkMRMLNode*)));
   QObject::connect(this->ArmatureVisibilityCheckBox, SIGNAL(toggled(bool)),
                    q, SLOT(setArmatureVisibility(bool)));
+
+  // Load from model
+  QObject::connect(this->LoadArmaturePushButton,
+    SIGNAL(clicked()), q, SLOT(loadArmatureFromModel()));
 
   // Bones
   // Bone tree view
@@ -840,6 +845,20 @@ void qSlicerArmaturesModuleWidget::deleteBones()
     }
 
   d->deleteBoneChildren(d->BoneNode);
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::loadArmatureFromModel()
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+  QString filename =
+    QFileDialog::getOpenFileName(this, tr("Open File"), "./",
+      tr("Armature Model (*.vtk)"));
+  if (! filename.isEmpty())
+    {
+    d->logic()->ReadArmatureFromModel(filename.toLatin1());
+    }
+  d->LoadArmaturePushButton->setChecked(false);
 }
 
 //-----------------------------------------------------------------------------

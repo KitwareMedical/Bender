@@ -32,6 +32,7 @@
 #include <vtkCommand.h>
 #include <vtkCollection.h>
 #include <vtkDoubleArray.h>
+#include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
@@ -247,6 +248,9 @@ vtkArmatureWidget::vtkArmatureWidget()
   envelopeRadiuses->SetNumberOfComponents(1);
   envelopeRadiuses->SetName("EnvelopeRadiuses");
   this->PolyData->GetCellData()->AddArray(envelopeRadiuses.GetPointer());
+  vtkNew<vtkIdTypeArray> parenthood;
+  parenthood->SetName("Parenthood");
+  this->PolyData->GetCellData()->AddArray(parenthood.GetPointer());
 
   // Init bones properties
   vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
@@ -1041,6 +1045,11 @@ void vtkArmatureWidget
 //----------------------------------------------------------------------------
 ArmatureTreeNode* vtkArmatureWidget::GetNode(vtkBoneWidget* bone)
 {
+  if (!bone) // More Effecient
+    {
+    return NULL;
+    }
+
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
@@ -1062,10 +1071,14 @@ void vtkArmatureWidget::UpdatePolyData()
   vtkDoubleArray* envelopeRadiuses = vtkDoubleArray::SafeDownCast(
     this->PolyData->GetCellData()->GetArray("EnvelopeRadiuses"));
   envelopeRadiuses->Reset();
+  vtkIdTypeArray* parenthood = vtkIdTypeArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("Parenthood"));
+  parenthood->Reset();
   this->PolyData->Reset();
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
+    // Transforms
     vtkIdType indexes[2];
     indexes[0] = this->PolyData->GetPoints()->InsertNextPoint(
       (*it)->Bone->GetWorldHeadRest());
@@ -1088,6 +1101,7 @@ void vtkArmatureWidget::UpdatePolyData()
     memcpy(transform[3], translation, 3*sizeof(double));
     transforms->InsertNextTuple(transform[0]);
 
+    // Envelope radiuses
     double radius = 0.0;
     vtkBoneRepresentation* boneRep = (*it)->Bone->GetBoneRepresentation();
     if (boneRep)
@@ -1095,6 +1109,24 @@ void vtkArmatureWidget::UpdatePolyData()
       radius = boneRep->GetEnvelope()->GetRadius();
       }
     envelopeRadiuses->InsertNextValue(radius);
+
+    // Parenthood
+    if ((*it)->Parent)
+      {
+      for (NodeIteratorType parentIt = this->Bones->begin();
+        parentIt != this->Bones->end(); ++parentIt)
+        {
+        if ((*parentIt)->Bone == (*it)->Parent->Bone)
+          {
+          parenthood->InsertNextValue(parentIt - this->Bones->begin());
+          break;
+          }
+        }
+      }
+    else // Root
+      {
+      parenthood->InsertNextValue(-1);
+      }
     }
 }
 

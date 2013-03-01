@@ -35,6 +35,7 @@ class vtkSlicerAnnotationModuleLogic;
 class vtkMRMLModelNode;
 
 // VTK includes
+class vtkCollection;
 class vtkPolyData;
 class vtkXMLDataElement;
 
@@ -55,6 +56,18 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   vtkMRMLModelNode* AddArmatureFile(const char* fileName);
+
+  /// Read an armature from a model. Returns a collection of
+  /// the node added.
+  /// \sa CreateArmatureFromModel(vtkPolyData*)
+  vtkCollection* ReadArmatureFromModel(const char* fileName);
+
+  /// Create an armature from a model. Returns a collection of
+  /// the node added. Note that the envelopes and transforms
+  /// are not initialized and that the model is not actually loaded
+  /// in slicer.
+  /// \sa ReadArmatureFromModel(const char*)
+  vtkCollection* CreateArmatureFromModel(vtkPolyData* model);
 
   virtual void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
   vtkGetObjectMacro(ModelsLogic, vtkSlicerModelsLogic);
