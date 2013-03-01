@@ -81,8 +81,17 @@ class Test1KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 
 vtkStandardNewMacro(Test1KeyPressInteractorStyle);
 
-int vtkArmatureWidgetArmTest(int, char *[])
+int vtkArmatureWidgetArmTest(int argc, char* argv[])
 {
+  bool interactive = false;
+  for (int i = 0; i < argc; ++i)
+    {
+    if (strcmp(argv[i], "-I") == 0)
+      {
+      interactive = true;
+      }
+    }
+
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
   vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -180,8 +189,11 @@ int vtkArmatureWidgetArmTest(int, char *[])
   renderWindow->Render();
   armature->On();
 
-  // Begin mouse interaction
-  renderWindowInteractor->Start();
+  if (interactive)
+    {
+    // Begin mouse interaction
+    renderWindowInteractor->Start();
+    }
 
   return EXIT_SUCCESS;
 }

@@ -206,7 +206,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && !this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderOpaqueGeometry(v);
     }
@@ -230,7 +230,7 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
-  if (this->ShowEnvelope)
+  if (this->ShowEnvelope && this->Envelope->HasTranslucentPolygonalGeometry())
     {
     count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
     }
@@ -291,6 +291,30 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
     {
     count |= this->TextActor->HasTranslucentPolygonalGeometry();
     }
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkDoubleConeBoneRepresentation::HasOnlyTranslucentPolygonalGeometry()
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count |= this->LineActor->HasTranslucentPolygonalGeometry();
+  // Cones actor
+  count &= this->ConesActor->HasTranslucentPolygonalGeometry();
+  // Handles after cones
+  count &= this->Handle[0]->HasTranslucentPolygonalGeometry();
+  count &= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  if (this->DistanceAnnotationVisibility)
+    {
+    count &= this->TextActor->HasTranslucentPolygonalGeometry();
+    }
+  if (this->ShowEnvelope)
+    {
+    count &= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
+
   return count;
 }
 

@@ -106,6 +106,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
+  this->OverallRadiusRatio = 1.0;
+  this->SetEnvelopesOpacity(0.2);
 
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(MRMLArmatureNodeCallback);
@@ -305,7 +307,15 @@ void vtkMRMLArmatureNode::SetWidgetState(int state)
     }
 
   this->WidgetState = state;
+
+  int wasModifying = this->StartModify();
+  if (this->WidgetState == vtkMRMLArmatureNode::Pose)
+    {
+    this->SetShowEnvelopes(0);
+    this->Modified();
+    }
   this->Modified();
+  this->EndModify(wasModifying);
 }
 
 //---------------------------------------------------------------------------
@@ -419,6 +429,26 @@ int vtkMRMLArmatureNode::GetShowEnvelopes()
     ->GetShowEnvelope();
 }
 
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetEnvelopesOpacity(double opacity)
+{
+  if (fabs(opacity - this->GetOpacity()) < 1e-6)
+    {
+    return;
+    }
+
+  this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
+    ->GetProperty()->SetOpacity(opacity);
+  this->Modified();
+}
+
+//---------------------------------------------------------------------------
+double vtkMRMLArmatureNode::GetEnvelopesOpacity()
+{
+  return this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
+    ->GetProperty()->GetOpacity();
+}
+
 /*
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
@@ -501,15 +531,16 @@ void vtkMRMLArmatureNode
   this->SetBonesAlwaysOnTop(
     armatureWidget->GetBonesRepresentation()->GetAlwaysOnTop());
 
-  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
-    ->SetOpacity(
-    armatureWidget->GetArmatureRepresentation()->GetProperty()->GetOpacity());
-  this->ArmatureProperties->GetArmatureRepresentation()->GetProperty()
-    ->SetColor(
-    armatureWidget->GetArmatureRepresentation()->GetProperty()->GetColor());
+  this->SetOpacity(
+    armatureWidget->GetBonesRepresentation()->GetLineProperty()->GetOpacity());
+  this->SetColor(
+    armatureWidget->GetBonesRepresentation()->GetLineProperty()->GetColor());
 
   this->SetShowEnvelopes(
     armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
+  this->SetEnvelopesOpacity(
+    armatureWidget->GetBonesRepresentation()->GetEnvelope()->GetProperty()
+      ->GetOpacity());
 }
 
 //---------------------------------------------------------------------------
@@ -528,18 +559,22 @@ void vtkMRMLArmatureNode
     if (this->BonesRepresentationType == 1)
       {
       vtkNew<vtkCylinderBoneRepresentation> rep;
+      this->UpdateBoneRepresentation(rep.GetPointer());
       armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
     else if (this->BonesRepresentationType == 2)
       {
       vtkNew<vtkDoubleConeBoneRepresentation> rep;
+      this->UpdateBoneRepresentation(rep.GetPointer());
       armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
     else
       {
       vtkNew<vtkBoneRepresentation> rep;
+      this->UpdateBoneRepresentation(rep.GetPointer());
       armatureWidget->SetBonesRepresentation(rep.GetPointer());
       }
+
     }
 
   armatureWidget->SetWidgetState(this->WidgetState);
@@ -552,6 +587,7 @@ void vtkMRMLArmatureNode
 
   double color[3];
   this->GetColor(color);
+
 
   // Update it now because the display node does not listens to
   // widget representation change.
@@ -567,14 +603,22 @@ void vtkMRMLArmatureNode
         this->ArmatureProperties->GetShowParenthood()
         && boneNode->GetHasParent());
 
+      boneNode->SetOverallRadiusRatio(this->GetOverallRadiusRatio());
+
+      // Color and opacity are tricky.
+      // Each display node needs to be updated as well as the
+      // armature bones representation
       vtkMRMLBoneDisplayNode* boneDisplayNode = boneNode->GetBoneDisplayNode();
       if (boneDisplayNode)
         {
         boneDisplayNode->SetColor(color);
         boneDisplayNode->SetOpacity(this->GetOpacity());
+        boneDisplayNode->SetEnvelopeOpacity(this->GetEnvelopesOpacity());
         }
       }
     }
+
+  this->UpdateBoneRepresentation(armatureWidget->GetBonesRepresentation());
 
   if (ShouldResetPoseMode)
     {
@@ -622,3 +666,15 @@ void vtkMRMLArmatureNode::SetArmaturePolyData(vtkPolyData* polyData)
     }
   model->SetAndObservePolyData(polyData);
 }
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::UpdateBoneRepresentation(vtkBoneRepresentation* rep)
+{
+  double color[3];
+  this->GetColor(color);
+
+  rep->SetOpacity(this->GetOpacity());
+  rep->GetEnvelope()->GetProperty()->SetOpacity(this->GetEnvelopesOpacity());
+  rep->GetLineProperty()->SetColor(color);
+}
+

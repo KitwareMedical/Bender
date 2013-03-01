@@ -234,8 +234,12 @@ public:
 
   /// Set/Get if the bone has parent or not.
   //void SetEnvelopeRadiusRatio(double ratio);
-  vtkSetClampMacro(EnvelopeRadiusRatio, double, 0.0, 1.0);
+  vtkSetMacro(EnvelopeRadiusRatio, double);
   vtkGetMacro(EnvelopeRadiusRatio, double);
+
+  /// Set/Get the overall radius ratio.
+  vtkSetMacro(OverallRadiusRatio, double);
+  vtkGetMacro(OverallRadiusRatio, double)
 
   //--------------------------------------------------------------------------
   // Helper methods
@@ -263,6 +267,7 @@ protected:
   bool LinkedWithParent;
   bool HasParent;
   double EnvelopeRadiusRatio;
+  double OverallRadiusRatio;
 };
 
 #endif

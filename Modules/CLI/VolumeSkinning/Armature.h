@@ -35,12 +35,9 @@ class vtkPolyData;
 typedef unsigned char CharType;
 typedef unsigned short LabelType;
 typedef unsigned int EdgeType;
-typedef float WeightImagePixel;
 
 typedef itk::Image<LabelType, 3>  LabelImageType;
 typedef itk::Image<CharType, 3>  CharImageType;
-
-typedef itk::Image<WeightImagePixel, 3>  WeightImage;
 
 typedef itk::Index<3> Voxel;
 typedef itk::Offset<3> VoxelOffsetType;
@@ -68,6 +65,7 @@ public:
 };
 
 //-------------------------------------------------------------------------------
+template <class T>
 class ArmatureType
 {
 public:
@@ -82,21 +80,23 @@ public:
 
   // Typedefs:
   // Pixels:
+  typedef T PixelType;
   typedef unsigned char CharType;
   typedef unsigned short LabelType;
   typedef unsigned int EdgeType;
-  typedef float WeightImagePixel;
   // Images:
-  typedef itk::Image<LabelType, 3>  LabelImageType;
+  typedef itk::Image<T, 3>  ImageType;
   typedef itk::Image<CharType, 3>  CharImageType;
-  typedef itk::Image<WeightImagePixel, 3>  WeightImage;
   // Others:
   typedef itk::Index<3> VoxelType;
   typedef itk::Offset<3> VoxelOffsetType;
   typedef itk::ImageRegion<3> RegionType;
 
   // Constructor
-  ArmatureType(LabelImageType::Pointer image);
+  ArmatureType(typename ImageType::Pointer image);
+
+  void SetBackgroundValue(PixelType value);
+  PixelType GetBackgroundValue()const;
 
   // Label functions:
   CharType GetEdgeLabel(EdgeType edgeId) const;
@@ -117,16 +117,19 @@ public:
 
 protected:
 
-  LabelImageType::Pointer BodyMap; // Reference on the input volume
+  typename ImageType::Pointer BodyMap; // Reference on the input volume
   LabelImageType::Pointer BodyPartition; //the partition of body by armature edges
 
   std::vector<std::vector<Voxel> > SkeletonVoxels;
   std::vector<CharImageType::Pointer> Domains;
   std::vector<Voxel> Fixed;
-  std::vector<WeightImage::Pointer> Weights;
 
+  PixelType BackgroundValue;
   bool InitBones();
 
   bool Debug;
 };
+
+#include "Armature.txx"
+
 #endif

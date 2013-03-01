@@ -96,6 +96,7 @@ public:
   virtual void GetActors(vtkPropCollection *pc);
   virtual void ReleaseGraphicsResources(vtkWindow*);
   virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasOnlyTranslucentPolygonalGeometry();
 
   // Description:
   // Helper function to set the opacity of all the cylinder

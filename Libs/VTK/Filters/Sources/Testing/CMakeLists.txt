@@ -22,16 +22,22 @@
 # VTK Bone Widgets Testing
 #
 
-create_test_sourcelist(${KIT}_TEST_SRCS
-  vtkBenderSourcesTests.cxx
-  vtkCapsuleSourceTest.cxx
+include(BenderMacroSimpleTest)
+
+set(TEST_NAMES_CXX
+    vtkCapsuleSourceTest.cxx
+    )
+
+set(TEST_EXEC_NAME ${PROJECT_NAME}CxxTests)
+
+create_test_sourcelist(TESTS
+  ${TEST_EXEC_NAME}.cxx
+  ${TEST_NAMES_CXX}
   )
 
-add_executable (${PROJECT_NAME}Tests ${${KIT}_TEST_SRCS})
-target_link_libraries(${PROJECT_NAME}Tests
-  ${PROJECT_NAME}
-  )
+add_executable(${TEST_EXEC_NAME} ${TESTS})
+target_link_libraries(${TEST_EXEC_NAME} ${PROJECT_NAME})
 
-set(BenderSourcesTest_BINARY_DIR "${Bender_BINARY_DIR}/${Bender_INSTALL_BIN_DIR}")
+set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkCapsuleSourceTest ${${PROJECT_NAME}_DATA_DIR})
 
-add_test(vtkCapsuleSourceTest ${BenderSourcesTest_BINARY_DIR}/BenderWidgetTests vtkCapsuleSourceTest)

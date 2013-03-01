@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>1</index>
-  <title>Armature Bones</title>
+  <index>2</index>
+  <title>Volume Skinning</title>
   <description><![CDATA[ TO DO]]>
   </description>
   <version>0.1.0.$Revision$(alpha)</version>
@@ -16,10 +16,10 @@
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
 
-    <image type="label">
-      <name>RestLabelmap</name>
-      <label>Input Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+    <image>
+      <name>RestVolume</name>
+      <label>Input Rest Volume</label>
+      <description><![CDATA[Volume in resting pose]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -33,8 +33,8 @@
     </geometry>
 
     <image type="label">
-      <name>BodyPartition</name>
-      <label>Output Body Partition</label>
+      <name>SkinnedVolume</name>
+      <label>Output Skinned Volume</label>
       <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
       <channel>output</channel>
       <index>2</index>
@@ -46,13 +46,13 @@
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
 
-    <integer>
-      <name>Padding</name>
-      <longflag>--padding</longflag>
-      <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) to expand the body region for output. ]]></description>
-      <default>1</default>
-    </integer>
+    <double>
+      <name>BackgroundValue</name>
+      <label>Background Value</label>
+      <description><![CDATA[The voxel value considered as background. All the other voxel values will be treated as foreground.]]></description>
+      <longflag>--backgroundValue</longflag>
+      <default>0.</default>
+    </double>
 
   </parameters>
 
@@ -75,5 +75,14 @@
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>IgnoreErrors</name>
+      <label>Ignore Errors</label>
+      <longflag>--ignoreErrors</longflag>
+      <description><![CDATA[Exit successfully even if errors are generated.]]></description>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 </executable>

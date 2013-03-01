@@ -18,7 +18,7 @@
 
 =========================================================================*/
 
-#include "EvalWeightCLP.h"
+#include "EvalSurfaceWeightCLP.h"
 
 //------- Bender-----------
 #include "benderIOUtils.h"

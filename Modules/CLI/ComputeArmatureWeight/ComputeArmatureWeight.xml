@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>2</index>
-  <title>Armature Weight</title>
+  <index>3</index>
+  <title>Compute Armature Weight</title>
   <description><![CDATA[ Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
   </description>
   <version>0.1.0.$Revision$(alpha)</version>
@@ -31,8 +31,8 @@
     </geometry>
 
     <image type="label">
-      <name>BodyPartition</name>
-      <label>Body Partition Labelmap</label>
+      <name>SkinnedVolume</name>
+      <label>Input Skinned Volume Labelmap</label>
       <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
       <channel>input</channel>
       <index>2</index>
@@ -75,6 +75,30 @@
       <description><![CDATA[Number of smoothing iterations. This is only necessary because we restrict the solving to a local region]]></description>
       <default>10</default>
     </integer>
+
+    <double>
+      <name>ScaleFactor</name>
+      <longflag>--scaleFactor</longflag>
+      <label>Computation Scale Factor</label>
+      <description><![CDATA[Scale factor applied to the input images to speed up the processing. It is highly encouraged to use a sparser spacing than the input image.]]></description>
+      <default>2</default>
+    </double>
+
+    <integer>
+      <name>Padding</name>
+      <longflag>--padding</longflag>
+      <label>Padding</label>
+      <description><![CDATA[How far (in voxel units) outside the body the weights region will be computed. A little padding is strongly advised to make sure every voxel of the input as an attributed weight.]]></description>
+      <default>1</default>
+    </integer>
+
+    <boolean>
+      <name>UseEnvelopes</name>
+      <label>Use Armature Envelopes</label>
+      <longflag>--useEnvelopes</longflag>
+      <description><![CDATA[Use the envelope radius of each armature bone segment or not.]]></description>
+      <default>true</default>
+    </boolean>
 
   </parameters>
   <parameters advanced="true">
