@@ -21,7 +21,7 @@
 =========================================================================*/
 
 // Bender includes
-#include "ArmatureWeightCLP.h"
+#include "ComputeArmatureWeightCLP.h"
 #include "ArmatureWeightThreader.h"
 #include "ArmatureWeightWriter.h"
 #include <benderIOUtils.h>

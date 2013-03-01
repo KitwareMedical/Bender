@@ -19,7 +19,7 @@
 #============================================================================
 
 #-----------------------------------------------------------------------------
-set(MODULE_NAME ArmatureBones) # Do not use 'project()'
+set(MODULE_NAME VolumeSkinning) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
@@ -54,7 +54,6 @@ SEMMacroBuildCLI(
   )
 
 #-----------------------------------------------------------------------------
-message(${BUILD_TESTING})
 if(BUILD_TESTING)
   #add_subdirectory(Testing) # No testing right now
 endif()

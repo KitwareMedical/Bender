@@ -774,7 +774,7 @@ p, li { white-space: pre-wrap; }
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="SegmentBonesPage">
+     <widget class="QWidget" name="SkinningPage">
       <property name="accessibleName">
        <string>Compute weights (skinning)</string>
       </property>
@@ -794,7 +794,7 @@ p, li { white-space: pre-wrap; }
         <number>0</number>
        </property>
        <item>
-        <widget class="ctkCollapsibleGroupBox" name="SegmentBonesCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="VolumeSkinningCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -802,21 +802,21 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Segment bones</string>
+          <string>A) Volume skinning</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
           <item row="0" column="0">
-           <widget class="QLabel" name="SegmentBonesVolumeLabel">
+           <widget class="QLabel" name="VolumeSkinningVolumeLabel">
             <property name="text">
              <string>Volume</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesInputVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="VolumeSkinningInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -837,14 +837,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="SegmentBonesArmatureLabel">
+           <widget class="QLabel" name="VolumeSkinningArmatureLabel">
             <property name="text">
              <string>Armature</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesAmartureNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="VolumeSkinningAmartureNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -862,14 +862,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="SegmentBonesOutputVolumeLabel">
+           <widget class="QLabel" name="VolumeSkinningOutputVolumeLabel">
             <property name="text">
              <string>Output body partition</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SegmentBonesOutputVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="VolumeSkinningOutputVolumeNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
@@ -905,16 +905,16 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="SegmentBonesGoToPushButton">
+             <widget class="QPushButton" name="VolumeSkinningGoToPushButton">
               <property name="text">
-               <string>Go to Armature Bones module</string>
+               <string>Go to Volume Skinning module</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="SegmentBonesApplyPushButton">
+             <widget class="QPushButton" name="VolumeSkinningApplyPushButton">
               <property name="text">
-               <string>Segment bones</string>
+               <string>Skin Volume</string>
               </property>
              </widget>
             </item>
@@ -924,7 +924,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="ctkCollapsibleGroupBox" name="ArmatureWeightCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="ComputeArmatureWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -932,14 +932,14 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Armature weight</string>
+          <string>B) Compute armature weight</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
           <item row="0" column="0">
-           <widget class="QLabel" name="ArmatureWeightInputVolumeLabel">
+           <widget class="QLabel" name="ComputeArmatureWeightInputVolumeLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -952,7 +952,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightInputVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -973,7 +973,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="ArmatureWeightArmatureLabel">
+           <widget class="QLabel" name="ComputeArmatureWeightArmatureLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -986,7 +986,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightAmartureNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightAmartureNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1007,7 +1007,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="ArmatureWeightBodyPartitionLabel">
+           <widget class="QLabel" name="ComputeArmatureWeightSkinnedVolumeLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1020,7 +1020,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmatureWeightBodyPartitionVolumeNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLScalarVolumeNode</string>
@@ -1041,7 +1041,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="ArmatureWeightOutputFolderLabel">
+           <widget class="QLabel" name="ComputeArmatureWeightOutputFolderLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1049,12 +1049,12 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Output folder</string>
+             <string>Output weight images folder</string>
             </property>
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="ctkDirectoryButton" name="ArmatureWeightOutputDirectoryButton">
+           <widget class="ctkDirectoryButton" name="ComputeArmatureWeightOutputDirectoryButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1079,14 +1079,14 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="ArmatureWeightGoToPushButton">
+             <widget class="QPushButton" name="ComputeArmatureWeightGoToPushButton">
               <property name="text">
-               <string>Go to Armature Weights module</string>
+               <string>Go to Compute Armature Weights module</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ArmatureWeightApplyPushButton">
+             <widget class="QPushButton" name="ComputeArmatureWeightApplyPushButton">
               <property name="text">
                <string>Compute weights</string>
               </property>
@@ -1129,7 +1129,7 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Move and animate the armature to a convenient pose. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Evaluate weight helps to paint the weight onto the given surface, allowing the pose body to execute faster.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The pose body module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The pose surface module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="leftMargin">
@@ -1139,34 +1139,34 @@ p, li { white-space: pre-wrap; }
         <number>0</number>
        </property>
        <item>
-        <widget class="ctkCollapsibleGroupBox" name="EvalWeightCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="EvalSurfaceWeightCollapsibleGroupBox">
          <property name="title">
-          <string>A) Evaluate Weight</string>
+          <string>A) Evaluate Surface Weight</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="0">
-           <widget class="QLabel" name="EvalWeightInputSurfaceLabel">
+           <widget class="QLabel" name="EvalSurfaceWeightInputSurfaceLabel">
             <property name="text">
              <string>Input surface</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="EvalWeightWeightDirectoryLabel">
+           <widget class="QLabel" name="EvalSurfaceWeightWeightDirectoryLabel">
             <property name="text">
-             <string>Weight folder</string>
+             <string>Weight images folder</string>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="EvalWeightOutputNodeLabel">
+           <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
              <string>Output surface</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightInputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="EvalSurfaceWeightInputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1178,10 +1178,10 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="ctkDirectoryButton" name="EvalWeightWeightDirectoryButton"/>
+           <widget class="ctkDirectoryButton" name="EvalSurfaceWeightWeightDirectoryButton"/>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="EvalWeightOutputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="EvalSurfaceWeightOutputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1205,16 +1205,16 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="EvalWeightGoToPushButton">
+             <widget class="QPushButton" name="EvalSurfaceWeightGoToPushButton">
               <property name="text">
-               <string>Go to Evaluate Weight module</string>
+               <string>Go to Evaluate Surface Weight module</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="EvalWeightApplyPushButton">
+             <widget class="QPushButton" name="EvalSurfaceWeightApplyPushButton">
               <property name="text">
-               <string>Evaluate weight</string>
+               <string>Evaluate surface weight</string>
               </property>
              </widget>
             </item>
@@ -1285,7 +1285,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item>
-        <widget class="ctkCollapsibleGroupBox" name="PoseBodyCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="PoseSurfaceCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -1300,14 +1300,14 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
-           <widget class="QLabel" name="PoseBodyArmaturesLabel">
+           <widget class="QLabel" name="PoseSurfaceArmaturesLabel">
             <property name="text">
              <string>Armature</string>
             </property>
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodyArmatureInputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseSurfaceArmatureInputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1325,14 +1325,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="PoseBodySurfaceInputLabel">
+           <widget class="QLabel" name="PoseSurfaceInputLabel">
             <property name="text">
              <string>Input surface</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceInputComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1353,14 +1353,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="PoseBodyWeightInputFolderLabel">
+           <widget class="QLabel" name="PoseSurfaceWeightInputFolderLabel">
             <property name="text">
-             <string>Weight folder</string>
+             <string>Weight images folder</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="ctkDirectoryButton" name="PoseBodyWeightInputDirectoryButton">
+           <widget class="ctkDirectoryButton" name="PoseSurfaceWeightInputDirectoryButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -1370,14 +1370,14 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="PoseBodySurfaceOutputLabel">
+           <widget class="QLabel" name="PoseSurfaceOutputLabel">
             <property name="text">
              <string>Output surface</string>
             </property>
            </widget>
           </item>
           <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseBodySurfaceOutputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseSurfaceOutputNodeComboBox">
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
@@ -1413,16 +1413,16 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="PoseBodyGoToPushButton">
+             <widget class="QPushButton" name="PoseSurfaceGoToPushButton">
               <property name="text">
-               <string>Go to Pose Body module</string>
+               <string>Go to Pose Surface module</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="ctkCheckablePushButton" name="PoseBodyApplyPushButton">
+             <widget class="ctkCheckablePushButton" name="PoseSurfaceApplyPushButton">
               <property name="text">
-               <string>Pose body</string>
+               <string>Pose Surface</string>
               </property>
               <property name="checkState">
                <enum>Qt::Checked</enum>
@@ -1560,7 +1560,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="PoseLabelmapWeightDirectoryLabel">
             <property name="text">
-             <string>Weight folder</string>
+             <string>Weight images folder</string>
             </property>
            </widget>
           </item>
@@ -2143,7 +2143,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentBonesAmartureNodeComboBox</receiver>
+   <receiver>VolumeSkinningAmartureNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2159,7 +2159,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentBonesOutputVolumeNodeComboBox</receiver>
+   <receiver>VolumeSkinningOutputVolumeNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2175,7 +2175,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>SegmentBonesInputVolumeNodeComboBox</receiver>
+   <receiver>VolumeSkinningInputVolumeNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2191,7 +2191,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightAmartureNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2207,7 +2207,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ArmatureWeightBodyPartitionVolumeNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2223,7 +2223,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightInputVolumeNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2237,9 +2237,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SegmentBonesInputVolumeNodeComboBox</sender>
+   <sender>VolumeSkinningInputVolumeNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ArmatureWeightInputVolumeNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightInputVolumeNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2255,7 +2255,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseBodyArmatureInputNodeComboBox</receiver>
+   <receiver>PoseSurfaceArmatureInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2271,7 +2271,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseBodySurfaceOutputNodeComboBox</receiver>
+   <receiver>PoseSurfaceOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2287,7 +2287,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseBodySurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2301,9 +2301,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SegmentBonesAmartureNodeComboBox</sender>
+   <sender>VolumeSkinningAmartureNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ArmatureWeightAmartureNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightAmartureNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2317,9 +2317,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SegmentBonesOutputVolumeNodeComboBox</sender>
+   <sender>VolumeSkinningOutputVolumeNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ArmatureWeightBodyPartitionVolumeNodeComboBox</receiver>
+   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2335,7 +2335,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>MergeLabelsOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>SegmentBonesInputVolumeNodeComboBox</receiver>
+   <receiver>VolumeSkinningInputVolumeNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2399,7 +2399,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>SkinModelMakerOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>EvalWeightInputNodeComboBox</receiver>
+   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2415,7 +2415,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>EvalWeightInputNodeComboBox</receiver>
+   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2431,7 +2431,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>EvalWeightOutputNodeComboBox</receiver>
+   <receiver>EvalSurfaceWeightOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2445,9 +2445,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>EvalWeightOutputNodeComboBox</sender>
+   <sender>EvalSurfaceWeightOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseBodySurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2461,9 +2461,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ArmatureWeightAmartureNodeComboBox</sender>
+   <sender>ComputeArmatureWeightAmartureNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseBodyArmatureInputNodeComboBox</receiver>
+   <receiver>PoseSurfaceArmatureInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2493,9 +2493,9 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>EvalWeightInputNodeComboBox</sender>
+   <sender>EvalSurfaceWeightInputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>EvalWeightOutputNodeComboBox</receiver>
+   <receiver>EvalSurfaceWeightOutputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2541,7 +2541,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PoseBodyArmatureInputNodeComboBox</sender>
+   <sender>PoseSurfaceArmatureInputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>PoseLabelmapArmatureNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>

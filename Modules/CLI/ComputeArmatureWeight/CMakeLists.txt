@@ -19,7 +19,7 @@
 #============================================================================
 
 #-----------------------------------------------------------------------------
-set(MODULE_NAME ArmatureWeight) # Do not use 'project()'
+set(MODULE_NAME ComputeArmatureWeight) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 

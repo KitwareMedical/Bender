@@ -20,7 +20,7 @@
 
 =========================================================================*/
 
-// ArmatureWeight includes
+// VolumeSkinning includes
 #include "Armature.h"
 #include "benderIOUtils.h"
 

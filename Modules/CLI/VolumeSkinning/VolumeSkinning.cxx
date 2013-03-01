@@ -21,7 +21,7 @@
 =========================================================================*/
 
 // Bender includes
-#include "ArmatureBonesCLP.h"
+#include "VolumeSkinningCLP.h"
 #include "Armature.h"
 #include <benderIOUtils.h>
 

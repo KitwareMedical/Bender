@@ -84,7 +84,7 @@ public:
   vtkTypeMacro(ArmatureWeightWriter,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // \todo should be defined by the ArmatureWeight.cxx
+  // \todo should be defined by the ComputeArmatureWeight.cxx
   // Enums the types of label used
   enum LabelTypes
     {

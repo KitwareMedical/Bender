@@ -425,13 +425,16 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   // [Ninja]
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
-  this->FavoriteModules << "Workflow" << "Armatures" << "ArmatureBones" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "PoseLabelmap" << "Volumes" << "VolumeRendering" << "Models";
+  this->FavoriteModules << "Workflow" << "Armatures"
+                        << "VolumeSkinning" << "ComputeArmatureWeight"
+                        << "EvalSurfaceWeight" << "PoseBody" << "PoseLabelmap"
+                        << "Volumes" << "VolumeRendering" << "Models";
   this->DefaultModule = "Workflow";
   this->ModuleIcons["Workflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
-  this->ModuleIcons["ArmatureBones"] = QIcon(":ArmatureBones.png");
-  this->ModuleIcons["ArmatureWeight"] = QIcon(":ArmatureWeight.png");
-  this->ModuleIcons["EvalWeight"] = QIcon(":EvalWeight.png");
-  this->ModuleIcons["PoseBody"] = QIcon(":PoseBody.png");
+  this->ModuleIcons["VolumeSkinning"] = QIcon(":VolumeSkinning.png");
+  this->ModuleIcons["ComputeArmatureWeight"] = QIcon(":ComputeArmatureWeight.png");
+  this->ModuleIcons["EvalSurfaceWeight"] = QIcon(":EvalSurfaceWeight.png");
+  this->ModuleIcons["PoseSurface"] = QIcon(":PoseSurface.png");
   this->ModuleIcons["PoseLabelmap"] = QIcon(":PoseLabelmap.png");
   // [/Ninja]
 
@@ -447,8 +450,6 @@ void qSlicerAppMainWindowPrivate::readSettings()
 // [Ninja]
 void qSlicerAppMainWindowPrivate::overwriteSettings()
 {
-  Q_Q(qSlicerAppMainWindow);
-
   // Logo
   this->logoLabel->setPixmap(QPixmap(QString::fromUtf8(":/ModuleHome.png")));
 

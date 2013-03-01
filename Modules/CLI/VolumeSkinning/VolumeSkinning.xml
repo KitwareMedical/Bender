@@ -2,7 +2,7 @@
 <executable>
   <category>;Segmentation.Bender</category>
   <index>2</index>
-  <title>Armature Bones</title>
+  <title>Volume Skinning</title>
   <description><![CDATA[ TO DO]]>
   </description>
   <version>0.1.0.$Revision$(alpha)</version>

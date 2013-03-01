@@ -20,7 +20,7 @@
 
 =========================================================================*/
 
-// ArmatureWeight includes
+// ComputeArmatureWeight includes
 #include "ArmatureWeightWriter.h"
 #include "SolveHeatDiffusionProblem.h"
 #include <benderIOUtils.h>
