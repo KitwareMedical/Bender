@@ -78,7 +78,7 @@ QStringList qSlicerArmaturesModule::categories()const
 //-----------------------------------------------------------------------------
 int qSlicerArmaturesModule::index()const
 {
-  return 0;
+  return 1;
 }
 
 //-----------------------------------------------------------------------------

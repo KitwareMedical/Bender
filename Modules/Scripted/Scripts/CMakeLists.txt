@@ -18,21 +18,33 @@
 #
 #============================================================================
 
-# List all the modules (ordered by dependencies) to build by Slicer
-set(modules
-  ChangeLabel
-  VolumeSkinning
-  ComputeArmatureWeight
-  EvalSurfaceWeight
-  PoseSurface
-  PoseLabelmap
+set(KIT_PYTHON_SCRIPTS
+  Workflow.py
   )
 
-set(Bender_MODULES)
+set(KIT_PYTHON_RESOURCES
+  Resources/UI/Workflow.ui
+  )
 
-foreach(module ${modules})
-  list(APPEND Bender_MODULES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
+set(MODULE_SCRIPTS
+  )
+
+foreach(module ${KIT_PYTHON_SCRIPTS})
+  list(FIND Slicer_QTSCRIPTEDMODULES_DISABLED ${module} _module_disabled)
+  if(${_module_disabled} STREQUAL "-1")
+    list(APPEND MODULE_SCRIPTS ${module})
+  endif()
 endforeach()
 
-set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
+ctkMacroCompilePythonScript(
+  TARGET_NAME BenderScriptedModules
+  SCRIPTS "${MODULE_SCRIPTS}"
+  RESOURCES "${KIT_PYTHON_RESOURCES}"
+  DESTINATION_DIR ${Slicer_BINARY_DIR}/${Slicer_QTSCRIPTEDMODULES_LIB_DIR}
+  INSTALL_DIR ${Slicer_INSTALL_QTSCRIPTEDMODULES_LIB_DIR}
+  NO_INSTALL_SUBDIR
+  )
+
+if(BUILD_TESTING AND PYTHON_EXECUTABLE)
+  #add_subdirectory(Testing)
+endif()

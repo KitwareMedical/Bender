@@ -19,43 +19,20 @@
 #============================================================================
 
 #-----------------------------------------------------------------------------
-set(MODULE_NAME ArmatureWeight) # Do not use 'project()'
-
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
-
-find_package(ITK REQUIRED)
-include(${ITK_USE_FILE})
-
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
-
-find_package(Bender REQUIRED)
-include(${Bender_USE_FILE})
-
-set(MODULE_INCLUDE_DIRECTORIES
-  ${Bender_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
-  )
-
-set(MODULE_ADDITIONAL_SRCS
-  ArmatureWeightWriter.cxx
-  ArmatureWeightWriter.h
-  ArmatureWeightThreader.cxx
-  ArmatureWeightThreader.h
-  )
-set(MODULE_TARGET_LIBRARIES
-  ${Bender_LIBRARIES}
-  )
-
-SEMMacroBuildCLI(
-  NAME ${MODULE_NAME}
-  ADDITIONAL_SRCS ${MODULE_ADDITIONAL_SRCS}
-  LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
-  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
-  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
-  )
+set(BASELINE ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline)
+set(CLP ${MODULE_NAME})
 
 #-----------------------------------------------------------------------------
-if(BUILD_TESTING)
-  add_subdirectory(Testing)
-endif()
+add_executable(${CLP}Test ${CLP}Test.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib)
+set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
+
+set(testname ${CLP}Test)
+#add_test(NAME ${testname} COMMAND ${Launcher_Command} $<TARGET_FILE:${CLP}Test>
+#  --compare ${BASELINE}/${CLP}Test.nhdr
+#  ${TEMP}/${CLP}Test.nhdr
+#  ModuleEntryPoint --upper 3800 --lower 1400 --outsidevalue 0 --thresholdtype Outside
+#  ${TEST_DATA}/CTHeadAxial.nhdr ${TEMP}/${CLP}Test.nhdr
+#  )
+#set_property(TEST ${testname} PROPERTY LABELS ${CLP})
+

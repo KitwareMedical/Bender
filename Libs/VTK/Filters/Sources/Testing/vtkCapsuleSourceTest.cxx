@@ -19,60 +19,137 @@
 =========================================================================*/
 
 #include <vtkActor.h>
+#include <vtkCell.h>
 #include <vtkCommand.h>
+#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkPolyDataReader.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
+#include <vtkTesting.h>
+#include <vtkTestingInteractor.h>
 #include <vtkSmartPointer.h>
 
 #include <vtkPolyDataWriter.h>
 
 #include "vtkCapsuleSource.h"
 
-int vtkCapsuleSourceTest(int, char *[])
+bool CompareVector3(const double* v1, const double* v2)
 {
-  vtkSmartPointer<vtkRenderer> renderer =
-    vtkSmartPointer<vtkRenderer>::New();
-  vtkSmartPointer<vtkRenderWindow> renderWindow =
-    vtkSmartPointer<vtkRenderWindow>::New();
-  renderWindow->AddRenderer(renderer);
+  double diff[3];
+  vtkMath::Subtract(v1, v2, diff);
+  if (vtkMath::Dot(diff, diff) < 1e-6)
+    {
+    return true;
+    }
 
-  // An interactor
-  vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-    vtkSmartPointer<vtkRenderWindowInteractor>::New();
-  renderWindowInteractor->SetRenderWindow(renderWindow);
+  return false;
+}
 
+bool CompareCell(vtkCell* c1, vtkCell* c2)
+{
+  if (c1->GetCellDimension() != c2->GetCellDimension())
+    {
+    return false;
+    }
+
+  for (int i = 0; i < c1->GetCellDimension(); ++i)
+    {
+    if (c1->GetPointId(i) != c2->GetPointId(i))
+      {
+      return false;
+      }
+    }
+
+  return true;
+}
+
+bool ComparePolyData(vtkPolyData* p1, vtkPolyData* p2)
+{
+  double x1[3], x2[3];
+  int pointPositionError = 0;
+  for (vtkIdType i = 0; i < p1->GetNumberOfPoints(); ++i)
+    {
+    if (! CompareVector3(p1->GetPoint(i), p2->GetPoint(i)))
+      {
+      ++pointPositionError;
+      }
+    }
+  if (pointPositionError > 0)
+    {
+    std::cout<<"There are "<<pointPositionError
+      <<" point different ! "<<std::endl;
+    }
+
+  int cellConnectionError = 0;
+  for (vtkIdType i = 0; i < p1->GetNumberOfCells(); ++i)
+    {
+    if (! CompareCell(p1->GetCell(i), p2->GetCell(i)))
+      {
+      ++cellConnectionError;
+      }
+    }
+
+  if (cellConnectionError > 0)
+    {
+    std::cout<<"There are "<<pointPositionError
+      <<" cell different ! "<<std::endl;
+    }
+
+  return pointPositionError == 0
+    && cellConnectionError == 0;
+}
+
+int vtkCapsuleSourceTest(int argc, char* argv[])
+{
   vtkSmartPointer<vtkCapsuleSource> capsuleSource =
     vtkSmartPointer<vtkCapsuleSource>::New();
-  capsuleSource->SetThetaResolution(4);
-  capsuleSource->SetPhiResolution(4);
+  capsuleSource->SetThetaResolution(10);
+  capsuleSource->SetPhiResolution(8);
   capsuleSource->SetCylinderLength(10.0);
   capsuleSource->SetRadius(10.0);
+  capsuleSource->SetLatLongTessellation(false);
+  capsuleSource->Update();
+
+  std::string baselineCaspuleFilename = argv[1];
+  baselineCaspuleFilename += "/baselineTriangularCapsule.vtp";
+
+  vtkSmartPointer<vtkPolyDataReader> r =
+    vtkSmartPointer<vtkPolyDataReader>::New();
+  r->SetFileName( baselineCaspuleFilename.c_str() );
+  r->Update();
+
+  bool success = ComparePolyData(r->GetOutput(), capsuleSource->GetOutput());
+  if (! success)
+    {
+    std::cout<<"The generated capsule anf the"
+      <<" baseline are different !"<<std::endl;
+    return EXIT_FAILURE;
+    }
+
+  capsuleSource->SetThetaResolution(6);
+  capsuleSource->SetPhiResolution(12);
+  capsuleSource->SetCylinderLength(0.3);
+  capsuleSource->SetRadius(21.0);
   capsuleSource->SetLatLongTessellation(true);
+  capsuleSource->Update();
 
-  //vtkSmartPointer<vtkPolyDataWriter> w = vtkSmartPointer<vtkPolyDataWriter>::New();
-  //w->SetInputConnection(capsuleSource->GetOutputPort());
-  //w->SetFileName("./capsule.vtk");
-  //w->Write();
+  baselineCaspuleFilename = argv[1];
+  baselineCaspuleFilename += "/baselineQuadrangleCapsule.vtp";
 
-  vtkSmartPointer<vtkPolyDataMapper> mapper =
-    vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInputConnection(capsuleSource->GetOutputPort());
-  vtkSmartPointer<vtkActor> actor =
-    vtkSmartPointer<vtkActor>::New();
-  actor->SetMapper(mapper);
+  r->SetFileName( baselineCaspuleFilename.c_str() );
+  r->Update();
 
-  // Render
-  renderer->AddActor(actor);
-  renderWindow->Render();
-  renderWindowInteractor->Initialize();
-  renderWindow->Render();
-
-  // Begin mouse interaction
-  renderWindowInteractor->Start();
+  success = ComparePolyData(r->GetOutput(), capsuleSource->GetOutput());
+  if (! success)
+    {
+    std::cout<<"The generated capsule anf the"
+      <<" baseline are different !"<<std::endl;
+    return EXIT_FAILURE;
+    }
 
   return EXIT_SUCCESS;
 }

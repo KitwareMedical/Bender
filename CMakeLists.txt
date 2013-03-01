@@ -151,6 +151,12 @@ set_property(GLOBAL APPEND PROPERTY ${kit}_INCLUDE_DIRS
 include(BenderExportLibrary)
 
 enable_testing()
+
+set(${kit}_LAUNCHER_EXECUTABLE
+    ${CMAKE_CURRENT_BINARY_DIR}/../Slicer-build/${kit})
+set(${kit}_LAUNCH_COMMAND
+    ${${kit}_LAUNCHER_EXECUTABLE} --launcher-no-splash --launch)
+
 add_subdirectory(Libs)
 
 #

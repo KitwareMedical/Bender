@@ -1096,6 +1096,8 @@ void vtkArmatureWidget::UpdatePolyData()
       }
     envelopeRadiuses->InsertNextValue(radius);
     }
+
+  this->PolyData->Modified();
 }
 
 //----------------------------------------------------------------------------

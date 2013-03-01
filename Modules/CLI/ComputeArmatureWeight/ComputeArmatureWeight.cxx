@@ -21,7 +21,7 @@
 =========================================================================*/
 
 // Bender includes
-#include "ArmatureWeightCLP.h"
+#include "ComputeArmatureWeightCLP.h"
 #include "ArmatureWeightThreader.h"
 #include "ArmatureWeightWriter.h"
 #include <benderIOUtils.h>
@@ -211,7 +211,7 @@ int main( int argc, char * argv[] )
   //----------------------------
   typedef itk::ImageFileReader<LabelImageType>  ReaderType;
   ReaderType::Pointer bodyPartitionReader = ReaderType::New();
-  bodyPartitionReader->SetFileName(BodyPartition.c_str() );
+  bodyPartitionReader->SetFileName(SkinnedVolume.c_str() );
   try
     {
     bodyPartitionReader->Update();
