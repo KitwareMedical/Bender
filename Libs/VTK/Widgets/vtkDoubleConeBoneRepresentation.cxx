@@ -20,15 +20,20 @@
 
 #include "vtkDoubleConeBoneRepresentation.h"
 
+// Bender includes
+#include "vtkBoneEnvelopeRepresentation.h"
+
 #include <vtkActor.h>
 #include <vtkAppendPolyData.h>
 #include <vtkBox.h>
 #include <vtkCamera.h>
+#include <vtkCellPicker.h>
 #include <vtkConeSource.h>
 #include <vtkFollower.h>
 #include <vtkLineSource.h>
 #include <vtkObjectFactory.h>
 #include <vtkOpenGL.h>
+#include <vtkPointHandleRepresentation3D.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkProperty.h>
@@ -48,6 +53,7 @@ vtkDoubleConeBoneRepresentation::vtkDoubleConeBoneRepresentation()
   this->Cone1 = vtkConeSource::New();
   this->Cone2 = vtkConeSource::New();
   this->GlueFilter = vtkAppendPolyData::New();
+  this->ConesPicker = vtkCellPicker::New();
 
   // Set up the initial properties
   this->CreateDefaultProperties();
@@ -58,6 +64,11 @@ vtkDoubleConeBoneRepresentation::vtkDoubleConeBoneRepresentation()
   this->NumberOfSides = 5;
   this->Ratio = 0.25;
   this->Capping = 1;
+
+  // Add a picker
+  this->ConesPicker->SetTolerance(0.005);
+  this->ConesPicker->AddPickList(this->ConesActor);
+  this->ConesPicker->PickFromListOn();
 
   // Make the filters connections
   this->GlueFilter->AddInput( this->Cone1->GetOutput() );
@@ -75,6 +86,7 @@ vtkDoubleConeBoneRepresentation::~vtkDoubleConeBoneRepresentation()
   this->Cone1->Delete();
   this->Cone2->Delete();
 
+  this->ConesPicker->Delete();
   this->GlueFilter->Delete();
   this->ConesActor->Delete();
   this->ConesMapper->Delete();
@@ -194,6 +206,10 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope && !this->Envelope->HasTranslucentPolygonalGeometry())
+    {
+    count += this->Envelope->RenderOpaqueGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOpaqueGeometry(v);
   // Cones actor
@@ -205,7 +221,6 @@ int vtkDoubleConeBoneRepresentation
     {
     count += this->TextActor->RenderOpaqueGeometry(v);
     }
-
   return count;
 }
 
@@ -215,6 +230,10 @@ int vtkDoubleConeBoneRepresentation
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope && this->Envelope->HasTranslucentPolygonalGeometry())
+    {
+    count += this->Envelope->RenderTranslucentPolygonalGeometry(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderTranslucentPolygonalGeometry(v);
   // Cones actor
@@ -234,6 +253,10 @@ int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count += this->Envelope->RenderOverlay(v);
+    }
   // Bone representation actors
   count += this->LineActor->RenderOverlay(v);
   // Cones actor
@@ -245,7 +268,6 @@ int vtkDoubleConeBoneRepresentation::RenderOverlayInternal(vtkViewport *v)
     {
     count += this->TextActor->RenderOverlay(v);
     }
-
   return count;
 }
 
@@ -254,6 +276,10 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
 {
   int count = 0;
   this->BuildRepresentation();
+  if (this->ShowEnvelope)
+    {
+    count |= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
   // Bone representation actors
   count |= this->LineActor->HasTranslucentPolygonalGeometry();
   // Cones actor
@@ -265,6 +291,30 @@ int vtkDoubleConeBoneRepresentation::HasTranslucentPolygonalGeometry()
     {
     count |= this->TextActor->HasTranslucentPolygonalGeometry();
     }
+  return count;
+}
+
+//----------------------------------------------------------------------------
+int vtkDoubleConeBoneRepresentation::HasOnlyTranslucentPolygonalGeometry()
+{
+  int count = 0;
+  this->BuildRepresentation();
+  // Bone representation actors
+  count |= this->LineActor->HasTranslucentPolygonalGeometry();
+  // Cones actor
+  count &= this->ConesActor->HasTranslucentPolygonalGeometry();
+  // Handles after cones
+  count &= this->Handle[0]->HasTranslucentPolygonalGeometry();
+  count &= this->Handle[1]->HasTranslucentPolygonalGeometry();
+  if (this->DistanceAnnotationVisibility)
+    {
+    count &= this->TextActor->HasTranslucentPolygonalGeometry();
+    }
+  if (this->ShowEnvelope)
+    {
+    count &= this->Envelope->HasTranslucentPolygonalGeometry();
+    }
+
   return count;
 }
 
@@ -288,6 +338,28 @@ void vtkDoubleConeBoneRepresentation::Highlight(int highlight)
     {
     this->ConesActor->SetProperty(this->ConesProperty);
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkDoubleConeBoneRepresentation
+::ComputeInteractionState(int X, int Y, int modifier)
+{
+  this->InteractionState =
+    this->Superclass::ComputeInteractionState(X, Y, modifier);
+  if (this->InteractionState == vtkBoneRepresentation::Outside && !this->Pose)
+    {
+    if ( this->ConesPicker->Pick(X,Y,0.0,this->Renderer) )
+      {
+      this->InteractionState = vtkBoneRepresentation::OnLine;
+      this->SetRepresentationState(this->InteractionState);
+
+      double closest[3];
+      this->ConesPicker->GetPickPosition(closest);
+      this->LineHandleRepresentation->SetWorldPosition(closest);
+      }
+    }
+
+  return this->InteractionState;
 }
 
 //----------------------------------------------------------------------------

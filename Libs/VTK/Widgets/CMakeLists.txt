@@ -43,6 +43,8 @@ include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${vtkBenderCommon_SOURCE_DIR}
+  ${vtkBenderSources_SOURCE_DIR}
+  ${vtkBenderSources_BINARY_DIR}
   )
 
 set(${KIT}_SRCS
@@ -50,6 +52,8 @@ set(${KIT}_SRCS
   vtkArmatureRepresentation.h
   vtkArmatureWidget.cxx
   vtkArmatureWidget.h
+  vtkBoneEnvelopeRepresentation.cxx
+  vtkBoneEnvelopeRepresentation.h
   vtkBoneRepresentation.cxx
   vtkBoneRepresentation.h
   vtkBoneWidget.cxx
@@ -64,6 +68,7 @@ add_library(${PROJECT_NAME} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
   ${VTK_LIBRARIES}
   ${OPENGL_LIBRARIES}
+  vtkBenderSources
   )
 bender_export_library()
 

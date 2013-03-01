@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>3</index>
+  <index>4</index>
   <title>Pose Body</title>
   <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
   <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending. ]]></description>
@@ -12,6 +12,8 @@
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+
     <directory>
       <name>WeightDirectory</name>
       <label>Directories containing all the weights</label>
@@ -19,44 +21,30 @@
       <index>0</index>
       <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
     </directory>
-    <description><![CDATA[Input/output parameters]]></description>
-    <geometry fileExtensions=".vtk">
+
+    <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
+      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms".]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
 
-    <geometry fileExtensions=".vtk">
+    <geometry>
       <name>SurfaceInput</name>
       <label>Surface</label>
-      <description><![CDATA[Input surface to be posed.]]></description>
+      <description><![CDATA[Input surface to be posed. If the point data of the surface contains the weight informations, they will automatically be used to compute the new posed surface. If not, then the images in the weight directory will be used.]]></description>
       <channel>input</channel>
       <index>2</index>
     </geometry>
-    <boolean>
-      <name>IsSurfaceInRAS</name>
-      <label>Surface in RAS</label>
-      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
-      <longflag>--surfaceInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
     <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
       <label>Output posed surface</label>
-      <description><![CDATA[Output surface posed by the armature transforms.]]></description>
+      <description><![CDATA[Output surface posed by the armature transforms. The weight information is added to the point data.]]></description>
       <channel>output</channel>
       <index>3</index>
     </geometry>
-    <boolean>
-      <name>IsArmatureInRAS</name>
-      <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
-      <longflag>--armatureInRAS</longflag>
-      <default>false</default>
-    </boolean>
 
   </parameters>
 
@@ -70,6 +58,44 @@
       <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>ForceWeightFromImage</name>
+      <label>Use weights from image</label>
+      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight have changed.]]></description>
+      <longflag>--forceUseImage</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsSurfaceInRAS</name>
+      <label>Surface in RAS</label>
+      <description><![CDATA[Whether the input surface is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--surfaceInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 
 </executable>

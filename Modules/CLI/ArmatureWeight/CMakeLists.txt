@@ -37,13 +37,25 @@ set(MODULE_INCLUDE_DIRECTORIES
   ${Eigen_INCLUDE_DIRS}
   )
 
+set(MODULE_ADDITIONAL_SRCS
+  ArmatureWeightWriter.cxx
+  ArmatureWeightWriter.h
+  ArmatureWeightThreader.cxx
+  ArmatureWeightThreader.h
+  )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
   )
 
 SEMMacroBuildCLI(
   NAME ${MODULE_NAME}
+  ADDITIONAL_SRCS ${MODULE_ADDITIONAL_SRCS}
   LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
   INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
   TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
   )
+
+#-----------------------------------------------------------------------------
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()

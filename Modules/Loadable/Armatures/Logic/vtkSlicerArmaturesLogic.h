@@ -70,6 +70,11 @@ public:
   void SetActiveArmature(vtkMRMLArmatureNode* armature);
   vtkMRMLArmatureNode* GetActiveArmature();
 
+  /// Set the mode of the active armature.
+  /// Do nothing if no armature active for the set or return -1.
+  void SetActiveArmatureWidgetState(int mode);
+  int GetActiveArmatureWidgetState();
+
   /// \tbd move to vtkMRMLArmatureNode ?
   /// Set active bone.
   /// The active bone will be the parent of the future bones added into the

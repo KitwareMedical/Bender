@@ -273,12 +273,6 @@ public:
   // or translations.
   void ResetPoseToRest();
 
-  // Description:
-  // Set if the bones are seen on top of every object of the scene.
-  // This can be set even if the bones do not have any representation.
-  // @sa vtkBoneRepresentation
-  void SetBonesAlwaysOnTop(int onTop);
-  int GetBonesAlwaysOnTop();
 
   // Description:
   // Reimplemented for internal reasons (update polydata).
@@ -348,6 +342,7 @@ protected:
 
   // Set the representation type for a given bone.
   void SetBoneRepresentation(vtkBoneWidget* bone);
+  void UpdateBonesRepresentation();
 
   // Highlight helpers function, to highlight correctly what will move.
   //

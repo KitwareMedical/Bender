@@ -36,8 +36,10 @@
 // Bender includes
 #include "vtkBenderWidgetsExport.h"
 
+class vtkBoneEnvelopeRepresentation;
 class vtkPointHandleRepresentation3D;
 class vtkProp;
+class vtkTransform;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkBoneRepresentation
   : public vtkLineRepresentation
@@ -105,11 +107,38 @@ public:
   vtkGetMacro(AlwaysOnTop, int);
 
   // Description:
+  // These are methods that satisfy vtkWidgetRepresentation's API.
+  virtual void SetRenderer(vtkRenderer *ren);
+  virtual void BuildRepresentation();
+
+  // Description:
   // Rendering methods.
+  virtual void GetActors(vtkPropCollection *pc);
+
+  virtual void ReleaseGraphicsResources(vtkWindow*);
+
+  virtual int HasTranslucentPolygonalGeometry();
+  virtual int HasOnlyTranslucentPolygonalGeometry();
+
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int RenderOpaqueGeometry(vtkViewport*);
   virtual int RenderOverlay(vtkViewport*);
+
+  // Description:
+  // Deep copy all the properties of the given prop to the bone representation.
+  // \sa DeepCopyRepresentationOnly()
   virtual void DeepCopy(vtkProp* prop);
+
+  // Description:
+  // Deep copy all the representation properties of the given bone
+  // representation. This is useful for having the representation with the same
+  // graphical properties and yet associated with different bones.
+  // For example, the AlwaysOnTop (visual only) property will be copied
+  // whereas the Head property will not as it would change the displayed bone
+  // position.
+  // \sa DeepCopy()
+  virtual void DeepCopyRepresentationOnly(
+    vtkBoneRepresentation* boneRepresentation);
 
   // Description:
   // Helper function to set the opacity of all the bone representation
@@ -131,12 +160,27 @@ public:
   // Reimplemented to prevent head selection in pose mode
   virtual int ComputeInteractionState(int X, int Y, int modifier = 0);
 
+  // Description:
+  // This property controls the visibility of the envelope.
+  vtkSetMacro(ShowEnvelope, bool);
+  vtkGetMacro(ShowEnvelope, bool);
+
+  // Description:
+  // Retrieve the envelope. Exist even of not visible.
+  vtkGetObjectMacro(Envelope, vtkBoneEnvelopeRepresentation);
+
+  // Description:
+  // For updating the envelope actor's rotation.
+  void SetWorldToBoneRotation(vtkTransform* worldToBoneRotation);
+
 protected:
   vtkBoneRepresentation();
   ~vtkBoneRepresentation();
 
   int AlwaysOnTop;
   bool Pose;
+  bool ShowEnvelope;
+  vtkBoneEnvelopeRepresentation* Envelope;
 
   // Protected rendring classes. They do the the regular job of rendering and
   // are called depeding if the rendering is overlayed or not.

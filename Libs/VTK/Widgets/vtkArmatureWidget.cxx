@@ -21,6 +21,7 @@
 // Bender includes
 #include "vtkArmatureRepresentation.h"
 #include "vtkArmatureWidget.h"
+#include "vtkBoneEnvelopeRepresentation.h"
 #include "vtkBoneRepresentation.h"
 #include "vtkCylinderBoneRepresentation.h"
 #include "vtkDoubleConeBoneRepresentation.h"
@@ -206,6 +207,17 @@ public:
 
         break;
         }
+      case vtkCommand::ModifiedEvent:
+        {
+        vtkBoneRepresentation* boneRep =
+          vtkBoneRepresentation::SafeDownCast(caller);
+        if (boneRep && boneRep == ArmatureWidget->GetBonesRepresentation())
+          {
+          ArmatureWidget->UpdateBonesRepresentation();
+          }
+
+        break;
+        }
       }
     }
 
@@ -231,11 +243,18 @@ vtkArmatureWidget::vtkArmatureWidget()
   transforms->SetNumberOfComponents(12);
   transforms->SetName("Transforms");
   this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
+  vtkNew<vtkDoubleArray> envelopeRadiuses;
+  envelopeRadiuses->SetNumberOfComponents(1);
+  envelopeRadiuses->SetName("EnvelopeRadiuses");
+  this->PolyData->GetCellData()->AddArray(envelopeRadiuses.GetPointer());
 
   // Init bones properties
   vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
   defaultRep->SetAlwaysOnTop(0);
   this->BonesRepresentation = defaultRep;
+  defaultRep->AddObserver(vtkCommand::ModifiedEvent,
+    this->ArmatureWidgetCallback, this->Priority);
+
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
@@ -255,6 +274,8 @@ vtkArmatureWidget::~vtkArmatureWidget()
     (*it)->Bone->Delete(); // Delete bone
     }
 
+  this->BonesRepresentation->RemoveObservers(
+    vtkCommand::ModifiedEvent, this->ArmatureWidgetCallback);
   this->BonesRepresentation->Delete();
   this->ArmatureWidgetCallback->Delete();
 }
@@ -293,10 +314,6 @@ void vtkArmatureWidget::SetEnabled(int enabling)
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
     {
-    if (!(*it)->Bone->GetBoneRepresentation())
-      {
-      this->SetBoneRepresentation((*it)->Bone);
-      }
     (*it)->Bone->SetEnabled(enabling);
     }
 
@@ -513,14 +530,22 @@ void vtkArmatureWidget::SetBonesRepresentation(vtkBoneRepresentation* newRep)
     return;
     }
 
-  this->BonesRepresentation->Delete();
-  this->BonesRepresentation = newRep;
-  this->BonesRepresentation->Register(this);
-
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
+  if (newRep->GetClassName() == this->BonesRepresentation->GetClassName())
     {
-    this->SetBoneRepresentation((*it)->Bone);
+    this->BonesRepresentation->DeepCopyRepresentationOnly(newRep);
+    }
+  else
+    {
+    this->BonesRepresentation->RemoveObservers(
+      vtkCommand::ModifiedEvent, this->ArmatureWidgetCallback);
+    this->BonesRepresentation->Delete();
+
+    this->BonesRepresentation = newRep;
+    this->BonesRepresentation->Register(this);
+    this->BonesRepresentation->AddObserver(vtkCommand::ModifiedEvent,
+      this->ArmatureWidgetCallback, this->Priority);
+
+    this->UpdateBonesRepresentation();
     }
 
   this->Modified();
@@ -539,13 +564,40 @@ void vtkArmatureWidget::SetBoneRepresentation(vtkBoneWidget* bone)
   if (this->BonesRepresentation)
     {
     copiedRepresentation = this->BonesRepresentation->NewInstance();
-    copiedRepresentation->DeepCopy(this->BonesRepresentation);
+    copiedRepresentation->DeepCopyRepresentationOnly(
+      this->BonesRepresentation);
     }
 
   bone->SetRepresentation(copiedRepresentation);
   if (copiedRepresentation)
     {
     copiedRepresentation->Delete();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::UpdateBonesRepresentation()
+{
+  if (!this->BonesRepresentation)
+    {
+    return;
+    }
+
+  for (NodeIteratorType it = this->Bones->begin();
+    it != this->Bones->end(); ++it)
+    {
+    vtkBoneRepresentation* boneRep = (*it)->Bone->GetBoneRepresentation();
+    if (!boneRep
+      || boneRep->GetClassName() != this->BonesRepresentation->GetClassName())
+      {
+      // The bone does not have a rep yet
+      // or it's a different kind
+      this->SetBoneRepresentation((*it)->Bone);
+      }
+    else
+      {
+      boneRep->DeepCopyRepresentationOnly(this->BonesRepresentation);
+      }
     }
 }
 
@@ -861,31 +913,6 @@ void vtkArmatureWidget::ResetPoseToRest()
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetBonesAlwaysOnTop(int onTop)
-{
-  if (this->BonesRepresentation->GetAlwaysOnTop() == onTop)
-    {
-    return;
-    }
-
-  this->BonesRepresentation->SetAlwaysOnTop(onTop);
-  for (NodeIteratorType it = this->Bones->begin();
-    it != this->Bones->end(); ++it)
-    {
-    (*it)->Bone->GetBoneRepresentation()->SetAlwaysOnTop(
-      this->BonesRepresentation->GetAlwaysOnTop());
-    }
-
-  this->Modified();
-}
-
-//----------------------------------------------------------------------------
-int vtkArmatureWidget::GetBonesAlwaysOnTop()
-{
-  return this->BonesRepresentation->GetAlwaysOnTop();
-}
-
-//----------------------------------------------------------------------------
 void vtkArmatureWidget
 ::SetBoneWorldToParentTransform(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
@@ -1032,6 +1059,9 @@ void vtkArmatureWidget::UpdatePolyData()
   vtkDoubleArray* transforms = vtkDoubleArray::SafeDownCast(
     this->PolyData->GetCellData()->GetArray("Transforms"));
   transforms->Reset();
+  vtkDoubleArray* envelopeRadiuses = vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("EnvelopeRadiuses"));
+  envelopeRadiuses->Reset();
   this->PolyData->Reset();
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -1057,7 +1087,17 @@ void vtkArmatureWidget::UpdatePolyData()
     memcpy(transform, rotation, 3*3*sizeof(double));
     memcpy(transform[3], translation, 3*sizeof(double));
     transforms->InsertNextTuple(transform[0]);
+
+    double radius = 0.0;
+    vtkBoneRepresentation* boneRep = (*it)->Bone->GetBoneRepresentation();
+    if (boneRep)
+      {
+      radius = boneRep->GetEnvelope()->GetRadius();
+      }
+    envelopeRadiuses->InsertNextValue(radius);
     }
+
+  this->PolyData->Modified();
 }
 
 //----------------------------------------------------------------------------
