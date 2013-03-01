@@ -18,51 +18,46 @@
 
 =========================================================================*/
 
-#include "EvalWeightCLP.h"
+#include "EvalSurfaceWeightCLP.h"
 
 //------- Bender-----------
+#include "benderIOUtils.h"
 #include "benderWeightMap.h"
 #include "benderWeightMapMath.h"
 #include "benderWeightMapIO.h"
-#include "benderIOUtils.h"
 
 //--------ITK --------------
-#include <itkImageFileWriter.h>
-#include <itkImage.h>
-#include <itkPluginUtilities.h>
-#include <itkImageRegionIteratorWithIndex.h>
 #include <itkContinuousIndex.h>
-#include <itkMath.h>
-#include <itkIndex.h>
-#include <itkMatrix.h>
-#include <itkVariableLengthVector.h>
 #include <itkDirectory.h>
+#include <itkImage.h>
+#include <itkImageFileWriter.h>
+#include <itkImageRegionIteratorWithIndex.h>
+#include <itkIndex.h>
+#include <itkMath.h>
+#include <itkMatrix.h>
+#include <itkPluginUtilities.h>
+#include <itkVariableLengthVector.h>
 
 //--------VTK --------------
-#include <vtkTimerLog.h>
-#include <vtkSTLReader.h>
-#include <vtkPolyData.h>
 #include <vtkCellArray.h>
-#include <vtkNew.h>
-#include <vtkSmartPointer.h>
-#include <vtkPointData.h>
 #include <vtkCellData.h>
 #include <vtkFloatArray.h>
 #include <vtkMath.h>
-#include <vtkPolyDataReader.h>
-#include <vtkXMLPolyDataReader.h>
+#include <vtkNew.h>
+#include <vtkPointData.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataWriter.h>
+#include <vtkSmartPointer.h>
 #include <vtksys/SystemTools.hxx>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 
 //--------standard-------------
-#include <sstream>
 #include <iostream>
-#include <vector>
 #include <limits>
 #include <math.h>
-
-
-using namespace std;
+#include <sstream>
+#include <vector>
 
 typedef itk::Image<float, 3>  WeightImage;
 typedef itk::Image<bool, 3>  BoolImage;
@@ -75,12 +70,12 @@ typedef itk::ImageRegion<3> Region;
 template<class T>
 void PrintVector(T* a, int n)
 {
-  cout<<"[";
+  std::cout<<"[";
   for(int i=0; i<n; ++i)
     {
-    cout<<a[i]<<(i==n-1?"": ", ");
+    std::cout<<a[i]<<(i==n-1?"": ", ");
     }
-  cout<<"]"<<endl;
+  std::cout<<"]"<<std::endl;
 }
 
 //-------------------------------------------------------------------------------
@@ -118,7 +113,10 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   VoxelOffset* offsets = cubeNeighborhood.Offsets;
 
   BoolImage::Pointer domain = BoolImage::New();
-  domain->SetRegions(image->GetLargestPossibleRegion());
+  domain->CopyInformation(image);
+
+  WeightImage::RegionType region = image->GetLargestPossibleRegion();
+  domain->SetRegions(region);
   domain->Allocate();
   domain->FillBuffer(false);
 
@@ -138,7 +136,8 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     for(int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
-      if(domain->GetLargestPossibleRegion().IsInside(q) && !domain->GetPixel(q))
+
+      if(region.IsInside(q) && !domain->GetPixel(q))
         {
         domain->SetPixel(q,true);
         domainVoxels.push_back(q);
@@ -147,18 +146,6 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     }
 }
 
-//-----------------------------------------------------------------------------
-void WritePolyData(vtkPolyData* polyData, const std::string& fileName)
-{
-  cout<<"Wrote polydata to "<<fileName<<endl;
-  vtkNew<vtkPolyDataWriter> pdWriter;
-  pdWriter->SetInput(polyData);
-  pdWriter->SetFileName(fileName.c_str() );
-  pdWriter->SetFileTypeToBinary();
-  pdWriter->Update();
-}
-
-
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
@@ -166,24 +153,27 @@ int main( int argc, char * argv[] )
   typedef bender::WeightMap WeightMap;
   typedef std::vector<vtkIdType> IdArray;
 
-  cout<<"Evaluate weight in  "<<WeightDirectory<<endl;
-  cout<<"Evaluating surface: "<<InputSurface<<endl;
-  if(!IsSurfaceInRAS)
+  if (Debug)
     {
-    cout<<"Invert x,y coordinates\n";
+    std::cout<<"Evaluate weight in  "<<WeightDirectory<<std::endl;
+    std::cout<<"Evaluating surface: "<<InputSurface<<std::endl;
+    if(!IsSurfaceInRAS)
+      {
+      std::cout<<"Invert x,y coordinates\n";
+      }
+    std::cout<<"Output to "<<OutputSurface<<std::endl;
     }
-  cout<<"Output to "<<OutputSurface<<endl;
 
   //----------------------------
   // Read the first weight image
   // and all file names
   //----------------------------
-  vector<string> fnames;
+  std::vector<std::string> fnames;
   bender::GetWeightFileNames(WeightDirectory, fnames);
   int numSites = fnames.size();
   if(numSites<1)
     {
-    cerr<<"No weight file is found."<<endl;
+    std::cerr<<"No weight file is found."<<std::endl;
     return 1;
     }
 
@@ -192,21 +182,25 @@ int main( int argc, char * argv[] )
   reader->SetFileName(fnames[0].c_str());
   reader->Update();
 
-  WeightImage::Pointer weight0 =  reader->GetOutput();
+  WeightImage::Pointer weight0 = reader->GetOutput();
   Region weightRegion = weight0->GetLargestPossibleRegion();
-  cout<<"Weight volume description: "<<endl;
-  cout<<weightRegion<<endl;
-  cout<<" origin: "<<weight0->GetOrigin()<<endl;
-  cout<<" spacing: "<<weight0->GetSpacing()<<endl;
 
-
-
-  int numForeGround(0);
-  for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);!it.IsAtEnd(); ++it)
+  if (Debug)
     {
-    numForeGround+= it.Get()>=0;
+    std::cout<<"Weight volume description: "<<std::endl;
+    std::cout<<weightRegion<<std::endl;
+    std::cout<<" origin: "<<weight0->GetOrigin()<<std::endl;
+    std::cout<<" spacing: "<<weight0->GetSpacing()<<std::endl;
+
+
+    int numForeGround(0);
+    for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);
+      !it.IsAtEnd(); ++it)
+      {
+      numForeGround+= it.Get()>=0;
+      }
+    std::cout<<numForeGround<<" foreground voxels"<<std::endl;
     }
-  cout<<numForeGround<<" foreground voxels"<<endl;
 
   //----------------------------
   // Read in the surface input file
@@ -214,8 +208,15 @@ int main( int argc, char * argv[] )
   // inside the image and store them in sampleVertices
   //----------------------------
   vtkSmartPointer<vtkPolyData> surface;
-  surface.TakeReference(bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsSurfaceInRAS));
-  vtkPoints* points = surface->GetPoints();
+  surface.TakeReference(
+    bender::IOUtils::ReadPolyData(InputSurface.c_str(), !IsSurfaceInRAS));
+
+  // Create output surface just like the input surface
+  vtkSmartPointer<vtkPolyData> outputSurface =
+    vtkSmartPointer<vtkPolyData>::NewInstance(surface);
+  outputSurface->DeepCopy(surface);
+
+  vtkPoints* points = outputSurface->GetPoints();
   IdArray sampleVertices;
   for(vtkIdType pi=0; pi<points->GetNumberOfPoints();++pi)
     {
@@ -227,24 +228,38 @@ int main( int argc, char * argv[] )
       sampleVertices.push_back(pi);
       }
     }
-  cout<<sampleVertices.size()<<" out of "<<points->GetNumberOfPoints()<<" vertices are in the weight image domain"<<endl;
+
+  if (sampleVertices.size() <= 0)
+    {
+    std::cerr<<sampleVertices.size()<<" out of "<<points->GetNumberOfPoints()
+      <<" vertices are in the weight image domain"<<std::endl;
+    return EXIT_FAILURE;
+    }
+
   std::vector<Voxel> domainVoxels;
   ComputeDomainVoxels(weight0,points,sampleVertices,domainVoxels);
-  cout<<domainVoxels.size()<<" voxels in the weight domain"<<endl;
+
+  if (Debug)
+    {
+    std::cout<<domainVoxels.size()<<" voxels in the weight domain"<<std::endl;
+    }
 
   //----------------------------
   // Read Weights
   //----------------------------
   WeightMap weightMap;
-  bender::ReadWeights(fnames,domainVoxels,weightMap);
+  bender::ReadWeights(fnames, domainVoxels, weightMap);
 
   //----------------------------
   //Perform interpolation
   //----------------------------
+
+  // Create the field arrays
   vtkIdType numPoints = points->GetNumberOfPoints();
-  vtkPointData* pointData = surface->GetPointData();
+  vtkPointData* pointData = outputSurface->GetPointData();
   pointData->Initialize();
-  std::vector<vtkFloatArray*> surfaceVertexWeights;
+
+  std::vector<vtkFloatArray*> outputSurfaceVertexWeights;
   for(int i=0; i<numSites; ++i)
     {
     vtkFloatArray* arr = vtkFloatArray::New();
@@ -255,15 +270,17 @@ int main( int argc, char * argv[] )
       arr->SetValue(j,0.0);
       }
 
-    string name = vtksys::SystemTools::GetFilenameWithoutExtension(fnames[i]);
+    std::string name =
+      vtksys::SystemTools::GetFilenameWithoutExtension(fnames[i]);
     arr->SetName(name.c_str());
     pointData->AddArray(arr);
-    surfaceVertexWeights.push_back(arr);
+    outputSurfaceVertexWeights.push_back(arr);
     arr->Delete();
     assert(pointData->GetArray(i)->GetNumberOfTuples()==numPoints);
     }
 
-  int numZeros(0);
+  // Insert weights
+  int numZeros = 0;
   WeightMap::WeightVector w_pi(numSites);
   WeightMap::WeightVector w_corner(numSites);
 
@@ -280,21 +297,42 @@ int main( int argc, char * argv[] )
     bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
     if(!res)
       {
-      cerr<<"WARNING: Lerp failed for "<< pi
+      std::cout<<"WARNING: Lerp failed for "<< pi
           << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
-          << " w:" << coord<<endl;
+          << " w:" << coord<<std::endl;
       }
     else
       {
       numZeros+=w_pi.GetNorm()==0;
       for(int i=0; i<numSites;++i)
         {
-        surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
+        outputSurfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
         }
       }
     }
-  cerr<<numZeros<<" points have zero weight"<<endl;
-  WritePolyData(surface,OutputSurface);
+  if (Debug)
+    {
+    std::cout<<numZeros<<" points have zero weight"<<std::endl;
+    }
+
+  if (!IsSurfaceInRAS)
+    {
+    vtkSmartPointer<vtkTransform> transform =
+      vtkSmartPointer<vtkTransform>::New();
+    transform->RotateZ(180.0);
+
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformer =
+      vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    transformer->SetInput(outputSurface);
+    transformer->SetTransform(transform);
+    transformer->Update();
+
+    bender::IOUtils::WritePolyData(transformer->GetOutput(), OutputSurface);
+    }
+  else
+    {
+    bender::IOUtils::WritePolyData(outputSurface, OutputSurface);
+    }
 
   return EXIT_SUCCESS;
 }

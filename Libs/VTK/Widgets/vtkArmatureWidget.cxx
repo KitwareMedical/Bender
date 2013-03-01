@@ -1128,6 +1128,8 @@ void vtkArmatureWidget::UpdatePolyData()
       parenthood->InsertNextValue(-1);
       }
     }
+
+  this->PolyData->Modified();
 }
 
 //----------------------------------------------------------------------------

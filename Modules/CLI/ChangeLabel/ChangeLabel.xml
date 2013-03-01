@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering</category>
+  <title>Change Label</title>
+  <description><![CDATA[<p>Change the labels of an image.</p>]]></description>
+  <version>0.1.0.$Revision$(alpha)</version>
+  <documentation-url></documentation-url>
+  <license/>
+  <contributor>Julien Finet (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image type="label">
+      <name>InputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input volume]]></description>
+    </image>
+    <image type="label">
+      <name>OutputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Changed input volume]]></description>
+    </image>
+  </parameters>
+  <parameters>
+    <label>Filter Settings</label>
+    <integer-vector multiple="true">
+      <name>InputLabel</name>
+      <label>Label(s) to Change</label>
+      <flag>-i</flag>
+      <longflag>--input</longflag>
+      <description><![CDATA[Label(s) to change]]></description>
+      <default></default>
+    </integer-vector>
+    <integer multiple="true">
+      <name>InputLabelNumber</name>
+      <label>Number of Label(s) to Change</label>
+      <flag>-n</flag>
+      <longflag>--inputnumber</longflag>
+      <description><![CDATA[Number of labels to change]]></description>
+      <default>1</default>
+    </integer>
+    <integer multiple="true">
+      <name>OutputLabel</name>
+      <label>Output Label</label>
+      <flag>-o</flag>
+      <longflag>--output</longflag>
+      <description><![CDATA[Value to change input labels with]]></description>
+      <default></default>
+    </integer>
+  </parameters>
+</executable>

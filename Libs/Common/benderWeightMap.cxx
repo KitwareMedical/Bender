@@ -36,7 +36,7 @@ WeightMap::WeightMap():Cols(0)
 }
 
 //-------------------------------------------------------------------------------
-void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
+void WeightMap::Init(const std::vector<Voxel>& voxels, const itk::ImageRegion<3>& region)
 {
   this->Cols = voxels.size();
   this->RowSize.resize(this->Cols,0);
@@ -44,12 +44,13 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const Region& region)
   this->LUTIndex = WeightLUTIndex::New();
   this->LUTIndex->SetRegions(region);
   this->LUTIndex->Allocate();
+  this->LUTIndex->FillBuffer(std::numeric_limits<std::size_t>::max());
 
-  itk::ImageRegionIterator<WeightLUTIndex> it(this->LUTIndex,region);
-  for(it.GoToBegin(); !it.IsAtEnd(); ++it)
-    {
-    it.Set(std::numeric_limits<std::size_t>::max());
-    }
+  //itk::ImageRegionIterator<WeightLUTIndex> it(this->LUTIndex,region);
+  //for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+  //  {
+  //  it.Set(std::numeric_limits<std::size_t>::max());
+  //  }
 
   for(size_t j=0; j<voxels.size(); ++j)
     {

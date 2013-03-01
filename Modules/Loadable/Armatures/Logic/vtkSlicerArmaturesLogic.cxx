@@ -248,6 +248,33 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic::GetActiveArmature()
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic::SetActiveArmatureWidgetState(int mode)
+{
+  assert(this->AnnotationsLogic != 0);
+  vtkMRMLArmatureNode* currentArmature = this->GetActiveArmature();
+
+  if (!currentArmature || currentArmature->GetWidgetState() == mode)
+    {
+    return;
+    }
+
+  currentArmature->SetWidgetState(mode);
+}
+
+//----------------------------------------------------------------------------
+int vtkSlicerArmaturesLogic::GetActiveArmatureWidgetState()
+{
+  vtkMRMLArmatureNode* currentArmature = this->GetActiveArmature();
+
+  if (!currentArmature)
+    {
+    return -1;
+    }
+
+  return currentArmature->GetWidgetState();
+}
+
+//----------------------------------------------------------------------------
 void vtkSlicerArmaturesLogic::SetActiveBone(vtkMRMLBoneNode* bone)
 {
   assert(this->AnnotationsLogic != 0);

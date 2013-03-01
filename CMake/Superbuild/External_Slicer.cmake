@@ -78,8 +78,8 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
-    GIT_REPOSITORY "git://kwsource.kitwarein.com/bender/slicer.git"
-    GIT_TAG "050b46f24ba3ab8e9c75babb771220c6e27eb0eb"
+    GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
+    GIT_TAG "5532d2731280d0e562335c0fead237bee9a83f9b"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
@@ -93,6 +93,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
       -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
       -DBUILD_TESTING:BOOL=OFF
+      -DCTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
       -D${proj}_INSTALL_BIN_DIR:STRING=${Bender_INSTALL_BIN_DIR}
       -D${proj}_INSTALL_LIB_DIR:STRING=${Bender_INSTALL_BIN_DIR}
       -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}

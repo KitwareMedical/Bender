@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>;Segmentation.Bender</category>
-  <index>2</index>
-  <title>Evaluate Weight</title>
+  <index>4</index>
+  <title>Evaluate Surface Weight</title>
   <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
   <version>0.1.0.$Revision$(alpha)</version>
   <documentation-url></documentation-url>
@@ -20,22 +20,33 @@
       <index>0</index>
       <default>./</default>
     </directory>
-    <geometry type="model" fileExtensions=".vtk">
+    <geometry fileExtensions=".vtk">
       <name>InputSurface</name>
       <label>Surface vertices to evaluate at</label>
       <description><![CDATA[The weight vectors will be evaluated at these surface vertices]]></description>
       <channel>input</channel>
       <index>1</index>
-      <default></default>
     </geometry>
-    <geometry type="model" fileExtensions=".vtk">
+    <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
-      <label>Surface output file</label>
+      <label>Weighted Surface</label>
       <description><![CDATA[Output surface in VTK format. The weight vectors are stored as point data.]]></description>
       <channel>output</channel>
       <index>2</index>
-      <default></default>
     </geometry>
+  </parameters>
+
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced parameters]]></description>
+
+    <boolean>
+      <name>Debug</name>
+      <label>Debug Mode</label>
+      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <longflag>--debug</longflag>
+      <default>false</default>
+    </boolean>
 
     <boolean>
       <name>IsSurfaceInRAS</name>
@@ -44,6 +55,7 @@
       <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
+
   </parameters>
 
 </executable>
