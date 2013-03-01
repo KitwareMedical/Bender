@@ -18,7 +18,7 @@
 
 =========================================================================*/
 
-#include "PoseBodyCLP.h"
+#include "PoseSurfaceCLP.h"
 
 #include "benderIOUtils.h"
 #include "benderWeightMap.h"
