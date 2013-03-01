@@ -427,9 +427,12 @@ void qSlicerAppMainWindowPrivate::readSettings()
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
   this->FavoriteModules << "Workflow" << "Armatures" << "ArmatureBones" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "PoseLabelmap" << "Volumes" << "VolumeRendering" << "Models";
   this->DefaultModule = "Workflow";
+  this->ModuleIcons["Workflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
+  this->ModuleIcons["ArmatureBones"] = QIcon(":ArmatureBones.png");
   this->ModuleIcons["ArmatureWeight"] = QIcon(":ArmatureWeight.png");
   this->ModuleIcons["EvalWeight"] = QIcon(":EvalWeight.png");
   this->ModuleIcons["PoseBody"] = QIcon(":PoseBody.png");
+  this->ModuleIcons["PoseLabelmap"] = QIcon(":PoseLabelmap.png");
   // [/Ninja]
 
   foreach(const qSlicerIO::IOProperties& fileProperty, Self::readRecentlyLoadedFiles())
