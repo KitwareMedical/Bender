@@ -425,8 +425,8 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   // [Ninja]
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
-  this->FavoriteModules << "Armatures" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "Volumes" << "VolumeRendering" << "Models";
-  this->DefaultModule = "Armatures";
+  this->FavoriteModules << "Workflow" << "Armatures" << "ArmatureBones" << "ArmatureWeight" << "EvalWeight" << "PoseBody" << "PoseLabelmap" << "Volumes" << "VolumeRendering" << "Models";
+  this->DefaultModule = "Workflow";
   this->ModuleIcons["ArmatureWeight"] = QIcon(":ArmatureWeight.png");
   this->ModuleIcons["EvalWeight"] = QIcon(":EvalWeight.png");
   this->ModuleIcons["PoseBody"] = QIcon(":PoseBody.png");

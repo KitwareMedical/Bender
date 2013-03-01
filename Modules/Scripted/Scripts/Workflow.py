@@ -16,6 +16,7 @@ Use this module to repose a humanoid labelmap. See <a href=\"$a/Documentation/$b
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
+    parent.index = 0
     self.parent = parent
 
 #
