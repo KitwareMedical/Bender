@@ -30,6 +30,7 @@
 #include "vtkSlicerModelsLogic.h"
 
 // MRML includes
+#include "vtkMRMLArmatureNode.h"
 #include "vtkMRMLModelNode.h"
 
 // VTK includes
@@ -86,7 +87,7 @@ qSlicerIO::IOFileType qSlicerArmaturesIO::fileType()const
 QStringList qSlicerArmaturesIO::extensions()const
 {
   return QStringList()
-    << "Armature (*.arm)";
+    << "Armature (*.arm *.vtk)";
 }
 
 //-----------------------------------------------------------------------------
@@ -101,19 +102,43 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
     {
     return false;
     }
-  //qDebug() << d->ArmaturesLogic->GetMRMLScene() << d->ArmaturesLogic->GetModelsLogic() << d->ArmaturesLogic->GetModelsLogic()->GetMRMLScene();
-  vtkMRMLModelNode* node = d->ArmaturesLogic->AddArmatureFile(
-    fileName.toLatin1());
-  if (!node)
+
+  if (fileName.endsWith(".arm"))
     {
-    return false;
+    vtkMRMLModelNode* node = d->ArmaturesLogic->AddArmatureFile(
+      fileName.toLatin1());
+    if (!node)
+      {
+      return false;
+      }
+    this->setLoadedNodes( QStringList(QString(node->GetID())) );
+    if (properties.contains("name"))
+      {
+      std::string uname = this->mrmlScene()->GetUniqueNameByString(
+        properties["name"].toString().toLatin1());
+      node->SetName(uname.c_str());
+      }
+    return true;
     }
-  this->setLoadedNodes( QStringList(QString(node->GetID())) );
-  if (properties.contains("name"))
+  else if (fileName.endsWith(".vtk"))
     {
-    std::string uname = this->mrmlScene()->GetUniqueNameByString(
-      properties["name"].toString().toLatin1());
-    node->SetName(uname.c_str());
+    vtkMRMLArmatureNode* armatureNode =
+      d->ArmaturesLogic->ReadArmatureFromModel(fileName.toLatin1());
+    if (!armatureNode)
+      {
+      return false;
+      }
+
+    if (properties.contains("name"))
+      {
+      std::string uname = this->mrmlScene()->GetUniqueNameByString(
+        properties["name"].toString().toLatin1());
+      armatureNode->SetName(uname.c_str());
+      }
+
+    this->setLoadedNodes(QStringList(armatureNode->GetID()));
+    return true;
     }
-  return true;
+
+  return false;
 }
