@@ -864,7 +864,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="VolumeSkinningOutputVolumeLabel">
             <property name="text">
-             <string>Output body partition</string>
+             <string>Output skinned volume</string>
             </property>
            </widget>
           </item>
@@ -876,7 +876,7 @@ p, li { white-space: pre-wrap; }
              </stringlist>
             </property>
             <property name="baseName">
-             <string>BonesPartition</string>
+             <string>SkinnedVolume</string>
             </property>
             <property name="noneEnabled">
              <bool>false</bool>
@@ -1015,7 +1015,7 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Input body partition</string>
+             <string>Input skinned volume</string>
             </property>
            </widget>
           </item>
@@ -1027,7 +1027,7 @@ p, li { white-space: pre-wrap; }
              </stringlist>
             </property>
             <property name="baseName">
-             <string>BonesPartition</string>
+             <string>SkinnedVolume</string>
             </property>
             <property name="noneEnabled">
              <bool>false</bool>

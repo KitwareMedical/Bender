@@ -16,10 +16,10 @@
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
 
-    <image type="label">
-      <name>RestLabelmap</name>
-      <label>Input Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+    <image>
+      <name>RestVolume</name>
+      <label>Input Rest Volume</label>
+      <description><![CDATA[Volume in resting pose]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -33,12 +33,26 @@
     </geometry>
 
     <image type="label">
-      <name>BodyPartition</name>
-      <label>Output Body Partition</label>
+      <name>SkinnedVolume</name>
+      <label>Output Skinned Volume</label>
       <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
       <channel>output</channel>
       <index>2</index>
     </image>
+
+  </parameters>
+
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+
+    <double>
+      <name>BackgroundValue</name>
+      <label>Background Value</label>
+      <description><![CDATA[The voxel value considered as background. All the other voxel values will be treated as foreground.]]></description>
+      <longflag>--backgroundValue</longflag>
+      <default>0.</default>
+    </double>
 
   </parameters>
 

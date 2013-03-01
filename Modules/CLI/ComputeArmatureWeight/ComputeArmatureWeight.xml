@@ -31,8 +31,8 @@
     </geometry>
 
     <image type="label">
-      <name>BodyPartition</name>
-      <label>Body Partition Labelmap</label>
+      <name>SkinnedVolume</name>
+      <label>Input Skinned Volume Labelmap</label>
       <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
       <channel>input</channel>
       <index>2</index>

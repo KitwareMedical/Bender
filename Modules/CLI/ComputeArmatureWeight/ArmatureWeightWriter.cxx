@@ -261,9 +261,9 @@ RemoveVoxelIsland(typename ImageType::Pointer labelMap)
   std::cout << "Histogram:" << histogram.size() << std::endl;
   for (size_t i = 0; i < histogram.size(); ++i)
     {
-    std::cout << i << ": " << histogram[i] << std::endl;
+    std::cout << histogram[i] <<  ", ";
     }
-  std::cout << "Largest Component:" << static_cast<unsigned int>(largestComponent) << std::endl;
+  std::cout << std::endl << "Largest Component:" << static_cast<unsigned int>(largestComponent) << std::endl;
 
   // Only keep the largest connected components
   //  _________

@@ -38,7 +38,6 @@ set(MODULE_INCLUDE_DIRECTORIES
   )
 
 set(MODULE_ADDITIONAL_SRCS
-  Armature.cxx
   Armature.h
   )
 set(MODULE_TARGET_LIBRARIES

@@ -36,15 +36,79 @@
 #include <vector>
 #include <iostream>
 
-typedef itk::Image<unsigned short, 3>  LabelImageType;
-typedef itk::Image<unsigned char, 3>  CharImageType;
-
-typedef itk::ImageRegion<3> RegionType;
+template<class T> int DoIt(int argc, char* argv[]);
 
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
+
+  try
+    {
+    itk::ImageIOBase::IOPixelType     pixelType;
+    itk::ImageIOBase::IOComponentType componentType;
+
+    itk::GetImageType(RestVolume, pixelType, componentType);
+
+    // This filter handles all types on input, but only produces
+    // signed types
+    switch (componentType)
+      {
+      case itk::ImageIOBase::UCHAR:
+        return DoIt<unsigned char>( argc, argv );
+        break;
+      case itk::ImageIOBase::CHAR:
+        return DoIt<char>( argc, argv );
+        break;
+      case itk::ImageIOBase::USHORT:
+        return DoIt<unsigned short>( argc, argv );
+        break;
+      case itk::ImageIOBase::SHORT:
+        return DoIt<short>( argc, argv );
+        break;
+      case itk::ImageIOBase::UINT:
+        return DoIt<unsigned int>( argc, argv );
+        break;
+      case itk::ImageIOBase::INT:
+        return DoIt<int>( argc, argv );
+        break;
+      case itk::ImageIOBase::ULONG:
+        return DoIt<unsigned long>( argc, argv );
+        break;
+      case itk::ImageIOBase::LONG:
+        return DoIt<long>( argc, argv );
+        break;
+      case itk::ImageIOBase::FLOAT:
+        return DoIt<float>( argc, argv );
+        break;
+      case itk::ImageIOBase::DOUBLE:
+        return DoIt<double>( argc, argv );
+        break;
+      case itk::ImageIOBase::UNKNOWNCOMPONENTTYPE:
+      default:
+        std::cerr << "Unknown component type: " << componentType << std::endl;
+        break;
+      }
+    }
+
+  catch( itk::ExceptionObject & excep )
+    {
+    std::cerr << argv[0] << ": exception caught !" << std::endl;
+    std::cerr << excep << std::endl;
+    return EXIT_FAILURE;
+    }
+  return EXIT_SUCCESS;
+}
+
+//-------------------------------------------------------------------------------
+template<class T>
+int DoIt( int argc, char * argv[] )
+{
+  PARSE_ARGS;
+
+  typedef itk::Image<T, 3>  ImageType;
+  typedef itk::Image<unsigned short, 3>  LabelImageType;
+
 
   if(!IsArmatureInRAS)
     {
@@ -60,14 +124,14 @@ int main( int argc, char * argv[] )
   // Read Inputs
   //----------------------------
 
-  typedef itk::ImageFileReader<LabelImageType>  ReaderType;
-  ReaderType::Pointer labelMapReader = ReaderType::New();
-  labelMapReader->SetFileName(RestLabelmap.c_str() );
-  labelMapReader->Update();
-  LabelImageType::Pointer labelMap = labelMapReader->GetOutput();
-  if (!labelMap)
+  typedef itk::ImageFileReader<ImageType>  ReaderType;
+  typename ReaderType::Pointer volumeReader = ReaderType::New();
+  volumeReader->SetFileName(RestVolume.c_str() );
+  volumeReader->Update();
+  typename ImageType::Pointer volume = volumeReader->GetOutput();
+  if (!volume)
     {
-    std::cerr << "Can't read labelmap " << RestLabelmap << std::endl;
+    std::cerr << "Can't read volume " << RestVolume << std::endl;
     return EXIT_FAILURE;
     }
 
@@ -87,24 +151,24 @@ int main( int argc, char * argv[] )
     // Print out some statistics
     //----------------------------
 
-    typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
-    StatisticsType::Pointer statistics = StatisticsType::New();
-    statistics->SetInput( labelMapReader->GetOutput() );
+    typedef itk::StatisticsImageFilter<ImageType>  StatisticsType;
+    typename StatisticsType::Pointer statistics = StatisticsType::New();
+    statistics->SetInput( volume );
     statistics->Update();
 
-    RegionType allRegion = labelMap->GetLargestPossibleRegion();
-    itk::ImageRegionIteratorWithIndex<LabelImageType> it(labelMap,
-                                                         labelMap->GetLargestPossibleRegion());
-    LabelType bodyIntensity = 1;
-    LabelType boneIntensity = 209; //marrow
-    int numBodyVoxels(0),numBoneVoxels(0);
-    for(it.GoToBegin(); !it.IsAtEnd(); ++it)
+    itk::ImageRegion<3> allRegion = volume->GetLargestPossibleRegion();
+    itk::ImageRegionIteratorWithIndex<ImageType> it(volume,
+                                                    volume->GetLargestPossibleRegion());
+    const LabelType backgroundIntensity = 0;
+    const LabelType boneIntensity = 253; //cancellous
+    size_t numBodyVoxels(0),numBoneVoxels(0);
+    for (it.GoToBegin(); !it.IsAtEnd(); ++it)
       {
-      if(it.Get()>=bodyIntensity)
+      if (static_cast<LabelType>(it.Get()) > backgroundIntensity)
         {
         ++numBodyVoxels;
         }
-      if(it.Get()>=boneIntensity)
+      if (static_cast<LabelType>(it.Get()) == boneIntensity)
         {
         ++numBoneVoxels;
         }
@@ -129,17 +193,18 @@ int main( int argc, char * argv[] )
   // Read armature information
   //----------------------------
 
-  ArmatureType armature(labelMap);
+  ArmatureType<T> armature(volume);
+  armature.SetBackgroundValue(BackgroundValue);
   armature.SetDebug(Debug);
   bool success = armature.InitSkeleton(armaturePolyData);
 
   bender::IOUtils::FilterProgress("Segment bones", 0.99, 0.89, 0.1);
   bender::IOUtils::FilterEnd("Segment bones");
 
-  bender::IOUtils::FilterStart("Write output partitions");
+  bender::IOUtils::FilterStart("Write skinned volume");
   bender::IOUtils::WriteImage<LabelImageType>(
-    armature.GetBodyPartition(), BodyPartition.c_str());
-  bender::IOUtils::FilterEnd("Write output partitions");
+    armature.GetBodyPartition(), SkinnedVolume.c_str());
+  bender::IOUtils::FilterEnd("Write skinned volume");
 
   // Don't forget to delete polydata :)
   armaturePolyData->Delete();

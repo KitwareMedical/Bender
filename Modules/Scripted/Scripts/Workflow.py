@@ -110,7 +110,7 @@ class WorkflowWidget:
     # a) Volume Skinning
     self.get('VolumeSkinningApplyPushButton').connect('clicked()',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
-    self.get('VolumeSkinningInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputBodyPartition)
+    self.get('VolumeSkinningInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSkinnedVolume)
     # b) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked()',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
@@ -266,7 +266,7 @@ class WorkflowWidget:
     # Leave only weight folder
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
                                    'ComputeArmatureWeightArmatureLabel', 'ComputeArmatureWeightAmartureNodeComboBox',
-                                   'ComputeArmatureWeightBodyPartitionLabel', 'ComputeArmatureWeightBodyPartitionVolumeNodeComboBox',
+                                   'ComputeArmatureWeightSkinnedVolumeLabel', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
                                    'ComputeArmatureWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
 
@@ -299,7 +299,7 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox', 'MergeLabelsOutputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox', 'VolumeSkinningOutputVolumeNodeComboBox',
-                           'ComputeArmatureWeightInputVolumeNodeComboBox', 'ComputeArmatureWeightBodyPartitionVolumeNodeComboBox',
+                           'ComputeArmatureWeightInputVolumeNodeComboBox', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
                            'PoseLabelmapInputNodeComboBox', 'PoseLabelmapOutputNodeComboBox']
 
     for combobox in labeldMapComboBoxes:
@@ -727,7 +727,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["RestVolume"] = self.get('VolumeSkinningInputVolumeNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('VolumeSkinningAmartureNodeComboBox').currentNode()
-    parameters["BodyPartition"] = self.get('VolumeSkinningOutputVolumeNodeComboBox').currentNode()
+    parameters["SkinnedVolume"] = self.get('VolumeSkinningOutputVolumeNodeComboBox').currentNode()
     #parameters["Padding"] = 1
     #parameters["Debug"] = False
     #parameters["ArmatureInRAS"] = False
@@ -752,11 +752,11 @@ class WorkflowWidget:
     parameters = self.volumeSkinningParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  def createOutputBodyPartition(self, node):
+  def createOutputSkinnedVolume(self, node):
     if node == None:
       return
 
-    nodeName = '%s-BodyPartition' % node.GetName()
+    nodeName = '%s-skinned' % node.GetName()
     if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode') == None:
       newNode = self.get('VolumeSkinningOutputVolumeNodeComboBox').addNode()
       newNode.SetName(nodeName)
@@ -766,7 +766,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["RestLabelmap"] = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('ComputeArmatureWeightAmartureNodeComboBox').currentNode()
-    parameters["BodyPartition"] = self.get('ComputeArmatureWeightBodyPartitionVolumeNodeComboBox').currentNode()
+    parameters["SkinnedVolume"] = self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputDirectoryButton').directory)
     #parameters["FirstEdge"] = 0
     #parameters["LastEdge"] = -1
@@ -932,7 +932,7 @@ class WorkflowWidget:
     if node == None:
       return
 
-    nodeName = '%s-Posed' % node.GetName()
+    nodeName = '%s-posed' % node.GetName()
     if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode') == None:
       newNode = self.get('PoseLabelmapOutputNodeComboBox').addNode()
       newNode.SetName(nodeName)
