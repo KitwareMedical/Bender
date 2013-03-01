@@ -106,7 +106,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
-  this->OverallRadiusRatio = 1.0;
+  this->ArmatureProperties->GetBonesRepresentation()->SetShowEnvelope(1);
+  this->OverallRadiusRatio = 0.5;
   this->SetEnvelopesOpacity(0.2);
 
   this->Callback->SetClientData(this);
@@ -312,7 +313,6 @@ void vtkMRMLArmatureNode::SetWidgetState(int state)
   if (this->WidgetState == vtkMRMLArmatureNode::Pose)
     {
     this->SetShowEnvelopes(0);
-    this->Modified();
     }
   this->Modified();
   this->EndModify(wasModifying);
