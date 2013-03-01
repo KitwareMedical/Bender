@@ -18,14 +18,9 @@
 #
 #============================================================================
 
-# List all the modules (ordered by dependencies) to build by Slicer
+#add_subdirectory(Scripts)
 set(modules
-  ArmatureBones
-  ArmatureWeight
-  ChangeLabel
-  EvalWeight
-  PoseBody
-  PoseLabelmap
+  Scripts
   )
 
 set(Bender_MODULES)
