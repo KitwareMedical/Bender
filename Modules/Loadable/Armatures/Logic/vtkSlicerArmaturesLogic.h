@@ -57,17 +57,16 @@ public:
 
   vtkMRMLModelNode* AddArmatureFile(const char* fileName);
 
-  /// Read an armature from a model. Returns a collection of
-  /// the node added.
+  /// Read an armature from a model. Returns a armature node added.
   /// \sa CreateArmatureFromModel(vtkPolyData*)
-  vtkCollection* ReadArmatureFromModel(const char* fileName);
+  vtkMRMLArmatureNode* ReadArmatureFromModel(const char* fileName);
 
-  /// Create an armature from a model. Returns a collection of
-  /// the node added. Note that the envelopes and transforms
+  /// Create an armature from a model. Returns a the armature
+  ///  node added. Note that the envelopes and transforms
   /// are not initialized and that the model is not actually loaded
   /// in slicer.
   /// \sa ReadArmatureFromModel(const char*)
-  vtkCollection* CreateArmatureFromModel(vtkPolyData* model);
+  vtkMRMLArmatureNode* CreateArmatureFromModel(vtkPolyData* model);
 
   virtual void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
   vtkGetObjectMacro(ModelsLogic, vtkSlicerModelsLogic);

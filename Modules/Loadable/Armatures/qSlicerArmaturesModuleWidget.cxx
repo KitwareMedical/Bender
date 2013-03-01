@@ -81,10 +81,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureVisibilityCheckBox, SIGNAL(toggled(bool)),
                    q, SLOT(setArmatureVisibility(bool)));
 
-  // Load from model
-  QObject::connect(this->LoadArmaturePushButton,
-    SIGNAL(clicked()), q, SLOT(loadArmatureFromModel()));
-
   // Bones
   // Bone tree view
   this->BonesTreeView->annotationModel()->setAnnotationsAreParent(true);
@@ -845,20 +841,6 @@ void qSlicerArmaturesModuleWidget::deleteBones()
     }
 
   d->deleteBoneChildren(d->BoneNode);
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::loadArmatureFromModel()
-{
-  Q_D(qSlicerArmaturesModuleWidget);
-  QString filename =
-    QFileDialog::getOpenFileName(this, tr("Open File"), "./",
-      tr("Armature Model (*.vtk)"));
-  if (! filename.isEmpty())
-    {
-    d->logic()->ReadArmatureFromModel(filename.toLatin1());
-    }
-  d->LoadArmaturePushButton->setChecked(false);
 }
 
 //-----------------------------------------------------------------------------
