@@ -102,8 +102,9 @@ public:
   // Description:
   // Set/Get if the bones are represented in X-Ray mode or not. In this
   // mode, the bone are overlayed any element of the scene, which makes them
-  // always visible.
-  vtkSetMacro(AlwaysOnTop, int);
+  // always visible. The backface culling is automatically activated.
+  // False by default.
+  virtual void SetAlwaysOnTop (int onTop);
   vtkGetMacro(AlwaysOnTop, int);
 
   // Description:
