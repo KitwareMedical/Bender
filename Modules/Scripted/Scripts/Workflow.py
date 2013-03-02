@@ -707,7 +707,10 @@ class WorkflowWidget:
   # 3.A) Armature
   def loadArmatureFile(self):
     manager = slicer.app.ioManager()
-    manager.openAddSceneDialog()
+    if manager.openDialog('ArmatureFile', slicer.qSlicerFileDialog.Read):
+      print 'Armature loaded successfully'
+    else:
+      print 'Armature loading failed'
 
   def openArmaturesModule(self):
     # Finaly open armature module
