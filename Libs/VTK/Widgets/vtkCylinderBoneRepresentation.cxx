@@ -285,6 +285,19 @@ void vtkCylinderBoneRepresentation::SetOpacity(double opacity)
 }
 
 //----------------------------------------------------------------------------
+void vtkCylinderBoneRepresentation::SetAlwaysOnTop(int onTop)
+{
+  if (onTop == this->AlwaysOnTop)
+    {
+    return;
+    }
+
+  this->CylinderProperty->SetBackfaceCulling(onTop);
+  this->SelectedCylinderProperty->SetBackfaceCulling(onTop);
+  this->Superclass::SetAlwaysOnTop(onTop);
+}
+
+//----------------------------------------------------------------------------
 void vtkCylinderBoneRepresentation::Highlight(int highlight)
 {
   this->Superclass::Highlight(highlight);

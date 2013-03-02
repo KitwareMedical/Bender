@@ -20,6 +20,7 @@
 
 // Qt includes
 #include <QDebug>
+#include <QFileDialog>
 #include <QVector3D>
 
 // Armatures includes
