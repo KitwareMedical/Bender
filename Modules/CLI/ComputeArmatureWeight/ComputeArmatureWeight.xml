@@ -3,10 +3,10 @@
   <category>;Segmentation.Bender</category>
   <index>3</index>
   <title>Compute Armature Weight</title>
-  <description><![CDATA[ Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
+  <description><![CDATA[Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
   </description>
-  <version>0.1.0.$Revision$(alpha)</version>
-  <documentation-url></documentation-url>
+  <version>1.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ComputeArmatureWeight</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware), Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
