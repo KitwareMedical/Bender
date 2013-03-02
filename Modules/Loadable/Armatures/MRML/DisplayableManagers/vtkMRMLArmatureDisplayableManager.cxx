@@ -223,7 +223,8 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
     boneWidget->SetShowParenthood(parentBoneWidget != 0);
     boneNode->SetHasParent(parentBoneWidget != 0);
 
-    armatureWidget->AddBone(boneWidget, parentBoneWidget);
+    armatureWidget->AddBone(
+      boneWidget, parentBoneWidget, boneNode->GetBoneLinkedWithParent());
     }
 }
 

@@ -33,10 +33,13 @@
 #include <vtkEventBroker.h>
 
 // VTK includes
+#include <vtkCellData.h>
+#include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
 
@@ -390,6 +393,115 @@ vtkMRMLModelNode* vtkSlicerArmaturesLogic::AddArmatureFile(const char* fileName)
     this->ReadBone(armatureElement->GetNestedElement(child), armature.GetPointer(), origin, orientationWXYZ);
     }
   return this->ModelsLogic->AddModel(armature.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
+::ReadArmatureFromModel(const char* fileName)
+{
+  vtkNew<vtkPolyDataReader> reader;
+  reader->SetFileName(fileName);
+  reader->Update();
+  return this->CreateArmatureFromModel(reader->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
+::CreateArmatureFromModel(vtkPolyData* model)
+{
+  if (!model)
+    {
+    std::cerr<<"Cannot create armature from model, model is null"<<std::endl;
+    return NULL;
+    }
+
+  vtkCellData* cellData = model->GetCellData();
+  if (!cellData)
+    {
+    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
+    return NULL;
+    }
+
+  vtkPoints* points = model->GetPoints();
+  if (!points)
+    {
+    std::cerr<<"Cannot create armature from model,"
+      <<" No points !"<<std::endl;
+    return NULL;
+    }
+
+  vtkIdTypeArray* parenthood =
+    vtkIdTypeArray::SafeDownCast(cellData->GetArray("Parenthood"));
+  if (!parenthood
+    || parenthood->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
+    {
+    std::cerr<<"Cannot create armature from model,"
+      <<" parenthood array invalid"<<std::endl;
+    return NULL;
+    }
+
+  // First, create an armature node
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
+  this->GetMRMLScene()->AddNode(armatureNode);
+  armatureNode->Delete();
+
+  vtkNew<vtkCollection> addedBones;
+  for (vtkIdType id = 0, pointId = 0;
+    id < parenthood->GetNumberOfTuples(); ++id, pointId += 2)
+    {
+    vtkIdType parentId = parenthood->GetValue(id);
+    if (parentId > id)
+      {
+      std::cerr<<"There most likely were reparenting."
+        << " Not supported yet."<<std::endl;
+      return armatureNode;
+      }
+
+    vtkMRMLBoneNode* boneParentNode = 0;
+    if (parentId > -1)
+      {
+      boneParentNode =
+        vtkMRMLBoneNode::SafeDownCast(addedBones->GetItemAsObject(parentId));
+      if (! boneParentNode)
+        {
+        std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
+        return armatureNode;
+        }
+      this->SetActiveBone(boneParentNode);
+      }
+    else // Root
+      {
+      this->SetActiveArmature(armatureNode);
+      }
+
+    vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();
+
+    double p[3];
+    points->GetPoint(pointId, p);
+    boneNode->SetWorldHeadRest(p);
+
+    double tail[3];
+    points->GetPoint(pointId + 1, p);
+    boneNode->SetWorldTailRest(p);
+    if (boneParentNode)
+      {
+      double diff[3];
+      vtkMath::Subtract(
+        boneParentNode->GetWorldTailRest(),
+        boneNode->GetWorldHeadRest(),
+        diff);
+      if (vtkMath::Dot(diff, diff) > 1e-6)
+        {
+        boneNode->SetBoneLinkedWithParent(false);
+        }
+      }
+
+    boneNode->Initialize(this->GetMRMLScene());
+    addedBones->AddItem(boneNode);
+    boneNode->Delete();
+    }
+
+  return armatureNode;
 }
 
 //----------------------------------------------------------------------------
