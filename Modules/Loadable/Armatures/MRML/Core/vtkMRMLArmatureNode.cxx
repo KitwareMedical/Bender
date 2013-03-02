@@ -673,6 +673,7 @@ void vtkMRMLArmatureNode::UpdateBoneRepresentation(vtkBoneRepresentation* rep)
   double color[3];
   this->GetColor(color);
 
+  rep->SetAlwaysOnTop(this->GetBonesAlwaysOnTop());
   rep->SetOpacity(this->GetOpacity());
   rep->GetEnvelope()->GetProperty()->SetOpacity(this->GetEnvelopesOpacity());
   rep->GetLineProperty()->SetColor(color);

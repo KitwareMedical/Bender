@@ -63,7 +63,7 @@ vtkDoubleConeBoneRepresentation::vtkDoubleConeBoneRepresentation()
   this->Radius = 0.0;
   this->NumberOfSides = 5;
   this->Ratio = 0.25;
-  this->Capping = 1;
+  this->Capping = 0;
 
   // Add a picker
   this->ConesPicker->SetTolerance(0.005);
@@ -324,6 +324,20 @@ void vtkDoubleConeBoneRepresentation::SetOpacity(double opacity)
   this->Superclass::SetOpacity(opacity);
   this->ConesProperty->SetOpacity(opacity);
   this->SelectedConesProperty->SetOpacity(opacity);
+}
+
+
+//----------------------------------------------------------------------------
+void vtkDoubleConeBoneRepresentation::SetAlwaysOnTop(int onTop)
+{
+  if (onTop == this->AlwaysOnTop)
+    {
+    return;
+    }
+
+  this->ConesProperty->SetBackfaceCulling(onTop);
+  this->SelectedConesProperty->SetBackfaceCulling(onTop);
+  this->Superclass::SetAlwaysOnTop(onTop);
 }
 
 //----------------------------------------------------------------------------
