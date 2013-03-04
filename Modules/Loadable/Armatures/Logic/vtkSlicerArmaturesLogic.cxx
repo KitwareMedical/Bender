@@ -124,7 +124,7 @@ void vtkSlicerArmaturesLogic::ProcessMRMLSceneEvents(vtkObject* caller,
   this->Superclass::ProcessMRMLSceneEvents(caller, event, callData);
   if (event == vtkMRMLScene::NodeAboutToBeRemovedEvent)
     {
-    vtkMRMLNode* node = vtkMRMLNode::SafeDownCast(caller);
+    vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
     this->OnMRMLSceneNodeAboutToBeRemoved(node);
     }
 }
@@ -154,9 +154,17 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node)
 {
   this->Superclass::OnMRMLSceneNodeRemoved(node);
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
-  if (armatureNode && this->GetActiveArmature() == armatureNode)
+  if (armatureNode)
     {
-    this->SetActiveArmature(0);
+    vtkMRMLModelNode* model = armatureNode->GetArmatureModel();
+    if (model)
+      {
+      this->GetMRMLScene()->RemoveNode(model);
+      }
+    if (this->GetActiveArmature() == armatureNode)
+      {
+      this->SetActiveArmature(0);
+      }
     }
   vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
   if (boneNode && this->GetActiveBone())
