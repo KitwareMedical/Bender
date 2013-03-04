@@ -355,7 +355,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     && boneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
 
   this->ParentBoneNodeComboBox->setEnabled(enable);
-  this->LinkedToParentCheckBox->setEnabled(enable);
+  this->LinkedToParentCheckBox->setEnabled(enable && boneNode->GetHasParent());
 }
 
 //-----------------------------------------------------------------------------
