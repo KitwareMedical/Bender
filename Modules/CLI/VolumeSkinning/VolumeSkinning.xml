@@ -5,8 +5,8 @@
   <title>Volume Skinning</title>
   <description><![CDATA[ TO DO]]>
   </description>
-  <version>0.1.0.$Revision$(alpha)</version>
-  <documentation-url></documentation-url>
+  <version>1.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/VolumeSkinning</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware)</contributor>
   <contributor>Julien Finet (Kitware)</contributor>

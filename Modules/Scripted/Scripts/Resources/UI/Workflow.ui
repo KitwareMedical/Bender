@@ -743,7 +743,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="ArmaturesLoadArmaturePushButton">
               <property name="text">
-               <string>Load Armature</string>
+               <string>Load armature from model</string>
               </property>
              </widget>
             </item>

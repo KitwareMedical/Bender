@@ -232,12 +232,13 @@ RemoveVoxelIsland(typename ImageType::Pointer labelMap)
   // |_________|_
   //     0     |1|
   //           |_|
-  typedef itk::ConnectedComponentImageFilter<ImageType, ImageType> ConnectedFilter;
+  typedef itk::Image<unsigned long, 3> ULongImageType;
+  typedef itk::ConnectedComponentImageFilter<ImageType, ULongImageType> ConnectedFilter;
   typename ConnectedFilter::Pointer connectedFilter = ConnectedFilter::New();
   connectedFilter->SetInput(labelMap);
   connectedFilter->SetBackgroundValue(ArmatureWeightWriter::BackgroundLabel);
   connectedFilter->Update();
-  typename ImageType::Pointer connectedImage = connectedFilter->GetOutput();
+  ULongImageType::Pointer connectedImage = connectedFilter->GetOutput();
 
   if (connectedFilter->GetObjectCount() == 0)
     {
@@ -245,10 +246,10 @@ RemoveVoxelIsland(typename ImageType::Pointer labelMap)
     }
   // Search the largest connected components
   // In the previous schema it was (2)
-  std::vector<unsigned int> histogram(connectedFilter->GetObjectCount() + 1, 0);
+  std::vector<unsigned long> histogram(connectedFilter->GetObjectCount() + 1, 0);
 
-  typename ImageType::RegionType connectedRegion = connectedImage->GetLargestPossibleRegion();
-  itk::ImageRegionIteratorWithIndex<ImageType> connectedIt(connectedImage, connectedRegion);
+  ULongImageType::RegionType connectedRegion = connectedImage->GetLargestPossibleRegion();
+  itk::ImageRegionIteratorWithIndex<ULongImageType> connectedIt(connectedImage, connectedRegion);
   for (connectedIt.GoToBegin(); !connectedIt.IsAtEnd(); ++connectedIt)
     {
     if (connectedIt.Get() != ArmatureWeightWriter::BackgroundLabel)
@@ -256,14 +257,14 @@ RemoveVoxelIsland(typename ImageType::Pointer labelMap)
       ++histogram[connectedIt.Get()];
       }
     }
-  typename ImageType::PixelType largestComponent =
+  ULongImageType::PixelType largestComponent =
     std::distance(histogram.begin(), std::max_element(histogram.begin(), histogram.end()));
   std::cout << "Histogram:" << histogram.size() << std::endl;
   for (size_t i = 0; i < histogram.size(); ++i)
     {
     std::cout << histogram[i] <<  ", ";
     }
-  std::cout << std::endl << "Largest Component:" << static_cast<unsigned int>(largestComponent) << std::endl;
+  std::cout << std::endl << "Largest Component:" << static_cast<unsigned long>(largestComponent) << std::endl;
 
   // Only keep the largest connected components
   //  _________
@@ -273,13 +274,13 @@ RemoveVoxelIsland(typename ImageType::Pointer labelMap)
   //
   typename ImageType::RegionType region = labelMap->GetLargestPossibleRegion();
   itk::ImageRegionIteratorWithIndex<ImageType> it(labelMap,region);
-  for (it.GoToBegin(), connectedIt.GoToBegin(); !it.IsAtEnd(); ++it)
+  for (it.GoToBegin(), connectedIt.GoToBegin(); !it.IsAtEnd(); ++it, ++connectedIt)
     {
     if (it.Get() == ArmatureWeightWriter::BackgroundLabel)
       {
       continue;
       }
-    if (it.Get() != largestComponent)
+    if (connectedIt.Get() != largestComponent)
       {
       it.Set(ArmatureWeightWriter::BackgroundLabel);
       }

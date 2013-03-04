@@ -11,8 +11,8 @@ class Workflow:
     parent.categories = ["", "Segmentation.Bender"]
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
     parent.helpText = string.Template("""
-Use this module to repose a humanoid labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/Workflow\">$a/Documentation/$b.$c/Modules/Workflow</a> for more information.
-    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':0, 'c':1 })
+Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/Workflow\">$a/Documentation/$b.$c/Modules/Workflow</a> for more information.
+    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':0 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
@@ -707,7 +707,10 @@ class WorkflowWidget:
   # 3.A) Armature
   def loadArmatureFile(self):
     manager = slicer.app.ioManager()
-    manager.openAddSceneDialog()
+    if manager.openDialog('ArmatureFile', slicer.qSlicerFileDialog.Read):
+      print 'Armature loaded successfully'
+    else:
+      print 'Armature loading failed'
 
   def openArmaturesModule(self):
     # Finaly open armature module
