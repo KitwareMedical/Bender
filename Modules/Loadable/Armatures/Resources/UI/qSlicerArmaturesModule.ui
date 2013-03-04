@@ -585,9 +585,6 @@
            <property name="toolTip">
             <string>The selected bone current tail position.</string>
            </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
-           </property>
           </widget>
          </item>
          <item row="0" column="1" colspan="2">
@@ -597,9 +594,6 @@
            </property>
            <property name="toolTip">
             <string>The selected bone current head position.</string>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
            </property>
           </widget>
          </item>
@@ -691,9 +685,6 @@
            </property>
            <property name="maximum">
             <double>999999999.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.050000000000000</double>
            </property>
           </widget>
          </item>
