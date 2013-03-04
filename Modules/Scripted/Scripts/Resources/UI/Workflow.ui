@@ -1238,7 +1238,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>B) Armatures</string>
+          <string>B) Pose Armature</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>

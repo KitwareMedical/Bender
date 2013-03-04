@@ -993,6 +993,7 @@ class WorkflowWidget:
 
   def getFirstNodeByNameAndClass(self, name, className):
     nodes = slicer.mrmlScene.GetNodesByClass(className)
+    nodes.UnRegister(nodes)
     for i in range(0, nodes.GetNumberOfItems()):
       node = nodes.GetItemAsObject(i)
       if node.GetName() == name:
