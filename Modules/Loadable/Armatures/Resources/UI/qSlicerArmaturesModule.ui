@@ -20,7 +20,7 @@
    <item>
     <layout class="QGridLayout" name="gridLayout_3">
      <property name="margin">
-      <number>9</number>
+      <number>0</number>
      </property>
      <item row="0" column="0">
       <widget class="ctkCheckBox" name="ArmatureVisibilityCheckBox">
@@ -46,7 +46,7 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1" colspan="2">
+     <item row="0" column="1" colspan="3">
       <widget class="qMRMLNodeComboBox" name="ArmatureNodeComboBox">
        <property name="toolTip">
         <string>Select the current armature.</string>
@@ -56,11 +56,11 @@
          <string>vtkMRMLArmatureNode</string>
         </stringlist>
        </property>
-       <property name="renameEnabled">
-        <bool>true</bool>
-       </property>
        <property name="baseName">
         <string>Armature</string>
+       </property>
+       <property name="renameEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -74,7 +74,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="1" column="1" colspan="2">
       <widget class="QComboBox" name="ArmatureStateComboBox">
        <property name="enabled">
         <bool>false</bool>
@@ -97,7 +97,7 @@
        </item>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="1" column="3">
       <widget class="QPushButton" name="ArmatureResetPoseModeButton">
        <property name="text">
         <string>Reset Pose</string>
@@ -337,6 +337,9 @@
            </property>
            <property name="text">
             <string/>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>

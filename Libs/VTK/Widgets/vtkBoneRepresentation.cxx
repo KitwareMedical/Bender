@@ -53,7 +53,7 @@ vtkStandardNewMacro(vtkBoneRepresentation);
 //----------------------------------------------------------------------------
 vtkBoneRepresentation::vtkBoneRepresentation()
 {
-  this->AlwaysOnTop = 1;
+  this->AlwaysOnTop = 0;
   this->Pose = false;
   this->Envelope = vtkBoneEnvelopeRepresentation::New();
   this->ShowEnvelope = false;
@@ -171,6 +171,25 @@ void vtkBoneRepresentation::Highlight(int highlight)
   this->HighlightPoint(0, highlight);
   this->HighlightPoint(1, highlight);
   // no higlight for the envelope
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneRepresentation::SetAlwaysOnTop(int onTop)
+{
+  if (onTop == this->AlwaysOnTop)
+    {
+    return;
+    }
+
+  this->AlwaysOnTop = onTop;
+
+  this->EndPointProperty->SetBackfaceCulling(onTop);
+  this->SelectedEndPointProperty->SetBackfaceCulling(onTop);
+  this->EndPoint2Property->SetBackfaceCulling(onTop);
+  this->SelectedEndPoint2Property->SetBackfaceCulling(onTop);
+  this->LineProperty->SetBackfaceCulling(onTop);
+  this->SelectedLineProperty->SetBackfaceCulling(onTop);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------
@@ -478,10 +497,6 @@ void vtkBoneRepresentation
   this->SetResolution(boneRep->GetResolution());
   this->SetTolerance(boneRep->GetTolerance());
 
-  // vtkBoneWidget copies
-  this->SetAlwaysOnTop(boneRep->GetAlwaysOnTop());
-  this->SetOpacity(boneRep->GetLineProperty()->GetOpacity());
-
   // Properties:
   // Enpoint (Head)
   this->EndPointProperty->DeepCopy(boneRep->GetEndPointProperty());
@@ -492,6 +507,10 @@ void vtkBoneRepresentation
   // Line
   this->LineProperty->DeepCopy(boneRep->GetLineProperty());
   this->SelectedLineProperty->DeepCopy(boneRep->GetSelectedLineProperty());
+
+  // vtkBoneWidget copies
+  this->SetAlwaysOnTop(boneRep->GetAlwaysOnTop());
+  this->SetOpacity(boneRep->GetLineProperty()->GetOpacity());
 
   // Envelope
   this->ShowEnvelope = boneRep->GetShowEnvelope();

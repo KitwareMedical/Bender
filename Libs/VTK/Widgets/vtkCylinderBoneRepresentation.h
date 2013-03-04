@@ -104,6 +104,13 @@ public:
   virtual void SetOpacity(double opacity);
 
   // Description:
+  // Set/Get if the bones are represented in X-Ray mode or not. In this
+  // mode, the bone are overlayed any element of the scene, which makes them
+  // always visible. The backface culling is automatically activated.
+  // False by default.
+  virtual void SetAlwaysOnTop (int onTop);
+
+  // Description:
   // Helper method to highlight the line, the cylinder and the endpoints.
   virtual void Highlight(int highlight);
 

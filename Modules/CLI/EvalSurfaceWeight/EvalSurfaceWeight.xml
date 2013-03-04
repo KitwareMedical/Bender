@@ -4,8 +4,8 @@
   <index>4</index>
   <title>Evaluate Surface Weight</title>
   <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
-  <version>0.1.0.$Revision$(alpha)</version>
-  <documentation-url></documentation-url>
+  <version>1.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/EvalSurfaceWeight</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
