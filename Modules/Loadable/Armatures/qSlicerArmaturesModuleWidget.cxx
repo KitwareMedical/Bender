@@ -650,6 +650,22 @@ void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int selec
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
+{
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      q->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (!interactionNode)
+    {
+    qCritical() << "Invalid scene, no interaction node";
+    return;
+    }
+  interactionNode->SwitchToViewTransformMode();
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------
@@ -680,6 +696,11 @@ void qSlicerArmaturesModuleWidget
   if (armatureNode == d->ArmatureNode)
     {
     return;
+    }
+
+  if (d->ArmatureNode) // Switching or deleting current armature
+    {
+    d->stopPlaceBone();
     }
 
   if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
@@ -841,6 +862,7 @@ void qSlicerArmaturesModuleWidget::deleteBones()
   if (bone)
     {
     d->deleteBoneChildren(bone);
+    d->stopPlaceBone();
     return;
     }
 
@@ -859,6 +881,7 @@ void qSlicerArmaturesModuleWidget::deleteBones()
         d->deleteBoneChildren(childBone);
         }
       }
+    d->stopPlaceBone();
     return;
     }
 }
