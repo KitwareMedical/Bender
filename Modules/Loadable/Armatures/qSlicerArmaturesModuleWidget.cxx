@@ -650,6 +650,22 @@ void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int selec
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
+{
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      q->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (!interactionNode)
+    {
+    qCritical() << "Invalid scene, no interaction node";
+    return;
+    }
+  interactionNode->SwitchToViewTransformMode();
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------
@@ -680,6 +696,11 @@ void qSlicerArmaturesModuleWidget
   if (armatureNode == d->ArmatureNode)
     {
     return;
+    }
+
+  if (d->ArmatureNode) // Switching or deleting current armature
+    {
+    d->stopPlaceBone();
     }
 
   if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
@@ -835,12 +856,34 @@ void qSlicerArmaturesModuleWidget::deleteBones()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
-  if (!d->BoneNode)
+  vtkMRMLNode* currentNode = d->BonesTreeView->currentNode();
+
+  vtkMRMLBoneNode* bone = vtkMRMLBoneNode::SafeDownCast(currentNode);
+  if (bone)
     {
+    d->deleteBoneChildren(bone);
+    d->stopPlaceBone();
     return;
     }
 
-  d->deleteBoneChildren(d->BoneNode);
+  vtkMRMLArmatureNode* armature =
+    vtkMRMLArmatureNode::SafeDownCast(currentNode);
+  if (armature)
+    {
+    vtkNew<vtkCollection> bones;
+    armature->GetAllBones(bones.GetPointer());
+    for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+      {
+      vtkMRMLBoneNode* childBone =
+        vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+      if (childBone && !childBone->GetHasParent()) // If top-level bone
+        {
+        d->deleteBoneChildren(childBone);
+        }
+      }
+    d->stopPlaceBone();
+    return;
+    }
 }
 
 //-----------------------------------------------------------------------------
