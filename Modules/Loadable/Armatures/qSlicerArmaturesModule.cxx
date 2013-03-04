@@ -31,6 +31,9 @@
 #include "qSlicerArmaturesModuleWidget.h"
 #include "qSlicerArmaturesIO.h"
 
+// Bender includes
+#include "benderVersionConfigure.h"
+
 // Slicer includes
 #include "qSlicerApplication.h"
 #include "qSlicerIOManager.h"
@@ -103,8 +106,12 @@ QString qSlicerArmaturesModule::helpText()const
   " properties of all the bones of the armature.<br> The panel ''Bones''"
   " lists the bones hierarchy of the current armature.<br>"
   " The last panel controls the properties of the currently"
-  " selected bone.</p>";
-  return help;
+  " selected bone.</p>"
+  "<p>For more detailed documentation see the online documentation at "
+  "<a href=\"%1/Documentation/%2.%3/Modules/Armatures\">"
+  "%1/Documentation/%2.%3/Modules/Armatures</a>\n"
+    ;
+  return help.arg("http://public.kitware.com/Wiki/Bender").arg(Bender_VERSION_MAJOR).arg(Bender_VERSION_MINOR);
 }
 
 //-----------------------------------------------------------------------------
