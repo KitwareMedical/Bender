@@ -835,12 +835,32 @@ void qSlicerArmaturesModuleWidget::deleteBones()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
-  if (!d->BoneNode)
+  vtkMRMLNode* currentNode = d->BonesTreeView->currentNode();
+
+  vtkMRMLBoneNode* bone = vtkMRMLBoneNode::SafeDownCast(currentNode);
+  if (bone)
     {
+    d->deleteBoneChildren(bone);
     return;
     }
 
-  d->deleteBoneChildren(d->BoneNode);
+  vtkMRMLArmatureNode* armature =
+    vtkMRMLArmatureNode::SafeDownCast(currentNode);
+  if (armature)
+    {
+    vtkNew<vtkCollection> bones;
+    armature->GetAllBones(bones.GetPointer());
+    for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+      {
+      vtkMRMLBoneNode* childBone =
+        vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+      if (childBone && !childBone->GetHasParent()) // If top-level bone
+        {
+        d->deleteBoneChildren(childBone);
+        }
+      }
+    return;
+    }
 }
 
 //-----------------------------------------------------------------------------
