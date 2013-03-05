@@ -22,6 +22,7 @@
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
+#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkNew.h>
@@ -42,6 +43,35 @@ void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
   writer->SetInput(image);
   writer->SetUseCompression(1);
   writer->Update();
+}
+
+//-------------------------------------------------------------------------------
+template <class ImageType>
+void IOUtils::WriteDebugImage(typename ImageType::Pointer image,
+                              const char* name, const char* debugDirectory)
+{
+  if (!debugDirectory)
+    {
+    debugDirectory = itksys::SystemTools::GetEnv("TMPDIR");
+    if (!debugDirectory)
+      {
+      std::cout<<"Could not find tmp directory. Image named "
+        << name << "not written."<<std::endl;
+      return;
+      }
+    }
+
+  if (!itksys::SystemTools::MakeDirectory(debugDirectory))
+    {
+    std::cout<<"Could not create the directory: "<< debugDirectory
+      << std::endl << " Image named " << name << "not written."<<std::endl;
+    return;
+    }
+
+  std::string fname = debugDirectory;
+  fname += "/";
+  fname += name;
+  WriteImage<ImageType>(image, fname.c_str());
 }
 
 };

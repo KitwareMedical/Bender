@@ -785,18 +785,8 @@ int DoIt(int argc, char* argv[])
   //  {
     std::cout << "############# Transform armature...";
     vtkSmartPointer<vtkPolyData> posedArmature = TransformArmature(armature,"Transforms",!IsArmatureInRAS);
-
-    std::string debugFilename = WeightDirectory;
-    debugFilename += "/Debug/";
-    if (!itksys::SystemTools::MakeDirectory(debugFilename.c_str()))
-      {
-      std::cerr<<" Could not create debug directory named: "<< debugFilename
-        <<"."<<std::endl;
-      return EXIT_FAILURE;
-      }
-
-    bender::IOUtils::WritePolyData(posedArmature,
-      debugFilename + "/PoseLabelmap_PosedArmature.vtk");
+    bender::IOUtils::WriteDebugPolyData(posedArmature,
+      "PoseLabelmap_PosedArmature.vtk", WeightDirectory + "/Debug");
     std::cout << "############# done." << std::endl;
   //  }
 
