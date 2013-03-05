@@ -305,6 +305,7 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->BinaryWeight = false;
   this->SmoothingIterations = 10;
   this->Debug = false;
+  this->DebugFilenamePrefix = "./DEBUG_";
   this->ScaleFactor = 2.0;
   this->UseEnvelopes = true;
 }
@@ -328,6 +329,7 @@ void ArmatureWeightWriter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Binary: " << this->BinaryWeight << "\n";
   os << indent << "Smoothing Iterations" << this->SmoothingIterations << "\n";
   os << indent << "Debug: " << this->Debug << "\n";
+  os << indent << "DebugFilenamePrefix: " << this->DebugFilenamePrefix << "\n";
   os << indent << "Domain: " << this->Domain << "\n";
   os << indent << "ROI: " << this->ROI << "\n";
   os << indent << "ScaleFactor: " << this->ScaleFactor << "\n";
@@ -405,6 +407,24 @@ std::string ArmatureWeightWriter::GetFilename()
 }
 
 //-----------------------------------------------------------------------------
+void ArmatureWeightWriter::SetDebugFilenamePrefix(std::string prefix)
+{
+  if (prefix == this->DebugFilenamePrefix)
+    {
+    return;
+    }
+
+  this->DebugFilenamePrefix = prefix;
+  this->Modified();
+}
+
+//-----------------------------------------------------------------------------
+std::string ArmatureWeightWriter::GetDebugFilenamePrefix()
+{
+  return this->DebugFilenamePrefix;
+}
+
+//-----------------------------------------------------------------------------
 void ArmatureWeightWriter::SetId(EdgeType id)
 {
   if (id == this->Id)
@@ -456,12 +476,20 @@ bool ArmatureWeightWriter::Write()
     downSampledBonesPartition = DownsampleImage<LabelImageType>(
       this->BonesPartition, realScaleFactor);
     }
+
   if ( downsample && this->GetDebugInfo() )
     {
+    std::stringstream debugFilename;
+    debugFilename << this->DebugFilenamePrefix
+      << "_DownsampledBodyPartition.nrrd";
     bender::IOUtils::WriteImage<LabelImageType>(
-      downSampledBodyPartition, "./DEBUG_DownsampledBodyPartition.nrrd");
+      downSampledBodyPartition, debugFilename.str().c_str());
+
+    debugFilename.str(std::string());
+    debugFilename << this->DebugFilenamePrefix
+      << "_DownsampledBonesPartition.nrrd";
     bender::IOUtils::WriteImage<LabelImageType>(
-      downSampledBonesPartition, "./DEBUG_DownsampledBonesPartition.nrrd");
+      downSampledBonesPartition, debugFilename.str().c_str());
     }
 
   // Compute weight
@@ -621,10 +649,10 @@ CharImageType::Pointer ArmatureWeightWriter
 
   if (this->GetDebugInfo())
     {
-    std::stringstream filename;
-    filename<< this->Filename << "_region.nrrd";
+    std::stringstream debugFilename;
+    debugFilename << this->DebugFilenamePrefix << "_region.nrrd";
     bender::IOUtils::WriteImage<CharImageType>(domain,
-      filename.str().c_str());
+      debugFilename.str().c_str());
     }
 
   // Doesn't remove the case:
@@ -646,10 +674,10 @@ CharImageType::Pointer ArmatureWeightWriter
 
   if (this->GetDebugInfo())
     {
-    std::stringstream filename;
-    filename<< this->Filename << "_region_cleaned.nrrd";
+    std::stringstream debugFilename;
+    debugFilename << this->DebugFilenamePrefix << "_region_cleaned.nrrd";
     bender::IOUtils::WriteImage<CharImageType>(domain,
-      filename.str().c_str());
+      debugFilename.str().c_str());
     }
   return domain;
 }
@@ -706,9 +734,10 @@ WeightImageType::Pointer ArmatureWeightWriter
 
     if ( this->GetDebugInfo() )
       {
-      std::string filename = this->Filename + "_localized.nrrd";
+      std::stringstream debugFilename;
+      debugFilename << this->DebugFilenamePrefix  << "_localized.nrrd";
       bender::IOUtils::WriteImage<WeightImageType>(
-        weight, filename.c_str());
+        weight, debugFilename.str().c_str());
       }
 
     //Approximate the global solution by iterative solving
@@ -720,9 +749,10 @@ WeightImageType::Pointer ArmatureWeightWriter
 
   if ( this->GetDebugInfo() )
     {
-    std::string filename = this->Filename + "_global.nrrd";
+    std::stringstream debugFilename;
+      debugFilename << this->DebugFilenamePrefix << "_global.nrrd";
     bender::IOUtils::WriteImage<WeightImageType>(
-      weight, filename.c_str());
+      weight, debugFilename.str().c_str());
     }
 
   return weight;

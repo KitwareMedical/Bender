@@ -297,8 +297,10 @@ int main( int argc, char * argv[] )
 
   if (Debug)
     {
+    std::stringstream debugFilename;
+    debugFilename << WeightDirectory << "/DEBUG_DilatedBodyPartition.mha";
     bender::IOUtils::WriteImage<LabelImageType>(
-      dilatedBodyPartition, "./DEBUG_DilatedBodyPartition.nrrd");
+      dilatedBodyPartition, debugFilename.str().c_str());
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -314,8 +316,10 @@ int main( int argc, char * argv[] )
       dilatedBodyPartition);
   if (Debug)
     {
+    std::stringstream debugFilename;
+    debugFilename << WeightDirectory << "/DEBUG_BonesPartition.mha";
     bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
-      "./DEBUG_BonesPartition.mha");
+      debugFilename.str().c_str());
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
@@ -369,9 +373,11 @@ int main( int argc, char * argv[] )
     writeWeight->SetArmature(armaturePolyData);
     writeWeight->SetBones(bonesPartition);
     // Output filename
+    std::stringstream filenamePrefix;
+    filenamePrefix << WeightDirectory << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i;
     std::stringstream filename;
-    filename << WeightDirectory << "/weight_"
-             << std::setfill('0') << std::setw(numDigits) << i << ".mha";
+    filename << filenamePrefix.str() << ".mha";
     writeWeight->SetFilename(filename.str());
 
     // Edge Id
@@ -383,6 +389,7 @@ int main( int argc, char * argv[] )
     writeWeight->SetScaleFactor(ScaleFactor);
     writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
+    writeWeight->SetDebugFilenamePrefix(filenamePrefix.str());
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)
