@@ -33,6 +33,7 @@
 #include <itkMath.h>
 #include <itkIndex.h>
 #include <itkConnectedComponentImageFilter.h>
+#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkNew.h>
@@ -353,8 +354,33 @@ bool ArmatureType<T>::InitSkeleton(vtkPolyData* armaturePolyData)
 
   if (this->Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(this->BodyPartition,
-      "./DEBUG_bodybinary.mha");
+    std::string filename = itksys::SystemTools::FindDirectory("tmp");
+    if (filename == "")
+      {
+      std::cout<<"Could not find temp directory."
+        <<" Attempting to create a debug dir in current directory."
+        << std::endl;
+
+      std::string newfilename =
+        itksys::SystemTools::GetCurrentWorkingDirectory();
+      newfilename += "/Debug/";
+      if (itksys::SystemTools::MakeDirectory(newfilename.c_str()))
+        {
+        filename = newfilename;
+        }
+      else
+        {
+        std::cout<<"Could not create debug directory."<<std::endl;
+        std::cout<<" Not Outputing the debug image."<<std::endl;
+        }
+      }
+
+    if (filename != "")
+      {
+      filename += "/DEBUG_bodybinary.mha";
+      bender::IOUtils::WriteImage<LabelImageType>(this->BodyPartition,
+        filename.c_str());
+      }
     }
 
   ComputeManhattanVoronoi<LabelImageType>(
