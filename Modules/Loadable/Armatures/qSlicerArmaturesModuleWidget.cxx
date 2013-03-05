@@ -37,8 +37,8 @@
 #include <vtkStdString.h>
 
 // QSlicer includes
-#include <QSlicerIOManager.h>
-#include <QSlicerApplication.h>
+#include <qSlicerIOManager.h>
+#include <qSlicerApplication.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
