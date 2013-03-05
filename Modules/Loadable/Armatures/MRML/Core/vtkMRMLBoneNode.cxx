@@ -51,8 +51,10 @@
 vtkMRMLNodeNewMacro(vtkMRMLBoneNode);
 
 //----------------------------------------------------------------------------
-static void MRMLBoneNodeCallback(vtkObject* caller, long unsigned int eventId,
-                                 void* clientData, void* callData )
+static void MRMLBoneNodeCallback(vtkObject* vtkNotUsed(caller),
+                                 long unsigned int eventId,
+                                 void* clientData,
+                                 void* vtkNotUsed(callData) )
 {
   if (eventId == vtkCommand::ModifiedEvent)
     {
