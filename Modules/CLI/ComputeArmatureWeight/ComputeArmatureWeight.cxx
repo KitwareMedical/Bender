@@ -206,6 +206,28 @@ int main( int argc, char * argv[] )
   bender::IOUtils::FilterStart("Read inputs");
   bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.1, 0.0);
 
+  //----------------------------------
+  // Check output folder
+  //----------------------------------
+  if (!itksys::SystemTools::FileExists(WeightDirectory.c_str()))
+    {
+    std::cerr<<" Cannot find directory named: "<<WeightDirectory
+      <<"."<<std::endl << "Make sure it is a valid directory."<<std::endl;
+    return EXIT_FAILURE;
+    }
+
+  std::string debugDir = WeightDirectory;
+  if (Debug)
+    {
+    debugDir += "/Debug/";
+    if (!itksys::SystemTools::MakeDirectory(debugDir.c_str()))
+      {
+      std::cerr<<" Could not create debug directory named: "<< debugDir
+        <<"."<<std::endl;
+      return EXIT_FAILURE;
+      }
+    }
+
   //----------------------------
   // Read label map
   //----------------------------
@@ -298,7 +320,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     std::stringstream debugFilename;
-    debugFilename << WeightDirectory << "/DEBUG_DilatedBodyPartition.mha";
+    debugFilename << debugDir << "/DEBUG_DilatedBodyPartition.mha";
     bender::IOUtils::WriteImage<LabelImageType>(
       dilatedBodyPartition, debugFilename.str().c_str());
     }
@@ -317,7 +339,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     std::stringstream debugFilename;
-    debugFilename << WeightDirectory << "/DEBUG_BonesPartition.mha";
+    debugFilename << debugDir << "/DEBUG_BonesPartition.mha";
     bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
       debugFilename.str().c_str());
     }
@@ -373,11 +395,9 @@ int main( int argc, char * argv[] )
     writeWeight->SetArmature(armaturePolyData);
     writeWeight->SetBones(bonesPartition);
     // Output filename
-    std::stringstream filenamePrefix;
-    filenamePrefix << WeightDirectory << "/weight_"
-      << std::setfill('0') << std::setw(numDigits) << i;
     std::stringstream filename;
-    filename << filenamePrefix.str() << ".mha";
+    filename << WeightDirectory << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i << ".mha";
     writeWeight->SetFilename(filename.str());
 
     // Edge Id
@@ -389,6 +409,9 @@ int main( int argc, char * argv[] )
     writeWeight->SetScaleFactor(ScaleFactor);
     writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
+    std::stringstream filenamePrefix;
+    filenamePrefix << debugDir << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i;
     writeWeight->SetDebugFilenamePrefix(filenamePrefix.str());
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
