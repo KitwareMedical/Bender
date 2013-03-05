@@ -55,8 +55,10 @@ int ReadWeightsFromImage(const std::vector<std::string>& fnames,
     if (weight_i->GetLargestPossibleRegion() !=
         image->GetLargestPossibleRegion())
       {
-      std::cerr << "Weight maps regions different from image are not supported."
-                << " Skip weight " << fnames[i] << std::endl;
+      std::cerr << "Weight maps regions different from image are not supported:"
+                << "Image: " << image->GetLargestPossibleRegion()
+                << " Weight: " << weight_i->GetLargestPossibleRegion() << std::endl
+                << "Skip weight " << fnames[i] << std::endl;
       continue;
       }
     itk::ImageRegionConstIteratorWithIndex<itk::Image<T,3> > imageIt(image, region);
