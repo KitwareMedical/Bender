@@ -475,11 +475,18 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
         std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
         return armatureNode;
         }
-      this->SetActiveBone(boneParentNode);
+
+      vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+        vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneParentNode->GetScene(), boneParentNode->GetID()));
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        hierarchyNode != 0 ? hierarchyNode->GetID() : 0);
       }
     else // Root
       {
-      this->SetActiveArmature(armatureNode);
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        armatureNode->GetID());
       }
 
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();

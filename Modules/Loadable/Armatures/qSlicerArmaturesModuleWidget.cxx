@@ -36,6 +36,10 @@
 #include <vtkNew.h>
 #include <vtkStdString.h>
 
+// QSlicer includes
+#include <QSlicerIOManager.h>
+#include <QSlicerApplication.h>
+
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
 #include <vtkSlicerAnnotationModuleLogic.h>
@@ -129,6 +133,8 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureStateComboBox,
     SIGNAL(currentIndexChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->LoadArmatureFromModelPushButton,
+    SIGNAL(clicked()), q, SLOT(loadArmatureFromModel()));
 
   // -- Armature Display --
   QObject::connect(this->ArmatureRepresentationComboBox,
@@ -884,6 +890,13 @@ void qSlicerArmaturesModuleWidget::deleteBones()
     d->stopPlaceBone();
     return;
     }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::loadArmatureFromModel()
+{
+  qSlicerApplication::application()->ioManager()->openDialog(
+    QString("ArmatureFile"), qSlicerFileDialog::Read);
 }
 
 //-----------------------------------------------------------------------------
