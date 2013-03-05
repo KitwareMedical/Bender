@@ -39,8 +39,7 @@
 #include <itkPluginUtilities.h>
 #include <itkStatisticsImageFilter.h>
 #include <itkVersor.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
+#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkCellArray.h>
@@ -52,6 +51,8 @@
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
 #include <vtkSTLReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkTimerLog.h>
@@ -784,7 +785,18 @@ int DoIt(int argc, char* argv[])
   //  {
     std::cout << "############# Transform armature...";
     vtkSmartPointer<vtkPolyData> posedArmature = TransformArmature(armature,"Transforms",!IsArmatureInRAS);
-    bender::IOUtils::WritePolyData(posedArmature,"./PosedArmature.vtk");
+
+    std::string debugFilename = WeightDirectory;
+    debugFilename += "/Debug/";
+    if (!itksys::SystemTools::MakeDirectory(debugFilename.c_str()))
+      {
+      std::cerr<<" Could not create debug directory named: "<< debugFilename
+        <<"."<<std::endl;
+      return EXIT_FAILURE;
+      }
+
+    bender::IOUtils::WritePolyData(posedArmature,
+      debugFilename + "/PoseLabelmap_PosedArmature.vtk");
     std::cout << "############# done." << std::endl;
   //  }
 
