@@ -67,10 +67,10 @@ int FindBonesRepresentationType(vtkBoneRepresentation* r)
 vtkMRMLNodeNewMacro(vtkMRMLArmatureNode);
 
 //----------------------------------------------------------------------------
-static void MRMLArmatureNodeCallback(vtkObject* caller,
+static void MRMLArmatureNodeCallback(vtkObject* vtkNotUsed(caller),
                                      long unsigned int eventId,
                                      void* clientData,
-                                     void* callData )
+                                     void* vtkNotUsed(callData) )
 {
   if (eventId == vtkCommand::ModifiedEvent)
     {

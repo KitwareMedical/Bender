@@ -913,7 +913,7 @@ int main( int argc, char * argv[] )
     ++edgeId;
     }
 
-  int numSites = transforms.size();
+  size_t numSites = transforms.size();
   if (numSites != numWeights)
     {
     std::cerr<<"The number of transforms ("<<numSites

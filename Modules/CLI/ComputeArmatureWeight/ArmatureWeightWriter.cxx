@@ -465,8 +465,7 @@ bool ArmatureWeightWriter::Write()
     }
 
   // Compute weight
-  CharImageType::Pointer domain =
-    this->CreateDomain(downSampledBodyPartition, downSampledBonesPartition);
+  CharImageType::Pointer domain = this->CreateDomain(downSampledBodyPartition);
   if (! domain)
     {
     std::cerr<<"Could not initialize edge correctly. Stopping."<<std::endl;
@@ -493,8 +492,7 @@ bool ArmatureWeightWriter::Write()
 
 //-----------------------------------------------------------------------------
 CharImageType::Pointer ArmatureWeightWriter
-::CreateDomain(LabelImageType::Pointer bodyPartition,
-               LabelImageType::Pointer bonesPartition)
+::CreateDomain(LabelImageType::Pointer bodyPartition)
 {
   std::cout<<"Initalizing computation region for edge #"
     << this->Id << std::endl;

@@ -145,9 +145,7 @@ protected:
   // The returned image contains 1 (DomainLabel) at each voxel when the Id edge
   // has weight, 0 otherwise.
   // The domain is later used to compute the interpolated and diffused  weights.
-  CharImageType::Pointer CreateDomain(
-    LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer bonesPartition);
+  CharImageType::Pointer CreateDomain(LabelImageType::Pointer bodyPartition);
 
   // Create weight based on the domain
   // and the given body and bones partitions
