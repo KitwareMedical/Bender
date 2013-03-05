@@ -115,6 +115,9 @@ public:
   vtkSetMacro(DebugInfo, bool);
   vtkGetMacro(DebugInfo, bool);
 
+  void SetDebugFilenamePrefix(std::string dir);
+  std::string GetDebugFilenamePrefix();
+
   void SetId(EdgeType id);
   EdgeType GetId() const;
 
@@ -168,6 +171,7 @@ protected:
 
   // Debug info
   bool DebugInfo;
+  std::string DebugFilenamePrefix;
 
 private:
   ArmatureWeightWriter(const ArmatureWeightWriter&);  //Not implemented
