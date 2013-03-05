@@ -90,6 +90,9 @@ public slots:
   /// Delete the currently selected bone and all its children (if any).
   void deleteBones();
 
+  /// Pops-up a dialog window and load an armature from model.
+  void loadArmatureFromModel();
+
 protected slots:
   /// Update the GUI from the armatures logic.
   void updateWidgetFromLogic();
