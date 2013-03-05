@@ -220,12 +220,6 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     debugDir += "/Debug/";
-    if (!itksys::SystemTools::MakeDirectory(debugDir.c_str()))
-      {
-      std::cerr<<" Could not create debug directory named: "<< debugDir
-        <<"."<<std::endl;
-      return EXIT_FAILURE;
-      }
     }
 
   //----------------------------
@@ -319,10 +313,8 @@ int main( int argc, char * argv[] )
 
   if (Debug)
     {
-    std::stringstream debugFilename;
-    debugFilename << debugDir << "/DEBUG_DilatedBodyPartition.mha";
-    bender::IOUtils::WriteImage<LabelImageType>(
-      dilatedBodyPartition, debugFilename.str().c_str());
+    bender::IOUtils::WriteDebugImage<LabelImageType>(
+      dilatedBodyPartition, "DEBUG_DilatedBodyPartition.mha", debugDir.c_str());
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -338,10 +330,8 @@ int main( int argc, char * argv[] )
       dilatedBodyPartition);
   if (Debug)
     {
-    std::stringstream debugFilename;
-    debugFilename << debugDir << "/DEBUG_BonesPartition.mha";
-    bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
-      debugFilename.str().c_str());
+    bender::IOUtils::WriteDebugImage<LabelImageType>(
+      bonesPartition, "DEBUG_BonesPartition.mha", debugDir.c_str());
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
@@ -409,10 +399,10 @@ int main( int argc, char * argv[] )
     writeWeight->SetScaleFactor(ScaleFactor);
     writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
-    std::stringstream filenamePrefix;
-    filenamePrefix << debugDir << "/weight_"
-      << std::setfill('0') << std::setw(numDigits) << i;
-    writeWeight->SetDebugFilenamePrefix(filenamePrefix.str());
+    std::stringstream debugFolder;
+    debugFolder << debugDir << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i << "_DEBUG";
+    writeWeight->SetDebugFolder(debugFolder.str());
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)

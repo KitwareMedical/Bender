@@ -26,6 +26,7 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkSTLReader.h>
 #include <vtkPolyData.h>
+#include <vtksys/SystemTools.hxx>
 
 namespace bender
 {
@@ -102,6 +103,35 @@ void IOUtils::WritePolyData(vtkPolyData* polyData, const std::string& fileName)
   pdWriter->SetFileTypeToBinary();
   pdWriter->Update();
 }
+
+//-----------------------------------------------------------------------------
+void IOUtils::WriteDebugPolyData(vtkPolyData* polyData,
+                                 const std::string& name,
+                                 const std::string& dir)
+{
+  std::string d = dir;
+  if (d == "")
+    {
+    const char* tmp = itksys::SystemTools::GetEnv("TMPDIR");
+    if (!tmp)
+      {
+      std::cout<<"Could not find tmp directory."
+        <<" PolyData named " << name << " not written."<<std::endl;
+      return;
+      }
+    d = std::string(tmp);
+    }
+
+  if (!itksys::SystemTools::MakeDirectory(d.c_str()))
+    {
+    std::cout<<"Could not create the directory: "<< d
+      << std::endl << " Polydata named " << name << "not written."<<std::endl;
+    return;
+    }
+
+  WritePolyData(polyData, d + "/" + name);
+}
+
 
 //-----------------------------------------------------------------------------
 void IOUtils::FilterStart(const char* filterName, const char* comment)

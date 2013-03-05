@@ -871,19 +871,10 @@ int main( int argc, char * argv[] )
 
   if (Debug) //test whether the transform makes senses.
     {
-    std::string filename = WeightDirectory;
-    filename += "/Debug/";
-    if (!itksys::SystemTools::MakeDirectory(filename.c_str()))
-      {
-      std::cerr<<" Could not create debug directory named: "<< filename
-        <<"."<<std::endl;
-      return EXIT_FAILURE;
-      }
-
     vtkSmartPointer<vtkPolyData> posedArmature =
       TransformArmature(armature,"Transforms",!IsArmatureInRAS);
-    bender::IOUtils::WritePolyData(posedArmature,
-      filename + "/PoseSurface_PosedArmature.vtk");
+    bender::IOUtils::WriteDebugPolyData(posedArmature,
+       "PoseSurface_PosedArmature.vtk", WeightDirectory + "/Debug");
     }
 
   vtkCellArray* armatureSegments = armature->GetLines();
