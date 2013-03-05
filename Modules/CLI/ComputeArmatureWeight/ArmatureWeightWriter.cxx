@@ -143,9 +143,9 @@ ResampleImage(typename ImageType::Pointer inputImage,
     inputImage->GetLargestPossibleRegion().GetSize();
   typename ImageType::SizeType outSize;
   typedef typename ImageType::SizeType::SizeValueType SizeValueType;
-  outSize[0] = static_cast<SizeValueType>(ceil(inputSize[0] / scaleFactor));
-  outSize[1] = static_cast<SizeValueType>(ceil(inputSize[1] / scaleFactor));
-  outSize[2] = static_cast<SizeValueType>(ceil(inputSize[2] / scaleFactor));
+  outSize[0] = static_cast<SizeValueType>(inputSize[0] / scaleFactor);
+  outSize[1] = static_cast<SizeValueType>(inputSize[1] / scaleFactor);
+  outSize[2] = static_cast<SizeValueType>(inputSize[2] / scaleFactor);
 
   double realScaleFactor[3];
   realScaleFactor[0] = static_cast<double>(inputSize[0]) / outSize[0];
@@ -445,6 +445,7 @@ EdgeType ArmatureWeightWriter::GetId()const
 //-----------------------------------------------------------------------------
 bool ArmatureWeightWriter::Write()
 {
+  bool res = false;
   // Only downsample when not using weights
   bool downsample = !this->BinaryWeight && this->ScaleFactor != 1.0;
 
@@ -452,9 +453,9 @@ bool ArmatureWeightWriter::Write()
     this->BodyPartition->GetLargestPossibleRegion().GetSize();
   LabelImageType::SizeType outSize;
   typedef LabelImageType::SizeType::SizeValueType SizeValueType;
-  outSize[0] = static_cast<SizeValueType>(ceil(inputSize[0] / this->ScaleFactor));
-  outSize[1] = static_cast<SizeValueType>(ceil(inputSize[1] / this->ScaleFactor));
-  outSize[2] = static_cast<SizeValueType>(ceil(inputSize[2] / this->ScaleFactor));
+  outSize[0] = static_cast<SizeValueType>(inputSize[0] / this->ScaleFactor);
+  outSize[1] = static_cast<SizeValueType>(inputSize[1] / this->ScaleFactor);
+  outSize[2] = static_cast<SizeValueType>(inputSize[2] / this->ScaleFactor);
 
   double realScaleFactor[3];
   realScaleFactor[0] = static_cast<double>(inputSize[0]) / outSize[0];
@@ -495,14 +496,19 @@ bool ArmatureWeightWriter::Write()
   // Compute weight
   CharImageType::Pointer domain =
     this->CreateDomain(downSampledBodyPartition, downSampledBonesPartition);
-  if (! domain)
+  if (!domain)
     {
     std::cerr<<"Could not initialize edge correctly. Stopping."<<std::endl;
-    return false;
+    return res;
     }
 
   WeightImageType::Pointer downSampledWeight =
     this->CreateWeight(domain, downSampledBodyPartition, downSampledBonesPartition);
+  if (!downSampledWeight)
+    {
+    std::cerr << "Failed to compute weights" << std::endl;
+    return res;
+    }
   WeightImageType::Pointer weight;
   if (!downsample)
     {
@@ -513,10 +519,21 @@ bool ArmatureWeightWriter::Write()
     weight =
       UpsampleImage<WeightImageType>(downSampledWeight, realScaleFactor);
     }
+
+  if (weight->GetLargestPossibleRegion() !=
+      this->BodyPartition->GetLargestPossibleRegion())
+    {
+    std::cerr << "Inconsistent region: "<< weight->GetLargestPossibleRegion()
+              << " instead of "
+              << this->BodyPartition->GetLargestPossibleRegion()
+              << std::endl;
+    return res;
+    }
+  res = true;
   bender::IOUtils::WriteImage<WeightImageType>(
     weight, this->Filename.c_str());
 
-  return true;
+  return res;
 }
 
 //-----------------------------------------------------------------------------
