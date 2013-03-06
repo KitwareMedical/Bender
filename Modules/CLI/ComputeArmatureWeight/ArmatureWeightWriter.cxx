@@ -483,12 +483,12 @@ bool ArmatureWeightWriter::Write()
     bender::IOUtils::WriteDebugImage<LabelImageType>(
       downSampledBodyPartition,
       "DownsampledBodyPartition.nrrd",
-      this->DebugFolder.c_str());
+      this->DebugFolder);
 
     bender::IOUtils::WriteDebugImage<LabelImageType>(
       downSampledBonesPartition,
       "DownsampledBonesPartition.nrrd",
-      this->DebugFolder.c_str());
+      this->DebugFolder);
     }
 
   // Compute weight
@@ -665,7 +665,7 @@ CharImageType::Pointer ArmatureWeightWriter
   if (this->GetDebugInfo())
     {
     bender::IOUtils::WriteDebugImage<CharImageType>(
-      domain, "region.nrrd", this->DebugFolder.c_str());
+      domain, "region.nrrd", this->DebugFolder);
     }
 
   // Doesn't remove the case:
@@ -688,7 +688,7 @@ CharImageType::Pointer ArmatureWeightWriter
   if (this->GetDebugInfo())
     {
     bender::IOUtils::WriteDebugImage<CharImageType>(
-      domain, "region_cleaned.nrrd", this->DebugFolder.c_str());
+      domain, "region_cleaned.nrrd", this->DebugFolder);
     }
   return domain;
 }
@@ -746,7 +746,7 @@ WeightImageType::Pointer ArmatureWeightWriter
     if ( this->GetDebugInfo() )
       {
       bender::IOUtils::WriteDebugImage<WeightImageType>(
-        weight, "localized.nrrd", this->DebugFolder.c_str());
+        weight, "localized.nrrd", this->DebugFolder);
       }
 
     //Approximate the global solution by iterative solving
@@ -759,7 +759,7 @@ WeightImageType::Pointer ArmatureWeightWriter
   if ( this->GetDebugInfo() )
     {
     bender::IOUtils::WriteDebugImage<WeightImageType>(
-      weight, "global.nrrd", this->DebugFolder.c_str());
+      weight, "global.nrrd", this->DebugFolder);
     }
 
   return weight;
