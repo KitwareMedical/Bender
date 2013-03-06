@@ -314,7 +314,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     bender::IOUtils::WriteDebugImage<LabelImageType>(
-      dilatedBodyPartition, "DEBUG_DilatedBodyPartition.mha", debugDir.c_str());
+      dilatedBodyPartition, "DEBUG_DilatedBodyPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -331,7 +331,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     bender::IOUtils::WriteDebugImage<LabelImageType>(
-      bonesPartition, "DEBUG_BonesPartition.mha", debugDir.c_str());
+      bonesPartition, "DEBUG_BonesPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");

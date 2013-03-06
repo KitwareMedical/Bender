@@ -109,29 +109,33 @@ void IOUtils::WriteDebugPolyData(vtkPolyData* polyData,
                                  const std::string& name,
                                  const std::string& dir)
 {
-  std::string d = dir;
-  if (d == "")
+  std::string d = GetDebugDirectory(dir);
+  WritePolyData(polyData, d + "/" + name);
+}
+
+//-----------------------------------------------------------------------------
+std::string IOUtils::GetDebugDirectory(const std::string& dir)
+{
+  std::string directory = dir;
+  if (directory == "")
     {
     const char* tmp = itksys::SystemTools::GetEnv("TMPDIR");
     if (!tmp)
       {
-      std::cout<<"Could not find tmp directory."
-        <<" PolyData named " << name << " not written."<<std::endl;
-      return;
+      std::cout<<"Could not find tmp directory."<<std::endl;
+      return ".";
       }
-    d = std::string(tmp);
+    directory = std::string(tmp);
     }
 
-  if (!itksys::SystemTools::MakeDirectory(d.c_str()))
+  if (!itksys::SystemTools::MakeDirectory(directory.c_str()))
     {
-    std::cout<<"Could not create the directory: "<< d
-      << std::endl << " Polydata named " << name << "not written."<<std::endl;
-    return;
+    std::cout<<"Could not create the directory: "<< directory <<std::endl;
+    return ".";
     }
 
-  WritePolyData(polyData, d + "/" + name);
+  return directory;
 }
-
 
 //-----------------------------------------------------------------------------
 void IOUtils::FilterStart(const char* filterName, const char* comment)

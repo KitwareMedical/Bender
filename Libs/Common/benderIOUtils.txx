@@ -34,7 +34,8 @@ namespace bender
 {
 //-------------------------------------------------------------------------------
 template <class ImageType>
-void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
+void IOUtils::WriteImage(typename ImageType::Pointer image,
+                         const std::string& fname)
 {
   std::cout << "Write image to " << fname << std::endl;
   typedef typename itk::ImageFileWriter<ImageType> WriterType;
@@ -48,30 +49,10 @@ void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
 //-------------------------------------------------------------------------------
 template <class ImageType>
 void IOUtils::WriteDebugImage(typename ImageType::Pointer image,
-                              const char* name, const char* debugDirectory)
+                              const std::string& name, const std::string& debugDirectory)
 {
-  if (!debugDirectory)
-    {
-    debugDirectory = itksys::SystemTools::GetEnv("TMPDIR");
-    if (!debugDirectory)
-      {
-      std::cout<<"Could not find tmp directory. Image named "
-        << name << "not written."<<std::endl;
-      return;
-      }
-    }
-
-  if (!itksys::SystemTools::MakeDirectory(debugDirectory))
-    {
-    std::cout<<"Could not create the directory: "<< debugDirectory
-      << std::endl << " Image named " << name << "not written."<<std::endl;
-    return;
-    }
-
-  std::string fname = debugDirectory;
-  fname += "/";
-  fname += name;
-  WriteImage<ImageType>(image, fname.c_str());
+  std::string fname = GetDebugDirectory(debugDirectory);
+  WriteImage<ImageType>(image, fname + "/" + name);
 }
 
 };
