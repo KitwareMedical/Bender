@@ -786,31 +786,6 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 }
 */
 
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::enter()
-{
-  this->Superclass::enter();
-  if (this->mrmlScene())
-    {
-    vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
-      this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    if (selectionNode)
-      {
-      selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
-      }
-    vtkMRMLInteractionNode* interactionNode =
-      vtkMRMLInteractionNode::SafeDownCast(
-        this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
-    if (interactionNode)
-      {
-      interactionNode->SetPlaceModePersistence(1);
-      interactionNode->SetCurrentInteractionMode(
-        vtkMRMLInteractionNode::ViewTransform);
-      }
-    }
-}
-
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)

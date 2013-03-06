@@ -59,9 +59,6 @@ public:
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
 
-  /// Reimplemented to set the bone node the default bone annotation.
-  virtual void enter();
-
 public slots:
   /// Set \a armatureNode as current.
   /// \sa setMRMLArmatureNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)

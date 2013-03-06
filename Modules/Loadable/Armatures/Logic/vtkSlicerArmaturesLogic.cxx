@@ -31,6 +31,8 @@
 
 // MRML includes
 #include <vtkEventBroker.h>
+#include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 
 // VTK includes
 #include <vtkCellData.h>
@@ -96,6 +98,16 @@ void vtkSlicerArmaturesLogic::ObserveMRMLScene()
     {
     selectionNode->AddNewAnnotationIDToList(
       "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
+    selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+    }
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      this->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (interactionNode)
+    {
+    interactionNode->SetPlaceModePersistence(1);
+    interactionNode->SetCurrentInteractionMode(
+      vtkMRMLInteractionNode::ViewTransform);
     }
 
   this->Superclass::ObserveMRMLScene();
