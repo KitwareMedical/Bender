@@ -1642,7 +1642,7 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1662,6 +1662,12 @@ p, li { white-space: pre-wrap; }
          <layout class="QGridLayout" name="gridLayout_12">
           <item row="0" column="0">
            <widget class="QLabel" name="PoseArmaturesLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
             </property>
