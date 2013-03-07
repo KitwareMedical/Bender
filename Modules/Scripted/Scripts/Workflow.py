@@ -66,6 +66,15 @@ class WorkflowWidget:
     # Transform variables
     self.TransformNode = None
 
+    # Compute Weight variables
+    self.volumeSkinningCreateOutputConnected = False
+
+    # Pose surface variables
+    self.poseSurfaceCreateOutputConnected = False
+
+    # Pose surface variables
+    self.poseLabelmapCreateOutputConnected = False
+
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
@@ -110,7 +119,6 @@ class WorkflowWidget:
     # a) Volume Skinning
     self.get('VolumeSkinningApplyPushButton').connect('clicked()',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
-    self.get('VolumeSkinningInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSkinnedVolume)
     # b) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked()',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
@@ -130,13 +138,9 @@ class WorkflowWidget:
 
     self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
     self.get('ComputeArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
-
-    self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSurface)
     # 6) Resample
     self.get('PoseLabelmapApplyPushButton').connect('clicked()', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
-
-    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
 
     self.openPage = { 0 : self.openAdjustPage,
                       1 : self.openExtractPage,
@@ -725,6 +729,12 @@ class WorkflowWidget:
     if activeArmatureNode != None:
       self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(activeArmatureNode.GetAssociatedNode())
 
+    # Create output if necessary
+    if not self.volumeSkinningCreateOutputConnected:
+      self.get('VolumeSkinningInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSkinnedVolume)
+      self.volumeSkinningCreateOutputConnected = True
+    self.createOutputSkinnedVolume(self.get('VolumeSkinningInputVolumeNodeComboBox').currentNode())
+
   #  a) Volume Skinning
   def volumeSkinningParameters(self):
     parameters = {}
@@ -803,6 +813,12 @@ class WorkflowWidget:
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None:
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+
+    # Create output if necessary
+    if not self.poseSurfaceCreateOutputConnected:
+      self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseSurface)
+      self.poseSurfaceCreateOutputConnected = True
+    self.createOutputPoseSurface(self.get('PoseSurfaceInputComboBox').currentNode())
 
   # a) Eval Weight
   def evalSurfaceWeightParameters(self):
@@ -888,7 +904,7 @@ class WorkflowWidget:
     if self.get('PoseLabelmapWeightDirectoryButton').directory != dir:
       self.get('PoseLabelmapWeightDirectoryButton').directory = dir
 
-  def createOutputSurface(self, node):
+  def createOutputPoseSurface(self, node):
     if node == None:
       return
 
@@ -899,7 +915,11 @@ class WorkflowWidget:
 
   # 6) Resample NOTE: SHOULD BE LAST STEP
   def openPoseLabelmapPage(self):
-    pass
+    # Create output if necessary
+    if not self.poseLabelmapCreateOutputConnected:
+      self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
+      self.poseLabelmapCreateOutputConnected = True
+    self.createOutputPoseLabelmap(self.get('PoseLabelmapInputNodeComboBox').currentNode())
 
   def poseLabelmapParameters(self):
     parameters = {}
