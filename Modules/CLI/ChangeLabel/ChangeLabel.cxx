@@ -25,6 +25,9 @@
 #include "itkPluginUtilities.h"
 #include "ChangeLabelCLP.h"
 
+// STD includes
+#include <numeric>
+
 // Use an anonymous namespace to keep class types and function names
 // from colliding when module is used as shared object module.  Every
 // thing should be in an anonymous namespace except for the module
@@ -133,14 +136,24 @@ int DoIt( int argc, char * argv[] )
                                        CLPProcessInformation);
 
   filter->SetInput( 0, reader1->GetOutput() );
+
+  int totalNumberOfInputLabels =
+    std::accumulate(InputLabelNumber.begin(), InputLabelNumber.end(), 0);
   if (OutputLabel.size() != InputLabelNumber.size()
-    //|| OutputLabel.size() != InputLabel.size()
+      || InputLabel.size() <= 0
+      || InputLabelNumber.size() <= 0
+      || OutputLabel.size() <= 0
+      || InputLabel.size() != totalNumberOfInputLabels
       )
     {
-    std::cerr << "Error, different array sizes:\n"
-              << "InputLabel: " << InputLabel.size() << "\t"
-              << "InputLabelNumber: " << InputLabelNumber.size() << "\t"
-              << "OutputLabel: " << OutputLabel.size() << std::endl;
+    std::cerr << "Error, bad input sizes:" << std::endl
+      << "InputLabel size: " << InputLabel.size() << "\t"
+      << "InputLabelNumber size: " << InputLabelNumber.size() << "\t"
+      << "OutputLabel size: " << OutputLabel.size() << std::endl
+      << "The sum of all the InputLabelNumber values shoud be equal to the"
+      << " size of InputLabel."<<std::endl
+      << "The size of OutputLabel should be the same as the size of"
+      << " InputLabelNumber." << std::endl;
     return EXIT_FAILURE;
     }
   size_t k = 0;
