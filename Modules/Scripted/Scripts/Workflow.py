@@ -584,6 +584,7 @@ class WorkflowWidget:
     #parameters["PointNormals"] = True
     #parameters["Decimate"] = 0.25
     parameters["Smooth"] = 10
+    parameters["Name"] = 'Skin'
     return parameters
 
   def runSkinModelMaker(self):
