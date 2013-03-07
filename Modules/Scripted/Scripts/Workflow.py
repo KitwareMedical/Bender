@@ -272,6 +272,9 @@ class WorkflowWidget:
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
                                    'ComputeArmatureWeightArmatureLabel', 'ComputeArmatureWeightAmartureNodeComboBox',
                                    'ComputeArmatureWeightSkinnedVolumeLabel', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
+                                   'ComputeArmatureWeightUseEnvelopeLabel', 'ComputeArmatureWeightUseEnvelopeCheckBox',
+                                   'ComputeArmatureWeightPaddingLabel', 'ComputeArmatureWeightPaddingSpinBox',
+                                   'ComputeArmatureWeightScaleFactorLabel', 'ComputeArmatureWeightScaleFactorSpinBox',
                                    'ComputeArmatureWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
 
@@ -783,6 +786,9 @@ class WorkflowWidget:
     parameters["ArmaturePoly"] = self.get('ComputeArmatureWeightAmartureNodeComboBox').currentNode()
     parameters["SkinnedVolume"] = self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputDirectoryButton').directory)
+    parameters["UseEnvelopes"] = self.get('ComputeArmatureWeightUseEnvelopeCheckBox').isChecked()
+    parameters["Padding"] = self.get('ComputeArmatureWeightPaddingSpinBox').value
+    parameters["ScaleFactor"] = self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     #parameters["FirstEdge"] = 0
     #parameters["LastEdge"] = -1
     #parameters["BinaryWeight"] = False
