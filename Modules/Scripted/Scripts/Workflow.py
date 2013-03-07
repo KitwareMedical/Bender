@@ -247,6 +247,7 @@ class WorkflowWidget:
     # Hide all but the output and the toggle button
     advancedBoneModelMakerWidgets = ['BoneModelMakerInputLabel', 'BoneModelMakerInputNodeComboBox',
                                      'BoneModelMakerLabelsLabel', 'BoneModelMakerLabelsLineEdit',
+                                     'BoneModelMakerDecimateLabel', 'BoneModelMakerDecimateSliderWidget',
                                      'BoneModelMakerGoToModelsModulePushButton',
                                      'BoneModelMakerGoToModulePushButton']
     self.setWidgetsVisibility(advancedBoneModelMakerWidgets, advanced)
@@ -527,7 +528,7 @@ class WorkflowWidget:
     parameters["SplitNormals"] = True
     parameters["PointNormals"] = True
     parameters["SkipUnNamed"] = True
-    parameters["Decimate"] = 0.25
+    parameters["Decimate"] = self.get('BoneModelMakerDecimateSliderWidget').value
     parameters["Smooth"] = 10
     return parameters
 
