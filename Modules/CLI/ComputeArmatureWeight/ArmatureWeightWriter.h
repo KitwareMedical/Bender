@@ -127,6 +127,15 @@ public:
   vtkSetMacro(UseEnvelopes, bool);
   vtkGetMacro(UseEnvelopes, bool);
 
+  // Maximum parenthood distance prevent the heat diffusion to propagate
+  // in regions associated with a bone related too far in the family tree.
+  // Each bone has a distance of 1 with its direct parent and children.
+  // For example, MaximumParenthoodDistance = 1 limits the heat diffusion
+  // to the current bone, its children, and its parent. Default -1 means
+  // no limitations.
+  vtkSetMacro(MaximumParenthoodDistance, int);
+  int GetMaximumParenthoodDistance() const;
+
   // Computation methods
   bool Write();
 
@@ -141,7 +150,9 @@ protected:
 
   // Edge Id
   EdgeType Id;
+  CharType GetLabel(EdgeType id) const;
   CharType GetLabel() const;
+  EdgeType GetId(CharType label) const;
 
   // Create weight domain based on the armature
   // and the given body and bones partitions.
@@ -149,15 +160,42 @@ protected:
   // has weight, 0 otherwise.
   // The domain is later used to compute the interpolated and diffused  weights.
   CharImageType::Pointer CreateDomain(
-    LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer bonesPartition);
+    const LabelImageType* bodyPartition,
+    const LabelImageType* bonesPartition);
 
   // Create weight based on the domain
   // and the given body and bones partitions
   WeightImageType::Pointer CreateWeight(
-    CharImageType::Pointer domain,
-    LabelImageType::Pointer bodyPartition,
-    LabelImageType::Pointer bonesPartition);
+    const CharImageType* domain,
+    const LabelImageType* bodyPartition,
+    const LabelImageType* bonesPartition);
+
+  // "Mask" resampled image with the body partition
+  // All the weight outside the body are marked off to -1.0
+  // The bad weight ( < 0.0) or the weight in the area that belongs
+  // to a bone too far in the family tree are attributed to
+  // the proper value (-1.0 for outside and 0.0 inside).
+  void CleanWeight(WeightImageType* weight,
+    const LabelImageType* bodyPartition) const;
+
+  // Uses Djikstra's algorithm to compute the map of distances
+  // between the given edge and all the other edges.
+  std::vector<int> GetParenthoodDistances(EdgeType boneID) const;
+
+  // Creates a copy of the input image and restricts it to the
+  // area within the maximum parenthood distance.
+  // Any point outside this distance is assigned the BackgroundLabel
+  // value. This basically acts as a custom mask filter.
+  LabelImageType::Pointer ApplyDistanceMask(
+    const LabelImageType* image,
+    const std::vector<int>& distances) const;
+
+  // Using the given weight image, restricts it to the area within the
+  // maximum parenthood distance.
+  // Any point outside this distance is assigned to -1.0f value.
+  void ApplyDistanceMask(const LabelImageType* bodyPartition,
+     WeightImageType::Pointer& weight,
+     const std::vector<int>& distances) const;
 
   // Output necessary variables
   std::string Filename;
@@ -173,6 +211,8 @@ protected:
   bool DebugInfo;
   std::string DebugFolder;
 
+  int MaximumParenthoodDistance;
+
 private:
   ArmatureWeightWriter(const ArmatureWeightWriter&);  //Not implemented
   void operator=(const ArmatureWeightWriter&);  //Not implemented
@@ -185,8 +225,8 @@ private:
 class LocalizedBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
 {
 public:
-  LocalizedBodyHeatDiffusionProblem(CharImageType::Pointer domain,
-                                    LabelImageType::Pointer sourceMap,
+  LocalizedBodyHeatDiffusionProblem(const CharImageType* domain,
+                                    const LabelImageType* sourceMap,
                                     LabelType hotSourceLabel)
     :Domain(domain),
     SourceMap(sourceMap),
@@ -214,8 +254,8 @@ public:
     }
 
 private:
-  CharImageType::Pointer Domain;   //a binary image that describes the domain
-  LabelImageType::Pointer SourceMap; //a label image that defines the heat sources
+  CharImageType::ConstPointer Domain;   //a binary image that describes the domain
+  LabelImageType::ConstPointer SourceMap; //a label image that defines the heat sources
   LabelType HotSourceLabel; //any source voxel with this label will be assigned weight 1
 
   RegionType WholeDomain;
@@ -226,7 +266,7 @@ class GlobalBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
 {
 public:
   GlobalBodyHeatDiffusionProblem(
-    LabelImageType::Pointer body, LabelImageType::Pointer bones)
+    const LabelImageType* body, const LabelImageType* bones)
       :Body(body),Bones(bones)
   {
   }
@@ -250,8 +290,8 @@ public:
     }
 
 private:
-  LabelImageType::Pointer Body;
-  LabelImageType::Pointer Bones;
+  LabelImageType::ConstPointer Body;
+  LabelImageType::ConstPointer Bones;
 };
 
 #endif

@@ -74,7 +74,7 @@ namespace
 
 //-----------------------------------------------------------------------------
 template<class InImage, class OutImage>
-void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
+void Allocate(const InImage* in, OutImage* out)
 {
   out->CopyInformation(in);
   out->SetRegions(in->GetLargestPossibleRegion());
@@ -83,7 +83,7 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 
 //-----------------------------------------------------------------------------
 template <class ImageType, class InterpolatorType> typename ImageType::Pointer
-ResampleImage(typename ImageType::Pointer inputImage,
+ResampleImage(typename const ImageType* inputImage,
               double scaleFactor[3],
               typename InterpolatorType::Pointer interpolator)
 {
@@ -135,7 +135,7 @@ ResampleImage(typename ImageType::Pointer inputImage,
 
 //-----------------------------------------------------------------------------
 template <class ImageType, class InterpolatorType> typename ImageType::Pointer
-ResampleImage(typename ImageType::Pointer inputImage,
+ResampleImage(typename const ImageType* inputImage,
               double scaleFactor,
               typename InterpolatorType::Pointer interpolator)
 {
@@ -156,7 +156,7 @@ ResampleImage(typename ImageType::Pointer inputImage,
 
 //-----------------------------------------------------------------------------
 template <class ImageType> typename ImageType::Pointer
-DownsampleImage(typename ImageType::Pointer inputImage,
+DownsampleImage(typename const ImageType* inputImage,
                 double scaleFactor[3])
 {
   //typedef itk::NearestNeighborInterpolateImageFunction<ImageType> InterpolatorType;
@@ -308,6 +308,7 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->DebugFolder = "./DEBUG_";
   this->ScaleFactor = 2.0;
   this->UseEnvelopes = true;
+  this->MaximumParenthoodDistance = -1;
 }
 
 //-----------------------------------------------------------------------------
@@ -443,6 +444,18 @@ EdgeType ArmatureWeightWriter::GetId()const
 }
 
 //-----------------------------------------------------------------------------
+EdgeType ArmatureWeightWriter::GetId(CharType label) const
+{
+  return static_cast<EdgeType>(label - ArmatureWeightWriter::EdgeLabels);
+}
+
+//-----------------------------------------------------------------------------
+int ArmatureWeightWriter::GetMaximumParenthoodDistance() const
+{
+  return this->MaximumParenthoodDistance;
+}
+
+//-----------------------------------------------------------------------------
 bool ArmatureWeightWriter::Write()
 {
   bool res = false;
@@ -516,6 +529,13 @@ bool ArmatureWeightWriter::Write()
     {
     weight =
       UpsampleImage<WeightImageType>(downSampledWeight, realScaleFactor);
+    if ( this->GetDebugInfo() )
+      {
+      bender::IOUtils::WriteDebugImage<WeightImageType>(
+        weight, "UpsampledWeight.nrrd", this->DebugFolder);
+      }
+
+    this->CleanWeight(weight, this->BodyPartition);
     }
 
   if (weight->GetLargestPossibleRegion() !=
@@ -536,8 +556,8 @@ bool ArmatureWeightWriter::Write()
 
 //-----------------------------------------------------------------------------
 CharImageType::Pointer ArmatureWeightWriter
-::CreateDomain(LabelImageType::Pointer bodyPartition,
-               LabelImageType::Pointer bonesPartition)
+::CreateDomain(const LabelImageType* bodyPartition,
+               const LabelImageType* bonesPartition)
 {
   std::cout<<"Initalizing computation region for edge #"
     << this->Id << std::endl;
@@ -589,7 +609,7 @@ CharImageType::Pointer ArmatureWeightWriter
   // Scan through Domain and BodyPartition at the same time. (Same size)
   itk::ImageRegionIteratorWithIndex<CharImageType> domainIt(
     domain, domain->GetLargestPossibleRegion());
-  itk::ImageRegionIteratorWithIndex<LabelImageType> bodyPartitionIt(
+  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
     bodyPartition,bodyPartition->GetLargestPossibleRegion());
   for (domainIt.GoToBegin(); !domainIt.IsAtEnd();
     ++domainIt, ++bodyPartitionIt)
@@ -665,7 +685,7 @@ CharImageType::Pointer ArmatureWeightWriter
   if (this->GetDebugInfo())
     {
     bender::IOUtils::WriteDebugImage<CharImageType>(
-      domain, "region.nrrd", this->DebugFolder);
+      domain, "Region.nrrd", this->DebugFolder);
     }
 
   // Doesn't remove the case:
@@ -688,16 +708,16 @@ CharImageType::Pointer ArmatureWeightWriter
   if (this->GetDebugInfo())
     {
     bender::IOUtils::WriteDebugImage<CharImageType>(
-      domain, "region_cleaned.nrrd", this->DebugFolder);
+      domain, "RegionCleaned.nrrd", this->DebugFolder);
     }
   return domain;
 }
 
 //-----------------------------------------------------------------------------
 WeightImageType::Pointer ArmatureWeightWriter
-::CreateWeight(CharImageType::Pointer domain,
-               LabelImageType::Pointer bodyPartition,
-               LabelImageType::Pointer bonesPartition)
+::CreateWeight(const CharImageType* domain,
+               const LabelImageType* bodyPartition,
+               const LabelImageType* bonesPartition)
 {
   if (this->GetDebugInfo())
     {
@@ -716,8 +736,13 @@ WeightImageType::Pointer ArmatureWeightWriter
   threshold->SetOutsideValue(-1.0f);
   threshold->Update();
 
-  WeightImageType::Pointer weight = threshold->GetOutput();
+  if ( this->GetDebugInfo() )
+    {
+    bender::IOUtils::WriteDebugImage<WeightImageType>(
+      threshold->GetOutput(), "Threshold.nrrd", this->DebugFolder);
+    }
 
+  WeightImageType::Pointer weight = threshold->GetOutput();
   if (this->BinaryWeight)
     {
     // Domain is 0 everywhere except on the edge region where it's 1.
@@ -734,11 +759,33 @@ WeightImageType::Pointer ArmatureWeightWriter
     }
   else
     {
+    std::vector<int> distances = this->GetParenthoodDistances(this->GetId());
+
+    // Not very efficient but clearer
+    LabelImageType::Pointer maskedBodyPartition =
+      this->ApplyDistanceMask(bodyPartition, distances);
+    LabelImageType::Pointer maskedBonesPartition =
+      this->ApplyDistanceMask(bonesPartition, distances);
+    if ( this->GetDebugInfo() )
+      {
+      bender::IOUtils::WriteDebugImage<LabelImageType>(
+        maskedBodyPartition, "MaskedBodyPartition.nrrd", this->DebugFolder);
+      bender::IOUtils::WriteDebugImage<LabelImageType>(
+        maskedBonesPartition, "MaskedBonesPartition.nrrd", this->DebugFolder);
+      }
+
+    this->ApplyDistanceMask(maskedBodyPartition, weight, distances);
+    if ( this->GetDebugInfo() )
+      {
+      bender::IOUtils::WriteDebugImage<WeightImageType>(
+        weight, "RestrictedWeight.nrrd", this->DebugFolder);
+      }
+
     std::cout<<"Solve localized version of the problem for edge #"<<this->Id<<std::endl;
 
     //First solve a localized verison of the problme exactly
     LocalizedBodyHeatDiffusionProblem localizedProblem(
-      domain, bonesPartition, this->GetLabel());
+      domain, maskedBonesPartition, this->GetLabel());
     SolveHeatDiffusionProblem<WeightImageType>::Solve(localizedProblem, weight);
 
     std::cout<<"Solve global solution problem for edge #"<<this->Id<<std::endl;
@@ -746,28 +793,190 @@ WeightImageType::Pointer ArmatureWeightWriter
     if ( this->GetDebugInfo() )
       {
       bender::IOUtils::WriteDebugImage<WeightImageType>(
-        weight, "localized.nrrd", this->DebugFolder);
+        weight, "Localized.nrrd", this->DebugFolder);
       }
 
     //Approximate the global solution by iterative solving
     GlobalBodyHeatDiffusionProblem globalProblem(
-      bodyPartition, bonesPartition);
+      maskedBodyPartition, maskedBonesPartition);
     SolveHeatDiffusionProblem<WeightImageType>::SolveIteratively(
-      globalProblem,weight, this->SmoothingIterations);
+      globalProblem, weight, this->SmoothingIterations);
+
+    if ( this->GetDebugInfo() )
+      {
+      bender::IOUtils::WriteDebugImage<WeightImageType>(
+        weight, "Global.nrrd", this->DebugFolder);
+      }
+
     }
 
   if ( this->GetDebugInfo() )
     {
     bender::IOUtils::WriteDebugImage<WeightImageType>(
-      weight, "global.nrrd", this->DebugFolder);
+      weight, "Weight.nrrd", this->DebugFolder);
     }
 
   return weight;
 }
 
 //-----------------------------------------------------------------------------
+void ArmatureWeightWriter
+::CleanWeight(WeightImageType* weight,
+              const LabelImageType* bodyPartition) const
+{
+  std::vector<int> distances =
+    this->GetParenthoodDistances(this->GetId());
+
+  itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
+    weight, weight->GetLargestPossibleRegion());
+  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
+    bodyPartition, bodyPartition->GetLargestPossibleRegion());
+  for (weightIt.GoToBegin(), bodyPartitionIt.GoToBegin();
+    !weightIt.IsAtEnd();
+    ++weightIt, ++bodyPartitionIt)
+    {
+    LabelType label = bodyPartitionIt.Get();
+    if (label == ArmatureWeightWriter::BackgroundLabel) //Outside body
+      {
+      weightIt.Set(-1.0f);
+      }
+    else if (weightIt.Get() < 0.0
+      || (this->GetMaximumParenthoodDistance() >= 0
+          && label >= ArmatureWeightWriter::EdgeLabels
+          && distances[this->GetId(label)] > this->GetMaximumParenthoodDistance()))
+      {
+      weightIt.Set(
+        bodyPartitionIt.Get() > ArmatureWeightWriter::DomainLabel ?
+          0.0f : -1.0f);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+LabelImageType::Pointer ArmatureWeightWriter
+::ApplyDistanceMask(const LabelImageType* image,
+                    const std::vector<int>& distances) const
+{
+  LabelImageType::Pointer newImage = LabelImageType::New();
+  Allocate<LabelImageType, LabelImageType>(image, newImage);
+
+  itk::ImageRegionConstIteratorWithIndex<LabelImageType> imageIt(
+    image, image->GetLargestPossibleRegion());
+  itk::ImageRegionIteratorWithIndex<LabelImageType> newImageIt(
+    newImage, newImage->GetLargestPossibleRegion());
+  for (imageIt.GoToBegin(), newImageIt.GoToBegin();
+    !imageIt.IsAtEnd(); ++imageIt, ++newImageIt)
+    {
+    LabelType label = imageIt.Get();
+    if (label >= ArmatureWeightWriter::EdgeLabels &&
+      this->GetMaximumParenthoodDistance() >= 0 &&
+      distances[this->GetId(label)] > this->GetMaximumParenthoodDistance())
+      {
+      newImageIt.Set(ArmatureWeightWriter::BackgroundLabel);
+      }
+    else
+      {
+      newImageIt.Set(label);
+      }
+    }
+
+  return newImage;
+}
+
+//-----------------------------------------------------------------------------
+void ArmatureWeightWriter
+::ApplyDistanceMask(const LabelImageType* bodyPartition,
+                    WeightImageType::Pointer& weight,
+                    const std::vector<int>& distances) const
+{
+  // Fill weight image by allowing only "related bone" in weight regions
+  itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
+    weight, weight->GetLargestPossibleRegion());
+  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
+    bodyPartition, bodyPartition->GetLargestPossibleRegion());
+  for (weightIt.GoToBegin(), bodyPartitionIt.GoToBegin();
+    !weightIt.IsAtEnd(); ++weightIt, ++bodyPartitionIt)
+    {
+    LabelType label = bodyPartitionIt.Get();
+    if (label >= ArmatureWeightWriter::EdgeLabels &&
+      distances[this->GetId(label)] > this->GetMaximumParenthoodDistance())
+      {
+      weightIt.Set(-1.0f);
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+std::vector<int> ArmatureWeightWriter
+::GetParenthoodDistances(EdgeType boneId) const
+{
+  std::vector<int> distances;
+  vtkIdTypeArray* parenthood = vtkIdTypeArray::SafeDownCast(
+    this->Armature->GetCellData()->GetArray("Parenthood"));
+  if (!parenthood)
+    {
+    return distances; // No parenthood array, assume every bone is related
+    }
+
+  //
+  // Use Djikstras to compute distance map
+  //
+
+  // Init edges and distance map
+  std::vector<bool> edges (parenthood->GetNumberOfTuples(), false);
+  distances.resize(parenthood->GetNumberOfTuples(), VTK_INT_MAX);
+  distances[boneId] = 0;
+
+  for (int count = 0; count < parenthood->GetNumberOfTuples(); ++count)
+    {
+    int distance = VTK_INT_MAX;
+    size_t currentId;
+    for (size_t i = 0; i < distances.size(); ++i)
+      {
+      if (distances[i] < distance && edges[i] == false)
+        {
+        distance = distances[i];
+        currentId = i;
+        }
+      }
+    edges[currentId] = true; //visited
+
+    if (distance == VTK_INT_MAX)
+      {
+      std::cerr<<"ERROR:"<<std::endl<<"While computing edge distance map, "
+        "every edge should be accessible !"<<std::endl;
+      break;
+      }
+
+    for (vtkIdType id = 0; id < parenthood->GetNumberOfTuples(); ++id)
+      {
+      int newDistance = VTK_INT_MAX;
+      if (parenthood->GetValue(currentId) == id // ID is currentID parent
+          || parenthood->GetValue(id) == currentId) // ID is currentID child
+        {
+        newDistance = 1 + distance;
+        }
+
+      if (newDistance < distances[id])
+        {
+        distances[id] = newDistance;
+        }
+      }
+    }
+
+  return distances;
+}
+
+
+//-----------------------------------------------------------------------------
 CharType ArmatureWeightWriter::GetLabel() const
 {
+  return this->GetLabel(this->Id);
+}
+
+//-----------------------------------------------------------------------------
+CharType ArmatureWeightWriter::GetLabel(EdgeType id) const
+{
   // 0 is background, 1 is body interior so Armature Edge must start with 2
-  return static_cast<CharType>(this->Id + ArmatureWeightWriter::EdgeLabels);
+  return static_cast<CharType>(id + ArmatureWeightWriter::EdgeLabels);
 }

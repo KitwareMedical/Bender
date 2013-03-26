@@ -137,6 +137,15 @@
       <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded.]]></description>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to automatically prevent the propagation of the weight heat diffusion in region that belongs to bones too far in the family tree. For example, with Maximum Parenthood Distance set to 1, the diffusion will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
+
   </parameters>
 
 </executable>
