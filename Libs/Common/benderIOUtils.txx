@@ -34,8 +34,7 @@ namespace bender
 {
 //-------------------------------------------------------------------------------
 template <class ImageType>
-void IOUtils::WriteImage(typename ImageType::Pointer image,
-                         const std::string& fname)
+void IOUtils::WriteImage(const ImageType* image,  const std::string& fname)
 {
   std::cout << "Write image to " << fname << std::endl;
   typedef typename itk::ImageFileWriter<ImageType> WriterType;
@@ -48,8 +47,9 @@ void IOUtils::WriteImage(typename ImageType::Pointer image,
 
 //-------------------------------------------------------------------------------
 template <class ImageType>
-void IOUtils::WriteDebugImage(typename ImageType::Pointer image,
-                              const std::string& name, const std::string& debugDirectory)
+void IOUtils::WriteDebugImage(const ImageType* image,
+                              const std::string& name,
+                              const std::string& debugDirectory)
 {
   std::string fname = GetDebugDirectory(debugDirectory);
   WriteImage<ImageType>(image, fname + "/" + name);

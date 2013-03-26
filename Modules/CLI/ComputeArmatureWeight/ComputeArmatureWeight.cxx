@@ -314,7 +314,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     bender::IOUtils::WriteDebugImage<LabelImageType>(
-      dilatedBodyPartition, "DEBUG_DilatedBodyPartition.mha", debugDir);
+      dilatedBodyPartition, "DilatedBodyPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -331,7 +331,7 @@ int main( int argc, char * argv[] )
   if (Debug)
     {
     bender::IOUtils::WriteDebugImage<LabelImageType>(
-      bonesPartition, "DEBUG_BonesPartition.mha", debugDir);
+      bonesPartition, "BonesPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
@@ -403,6 +403,7 @@ int main( int argc, char * argv[] )
     debugFolder << debugDir << "/weight_"
       << std::setfill('0') << std::setw(numDigits) << i << "_DEBUG";
     writeWeight->SetDebugFolder(debugFolder.str());
+    writeWeight->SetMaximumParenthoodDistance(MaximumParenthoodDistance);
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)
