@@ -635,6 +635,57 @@ public:
 
 
 
+//-------------------------------------------------------------------------------
+// size = 0    :         size = 1:             size = 2:
+// /-----------\         *-----*-----*         /--*-----*--\
+// |           |         |           |         |           |
+// |           |         |           |         |           |
+// |           |         |           |         *  *  *  *  *
+// |           |         |           |         |           |
+// |           |         |           |         |           |
+// |     *     |         *           *         |  *     *  |
+// |           |         |           |         |           |
+// |           |         |           |         |           |
+// |           |         |           |         *  *  *  *  *
+// |           |         |           |         |           |
+// |           |         |           |         |           |
+// \-----------/         *-----*-----*         \--*-----*--/
+template<unsigned int dimension>
+class SubNeighborhood
+{
+public:
+  SubNeighborhood(int size)
+  {
+    this->Size = pow(static_cast<double>(size*2+1), static_cast<int>(dimension))
+                 - pow(static_cast<double>((size / 2)*2 + 1), static_cast<int>(dimension));
+    this->Offsets = new itk::Offset<dimension>[this->Size];
+    size_t count = 0;
+    for (int z = -size; z <= size; ++z)
+      {
+      for (int y = -size; y <= size; ++y)
+        {
+        for (int x = -size; x <= size; ++x)
+          {
+          if ( z % 2 == 0 && y % 2 == 0 && x % 2 == 0)
+            {
+            continue;
+            }
+          this->Offsets[count][0] = x;
+          this->Offsets[count][1] = y;
+          this->Offsets[count][2] = z;
+          ++count;
+          }
+        }
+      }
+    assert(count == this->Size);
+  }
+  ~SubNeighborhood()
+  {
+    delete [] this->Offsets;
+  }
+  size_t Size;
+  itk::Offset<dimension>* Offsets;
+};
 
 
 
@@ -863,7 +914,7 @@ int DoIt(int argc, char* argv[])
     {
     posedArmatureBounds[0] *= -1;
     posedArmatureBounds[1] *= -1;
-	  posedArmatureBounds[2] *= -1;
+    posedArmatureBounds[2] *= -1;
     posedArmatureBounds[3] *= -1;
     std::swap(posedArmatureBounds[0], posedArmatureBounds[1]);
     std::swap(posedArmatureBounds[2], posedArmatureBounds[3]);
@@ -1021,9 +1072,19 @@ int DoIt(int argc, char* argv[])
 */
   size_t assignedPixelCount(1);
   size_t countSkippedVoxels(0);
+  size_t voxelIt(0);
+  const size_t voxelCount =
+    labelMap->GetLargestPossibleRegion().GetSize(0) *
+    labelMap->GetLargestPossibleRegion().GetSize(1) *
+    labelMap->GetLargestPossibleRegion().GetSize(2);
+  size_t progress((voxelCount-1) / 10);
       // First pass, fill as much as possible
       for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
         {
+        if (voxelIt++ % progress == 0)
+          {
+          std::cout << "+";
+          }
         if (imageIt.Get() == OutsideLabel)
           {
           continue;
@@ -1052,25 +1113,26 @@ int DoIt(int argc, char* argv[])
           posedLabelMap->SetPixel(posedIndex, imageIt.Get());
 
           size_t maxPosedOffsetNorm = 2; // do it the first time.
-          for (size_t radius = 1; maxPosedOffsetNorm > 1 && radius < 50; ++radius)
+          for (size_t radius = 1; maxPosedOffsetNorm > 1 && radius <= MaximumRadius; radius*=2)
             {
-            if (radius > 14)
+            if (radius >= 16)
               {
               std::cerr << "@" << radius ;
               }
             //size_t assignedNeighborsCount = 0;
-            itk::Neighborhood<T, 3> neighborhood;
-            neighborhood.SetRadius(radius);
+            //itk::Neighborhood<T, 3> neighborhood;
+            //neighborhood.SetRadius(radius);
+            SubNeighborhood<3> neighborhood(radius);
+            double step = 0.5 / radius;
             //{
             maxPosedOffsetNorm = 0;
             size_t stepAssignedPixelCount = 0;
-            for (size_t iOff =0; iOff < neighborhood.Size(); ++iOff)
+            for (size_t iOff =0; iOff < neighborhood.Size; ++iOff)
               {
-              double step = 0.9999999 / radius;
               typename itk::ContinuousIndex<double, 3> index(imageIt.GetIndex());
-              index[0] += step * neighborhood.GetOffset(iOff)[0];
-              index[1] += step * neighborhood.GetOffset(iOff)[1];
-              index[2] += step * neighborhood.GetOffset(iOff)[2];
+              index[0] += step * neighborhood.Offsets[iOff][0];
+              index[1] += step * neighborhood.Offsets[iOff][1];
+              index[2] += step * neighborhood.Offsets[iOff][2];
               itk::Vector<double,3> neighborPosedCoord =
                 Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, transforms, dqs);
               if (neighborPosedCoord == InvalidCoord)
