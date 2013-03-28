@@ -60,11 +60,11 @@
     </boolean>
 
     <integer>
-      <name>MaximumPass</name>
-      <label>Maximum number of passes</label>
-      <longflag>--pass</longflag>
-      <description><![CDATA[This property controls how many times the image is browse to fill the holes.]]></description>
-      <default>4</default>
+      <name>MaximumRadius</name>
+      <label>Maximum radius</label>
+      <longflag>--radius</longflag>
+      <description><![CDATA[This property controls how far in the posed image the holes are filled. Should be a power of 2.]]></description>
+      <default>64</default>
     </integer>
 
   </parameters>
