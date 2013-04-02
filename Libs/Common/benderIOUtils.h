@@ -55,7 +55,7 @@ class BENDER_COMMON_EXPORT IOUtils
   /// Convenient method to write an itk debug image to disk.
   /// Internally uses GetDebugDirectory on the given dir.
   template <class ImageType>
-  static void WriteDebugImage(typename const ImageType* image,
+  static void WriteDebugImage(const ImageType* image,
     const std::string& name, const std::string& debugDirectory = "");
 
   /// Return the temporary directory.

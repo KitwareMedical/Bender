@@ -83,7 +83,7 @@ void Allocate(const InImage* in, OutImage* out)
 
 //-----------------------------------------------------------------------------
 template <class ImageType, class InterpolatorType> typename ImageType::Pointer
-ResampleImage(typename const ImageType* inputImage,
+ResampleImage(const ImageType* inputImage,
               double scaleFactor[3],
               typename InterpolatorType::Pointer interpolator)
 {
@@ -135,7 +135,7 @@ ResampleImage(typename const ImageType* inputImage,
 
 //-----------------------------------------------------------------------------
 template <class ImageType, class InterpolatorType> typename ImageType::Pointer
-ResampleImage(typename const ImageType* inputImage,
+ResampleImage(const ImageType* inputImage,
               double scaleFactor,
               typename InterpolatorType::Pointer interpolator)
 {
@@ -156,7 +156,7 @@ ResampleImage(typename const ImageType* inputImage,
 
 //-----------------------------------------------------------------------------
 template <class ImageType> typename ImageType::Pointer
-DownsampleImage(typename const ImageType* inputImage,
+DownsampleImage(const ImageType* inputImage,
                 double scaleFactor[3])
 {
   //typedef itk::NearestNeighborInterpolateImageFunction<ImageType> InterpolatorType;
@@ -505,8 +505,7 @@ bool ArmatureWeightWriter::Write()
     }
 
   // Compute weight
-  CharImageType::Pointer domain =
-    this->CreateDomain(downSampledBodyPartition, downSampledBonesPartition);
+  CharImageType::Pointer domain = this->CreateDomain(downSampledBodyPartition);
   if (!domain)
     {
     std::cerr<<"Could not initialize edge correctly. Stopping."<<std::endl;
@@ -556,8 +555,7 @@ bool ArmatureWeightWriter::Write()
 
 //-----------------------------------------------------------------------------
 CharImageType::Pointer ArmatureWeightWriter
-::CreateDomain(const LabelImageType* bodyPartition,
-               const LabelImageType* bonesPartition)
+::CreateDomain(const LabelImageType* bodyPartition)
 {
   std::cout<<"Initalizing computation region for edge #"
     << this->Id << std::endl;
@@ -759,7 +757,8 @@ WeightImageType::Pointer ArmatureWeightWriter
     }
   else
     {
-    std::vector<int> distances = this->GetParenthoodDistances(this->GetId());
+    std::vector<unsigned int> distances =
+      this->GetParenthoodDistances(this->GetId());
 
     // Not very efficient but clearer
     LabelImageType::Pointer maskedBodyPartition =
@@ -824,7 +823,7 @@ void ArmatureWeightWriter
 ::CleanWeight(WeightImageType* weight,
               const LabelImageType* bodyPartition) const
 {
-  std::vector<int> distances =
+  std::vector<unsigned int> distances =
     this->GetParenthoodDistances(this->GetId());
 
   itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
@@ -843,7 +842,8 @@ void ArmatureWeightWriter
     else if (weightIt.Get() < 0.0
       || (this->GetMaximumParenthoodDistance() >= 0
           && label >= ArmatureWeightWriter::EdgeLabels
-          && distances[this->GetId(label)] > this->GetMaximumParenthoodDistance()))
+          && distances[this->GetId(label)] >
+            static_cast<unsigned int>(this->GetMaximumParenthoodDistance())))
       {
       weightIt.Set(
         bodyPartitionIt.Get() > ArmatureWeightWriter::DomainLabel ?
@@ -855,7 +855,7 @@ void ArmatureWeightWriter
 //-----------------------------------------------------------------------------
 LabelImageType::Pointer ArmatureWeightWriter
 ::ApplyDistanceMask(const LabelImageType* image,
-                    const std::vector<int>& distances) const
+                    const std::vector<unsigned int>& distances) const
 {
   LabelImageType::Pointer newImage = LabelImageType::New();
   Allocate<LabelImageType, LabelImageType>(image, newImage);
@@ -870,7 +870,8 @@ LabelImageType::Pointer ArmatureWeightWriter
     LabelType label = imageIt.Get();
     if (label >= ArmatureWeightWriter::EdgeLabels &&
       this->GetMaximumParenthoodDistance() >= 0 &&
-      distances[this->GetId(label)] > this->GetMaximumParenthoodDistance())
+      distances[this->GetId(label)] >
+        static_cast<unsigned int>(this->GetMaximumParenthoodDistance()))
       {
       newImageIt.Set(ArmatureWeightWriter::BackgroundLabel);
       }
@@ -887,7 +888,7 @@ LabelImageType::Pointer ArmatureWeightWriter
 void ArmatureWeightWriter
 ::ApplyDistanceMask(const LabelImageType* bodyPartition,
                     WeightImageType::Pointer& weight,
-                    const std::vector<int>& distances) const
+                    const std::vector<unsigned int>& distances) const
 {
   // Fill weight image by allowing only "related bone" in weight regions
   itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
@@ -899,7 +900,8 @@ void ArmatureWeightWriter
     {
     LabelType label = bodyPartitionIt.Get();
     if (label >= ArmatureWeightWriter::EdgeLabels &&
-      distances[this->GetId(label)] > this->GetMaximumParenthoodDistance())
+      distances[this->GetId(label)] >
+        static_cast<unsigned int>(this->GetMaximumParenthoodDistance()))
       {
       weightIt.Set(-1.0f);
       }
@@ -907,10 +909,10 @@ void ArmatureWeightWriter
 }
 
 //-----------------------------------------------------------------------------
-std::vector<int> ArmatureWeightWriter
+std::vector<unsigned int> ArmatureWeightWriter
 ::GetParenthoodDistances(EdgeType boneId) const
 {
-  std::vector<int> distances;
+  std::vector<unsigned int> distances;
   vtkIdTypeArray* parenthood = vtkIdTypeArray::SafeDownCast(
     this->Armature->GetCellData()->GetArray("Parenthood"));
   if (!parenthood)

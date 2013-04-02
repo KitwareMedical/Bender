@@ -159,9 +159,7 @@ protected:
   // The returned image contains 1 (DomainLabel) at each voxel when the Id edge
   // has weight, 0 otherwise.
   // The domain is later used to compute the interpolated and diffused  weights.
-  CharImageType::Pointer CreateDomain(
-    const LabelImageType* bodyPartition,
-    const LabelImageType* bonesPartition);
+  CharImageType::Pointer CreateDomain(const LabelImageType* bodyPartition);
 
   // Create weight based on the domain
   // and the given body and bones partitions
@@ -180,7 +178,7 @@ protected:
 
   // Uses Djikstra's algorithm to compute the map of distances
   // between the given edge and all the other edges.
-  std::vector<int> GetParenthoodDistances(EdgeType boneID) const;
+  std::vector<unsigned int> GetParenthoodDistances(EdgeType boneID) const;
 
   // Creates a copy of the input image and restricts it to the
   // area within the maximum parenthood distance.
@@ -188,14 +186,14 @@ protected:
   // value. This basically acts as a custom mask filter.
   LabelImageType::Pointer ApplyDistanceMask(
     const LabelImageType* image,
-    const std::vector<int>& distances) const;
+    const std::vector<unsigned int>& distances) const;
 
   // Using the given weight image, restricts it to the area within the
   // maximum parenthood distance.
   // Any point outside this distance is assigned to -1.0f value.
   void ApplyDistanceMask(const LabelImageType* bodyPartition,
      WeightImageType::Pointer& weight,
-     const std::vector<int>& distances) const;
+     const std::vector<unsigned int>& distances) const;
 
   // Output necessary variables
   std::string Filename;
