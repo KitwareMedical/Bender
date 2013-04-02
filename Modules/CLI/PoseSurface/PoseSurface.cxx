@@ -24,7 +24,7 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapIO.h"
 #include "benderWeightMapMath.h"
-#include "dqconv.h"
+#include "vtkDualQuaternion.h"
 
 #include <itkContinuousIndex.h>
 #include <itkImage.h>
@@ -104,7 +104,7 @@ template<class T>
 void PrintVector(T* a, int n)
 {
   std::cout<<"[";
-  for(int i=0; i<n; ++i)
+  for (int i=0; i<n; ++i)
     {
     std::cout<<a[i]<<(i==n-1?"": ", ");
     }
@@ -175,9 +175,9 @@ void InterpolateQuaternion(double qa[4], double qb[4], double t, double qm[4])
 Mat33 ToItkMatrix(double M[3][3])
 {
   Mat33 itkM;
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; ++j)
+    for (int j=0; j<3; ++j)
       {
       itkM(i,j)  = M[i][j];
       }
@@ -187,26 +187,11 @@ Mat33 ToItkMatrix(double M[3][3])
 }
 
 //-------------------------------------------------------------------------------
-inline Mat33 ToRotationMatrix(const Vec4& R)
+inline Mat33 ToRotationMatrix(const vtkQuaternion<double>& R)
 {
   Versor v;
-  v.Set(R[1],R[2], R[3],R[0]);
+  v.Set(R.GetX(), R.GetY(), R.GetZ(), R.GetW());
   return v.GetMatrix();
-}
-
-//-------------------------------------------------------------------------------
-void ApplyQT(Vec4& q, Vec3& t, double* x)
-{
-  double R[3][3];
-  vtkMath::QuaternionToMatrix3x3(&q[0], R);
-
-  double Rx[3];
-  vtkMath::Multiply3x3(R, x, Rx);
-
-  for(unsigned int i=0; i<3; ++i)
-    {
-    x[i] = Rx[i]+t[i];
-    }
 }
 
 //-------------------------------------------------------------------------------
@@ -214,52 +199,56 @@ struct RigidTransform
 {
   Vec3 O;
   Vec3 T;
-  Vec4 R; //rotation quarternion
+  Mat33 R;
+  //vtkQuaternion<double> R; //rotation quarternion
+
   RigidTransform()
   {
     //initialize to identity transform
     T[0] = T[1] = T[2] = 0.0;
 
-    R[0] = 1.0;
-    R[1] = R[2] = R[3] = 0.0;
+    R.SetIdentity();
 
     O[0]=O[1]=O[2]=0.0;
   }
 
   void SetRotation(double* M)
   {
-    vtkMath::Matrix3x3ToQuaternion((double (*)[3])M, &R[0]);
-  }
-  void SetRotation(double axisX,
-                   double axisY,
-                   double axisZ,
-                   double angle)
-  {
-    double c = cos(angle);
-    double s = sin(angle);
-    this->R[0] = c;
-    this->R[1] = s*axisX;
-    this->R[2] = s*axisY;
-    this->R[3] = s*axisZ;
+    this->R = ToItkMatrix((double (*)[3])M);
   }
 
   void SetRotationCenter(const double* center)
   {
     this->O = Vec3(center);
   }
+  void GetRotationCenter(double* center)
+  {
+    center[0] = this->O[0];
+    center[1] = this->O[1];
+    center[2] = this->O[2];
+  }
 
-  void SetTranslation(double* t)
+  void SetTranslation(const double* t)
   {
     this->T = Vec3(t);
   }
-  Vec3 GetTranslationComponent()
+  void GetTranslation(double* t)const
   {
-    return ToRotationMatrix(this->R)*(-this->O) + this->O +T;
+    t[0] = this->T[0];
+    t[1] = this->T[1];
+    t[2] = this->T[2];
+  }
+  void GetTranslationComponent(double* tc)const
+  {
+    Vec3 res = this->R*(-this->O) + this->O +T;
+    tc[0] = res[0];
+    tc[1] = res[1];
+    tc[2] = res[2];
   }
   void Apply(const double in[3], double out[3]) const
   {
     Vec3 x(in);
-    x = ToRotationMatrix(this->R)*(x-this->O) + this->O +T;
+    x = this->R*(x-this->O) + this->O +T;
     out[0] =x[0];
     out[1] =x[1];
     out[2] =x[2];
@@ -278,15 +267,15 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
   double T[3];
   double RCenter[3];
   int iA(0);
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; ++j,++iA)
+    for (int j=0; j<3; ++j,++iA)
       {
       R[j][i] = A[iA];
       }
     }
 
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
     T[i] = A[i+9];
     RCenter[i] = rcenter[i];
@@ -294,9 +283,9 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
 
   if(invertXY)
     {
-    for(int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i)
       {
-      for(int j=0; j<3; ++j)
+      for (int j=0; j<3; ++j)
         {
         if( (i>1 || j>1) && i!=j)
           {
@@ -309,6 +298,7 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
 
   F.SetRotation(&R[0][0]);
   F.SetRotationCenter(RCenter);
+  // Translation between the head in rest and head in pose (translated because of its parent).
   F.SetTranslation(T);
 }
 
@@ -336,8 +326,8 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
 
     Mat33 R;
     int iA(0);
-    for(int i=0; i<3; ++i)
-      for(int j=0; j<3; ++j,++iA)
+    for (int i=0; i<3; ++i)
+      for (int j=0; j<3; ++j,++iA)
         {
         R(i,j) = A[iA];
         }
@@ -351,9 +341,9 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,  const cha
     if(invertXY)
       {
       //    Mat33 flipY;
-      for(int i=0; i<3; ++i)
+      for (int i=0; i<3; ++i)
         {
-        for(int j=0; j<3; ++j)
+        for (int j=0; j<3; ++j)
           {
           if( (i>1 || j>1) && i!=j)
             {
@@ -427,11 +417,11 @@ public:
   CubeNeighborhood()
   {
     int index=0;
-    for(unsigned int i=0; i<=1; ++i)
+    for (unsigned int i=0; i<=1; ++i)
       {
-      for(unsigned int j=0; j<=1; ++j)
+      for (unsigned int j=0; j<=1; ++j)
         {
-        for(unsigned int k=0; k<=1; ++k,++index)
+        for (unsigned int k=0; k<=1; ++k,++index)
           {
           this->Offsets[index][0] = i;
           this->Offsets[index][1] = j;
@@ -453,9 +443,9 @@ void TestQuarternion()
   vtkMath::Matrix3x3ToQuaternion(A, AQuat);
   vtkMath::QuaternionToMatrix3x3(AQuat, A1);
 
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; ++j)
+    for (int j=0; j<3; ++j)
       {
       assert(fabs(A1[i][j]-A[i][j])<0.001);
       }
@@ -468,23 +458,6 @@ void TestQuarternion()
   vtkMath::Matrix3x3ToQuaternion(B, BQuat);
 }
 
-
-//-------------------------------------------------------------------------------
-void TestDualQuarternion()
-{
-  Vec4 q = ComputeQuarternion(0,0,1,3.14/4);
-  Vec3 t;
-  t[0] = 0.0;
-  t[1] = 1.0;
-  t[2] = 0.0;
-
-  double dq[2][4];
-  QuatTrans2UDQ(&q[0],&t[0],dq);
-
-  Vec4 q1;
-  Vec3 t1;
-  DQ2QuatTrans(dq,&q1[0],&t1[0]);
-}
 
 //-------------------------------------------------------------------------------
 void TestVersor()
@@ -505,7 +478,7 @@ void TestVersor()
   vtkMath::Matrix3x3ToQuaternion(A, qa);
   vtkMath::Matrix3x3ToQuaternion(B, qb);
 
-  for(double t=0; t<1.0; t+=0.1)
+  for (double t=0; t<1.0; t+=0.1)
     {
     Versor vt = vb.Exponential(t);
     double qt[4];
@@ -525,12 +498,13 @@ void TestTransformBlending()
     {
     RigidTransform A;
     double AR[3][3];
-    vtkMath::QuaternionToMatrix3x3(&A.R[0], AR);
+    memcpy(AR, (double (*)[3])&A.R(0,0), 3*3*sizeof(double));
+    //vtkMath::QuaternionToMatrix3x3(&A.R[0], AR);
 
     double x[3] = {1,2,3};
     double y[3];
     A.Apply(x,y);
-    for(int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i)
       {
       assert(x[i]==y[i]);
       }
@@ -558,9 +532,9 @@ void TestInterpolation()
   image->SetRegions(region);
   image->Allocate();
   ImageType::IndexType ij;
-  for(ij[0]=0; ij[0]<2; ij[0]++)
+  for (ij[0]=0; ij[0]<2; ij[0]++)
     {
-    for(ij[1]=0; ij[1]<2; ij[1]++)
+    for (ij[1]=0; ij[1]<2; ij[1]++)
       {
       image->SetPixel(ij, double(ij[0]+ij[1]));
       }
@@ -576,7 +550,7 @@ void TestInterpolation()
 
   ImageType::IndexType baseIndex;
   float distance[2];
-  for(int dim = 0; dim < 2; ++dim )
+  for (int dim = 0; dim < 2; ++dim )
     {
     baseIndex[dim] = itk::Math::Floor<ImageType::IndexValueType>( coord[dim] );
     distance[dim] = coord[dim] - static_cast<float >( baseIndex[dim] );
@@ -591,13 +565,13 @@ void TestInterpolation()
 
   //for each cube vertex
   double value = 0;
-  for(unsigned int index=0; index<4; ++index)
+  for (unsigned int index=0; index<4; ++index)
     {
     //for each bit of index
     unsigned int bit = index;
     double w=1.0;
     ImageType::IndexType ij;
-    for(int dim=0; dim<2; ++dim)
+    for (int dim=0; dim<2; ++dim)
       {
       bool upper = bit & 1;
       bit>>=1;
@@ -611,6 +585,12 @@ void TestInterpolation()
   assert(fabs(value-interpolator->EvaluateAtContinuousIndex(coord))<0.001);
 
 
+}
+
+//-------------------------------------------------------------------------------
+bool WIComp(const std::pair<double, int>& left, const std::pair<double, int>& right)
+{
+  return left.first > right.first;
 }
 
 //-------------------------------------------------------------------------------
@@ -630,7 +610,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+  for (int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -642,7 +622,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     Voxel p;
     p.CopyWithCast(coord);
 
-    for(int iOff=0; iOff<8; ++iOff)
+    for (int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
 
@@ -655,16 +635,33 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     }
 }
 
-} // end namespaceS
+} // end namespace
+
+
+
+
 
 //-------------------------------------------------------------------------------
 int main( int argc, char * argv[] )
 {
   typedef bender::WeightMap WeightMap;
+
+  // This property controls how many bone transforms are blended together
+  // when interpolating. Usually 2 but can go up to 4 sometimes.
+  // 1 for no interpolation (use the closest bone transform).
+  const int MaximumNumberOfInterpolatedBones = 4;
+  // This property controls whether to interpolate with ScLerp
+  // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
+  // Blending).
+  // Note that DLB (faster) is not tweaked to give proper results.
+  const bool UseScLerp = true;
+
+#ifndef _NDEBUG
   //run some tests
   TestTransformBlending();
   TestVersor();
   TestInterpolation();
+#endif
 
   PARSE_ARGS;
 
@@ -789,7 +786,7 @@ int main( int argc, char * argv[] )
       std::cout << weightRegion << std::endl;
 
       int numForeGround = 0;
-      for(itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);
+      for (itk::ImageRegionIterator<WeightImage> it(weight0,weightRegion);
         !it.IsAtEnd(); ++it)
         {
         numForeGround += (it.Get() >= 0);
@@ -809,12 +806,12 @@ int main( int argc, char * argv[] )
 
     //----------------------------
     // Create output field arrays
-    for(int i=0; i < numWeights; ++i)
+    for (int i=0; i < numWeights; ++i)
       {
       vtkFloatArray* arr = vtkFloatArray::New();
       arr->SetNumberOfTuples(numPoints);
       arr->SetNumberOfComponents(1);
-      for(vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); ++j)
+      for (vtkIdType j=0; j<static_cast<vtkIdType>(numPoints); ++j)
         {
         arr->SetValue(j,0.0);
         }
@@ -829,7 +826,7 @@ int main( int argc, char * argv[] )
     // Perform interpolation
     WeightMap::WeightVector w_pi(numWeights);
     WeightMap::WeightVector w_corner(numWeights);
-    for(int pi = 0; pi < numPoints; ++pi)
+    for (int pi = 0; pi < numPoints; ++pi)
       {
       double xraw[3];
       inputPoints->GetPoint(pi,xraw);
@@ -849,7 +846,7 @@ int main( int argc, char * argv[] )
       else
         {
         //NormalizeWeight(w_pi);
-        for(int i = 0; i < numWeights; ++i)
+        for (int i = 0; i < numWeights; ++i)
           {
           surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
           }
@@ -924,13 +921,16 @@ int main( int argc, char * argv[] )
     return EXIT_FAILURE;
     }
 
-  std::vector<Mat24> dqs;
-  for(size_t i = 0; i < numSites; ++i)
+  std::vector<vtkDualQuaternion<double> > dqs;
+  for (size_t i = 0; i < numSites; ++i)
     {
-    Mat24 dq;
     RigidTransform& trans = transforms[i];
-    Vec3 T = trans.GetTranslationComponent();
-    QuatTrans2UDQ(&trans.R[0], &T[0], (double (*)[4]) &dq(0,0));
+    vtkQuaternion<double> rotation;
+    rotation.FromMatrix3x3((double (*)[3])&trans.R(0,0));
+    double tc[3];
+    trans.GetTranslationComponent(tc);
+    vtkDualQuaternion<double> dq;
+    dq.SetRotationTranslation(rotation, &tc[0]);
     dqs.push_back(dq);
     }
 
@@ -939,50 +939,73 @@ int main( int argc, char * argv[] )
   //----------------------------
   // Pose
   //----------------------------
-  for(int pi = 0; pi < numPoints; ++pi)
+  for (vtkIdType pi = 0; pi < numPoints; ++pi)
     {
     double xraw[3];
     inputPoints->GetPoint(pi,xraw);
 
     double wSum = 0.0;
-    for(int i = 0; i < numWeights; ++i)
+    for (int i = 0; i < numWeights; ++i)
       {
       wSum += surfaceVertexWeights[i]->GetValue(pi);
       }
 
     Vec3 y(0.0);
-    if (wSum <= 0.0)
+    if (wSum <= 0.0) // shortcut
       {
       y = xraw;
       }
     else
       {
-      if(LinearBlend)
+      if (LinearBlend)
         {
-        for(int i = 0; i < numWeights; ++i)
+        for (int i = 0; i < numWeights; ++i)
           {
           double w = surfaceVertexWeights[i]->GetValue(pi) / wSum;
-          const RigidTransform& Fi(transforms[i]);
           double yi[3];
-          Fi.Apply(xraw, yi);
+          const vtkDualQuaternion<double>& transform(dqs[i]);
+          transform.TransformPoint(xraw, yi);
           y += w*Vec3(yi);
           }
         }
       else
         {
-        Mat24 dq;
-        dq.Fill(0.0);
-        for(int i=0; i < numWeights; ++i)
+        std::vector<std::pair<double, int> > ws;
+        for (int i=0; i < numWeights; ++i)
           {
           double w = surfaceVertexWeights[i]->GetValue(pi) / wSum;
-          Mat24& dq_i(dqs[i]);
-          dq += dq_i*w;
+          ws.push_back(std::make_pair(w, i));
           }
-        Vec4 q;
-        Vec3 t;
-        DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-        y = xraw;
-        ApplyQT(q,t,&y[0]);
+        // To limit computation errors, it is important to start interpolating with the
+        // highest w first.
+        std::partial_sort(ws.begin(),
+                          ws.begin() + MaximumNumberOfInterpolatedBones,
+                          ws.end(),
+                          WIComp);
+        vtkDualQuaternion<double> transform = dqs[ws[0].second];
+        double w = ws[0].first;
+        // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
+        // sure it works with more than 2.
+        for (int i=1; i < MaximumNumberOfInterpolatedBones; ++i)
+          {
+          double w2 = ws[i].first;
+          int i2 = ws[i].second;
+          vtkDualQuaternion<double> dq;
+          if (UseScLerp)
+            {
+            dq = transform.ScLerp2(w2 / (w + w2), dqs[i2]);
+            // vtkDualQuaternion<double> dq2 = dqs[i2].ScLerp2(w/ (w + w2), dq);
+            // vtkDualQuaternion<double> dq3 = dq.ScLerp(w2/ (w + w2), dqs[i2]);
+            // vtkDualQuaternion<double> dq4 = dqs[i2].ScLerp(w/ (w + w2), dq);
+            }
+          else
+            {
+            dq = transform.Lerp(w2 / (w + w2), dqs[i2]);
+            }
+          transform = dq;
+          w += w2;
+          }
+        transform.TransformPoint(xraw, &y[0]);
         }
       }
 

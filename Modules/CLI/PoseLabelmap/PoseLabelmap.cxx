@@ -24,7 +24,7 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapIO.h"
 #include "benderWeightMapMath.h"
-#include "dqconv.h"
+#include "vtkDualQuaternion.h"
 
 // ITK includes
 #include <itkContinuousIndex.h>
@@ -159,6 +159,21 @@ inline void InvertXY(T& x)
 }
 
 //-------------------------------------------------------------------------------
+Mat33 ToItkMatrix(double M[3][3])
+{
+  Mat33 itkM;
+  for (int i=0; i<3; ++i)
+    {
+    for (int j=0; j<3; ++j)
+      {
+      itkM(i,j)  = M[i][j];
+      }
+    }
+
+  return itkM;
+}
+
+//-------------------------------------------------------------------------------
 inline Mat33 ToRotationMatrix(const Vec4& R)
 {
   Versor v;
@@ -175,70 +190,71 @@ void ApplyQT(Vec4& q, Vec3& t, double* x)
   double Rx[3];
   vtkMath::Multiply3x3(R, x, Rx);
 
-  for(unsigned int i=0; i<3; ++i)
+  for (unsigned int i=0; i<3; ++i)
     {
     x[i] = Rx[i]+t[i];
     }
 }
+
 
 //-------------------------------------------------------------------------------
 struct RigidTransform
 {
   Vec3 O;
   Vec3 T;
-  Vec4 R; //rotation quarternion
+  Mat33 R;
+  //vtkQuaternion<double> R; //rotation quarternion
+
   RigidTransform()
   {
     //initialize to identity transform
     T[0] = T[1] = T[2] = 0.0;
 
-    R[0] = 1.0;
-    R[1] = R[2] = R[3] = 0.0;
+    R.SetIdentity();
 
     O[0]=O[1]=O[2]=0.0;
   }
 
   void SetRotation(double* M)
   {
-    vtkMath::Matrix3x3ToQuaternion((double (*)[3])M, &R[0]);
-  }
-  void SetRotation(double axisX,
-                   double axisY,
-                   double axisZ,
-                   double angle)
-  {
-    double c = cos(angle);
-    double s = sin(angle);
-    this->R[0] = c;
-    this->R[1] = s*axisX;
-    this->R[2] = s*axisY;
-    this->R[3] = s*axisZ;
+    this->R = ToItkMatrix((double (*)[3])M);
   }
 
   void SetRotationCenter(const double* center)
   {
     this->O = Vec3(center);
   }
+  void GetRotationCenter(double* center)
+  {
+    center[0] = this->O[0];
+    center[1] = this->O[1];
+    center[2] = this->O[2];
+  }
 
-  void SetTranslation(double* t)
+  void SetTranslation(const double* t)
   {
     this->T = Vec3(t);
   }
-  Vec3 GetTranslationComponent()
+  void GetTranslation(double* t)const
   {
-    return ToRotationMatrix(this->R)*(-this->O) + this->O +T;
+    t[0] = this->T[0];
+    t[1] = this->T[1];
+    t[2] = this->T[2];
+  }
+  void GetTranslationComponent(double* tc)const
+  {
+    Vec3 res = this->R*(-this->O) + this->O +T;
+    tc[0] = res[0];
+    tc[1] = res[1];
+    tc[2] = res[2];
   }
   void Apply(const double in[3], double out[3]) const
   {
-    Vec3 transformed(in);
-    Apply(Vec3(in), transformed);
-    out[0] = transformed[0];
-    out[1] = transformed[1];
-    out[2] = transformed[2];
-  }
-  void Apply(Vec3 in, Vec3& out) const
-  {
-    out = ToRotationMatrix(this->R)*(in-this->O) + this->O +T;
+    Vec3 x(in);
+    x = this->R*(x-this->O) + this->O +T;
+    out[0] =x[0];
+    out[1] =x[1];
+    out[2] =x[2];
   }
 };
 
@@ -254,15 +270,15 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
   double T[3];
   double RCenter[3];
   int iA(0);
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; ++j,++iA)
+    for (int j=0; j<3; ++j,++iA)
       {
       R[j][i] = A[iA];
       }
     }
 
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
     T[i] = A[i+9];
     RCenter[i] = rcenter[i];
@@ -270,9 +286,9 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
 
   if(invertXY)
     {
-    for(int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i)
       {
-      for(int j=0; j<3; ++j)
+      for (int j=0; j<3; ++j)
         {
         if( (i>1 || j>1) && i!=j)
           {
@@ -313,8 +329,8 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,
 
     Mat33 R;
     int iA(0);
-    for(int i=0; i<3; ++i)
-      for(int j=0; j<3; ++j,++iA)
+    for (int i=0; i<3; ++i)
+      for (int j=0; j<3; ++j,++iA)
         {
         R(i,j) = A[iA];
         }
@@ -328,9 +344,9 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,
     if(invertXY)
       {
       //    Mat33 flipY;
-      for(int i=0; i<3; ++i)
+      for (int i=0; i<3; ++i)
         {
-        for(int j=0; j<3; ++j)
+        for (int j=0; j<3; ++j)
           {
           if( (i>1 || j>1) && i!=j)
             {
@@ -406,11 +422,11 @@ public:
   CubeNeighborhood()
   {
     int index=0;
-    for(unsigned int i=0; i<=1; ++i)
+    for (unsigned int i=0; i<=1; ++i)
       {
-      for(unsigned int j=0; j<=1; ++j)
+      for (unsigned int j=0; j<=1; ++j)
         {
-        for(unsigned int k=0; k<=1; ++k,++index)
+        for (unsigned int k=0; k<=1; ++k,++index)
           {
           this->Offsets[index][0] = i;
           this->Offsets[index][1] = j;
@@ -422,6 +438,11 @@ public:
   VoxelOffset Offsets[8];
 };
 
+//-------------------------------------------------------------------------------
+bool WIComp(const std::pair<double, int>& left, const std::pair<double, int>& right)
+{
+  return left.first > right.first;
+}
 
 //-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
@@ -440,7 +461,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+  for (int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -452,7 +473,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     Voxel p;
     p.CopyWithCast(coord);
 
-    for(int iOff=0; iOff<8; ++iOff)
+    for (int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
 
@@ -487,7 +508,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
   bender::WeightMap::WeightVector w_pi(numSites);
   weightMap.Get(imageIt.GetIndex(), w_pi);
   double wSum(0.0);
-  for(size_t i = 0; i < numSites; ++i)
+  for (size_t i = 0; i < numSites; ++i)
     {
     wSum+=w_pi[i];
     }
@@ -497,7 +518,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
     }
   else if(linearBlend)
     {
-    for(size_t i=0; i<numSites;++i)
+    for (size_t i=0; i<numSites;++i)
       {
       double w = w_pi[i]/wSum;
       const RigidTransform& Fi(transforms[i]);
@@ -510,7 +531,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
     {
     Mat24 dq;
     dq.Fill(0.0);
-    for(size_t i=0; i<numSites;++i)
+    for (size_t i=0; i<numSites;++i)
       {
       double w = w_pi[i]/wSum;
       Mat24& dq_i(dqs[i]);
@@ -532,13 +553,18 @@ itk::Vector<double,3> InvalidCoord;
 itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
                                 bender::WeightMap::WeightVector w_pi,
                                 bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
+                                const int maximumNumberOfInterpolatedBones,
+                                const std::vector<vtkDualQuaternion<double> >& dqs)
 {
+  double restPos[3];
+  restPos[0] = restCoord[0];
+  restPos[1] = restCoord[1];
+  restPos[2] = restCoord[2];
   itk::Vector<double,3> posedCoord(0.0);
-  size_t numSites = w_pi.GetSize();
+
+  const size_t numSites = w_pi.GetSize();
   double wSum(0.0);
-  for(size_t i = 0; i < numSites; ++i)
+  for (size_t i = 0; i < numSites; ++i)
     {
     wSum+=w_pi[i];
     }
@@ -546,33 +572,43 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
     {
     posedCoord = InvalidCoord;//restCoord;
     }
-  else if(linearBlend)
+  else if (linearBlend)
     {
-    for(size_t i=0; i<numSites;++i)
+    for (size_t i = 0; i < numSites; ++i)
       {
-      double w = w_pi[i]/wSum;
-      const RigidTransform& Fi(transforms[i]);
-      Vec3 yi;
-      Fi.Apply(restCoord, yi);
-      posedCoord += w*yi;
+      double w = w_pi[i] / wSum;
+      double yi[3];
+      const vtkDualQuaternion<double>& transform(dqs[i]);
+      transform.TransformPoint(restPos, yi);
+      posedCoord += w*Vec3(yi);
       }
     }
   else
     {
-    Mat24 dq;
-    dq.Fill(0.0);
-    for(size_t i=0; i<numSites;++i)
+    std::vector<std::pair<double, int> > ws;
+    for (size_t i=0; i < numSites; ++i)
       {
-      const double w = w_pi[i] / wSum;
-      // const_cast due to HISTITK-1389
-      Mat24& dq_i(const_cast<std::vector<Mat24>&>(dqs)[i]);
-      dq += dq_i*w;
+      double w = w_pi[i] / wSum;
+      ws.push_back(std::make_pair(w, static_cast<int>(i)));
       }
-    Vec4 q;
-    Vec3 t;
-    DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-    posedCoord = restCoord;
-    ApplyQT(q,t,&posedCoord[0]);
+    // To limit computation errors, it is important to start interpolating with the
+    // highest w first.
+    std::partial_sort(ws.begin(),
+                      ws.begin() + maximumNumberOfInterpolatedBones,
+                      ws.end(),
+                      WIComp);
+    vtkDualQuaternion<double> transform = dqs[ws[0].second];
+    double w = ws[0].first;
+    // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
+    // sure it works with more than 2.
+    for (size_t i=1; i < maximumNumberOfInterpolatedBones; ++i)
+      {
+      double w2 = ws[i].first;
+      int i2 = ws[i].second;
+      transform = transform.ScLerp2(w2 / (w + w2), dqs[i2]);
+      w += w2;
+      }
+    transform.TransformPoint(restPos, &posedCoord[0]);
     }
   return posedCoord;
 }
@@ -585,8 +621,8 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
                                 const bender::WeightMap& weightMap,
                                 typename itk::Image<float, 3>::Pointer weightImage,
                                 bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
+                                int maximumNumberOfInterpolatedBones,
+                                const std::vector<vtkDualQuaternion<double> >& dqs)
 {
   typename itk::Image<T,3>::PointType p;
   image->TransformContinuousIndexToPhysicalPoint(index, p);
@@ -601,7 +637,7 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
   //weightIndex[2] = round(index[2]);
   //weightMap.Get(weightIndex, w_pi);
   bender::Lerp<itk::Image<float,3> >(weightMap,index,weightImage, 0., w_pi);
-  return Transform(restCoord, w_pi, linearBlend, transforms, dqs);
+  return Transform(restCoord, w_pi, linearBlend, maximumNumberOfInterpolatedBones, dqs);
 }
 
 
@@ -614,11 +650,11 @@ class Neighborhood
 public:
   Neighborhood()
   {
-    for(unsigned int i=0; i<dimension; ++i)
+    for (unsigned int i=0; i<dimension; ++i)
       {
       int lo = includeSelf + 2*i;
       int hi = includeSelf + 2*i+1;
-      for(unsigned int j=0; j<dimension; ++j)
+      for (unsigned int j=0; j<dimension; ++j)
         {
         if (includeSelf)
           {
@@ -717,6 +753,16 @@ public:
 template<class T>
 int DoIt(int argc, char* argv[])
 {
+ // This property controls how many bone transforms are blended together
+  // when interpolating. Usually 2 but can go up to 4 sometimes.
+  // 1 for no interpolation (use the closest bone transform).
+  const int MaximumNumberOfInterpolatedBones = 4;
+  // This property controls whether to interpolate with ScLerp
+  // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
+  // Blending).
+  // Note that DLB (faster) is not tweaked to give proper results.
+  // const bool UseScLerp = true;
+
   InvalidCoord[0] = std::numeric_limits<double>::max();
   InvalidCoord[1] = std::numeric_limits<double>::max();
   InvalidCoord[2] = std::numeric_limits<double>::max();
@@ -878,13 +924,17 @@ int DoIt(int argc, char* argv[])
     }
 
   numSites = transforms.size();
-  std::vector<Mat24> dqs;
-  for(size_t i=0; i<transforms.size(); ++i)
+
+  std::vector<vtkDualQuaternion<double> > dqs;
+  for (size_t i = 0; i < numSites; ++i)
     {
-    Mat24 dq;
     RigidTransform& trans = transforms[i];
-    Vec3 t = trans.GetTranslationComponent();
-    QuatTrans2UDQ(&trans.R[0], &t[0], (double (*)[4]) &dq(0,0));
+    vtkQuaternion<double> rotation;
+    rotation.FromMatrix3x3((double (*)[3])&trans.R(0,0));
+    double tc[3];
+    trans.GetTranslationComponent(tc);
+    vtkDualQuaternion<double> dq;
+    dq.SetRotationTranslation(rotation, &tc[0]);
     dqs.push_back(dq);
     }
 
@@ -1092,7 +1142,7 @@ int DoIt(int argc, char* argv[])
           continue;
           }
         itk::Vector<double,3> posedCoord =
-          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, weight0, LinearBlend, transforms, dqs);
+          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, weight0, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
         if (posedCoord == InvalidCoord)
           {
           continue;
@@ -1136,7 +1186,7 @@ int DoIt(int argc, char* argv[])
               index[1] += step * neighborhood.Offsets[iOff][1];
               index[2] += step * neighborhood.Offsets[iOff][2];
               itk::Vector<double,3> neighborPosedCoord =
-                Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, transforms, dqs);
+                Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
               if (neighborPosedCoord == InvalidCoord)
                 {
                 continue;
