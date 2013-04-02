@@ -716,7 +716,7 @@ int main( int argc, char * argv[] )
   NameVectorType weightFilenames;
   bender::GetWeightFileNames(WeightDirectory, weightFilenames);
 
-  int numWeights = weightFilenames.size();
+  size_t numWeights = weightFilenames.size();
   if(numWeights < 1)
     {
     std::cerr<<"No weight file is found."<<std::endl;
@@ -809,7 +809,7 @@ int main( int argc, char * argv[] )
 
     //----------------------------
     // Create output field arrays
-    for(int i=0; i < numWeights; ++i)
+    for(size_t i=0; i < numWeights; ++i)
       {
       vtkFloatArray* arr = vtkFloatArray::New();
       arr->SetNumberOfTuples(numPoints);
@@ -915,7 +915,7 @@ int main( int argc, char * argv[] )
     ++edgeId;
     }
 
-  int numSites = transforms.size();
+  size_t numSites = transforms.size();
   if (numSites != numWeights)
     {
     std::cerr<<"The number of transforms ("<<numSites
@@ -945,7 +945,7 @@ int main( int argc, char * argv[] )
     inputPoints->GetPoint(pi,xraw);
 
     double wSum = 0.0;
-    for(int i = 0; i < numWeights; ++i)
+    for(size_t i = 0; i < numWeights; ++i)
       {
       wSum += surfaceVertexWeights[i]->GetValue(pi);
       }
@@ -959,7 +959,7 @@ int main( int argc, char * argv[] )
       {
       if(LinearBlend)
         {
-        for(int i = 0; i < numWeights; ++i)
+        for(size_t i = 0; i < numWeights; ++i)
           {
           double w = surfaceVertexWeights[i]->GetValue(pi) / wSum;
           const RigidTransform& Fi(transforms[i]);
@@ -972,7 +972,7 @@ int main( int argc, char * argv[] )
         {
         Mat24 dq;
         dq.Fill(0.0);
-        for(int i=0; i < numWeights; ++i)
+        for(size_t i=0; i < numWeights; ++i)
           {
           double w = surfaceVertexWeights[i]->GetValue(pi) / wSum;
           Mat24& dq_i(dqs[i]);

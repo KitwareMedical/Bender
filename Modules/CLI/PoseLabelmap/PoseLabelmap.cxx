@@ -1115,7 +1115,9 @@ int DoIt(int argc, char* argv[])
           posedLabelMap->SetPixel(posedIndex, imageIt.Get());
 
           size_t maxPosedOffsetNorm = 2; // do it the first time.
-          for (size_t radius = 1; maxPosedOffsetNorm > 1 && radius <= MaximumRadius; radius*=2)
+          for (size_t radius = 1;
+            maxPosedOffsetNorm > 1 && radius <= static_cast<unsigned int>(MaximumRadius);
+            radius*=2)
             {
             if (radius >= 16)
               {
