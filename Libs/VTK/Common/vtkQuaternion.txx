@@ -130,6 +130,13 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>::Inverse() const
 }
 
 //----------------------------------------------------------------------------
+template<typename T> T vtkQuaternion<T>::Dot(const vtkQuaternion<T>& q)const
+{
+  return this->GetW()*q.GetW() + this->GetX()*q.GetX()
+       + this->GetY()*q.GetY() + this->GetZ()*q.GetZ();
+}
+
+//----------------------------------------------------------------------------
 template<typename T>
 template<typename CastTo> vtkQuaternion<CastTo> vtkQuaternion<T>::Cast() const
 {
@@ -309,6 +316,18 @@ vtkQuaternion<T> vtkQuaternion<T>::operator-(const vtkQuaternion<T>& q) const
 
 //----------------------------------------------------------------------------
 template<typename T>
+vtkQuaternion<T> vtkQuaternion<T>::operator-() const
+{
+  vtkQuaternion<T> ret;
+  for (int i = 0; i < 4; ++i)
+    {
+    ret[i] = -this->Data[i];
+    }
+  return ret;
+}
+
+//----------------------------------------------------------------------------
+template<typename T>
 vtkQuaternion<T> vtkQuaternion<T>::operator*(const vtkQuaternion<T>& q) const
 {
   vtkQuaternion<T> ret;
@@ -388,6 +407,18 @@ template<typename T> void vtkQuaternion<T>::operator/=(const T& scalar)
     {
     this->Data[i] /= scalar;
     }
+}
+
+//----------------------------------------------------------------------------
+template<typename T> bool vtkQuaternion<T>
+::operator==(const vtkQuaternion<T>& q) const
+{
+  bool res = true;
+  for (int i = 0; i < 4 && res; ++i)
+    {
+    res = (this->Data[i] == q->Data[i]);
+    }
+  return res;
 }
 
 //----------------------------------------------------------------------------
