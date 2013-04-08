@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Surface Models</category>
+  <title>Model Quadric Clustering Decimation</title>
+  <description><![CDATA[<p>Uses the vtkQuadricClustering filter to reduce the number of triangles in a triangle mesh, forming a good approximation to the original geometry.</p>]]></description>
+  <version>1.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ReduceModelTriangle</documentation-url>
+  <license>Apache 2.0</license>
+  <contributor>Johan Andruejol (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+
+  <parameters>
+    <label>IO</label>
+
+    <description><![CDATA[Input/output parameters]]></description>
+    <geometry>
+      <name>InputModel</name>
+      <label>Input Model</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input model]]></description>
+    </geometry>
+    <geometry fileExtensions=".vtk">
+      <name>DecimatedModel</name>
+      <label>Output Decimated Model</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Decimated model]]></description>
+    </geometry>
+  </parameters>
+
+  <parameters>
+    <label>Filter Settings</label>
+
+    <float-vector>
+      <name>Spacing</name>
+      <label>Spacing</label>
+      <flag>-s</flag>
+      <longflag>--spacing</longflag>
+      <description><![CDATA[Specify the desired spacing of the reducted model.]]></description>
+      <default>5.0,5.0,5.0</default>
+    </float-vector>
+
+  </parameters>
+
+
+  <parameters advanced="true">
+    <label>Advanced</label>
+
+    <boolean>
+      <name>UseInputPoints</name>
+      <label>Use Input Points</label>
+      <longflag>--inputPoints</longflag>
+      <description><![CDATA[Normally the point that minimizes the quadric error function is used as the output of the bin. When this flag is on, the bin point is forced to be one of the points from the input (the one with the smallest error).]]></description>
+      <default>0</default>
+    </boolean>
+
+    <boolean>
+      <name>UseFeatureEdges</name>
+      <label>Use Feature Edges</label>
+      <longflag>--featureEdges</longflag>
+      <description><![CDATA[When on, then quadrics are computed for boundary edges/feature edges. They influence the quadrics (position of points), but not the mesh]]></description>
+      <default>0</default>
+    </boolean>
+
+    <boolean>
+      <name>UseFeaturePoints</name>
+      <label>Use Feature Points</label>
+      <longflag>--featurePoints</longflag>
+      <description><![CDATA[It only has an effect when Use Feature Edges is also on. In this case quadrics are computed for boundary / feature points used in the boundary / feature edges. They influence the quadrics (position of points), but not the mesh. ]]></description>
+      <default>0</default>
+    </boolean>
+
+    <boolean>
+      <name>DebugMode</name>
+      <label>Debug</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Print debug information.]]></description>
+      <default>0</default>
+    </boolean>
+
+    <boolean>
+      <name>UseNumberOfDivisions</name>
+      <label>Use Number of Divisions</label>
+      <longflag>--useDivision</longflag>
+      <description><![CDATA[When this flag is on, the filter uses the given number of divisions for X, Y and Z instead of the spacing.]]></description>
+      <default>0</default>
+    </boolean>
+
+    <integer-vector>
+      <name>Divisions</name>
+      <label>Number of Divisions</label>
+      <flag>-d</flag>
+      <longflag>--Divisions</longflag>
+      <description><![CDATA[Set the number of divisions along each axis for the spatial bins. The number of spatial bins is NumberOfXDivisions*NumberOfYDivisions*NumberOfZDivisions.  The filter may choose to ignore large numbers of divisions if the input has few points.]]></description>
+      <default>50,50,50</default>
+    </integer-vector>
+
+  </parameters>
+
+</executable>
