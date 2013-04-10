@@ -91,9 +91,9 @@ ResampleImage(const ImageType* inputImage,
     inputImage->GetLargestPossibleRegion().GetSize();
   typename ImageType::SizeType outSize;
   typedef typename ImageType::SizeType::SizeValueType SizeValueType;
-  outSize[0] = static_cast<SizeValueType>(inputSize[0] / scaleFactor[0]);
-  outSize[1] = static_cast<SizeValueType>(inputSize[1] / scaleFactor[1]);
-  outSize[2] = static_cast<SizeValueType>(inputSize[2] / scaleFactor[2]);
+  outSize[0] = static_cast<SizeValueType>(0.5+static_cast<double>(inputSize[0]) / scaleFactor[0]);
+  outSize[1] = static_cast<SizeValueType>(0.5+static_cast<double>(inputSize[1]) / scaleFactor[1]);
+  outSize[2] = static_cast<SizeValueType>(0.5+static_cast<double>(inputSize[2]) / scaleFactor[2]);
 
   const typename ImageType::SpacingType& inputSpacing =
     inputImage->GetSpacing();
@@ -474,6 +474,19 @@ bool ArmatureWeightWriter::Write()
   realScaleFactor[0] = static_cast<double>(inputSize[0]) / outSize[0];
   realScaleFactor[1] = static_cast<double>(inputSize[1]) / outSize[1];
   realScaleFactor[2] = static_cast<double>(inputSize[2]) / outSize[2];
+
+  if (this->GetDebugInfo())
+    {
+    std::cout << "Input: " << inputSize[0]
+              << " " << inputSize[1]
+              << " " << inputSize[2] << std::endl;
+    std::cout << "Scale factor: " << realScaleFactor[0]
+              << " " << realScaleFactor[1]
+              << " " << realScaleFactor[2] << std::endl;
+    std::cout << "Output: " << outSize[0]
+              << " " << outSize[1]
+              << " " << outSize[2] << std::endl;
+    }
 
   LabelImageType::Pointer downSampledBodyPartition;
   LabelImageType::Pointer downSampledBonesPartition;
