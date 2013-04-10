@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>2</index>
   <title>Volume Skinning</title>
-  <description><![CDATA[ TO DO]]>
+  <description><![CDATA[This modules create a labelmap for which each voxel as a label that associates it to the <b>Input Armature</b>. <p>To compute the <b>Output Skinned Volume<b>, first the <b>Input Volume</b> voxels that align with the <b>Input Armature</b>'s bones are assigned their skinning value. Then using voroinoi, the rest of the image is classified.</p>]]>
   </description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/VolumeSkinning</documentation-url>
@@ -18,8 +18,8 @@
 
     <image>
       <name>RestVolume</name>
-      <label>Input Rest Volume</label>
-      <description><![CDATA[Volume in resting pose]]></description>
+      <label>Input Volume</label>
+      <description><![CDATA[Resting volume. Each voxel of the <b>Input Volume</b> will be associated with a bone of the <b>Input Armature</b>.]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -27,7 +27,7 @@
     <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Input Armature</label>
-      <description><![CDATA[Resting armature]]></description>
+      <description><![CDATA[Armature in rest mode. This is the armature that should have been created for the <b>Input Volume</b> and completely lies whithin it.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
@@ -35,7 +35,7 @@
     <image type="label">
       <name>SkinnedVolume</name>
       <label>Output Skinned Volume</label>
-      <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
+      <description><![CDATA[Labelmap of the volume segmented by region according to the <b>Input Armature</b>. For a given bone i, the associated region will have the label = i + 2.]]></description>
       <channel>output</channel>
       <index>2</index>
     </image>
