@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>2</index>
   <title>Volume Skinning</title>
-  <description><![CDATA[This modules create a labelmap for which each voxel as a label that associates it to the <b>Input Armature</b>. <p>To compute the <b>Output Skinned Volume<b>, first the <b>Input Volume</b> voxels that align with the <b>Input Armature</b>'s bones are assigned their skinning value. Then using voroinoi, the rest of the image is classified.</p>]]>
+  <description><![CDATA[This modules create a labelmap for which each voxel as a label that associates it to the <b>Input Armature</b>. <p>To compute the <b>Output Skinned Volume</b>, first the <b>Input Volume</b> voxels that align with the <b>Input Armature</b>'s bones are assigned their skinning value. Then using voroinoi, the rest of the image is classified.</p>]]>
   </description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/VolumeSkinning</documentation-url>

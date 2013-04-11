@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>3</index>
   <title>Compute Armature Weight</title>
-  <description><![CDATA[Compute the weight of the <b>Input Armature</b> edges for each voxel of the <b>Input Rest Labelmap</b> using heat diffusion. <p>This module outputs a serie of file named "weight_i.mha" in the <b>Weight Output Directory</b>, where each voxel has the weight associated to the armature edge #i from the <b>Input Armature</b>.</p><p>When computing non-binary weight, the skeleton voxels of the <b>Input Rest Labelmap</b> (inside the partition given by the <b>Input Skinned Labelmap</b>) are used as hot source for the heat-diffusion process. This means that any bone within the weight partition will have a weight of 1. This implies that if that edge is posed, the bone will move completely with that edge. The other voxels weight is determined by diffusing the weight from the hot sources (i.e. bones).</p>]]>
+  <description><![CDATA[Compute the weight of the <b>Input Armature</b> edges for each voxel of the <b>Input Rest Labelmap</b> using heat diffusion. <p>This module outputs a serie of files named "weight_i.mha" in the <b>Weight Output Directory</b>, where each voxel has the weight associated to the armature edge #i from the <b>Input Armature</b>.</p><p>When computing non-binary weight, the skeleton voxels of the <b>Input Rest Labelmap</b> (inside the partition given by the <b>Input Skinned Labelmap</b>) are used as hot source for the heat-diffusion process. This means that any bone within the weight partition will have a weight of 1. This implies that if that edge is posed, the bone will move completely with that edge. The other voxels weight is determined by diffusing the weight from the hot sources (i.e. bones).</p>]]>
   </description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ComputeArmatureWeight</documentation-url>
@@ -33,7 +33,7 @@
     <image type="label">
       <name>SkinnedVolume</name>
       <label>Input Skinned Labelmap</label>
-      <description><![CDATA[Volume skinning associated with the <b>Input Armature</b>. This volumes represents which voxel of the <b>Input Rest Labelmap</b> is associated to which <b>Input Rest Armature</b>'s edge.<p>For a given edge i of the <b>Input Rest Armature</b>, the volume region associated with it will have the label i + 2. The label 0 is reserved for the outside of the <Input Rest Labelmap</b> body and the label 1 for invalid areas.</p>]]></description>
+      <description><![CDATA[Volume skinning associated with the <b>Input Armature</b>. This volume represents which voxel of the <b>Input Rest Labelmap</b> is associated to which <b>Input Rest Armature</b>'s edge.<p>For a given edge i of the <b>Input Rest Armature</b>, the volume region associated with it will have the label i + 2. The label 0 is reserved for the outside of the <Input Rest Labelmap</b> body and the label 1 for invalid areas.</p>]]></description>
       <channel>input</channel>
       <index>2</index>
     </image>
@@ -88,7 +88,7 @@
       <name>Padding</name>
       <longflag>--padding</longflag>
       <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) outside the body the weights region will be computed. If any padding is precised, the weight will be computed using a dilated version of the input images.]]></description>
+      <description><![CDATA[How far (in voxel units) outside the body the weight region will be computed. If any padding is precised, the weight will be computed using a dilated version of the input images.]]></description>
       <default>1</default>
     </integer>
 
@@ -109,7 +109,7 @@
       <name>Debug</name>
       <label>Debug Mode</label>
       <longflag>--debug</longflag>
-      <description><![CDATA[Print debug logs and dump intermediate images. The debug information will be outputed to a "Debug" folder in the <b>Weight Output Directory<b>.]]></description>
+      <description><![CDATA[Print debug logs and dump intermediate images. The debug information will be outputed to a "Debug" folder in the <b>Weight Output Directory</b>.]]></description>
       <default>false</default>
     </boolean>
 
@@ -134,7 +134,7 @@
       <name>RunSequential</name>
       <label>Run Sequential</label>
       <longflag>--sequential</longflag>
-      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded. By default, the module starts parrallel threads to compute the weights. However, one might not need to use different threads, for instance when computing only one weight.]]></description>
+      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded. By default, the module starts parallel threads to compute the weights. In this case the module consumes considerably more memory which may be an issue.]]></description>
       <default>false</default>
     </boolean>
 

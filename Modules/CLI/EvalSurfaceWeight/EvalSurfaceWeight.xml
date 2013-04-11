@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>4</index>
   <title>Evaluate Surface Weight</title>
-  <description><![CDATA[Evaluate the weights' value for each vertex of the <b>Input Surface</b><p>For each weight image of the <b>Weight Directory</b>, a field array with the weight at the <b>Inut Surface</b> vertices is added. It is encouraged to run this module on surface that will be posed as it can speed up processing time.</p>.]]></description>
+  <description><![CDATA[Evaluate the weights' value for each vertex of the <b>Input Surface</b>.<p>For each weight image of the <b>Weight Directory</b>, a field array with the weight at the <b>Input Surface</b> vertices is added. It is encouraged to run this module on surface that will be posed as it can speed up processing time.</p>]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/EvalSurfaceWeight</documentation-url>
   <license/>
@@ -23,7 +23,7 @@
     <geometry fileExtensions=".vtk">
       <name>InputSurface</name>
       <label>Input Surface</label>
-      <description><![CDATA[The <b>Input Surface</b> for which the weight will be evaluated.]]></description>
+      <description><![CDATA[The <b>Input Surface</b> for which the weights will be evaluated.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
