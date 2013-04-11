@@ -19,10 +19,12 @@
 #============================================================================
 
 set(KIT_PYTHON_SCRIPTS
+  SkinModelMaker.py
   Workflow.py
   )
 
 set(KIT_PYTHON_RESOURCES
+  Resources/UI/SkinModelMaker.ui
   Resources/UI/Workflow.ui
   )
 
