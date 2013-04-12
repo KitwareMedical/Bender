@@ -586,6 +586,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
   else
     {
     std::vector<std::pair<double, int> > ws;
+    ws.reserve(numSites);
     for (size_t i=0; i < numSites; ++i)
       {
       double w = w_pi[i] / wSum;
@@ -619,7 +620,6 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
                                 const itk::ContinuousIndex<double,3>& index,
                                 size_t numSites,
                                 const bender::WeightMap& weightMap,
-                                typename itk::Image<float, 3>::Pointer weightImage,
                                 bool linearBlend,
                                 int maximumNumberOfInterpolatedBones,
                                 const std::vector<vtkDualQuaternion<double> >& dqs)
@@ -636,7 +636,11 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
   //weightIndex[1] = round(index[1]);
   //weightIndex[2] = round(index[2]);
   //weightMap.Get(weightIndex, w_pi);
-  bender::Lerp<itk::Image<float,3> >(weightMap,index,weightImage, 0., w_pi);
+  bool res = weightMap.Lerp(index, w_pi);
+  if (!res)
+    {
+    return InvalidCoord;
+    }
   return Transform(restCoord, w_pi, linearBlend, maximumNumberOfInterpolatedBones, dqs);
 }
 
@@ -673,7 +677,7 @@ public:
 
 
 //-------------------------------------------------------------------------------
-// size = 0    :         size = 1:             size = 2:
+// size = 0:             size = 1:             size = 2:
 // /-----------\         *-----*-----*         /--*-----*--\
 // |           |         |           |         |           |
 // |           |         |           |         |           |
@@ -863,6 +867,11 @@ int DoIt(int argc, char* argv[])
   WeightMap weightMap;
   //bender::ReadWeights(fnames,domainVoxels,weightMap);
   bender::ReadWeightsFromImage<T>(fnames, labelMap, weightMap);
+  // Don't interpolate weights outside of the domain (i.e. outside the body).
+  // -1. is outside of domain
+  // 0. is no weight for bone 0
+  // 1. is full weight for bone 0
+  weightMap.SetMaskImage(weight0, 0.f);
   std::cout << "############# done." << std::endl;
 
   //----------------------------
@@ -1129,20 +1138,21 @@ int DoIt(int argc, char* argv[])
     labelMap->GetLargestPossibleRegion().GetSize(0) *
     labelMap->GetLargestPossibleRegion().GetSize(1) *
     labelMap->GetLargestPossibleRegion().GetSize(2);
-  size_t progress((voxelCount-1) / 10);
+  size_t progress((voxelCount-1) / 100);
       // First pass, fill as much as possible
       for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
         {
         if (voxelIt++ % progress == 0)
           {
           std::cout << "+";
+          std::cout.flush();
           }
         if (imageIt.Get() == OutsideLabel)
           {
           continue;
           }
         itk::Vector<double,3> posedCoord =
-          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, weight0, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
+          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
         if (posedCoord == InvalidCoord)
           {
           continue;
@@ -1188,7 +1198,7 @@ int DoIt(int argc, char* argv[])
               index[1] += step * neighborhood.Offsets[iOff][1];
               index[2] += step * neighborhood.Offsets[iOff][2];
               itk::Vector<double,3> neighborPosedCoord =
-                Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
+                Transform<T>(labelMap, index, numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
               if (neighborPosedCoord == InvalidCoord)
                 {
                 continue;

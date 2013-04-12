@@ -31,7 +31,9 @@
 namespace bender
 {
 //-------------------------------------------------------------------------------
-WeightMap::WeightMap():Cols(0)
+WeightMap::WeightMap()
+ : Cols(0)
+ , MinForegroundValue(0.)
 {
 }
 
@@ -59,6 +61,8 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const itk::ImageRegion<3>
       this->LUTIndex->SetPixel(voxels[j], j);
       }
     }
+
+  this->UpdateMaskRegion();
 }
 
 //-------------------------------------------------------------------------------
@@ -121,6 +125,96 @@ void WeightMap::Print() const
   int numEntries = std::accumulate(this->RowSize.begin(), this->RowSize.end(),0);
   std::cout<<"Weight map "<<this->LUT.size()<<"x"<<Cols<<" has "<<numEntries<<" entries"<<std::endl;
 }
+
+//-------------------------------------------------------------------------------
+void WeightMap::SetMaskImage(const itk::Image<float, 3>::Pointer maskImage,
+                  float minForegroundValue)
+{
+  this->MaskImage = maskImage;
+  this->MinForegroundValue = minForegroundValue;
+
+  this->UpdateMaskRegion();
+}
+
+//-------------------------------------------------------------------------------
+void WeightMap::UpdateMaskRegion()
+{
+  if (this->LUTIndex.IsNotNull());
+    {
+    this->MaskRegion = this->LUTIndex->GetLargestPossibleRegion();
+    }
+  if (this->MaskImage.IsNotNull())
+    {
+    this->MaskRegion.Crop(this->MaskImage->GetLargestPossibleRegion());
+    }
+}
+
+//-------------------------------------------------------------------------------
+bool WeightMap::IsMasked(const WeightMap::Voxel& voxel)const
+{
+  if (!this->MaskRegion.IsInside(voxel))
+    {
+    return true;
+    }
+  if (this->MaskImage.IsNotNull())
+    {
+    if (this->MaskImage->GetPixel(voxel) < this->MinForegroundValue)
+      {
+      return true;
+      }
+    }
+  return false;
+}
+
+
+//-------------------------------------------------------------------------------
+bool WeightMap::Lerp(const itk::ContinuousIndex<double,3>& coord,
+                     WeightMap::WeightVector& w_pi)const
+{
+  WeightMap::Voxel minVoxel; // min index of the cell containing the point
+  minVoxel.CopyWithCast(coord);
+
+  WeightMap::Voxel closestVoxel; // closest index of the cell containing the point
+  closestVoxel.CopyWithRound(coord);
+  WeightEntry closestEntry = this->Get(closestVoxel, w_pi);
+  w_pi.Fill(0.);
+
+  WeightMap::Voxel q;
+
+  // interpolate the weight for vertex over the cube corner
+  double cornerWSum(0);
+  for (unsigned int corner=0; corner<8; ++corner)
+    {
+    // for each bit of index
+    unsigned int bit = corner;
+    double cornerW=1.0;
+    for (int dim=0; dim<3; ++dim)
+      {
+      bool upper = bit & 1;
+      bit >>= 1;
+      float t = coord[dim] - static_cast<float>(minVoxel[dim]);
+      cornerW *= upper? t : 1-t;
+      q[dim] = minVoxel[dim]+ static_cast<int>(upper);
+      }
+    if (cornerW > 0. &&
+        cornerW <= 1. &&
+        !this->IsMasked(q))
+      {
+      WeightMap::WeightVector w_corner(w_pi.GetSize());
+      WeightEntry entry = this->Get(q, w_corner);
+        w_pi += w_corner * cornerW;
+        cornerWSum+=cornerW;
+      }
+    }
+  if (cornerWSum != 0.0)
+    {
+    w_pi*= 1.0/cornerWSum;
+    return true;
+    }
+  else
+    {
+    return false;
+    }
+}
+
 };
-
-

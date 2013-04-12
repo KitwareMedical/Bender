@@ -803,6 +803,7 @@ int main( int argc, char * argv[] )
 
     WeightMap weightMap;
     bender::ReadWeights(weightFilenames, domainVoxels, weightMap);
+    weightMap.SetMaskImage(weight0, 0.);
 
     //----------------------------
     // Create output field arrays
@@ -836,7 +837,7 @@ int main( int argc, char * argv[] )
       itk::ContinuousIndex<double,3> coord;
       weight0->TransformPhysicalPointToContinuousIndex(x, coord);
 
-      bool res = bender::Lerp<WeightImage>(weightMap,coord,weight0, 0, w_pi);
+      bool res = weightMap.Lerp(coord, w_pi);
       if(!res)
         {
         std::cout<<"WARNING: Lerp failed for "<< pi

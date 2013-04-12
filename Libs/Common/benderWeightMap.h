@@ -61,12 +61,11 @@ public:
   typedef itk::ImageRegion<3> Region;
   typedef itk::VariableLengthVector<float> WeightVector;
 
-  typedef std::vector<WeightEntries> WeightLUT; //for any j, WeightTable[...][j] correspond to
-  //the weights at a voxel
+  // For any j, WeightTable[...][j] correspond to the weights at a voxel.
+  typedef std::vector<WeightEntries> WeightLUT;
 
-  typedef itk::Image<size_t,3> WeightLUTIndex; //for each voxel v, WeightLUTIndex[v] index into the
-  //the "column" of WeightLUT
-
+  // For each voxel v, WeightLUTIndex[v] index into the "column" of WeightLUT.
+  typedef itk::Image<size_t,3> WeightLUTIndex;
 
   WeightMap();
   /// Init from a list of points
@@ -80,11 +79,41 @@ public:
   void AddRow();
   void Print() const;
 
+  /// Mask that defines the function domain, only the voxels in domain will be used.
+  /// Pixels >= minForegroundValue will be considered in the domain.
+  /// \sa Lerp(), SetWeightsFiliation()
+  void SetMaskImage(const itk::Image<float, 3>::Pointer maskImage,
+                    float minForegroundValue);
+  /// Interpolate the weights at a given point.
+  /// \a coord: the point to evaluate at.
+  /// \a w_pi: out, assumed to be initialized to the vector dimension of the
+  /// weight map.
+  /// \sa SetMaskImage(), SetWeightsFiliation()
+  bool Lerp(const itk::ContinuousIndex<double,3>& coord,
+            WeightMap::WeightVector& w_pi)const;
+
 private:
+  /// Set the mask region to the smallest region between the weight map region
+  /// and the mask image region.
+  /// \sa SetMaskImage()
+  void UpdateMaskRegion();
+
+  /// Return true if the voxel should be discarded/masked.
+  /// Voxels are masked if
+  ///  * they are outside the weight map region or mask region if any.
+  ///  * or their value in the mask image is < MinForegroundValue.
+  /// \sa IsUnfiliated(), SetMaskImage()
+  bool IsMasked(const WeightMap::Voxel& voxel)const;
+
   WeightLUT LUT;
   WeightLUTIndex::Pointer LUTIndex;
   RowSizes RowSize;
   size_t Cols;
+
+  itk::Image<float,3>::Pointer MaskImage;
+  float MinForegroundValue;
+  itk::ImageRegion<3> MaskRegion;
+
 };
 
 };
