@@ -115,7 +115,7 @@ template<typename T> void vtkDualQuaternion<T>::Normalize()
   T length = 1. / this->Real.Norm();
   T dot  = this->Real.Dot(this->Dual);
   vtkQuaternion<T> a;
-  a = this=->Real * (d * length * length);
+  a = this->Real * (dot * length * length);
   this->Dual = (this->Dual - a) * length;
   this->Real.Normalize();
 }

@@ -45,14 +45,14 @@ namespace bender
 {
 class BENDER_COMMON_EXPORT WeightMap
 {
- public:
+public:
   typedef unsigned char SiteIndex;
   struct WeightEntry
   {
     SiteIndex Index;
     float Value;
 
-  WeightEntry(): Index(std::numeric_limits<std::size_t>::max()), Value(0){}
+    WeightEntry(): Index(std::numeric_limits<SiteIndex>::max()), Value(0.){}
   };
 
   typedef itk::Index<3> Voxel;
@@ -80,7 +80,7 @@ class BENDER_COMMON_EXPORT WeightMap
   void AddRow();
   void Print() const;
 
- private:
+private:
   WeightLUT LUT;
   WeightLUTIndex::Pointer LUTIndex;
   RowSizes RowSize;
