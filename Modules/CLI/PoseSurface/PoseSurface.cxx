@@ -45,6 +45,7 @@
 #include <vtkCubeSource.h>
 #include <vtkDataArray.h>
 #include <vtkFloatArray.h>
+#include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
@@ -704,6 +705,78 @@ int main( int argc, char * argv[] )
   vtkPointData* outData = outSurface->GetPointData();
   outData->Initialize();
 
+
+  //----------------------------
+  // Read armature
+  //----------------------------
+  std::vector<RigidTransform> transforms;
+  vtkSmartPointer<vtkPolyData> armature;
+  armature.TakeReference(
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
+
+  if (Debug) //test whether the transform makes senses.
+    {
+    vtkSmartPointer<vtkPolyData> posedArmature =
+      TransformArmature(armature,"Transforms",!IsArmatureInRAS);
+    bender::IOUtils::WriteDebugPolyData(posedArmature,
+       "PoseSurface_PosedArmature.vtk", WeightDirectory + "/Debug");
+    }
+
+  vtkCellArray* armatureSegments = armature->GetLines();
+  vtkCellData* armatureCellData = armature->GetCellData();
+  vtkNew<vtkIdList> cell;
+  armatureSegments->InitTraversal();
+  int edgeId = 0;
+  if (!armatureCellData->GetArray("Transforms"))
+    {
+    std::cerr << "No 'Transforms' cell array in armature" << std::endl;
+    }
+  else
+    {
+    std::cout << "# components: "
+      << armatureCellData->GetArray("Transforms")->GetNumberOfComponents()
+      << std::endl;
+    }
+
+  while(armatureSegments->GetNextCell(cell.GetPointer()))
+    {
+    vtkIdType a = cell->GetId(0);
+    vtkIdType b = cell->GetId(1);
+
+    double ax[3], bx[3];
+    armature->GetPoints()->GetPoint(a, ax);
+    armature->GetPoints()->GetPoint(b, bx);
+
+    RigidTransform transform;
+    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform, !IsArmatureInRAS);
+    transforms.push_back(transform);
+    if (Debug)
+      {
+      std::cout << "Transform: o=" << transform.O
+                << " t= " << transform.T
+                << " r= " << transform.R
+                << std::endl;
+      }
+    ++edgeId;
+    }
+
+  size_t numSites = transforms.size();
+
+  std::vector<vtkDualQuaternion<double> > dqs;
+  for (size_t i = 0; i < numSites; ++i)
+    {
+    RigidTransform& trans = transforms[i];
+    vtkQuaternion<double> rotation;
+    rotation.FromMatrix3x3((double (*)[3])&trans.R(0,0));
+    double tc[3];
+    trans.GetTranslationComponent(tc);
+    vtkDualQuaternion<double> dq;
+    dq.SetRotationTranslation(rotation, &tc[0]);
+    dqs.push_back(dq);
+    }
+
+  std::cout<<"Read "<<numSites<<" transforms"<<std::endl;
+
   //------------------------------------------------------
   // Get the weights
   //------------------------------------------------------
@@ -805,6 +878,18 @@ int main( int argc, char * argv[] )
     bender::ReadWeights(weightFilenames, domainVoxels, weightMap);
     weightMap.SetMaskImage(weight0, 0.);
 
+    vtkIdTypeArray* filiation = vtkIdTypeArray::SafeDownCast(
+      armature->GetCellData()->GetArray("Parenthood"));
+    if (filiation)
+      {
+      weightMap.SetWeightsFiliation(filiation, MaximumParenthoodDistance);
+      if (Debug)
+        {
+        std::cout << "No more than " << MaximumParenthoodDistance
+                  << " degrees of separation" << std::endl;
+        }
+      }
+
     //----------------------------
     // Create output field arrays
     for (size_t i=0; i < numWeights; ++i)
@@ -847,7 +932,7 @@ int main( int argc, char * argv[] )
       else
         {
         //NormalizeWeight(w_pi);
-        for (int i = 0; i < numWeights; ++i)
+        for (size_t i = 0; i < numWeights; ++i)
           {
           surfaceVertexWeights[i]->SetValue(pi, w_pi[i]);
           }
@@ -859,61 +944,6 @@ int main( int argc, char * argv[] )
     std::cout<<"Using surface weights field arrays !"<<std::endl;
     }
 
-  //----------------------------
-  // Read armature
-  //----------------------------
-  std::vector<RigidTransform> transforms;
-  vtkSmartPointer<vtkPolyData> armature;
-  armature.TakeReference(
-    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
-
-  if (Debug) //test whether the transform makes senses.
-    {
-    vtkSmartPointer<vtkPolyData> posedArmature =
-      TransformArmature(armature,"Transforms",!IsArmatureInRAS);
-    bender::IOUtils::WriteDebugPolyData(posedArmature,
-       "PoseSurface_PosedArmature.vtk", WeightDirectory + "/Debug");
-    }
-
-  vtkCellArray* armatureSegments = armature->GetLines();
-  vtkCellData* armatureCellData = armature->GetCellData();
-  vtkNew<vtkIdList> cell;
-  armatureSegments->InitTraversal();
-  int edgeId = 0;
-  if (!armatureCellData->GetArray("Transforms"))
-    {
-    std::cerr << "No 'Transforms' cell array in armature" << std::endl;
-    }
-  else
-    {
-    std::cout << "# components: "
-      << armatureCellData->GetArray("Transforms")->GetNumberOfComponents()
-      << std::endl;
-    }
-
-  while(armatureSegments->GetNextCell(cell.GetPointer()))
-    {
-    vtkIdType a = cell->GetId(0);
-    vtkIdType b = cell->GetId(1);
-
-    double ax[3], bx[3];
-    armature->GetPoints()->GetPoint(a, ax);
-    armature->GetPoints()->GetPoint(b, bx);
-
-    RigidTransform transform;
-    GetArmatureTransform(armature, edgeId, "Transforms", ax, transform, !IsArmatureInRAS);
-    transforms.push_back(transform);
-    if (Debug)
-      {
-      std::cout << "Transform: o=" << transform.O
-                << " t= " << transform.T
-                << " r= " << transform.R
-                << std::endl;
-      }
-    ++edgeId;
-    }
-
-  size_t numSites = transforms.size();
   if (numSites != numWeights)
     {
     std::cerr<<"The number of transforms ("<<numSites
@@ -921,21 +951,6 @@ int main( int argc, char * argv[] )
       << numWeights << std::endl;
     return EXIT_FAILURE;
     }
-
-  std::vector<vtkDualQuaternion<double> > dqs;
-  for (size_t i = 0; i < numSites; ++i)
-    {
-    RigidTransform& trans = transforms[i];
-    vtkQuaternion<double> rotation;
-    rotation.FromMatrix3x3((double (*)[3])&trans.R(0,0));
-    double tc[3];
-    trans.GetTranslationComponent(tc);
-    vtkDualQuaternion<double> dq;
-    dq.SetRotationTranslation(rotation, &tc[0]);
-    dqs.push_back(dq);
-    }
-
-  std::cout<<"Read "<<numSites<<" transforms"<<std::endl;
 
   //----------------------------
   // Pose

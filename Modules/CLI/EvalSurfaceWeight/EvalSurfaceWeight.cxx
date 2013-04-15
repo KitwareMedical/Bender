@@ -165,6 +165,17 @@ int main( int argc, char * argv[] )
     }
 
   //----------------------------
+  // Read armature
+  //----------------------------
+  // Armature is optional.
+  vtkSmartPointer<vtkPolyData> armature;
+  if (!ArmaturePoly.empty())
+    {
+    armature.TakeReference(
+      bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
+    }
+
+  //----------------------------
   // Read the first weight image
   // and all file names
   //----------------------------
@@ -250,6 +261,17 @@ int main( int argc, char * argv[] )
   WeightMap weightMap;
   bender::ReadWeights(fnames, domainVoxels, weightMap);
   weightMap.SetMaskImage(weight0, 0.);
+  vtkIdTypeArray* filiation = vtkIdTypeArray::SafeDownCast(
+    armature.GetPointer() ? armature->GetCellData()->GetArray("Parenthood") : 0);
+  if (filiation)
+    {
+    weightMap.SetWeightsFiliation(filiation, MaximumParenthoodDistance);
+    if (Debug)
+      {
+      std::cout << "No more than " << MaximumParenthoodDistance
+                << " degrees of separation" << std::endl;
+      }
+    }
 
   //----------------------------
   //Perform interpolation
