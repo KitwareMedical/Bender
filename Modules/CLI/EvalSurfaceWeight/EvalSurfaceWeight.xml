@@ -34,6 +34,13 @@
       <channel>output</channel>
       <index>2</index>
     </geometry>
+
+    <geometry>
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <description><![CDATA[Optional armature file. It used if MaximumParenthoodDistance > 0]]></description>
+    </geometry>
+
   </parameters>
 
   <parameters advanced="true">
@@ -55,6 +62,22 @@
       <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
 
   </parameters>
 

@@ -63,7 +63,7 @@ class BENDER_COMMON_EXPORT IOUtils
   /// tmp directory. If non tmp directory is found, it returns the current dir.
   /// If the debug directory is given then this directory is created if it
   /// did not exist.
-  static std::string IOUtils::GetDebugDirectory(const std::string& dir = 0);
+  static std::string GetDebugDirectory(const std::string& dir = 0);
 
   static void FilterStart(const char* filterName, const char* comment =0);
   static void FilterProgress(const char* filterName, float progress,
