@@ -933,6 +933,17 @@ int DoIt(int argc, char* argv[])
     }
 
   numSites = transforms.size();
+  vtkIdTypeArray* filiation = vtkIdTypeArray::SafeDownCast(
+    armature->GetCellData()->GetArray("Parenthood"));
+  if (filiation)
+    {
+    weightMap.SetWeightsFiliation(filiation, MaximumParenthoodDistance);
+    if (Debug)
+      {
+      std::cout << "No more than " << MaximumParenthoodDistance
+                << " degrees of separation" << std::endl;
+      }
+    }
 
   std::vector<vtkDualQuaternion<double> > dqs;
   for (size_t i = 0; i < numSites; ++i)

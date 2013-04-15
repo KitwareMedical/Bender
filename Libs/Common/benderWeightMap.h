@@ -37,6 +37,9 @@
 #include <itkImage.h>
 #include <itkVariableLengthVector.h>
 
+// VTK includes
+class vtkIdTypeArray;
+
 // STD includes
 #include <vector>
 #include <limits>
@@ -60,6 +63,7 @@ public:
   typedef std::vector<WeightEntry> WeightEntries;
   typedef itk::ImageRegion<3> Region;
   typedef itk::VariableLengthVector<float> WeightVector;
+  typedef std::vector<RowSizes> WeightsDegreesType;
 
   // For any j, WeightTable[...][j] correspond to the weights at a voxel.
   typedef std::vector<WeightEntries> WeightLUT;
@@ -75,7 +79,12 @@ public:
   void Init(const typename itk::Image<T, 3>::Pointer image,
             const itk::ImageRegion<3>& region);
   bool Insert(const Voxel& v, SiteIndex index, float value);
-  void Get(const Voxel& v, WeightVector& values) const;
+
+  /// Set the list of weight entries at the voxel v.
+  /// Return the weight that has the most influence on the voxel v.
+  /// If the voxel is outside the region, return an invalid weight entry.
+  WeightEntry Get(const Voxel& v, WeightVector& values) const;
+
   void AddRow();
   void Print() const;
 
@@ -84,6 +93,14 @@ public:
   /// \sa Lerp(), SetWeightsFiliation()
   void SetMaskImage(const itk::Image<float, 3>::Pointer maskImage,
                     float minForegroundValue);
+
+  /// Set the relationship between weight indexes.
+  /// The maximum degree of filiation (if >0) can be enforced when doing
+  /// interpolation of weights (i.e. Lerp()).
+  /// \sa SetMaskImage(), IsUnfiliated(), Lerp()
+  void SetWeightsFiliation(vtkIdTypeArray* weightsFiliation,
+                           int maxDegree = 4);
+
   /// Interpolate the weights at a given point.
   /// \a coord: the point to evaluate at.
   /// \a w_pi: out, assumed to be initialized to the vector dimension of the
@@ -105,6 +122,13 @@ private:
   /// \sa IsUnfiliated(), SetMaskImage()
   bool IsMasked(const WeightMap::Voxel& voxel)const;
 
+  /// Return true if the cornerIndex is not filiated to index.
+  /// Non filiated indexes are too far (> MaxWeightDegree) in degrees from each
+  /// others.
+  /// \sa IsMasked(), SetWeightsFiliation()
+  bool IsUnfiliated(SiteIndex index, SiteIndex cornerIndex)const;
+
+
   WeightLUT LUT;
   WeightLUTIndex::Pointer LUTIndex;
   RowSizes RowSize;
@@ -114,6 +138,10 @@ private:
   float MinForegroundValue;
   itk::ImageRegion<3> MaskRegion;
 
+  /// Contains the degrees between each weight indexes.
+  WeightsDegreesType WeightsDegrees;
+  /// -1 means all degrees are accepted. -1 by default.
+  int MaxWeightDegree;
 };
 
 };
