@@ -33,7 +33,8 @@ namespace bender
 template <class T>
 int ReadWeightsFromImage(const std::vector<std::string>& fnames,
                          const typename itk::Image<T, 3>::Pointer image,
-                         bender::WeightMap& weightMap)
+                         bender::WeightMap& weightMap,
+                         const unsigned char* abort)
 {
   typedef itk::ImageRegion<3> Region;
   Region region = image->GetLargestPossibleRegion();
@@ -43,6 +44,10 @@ int ReadWeightsFromImage(const std::vector<std::string>& fnames,
   size_t numInserted(0);
   for (size_t i = 0; i < fnames.size(); ++i)
     {
+    if (abort && *abort)
+      {
+      break;
+      }
     std::cout << "Read " << fnames[i] << "..." << std::endl;
 
     typedef itk::Image<float, 3>  WeightImage;
