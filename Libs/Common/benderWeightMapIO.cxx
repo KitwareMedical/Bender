@@ -58,7 +58,7 @@ namespace bender
 //create a weight map from a series of files
 int ReadWeights(const std::vector<std::string>& fnames,
                 const std::vector<WeightMap::Voxel>& bodyVoxels,
-                WeightMap& weightMap)
+                WeightMap& weightMap, const unsigned char* abort)
 {
   typedef std::vector<WeightMap::Voxel> Voxels;
   Region region;
@@ -67,6 +67,10 @@ int ReadWeights(const std::vector<std::string>& fnames,
   int numInserted(0);
   for(size_t i=0; i<fnames.size(); ++i)
     {
+    if (abort && *abort)
+      {
+      break;
+      }
     std::cout << "Read " << fnames[i] << std::endl;
 
     typedef itk::ImageFileReader<WeightImage>  ReaderType;

@@ -689,6 +689,11 @@ int main( int argc, char * argv[] )
     std::cout<<"Forcing the computation of the weight from the image"
       << std::endl;
     }
+  if (CLPProcessInformation && CLPProcessInformation->Abort)
+    {
+    std::cerr << "Abort requested." << std::endl;
+    return EXIT_FAILURE;
+    }
 
   //------------------------------------------------------
   // Create output from input surface
@@ -875,8 +880,15 @@ int main( int argc, char * argv[] )
     std::cout<<numPoints<<" vertices, "<<domainVoxels.size()<<" voxels"<<std::endl;
 
     WeightMap weightMap;
-    bender::ReadWeights(weightFilenames, domainVoxels, weightMap);
+    bender::ReadWeights(weightFilenames, domainVoxels, weightMap,
+                        CLPProcessInformation ? &CLPProcessInformation->Abort : 0);
     weightMap.SetMaskImage(weight0, 0.);
+
+    if (CLPProcessInformation && CLPProcessInformation->Abort)
+      {
+      std::cerr << "Abort requested." << std::endl;
+      return EXIT_FAILURE;
+      }
 
     vtkIdTypeArray* filiation = vtkIdTypeArray::SafeDownCast(
       armature->GetCellData()->GetArray("Parenthood"));
@@ -908,6 +920,11 @@ int main( int argc, char * argv[] )
       assert(outData->GetArray(i)->GetNumberOfTuples()==numPoints);
       }
 
+    if (CLPProcessInformation && CLPProcessInformation->Abort)
+      {
+      std::cerr << "Abort requested." << std::endl;
+      return EXIT_FAILURE;
+      }
     //----------------------------
     // Perform interpolation
     WeightMap::WeightVector w_pi(numWeights);
@@ -952,11 +969,21 @@ int main( int argc, char * argv[] )
     return EXIT_FAILURE;
     }
 
+  if (CLPProcessInformation && CLPProcessInformation->Abort)
+    {
+    std::cerr << "Abort requested." << std::endl;
+    return EXIT_FAILURE;
+    }
   //----------------------------
   // Pose
   //----------------------------
   for (vtkIdType pi = 0; pi < numPoints; ++pi)
     {
+    if (CLPProcessInformation && CLPProcessInformation->Abort)
+      {
+      break;
+      }
+
     double xraw[3];
     inputPoints->GetPoint(pi,xraw);
 
@@ -1030,6 +1057,12 @@ int main( int argc, char * argv[] )
       InvertXY(y);
       }
     outPoints->SetPoint(pi,y[0],y[1],y[2]);
+    }
+
+  if (CLPProcessInformation && CLPProcessInformation->Abort)
+    {
+    std::cerr << "Abort requested." << std::endl;
+    return EXIT_FAILURE;
     }
 
   //----------------------------
