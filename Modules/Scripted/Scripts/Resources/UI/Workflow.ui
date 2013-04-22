@@ -523,6 +523,9 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Merge labels</string>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -726,6 +729,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Generate bone model</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -934,6 +940,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Generate skin model</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1226,6 +1235,9 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Skin Volume</string>
               </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -1421,6 +1433,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Compute weights</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -1631,6 +1646,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Evaluate surface weight</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>
@@ -2050,6 +2068,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Pose Labelmap</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

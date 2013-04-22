@@ -61,6 +61,9 @@ class WorkflowWidget:
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
 
+    # Global variables
+    self.StatusModifiedEvent = slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent
+
     # Labelmap variables
 
     # Transform variables
@@ -90,18 +93,18 @@ class WorkflowWidget:
     self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
-    self.get('MergeLabelsApplyPushButton').connect('clicked()', self.runMergeLabels)
+    self.get('MergeLabelsApplyPushButton').connect('clicked(bool)', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
     # a) Bone Model Maker
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
-    self.get('BoneModelMakerApplyPushButton').connect('clicked()', self.runBoneModelMaker)
+    self.get('BoneModelMakerApplyPushButton').connect('clicked(bool)', self.runBoneModelMaker)
     self.get('BoneModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('BoneModelMakerGoToModulePushButton').connect('clicked()', self.openBoneModelMakerModule)
     # b) Skin Model Maker
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
     self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('SkinModelMakerApplyPushButton').connect('clicked()', self.runSkinModelMaker)
+    self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
     # c) Volume Render
@@ -117,14 +120,14 @@ class WorkflowWidget:
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Skinning
     # a) Volume Skinning
-    self.get('VolumeSkinningApplyPushButton').connect('clicked()',self.runVolumeSkinning)
+    self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
     # b) Armatures Weight
-    self.get('ComputeArmatureWeightApplyPushButton').connect('clicked()',self.runComputeArmatureWeight)
+    self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
     # 5) (Pose) Armature And Pose Body
     # a) Eval Weight
-    self.get('EvalSurfaceWeightApplyPushButton').connect('clicked()', self.runEvalSurfaceWeight)
+    self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
     self.get('EvalSurfaceWeightWeightDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # b) (Pose) Armatures
@@ -134,12 +137,13 @@ class WorkflowWidget:
     self.get('PoseSurfaceWeightInputDirectoryButton').connect('directoryChanged(QString)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceApplyPushButton').connect('clicked()', self.runPoseSurface)
+    self.get('PoseSurfaceApplyPushButton').connect('clicked(bool)', self.runPoseSurface)
+    self.get('PoseSurfaceApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunPoseSurface)
 
     self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
     self.get('ComputeArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
     # 6) Resample
-    self.get('PoseLabelmapApplyPushButton').connect('clicked()', self.runPoseLabelmap)
+    self.get('PoseLabelmapApplyPushButton').connect('clicked(bool)', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
 
     self.openPage = { 0 : self.openAdjustPage,
@@ -479,24 +483,31 @@ class WorkflowWidget:
     parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
     return parameters
 
-  def runMergeLabels(self):
-    cliNode = self.getCLINode(slicer.modules.changelabel)
-    parameters = self.mergeLabelsParameters()
-    self.get('MergeLabelsApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = True)
-    self.get('MergeLabelsApplyPushButton').setChecked(False)
+  def runMergeLabels(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.changelabel)
+      parameters = self.mergeLabelsParameters()
+      self.get('MergeLabelsApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
+      self.get('MergeLabelsApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
 
+  def onMergeLabelsCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
-      print 'MergeLabels completed'
       # apply label map
       newNode = self.get('MergeLabelsOutputNodeComboBox').currentNode()
       colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
       if newNode != None and colorNode != None:
         newNode.GetDisplayNode().SetAndObserveColorNodeID(colorNode.GetID())
 
-    else:
-      print 'MergeLabels failed'
-
+    if not cliNode.IsBusy():
+      self.get('MergeLabelsApplyPushButton').setChecked(False)
+      self.get('MergeLabelsApplyPushButton').setEnabled(True)
+      print 'MergeLabels %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onMergeLabelsCLIModified)
 
   def openMergeLabelsModule(self):
     self.openModule('ChangeLabel')
@@ -535,17 +546,26 @@ class WorkflowWidget:
     parameters["Smooth"] = 10
     return parameters
 
-  def runBoneModelMaker(self):
-    cliNode = self.getCLINode(slicer.modules.modelmaker)
-    parameters = self.boneModelMakerParameters()
-    self.get('BoneModelMakerApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = True)
-    self.get('BoneModelMakerApplyPushButton').setChecked(False)
-    if cliNode.GetStatusString() == 'Completed':
-      print 'Bone ModelMaker completed'
-      self.resetCamera()
+  def runBoneModelMaker(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.modelmaker)
+      parameters = self.boneModelMakerParameters()
+      self.get('BoneModelMakerApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = False)
     else:
-      print 'ModelMaker failed'
+      cliNode = self.observer(self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
+      self.get('BoneModelMakerApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onBoneModelMakerCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.resetCamera()
+    if not cliNode.IsBusy():
+      self.get('BoneModelMakerApplyPushButton').setChecked(False)
+      self.get('BoneModelMakerApplyPushButton').setEnabled(True)
+      print 'Bone ModelMaker %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onBoneModelMakerCLIModified)
 
   def openModelsModule(self):
     self.openModule('Models')
@@ -590,14 +610,20 @@ class WorkflowWidget:
     parameters["Name"] = 'Skin'
     return parameters
 
-  def runSkinModelMaker(self):
-    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
-    parameters = self.skinModelMakerParameters()
-    self.get('SkinModelMakerApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = True)
-    self.get('SkinModelMakerApplyPushButton').setChecked(False)
+  def runSkinModelMaker(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+      parameters = self.skinModelMakerParameters()
+      self.get('SkinModelMakerApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      self.get('SkinModelMakerApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onSkinModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
-      print 'Skin ModelMaker completed'
       # Set opacity
       newNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
       newNodeDisplayNode = newNode.GetModelDisplayNode()
@@ -614,8 +640,12 @@ class WorkflowWidget:
 
       # Reset camera
       self.resetCamera()
-    else:
-      print 'Skin ModelMaker failed'
+
+    if not cliNode.IsBusy():
+      self.get('SkinModelMakerApplyPushButton').setChecked(False)
+      self.get('SkinModelMakerApplyPushButton').setEnabled(True)
+      print 'Skin ModelMaker %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onSkinModelMakerCLIModified)
 
   def openSkinModelMakerModule(self):
     self.openModule('GrayscaleModelMaker')
@@ -751,17 +781,24 @@ class WorkflowWidget:
     #parameters["ArmatureInRAS"] = False
     return parameters
 
-  def runVolumeSkinning(self):
-    cliNode = self.getCLINode(slicer.modules.volumeskinning)
-    parameters = self.volumeSkinningParameters()
-    self.get('VolumeSkinningApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.volumeskinning, cliNode, parameters, wait_for_completion = True)
-    self.get('VolumeSkinningApplyPushButton').setChecked(False)
-
-    if cliNode.GetStatusString() == 'Completed':
-      print 'Volume Skinning completed'
+  def runVolumeSkinning(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.volumeskinning)
+      parameters = self.volumeSkinningParameters()
+      self.get('VolumeSkinningApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.volumeskinning, cliNode, parameters, wait_for_completion = False)
     else:
-      print 'Volume Skinning failed'
+      cliNode = self.observer(self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
+      self.get('VolumeSkinningApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onVolumeSkinningCLIModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.get('VolumeSkinningApplyPushButton').setChecked(False)
+      self.get('VolumeSkinningApplyPushButton').setEnabled(True)
+      print 'VolumeSkinning %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onVolumeSkinningCLIModified)
 
   def openVolumeSkinningModule(self):
     self.openModule('VolumeSkinning')
@@ -797,17 +834,24 @@ class WorkflowWidget:
     #parameters["RunSequential"] = False
     return parameters
 
-  def runComputeArmatureWeight(self):
-    cliNode = self.getCLINode(slicer.modules.computearmatureweight)
-    parameters = self.computeArmatureWeightParameters()
-    self.get('ComputeArmatureWeightApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.computearmatureweight, cliNode, parameters, wait_for_completion = True)
-    self.get('ComputeArmatureWeightApplyPushButton').setChecked(False)
-
-    if cliNode.GetStatusString() == 'Completed':
-      print 'Compute Armature Weight completed'
+  def runComputeArmatureWeight(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.computearmatureweight)
+      parameters = self.computeArmatureWeightParameters()
+      self.get('ComputeArmatureWeightApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.computearmatureweight, cliNode, parameters, wait_for_completion = False)
     else:
-      print 'Compute Armature Weight failed'
+      cliNode = self.observer(self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
+      self.get('ComputeArmatureWeightApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onComputeArmatureWeightCLIModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.get('ComputeArmatureWeightApplyPushButton').setChecked(False)
+      self.get('ComputeArmatureWeightApplyPushButton').setEnabled(True)
+      print 'ComputeArmatureWeight %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onComputeArmatureWeightCLIModified)
 
   def openComputeArmatureWeightModule(self):
     self.openModule('ComputeArmatureWeight')
@@ -838,17 +882,24 @@ class WorkflowWidget:
     #parameters["PrintDebug"] = False
     return parameters
 
-  def runEvalSurfaceWeight(self):
-    cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
-    parameters = self.evalSurfaceWeightParameters()
-    self.get('EvalSurfaceWeightApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.evalsurfaceweight, cliNode, parameters, wait_for_completion = True)
-    self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
-
-    if cliNode.GetStatusString() == 'Completed':
-      print 'Evaluate Weight completed'
+  def runEvalSurfaceWeight(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
+      parameters = self.evalSurfaceWeightParameters()
+      self.get('EvalSurfaceWeightApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.evalsurfaceweight, cliNode, parameters, wait_for_completion = False)
     else:
-      print 'Evaluate Weight failed'
+      cliNode = self.observer(self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
+      self.get('EvalSurfaceWeightApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onEvalSurfaceWeightCLIModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
+      self.get('EvalSurfaceWeightApplyPushButton').setEnabled(True)
+      print 'EvalSurfaceWeight %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onEvalSurfaceWeightCLIModified)
 
   def openEvalSurfaceWeight(self):
     self.openModule('EvalSurfaceWeight')
@@ -861,11 +912,11 @@ class WorkflowWidget:
   def openPosedArmatureModule(self):
     self.openModule('Armatures')
 
-  # c) Pose Body
+  # c) Pose Surface
   def poseSurfaceParameterChanged(self):
     cliNode = self.getCLINode(slicer.modules.posesurface)
-    if cliNode.IsBusy() == True:
-      cliNode.Cancel()
+    parameters = self.poseSurfaceParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
 
   def poseSurfaceParameters(self):
     # Setup CLI node on input changed or apply changed
@@ -879,21 +930,37 @@ class WorkflowWidget:
     parameters["LinearBlend"] = True
     return parameters
 
-  def runPoseSurface(self):
-    cliNode = self.getCLINode(slicer.modules.posesurface)
-    parameters = self.poseSurfaceParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-    cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
-
-    if self.get('PoseSurfaceApplyPushButton').checkState == False:
-      if cliNode.IsBusy() == False:
-        self.get('PoseSurfaceApplyPushButton').setChecked(True)
-        slicer.modules.posesurface.logic().ApplyAndWait(cliNode)
-        self.get('PoseSurfaceApplyPushButton').setChecked(False)
-      else:
-        cliNode.Cancel()
+  def autoRunPoseSurface(self, autoRun):
+    if autoRun:
+      cliNode = self.getCLINode(slicer.modules.posesurface)
+      parameters = self.poseSurfaceParameters()
+      slicer.cli.setNodeParameters(cliNode, parameters)
+      cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
+      cliNode.SetAutoRun(autoRun)
     else:
-      cliNode.SetAutoRun(self.get('PoseSurfaceApplyPushButton').isChecked())
+      cliNode = self.getCLINode(slicer.modules.posesurface)
+      cliNode.SetAutoRun(autoRun)
+
+  def runPoseSurface(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.posesurface)
+      parameters = self.poseSurfaceParameters()
+      slicer.cli.setNodeParameters(cliNode, parameters)
+      cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
+      self.get('PoseSurfaceApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
+      self.get('PoseSurfaceApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onPoseSurfaceCLIModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.get('PoseSurfaceApplyPushButton').setChecked(False)
+      self.get('PoseSurfaceApplyPushButton').setEnabled(True)
+      print 'PoseSurface %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onPoseSurfaceCLIModified)
 
   def openPoseSurfaceModule(self):
     self.openModule('PoseSurface')
@@ -941,16 +1008,24 @@ class WorkflowWidget:
     #parameters["IsArmatureInRAS"] = False
     return parameters
 
-  def runPoseLabelmap(self):
-    cliNode = self.getCLINode(slicer.modules.poselabelmap)
-    parameters = self.poseLabelmapParameters()
-    self.get('PoseLabelmapApplyPushButton').setChecked(True)
-    cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = True)
-    self.get('PoseLabelmapApplyPushButton').setChecked(False)
-    if cliNode.GetStatusString() == 'Completed':
-      print 'Pose Labelmap completed'
+  def runPoseLabelmap(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.poselabelmap)
+      parameters = self.poseLabelmapParameters()
+      self.get('PoseLabelmapApplyPushButton').setChecked(True)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseLabelmapCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
-      print 'Pose Labelmap failed'
+      cliNode = self.observer(self.StatusModifiedEvent, self.onPoseLabelmapCLIModified())
+      self.get('PoseLabelmapApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onPoseLabelmapCLIModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.get('PoseLabelmapApplyPushButton').setChecked(False)
+      self.get('PoseLabelmapApplyPushButton').setEnabled(True)
+      print 'PoseLabelmap %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onPoseLabelmapCLIModified)
 
   def openPoseLabelmap(self):
     self.openModule('PoseLabelmap')
@@ -984,12 +1059,14 @@ class WorkflowWidget:
         return None
 
   def removeObservers(self, method):
-    for object, event, method, group, tag in self.Observations:
-      if method == method:
-        object.RemoveObserver(tag)
+    for o, e, m, g, t in self.Observations:
+      if method == m:
+        o.RemoveObserver(t)
+        self.Observations.remove([o, e, m, g, t])
 
   def addObserver(self, object, event, method, group = 'none'):
     if self.hasObserver(object, event, method):
+      print 'already has observer'
       return
     tag = object.AddObserver(event, method)
     self.Observations.append([object, event, method, group, tag])
@@ -999,6 +1076,12 @@ class WorkflowWidget:
       if o == object and e == event and m == method:
         return True
     return False
+
+  def observer(self, event, method):
+    for o, e, m, g, t in self.Observations:
+      if e == event and m == method:
+        return o
+    return None
 
   def getCLINode(self, cliModule):
     """ Return the cli node to use for a given CLI module. Create the node in
