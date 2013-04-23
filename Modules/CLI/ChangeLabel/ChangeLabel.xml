@@ -2,11 +2,12 @@
 <executable>
   <category>Filtering</category>
   <title>Change Label</title>
-  <description><![CDATA[<p>Change one or multiple labels in a labelmap.</p>]]></description>
+  <description><![CDATA[<p>Change one or multiple labels in a labelmap to a new given value.</p><p><u>Note:</u> Although the GUI interface only allows to change multiple labels into only one, this CLI actually handles the case where the list of <b>Label(s) to Change</b> can be changed into multiple <b>Output Label</b>.</p>]]>
+  </description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ChangeLabel</documentation-url>
   <license/>
-  <contributor>Julien Finet (Kitware)</contributor>
+  <contributor>Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -16,14 +17,14 @@
       <label>Input Volume</label>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[Input volume]]></description>
+      <description><![CDATA[Input labelmap. This is the labelmap for which the <b>Label(s) to Change</b> will be changed into the <b>Output Label</b>.]]></description>
     </image>
     <image type="label">
       <name>OutputVolume</name>
       <label>Output Volume</label>
       <channel>output</channel>
       <index>1</index>
-      <description><![CDATA[Changed input volume]]></description>
+      <description><![CDATA[Changed input volume. It is the same labelmap as the Input Volume expect for the <b>Label(s) to change</b> that will have the <b>Output Label</b> value.]]></description>
     </image>
   </parameters>
   <parameters>
@@ -33,7 +34,7 @@
       <label>Label(s) to Change</label>
       <flag>-i</flag>
       <longflag>--input</longflag>
-      <description><![CDATA[Label(s) to change]]></description>
+      <description><![CDATA[Label(s) to change. In the case where multiple labels need to be changed, this should be a list of labels where each label of the <b>Input Volume</b> is separated by a comma (Example: 1,2,3).]]></description>
       <default></default>
     </integer-vector>
     <integer multiple="true">
@@ -41,7 +42,7 @@
       <label>Number of Label(s) to Change</label>
       <flag>-n</flag>
       <longflag>--inputnumber</longflag>
-      <description><![CDATA[Number of labels to change]]></description>
+      <description><![CDATA[Number of label(s) to change.<p>In the simple case where all the label(s) given in <b>Label(s) to Change</b> need to be changed in only one new <b>Output Label</b>, this simply represents the size of the <b>Label(s) to Change</b> list.</p><p>In the case where multiple labels needs to be changed into multiple new ones, this should list how many labels of the <b>Label(s) to Change</b> are changed into the first <b>Output Label</b>, then how many are changed into the second <b>Output Label</b> and ect... For example, "1, 2" means that the first label in <b>Label(s) to Change</b>  will be changed into the first label given in <b>Output Label</b>. The next two labels of <b>Label(s) to Change</b> will take the value of the second label in <b>Output Label</b>.]]></description>
       <default>1</default>
     </integer>
     <integer multiple="true">
@@ -49,7 +50,7 @@
       <label>Output Label</label>
       <flag>-o</flag>
       <longflag>--output</longflag>
-      <description><![CDATA[Value to change input labels with]]></description>
+      <description><![CDATA[Value to change the <b>Label(s) to Change</b> to.<p>In the case where multiple labels need to be changed into multiple new values, this should list the new values. The <b>Label(s) to Change</b> will be changed to the <b>Output Label</b> values using the <b>Number of Label(s) to Change</b> list.</p>]]></description>
       <default></default>
     </integer>
   </parameters>

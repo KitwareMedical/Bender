@@ -33,7 +33,8 @@ namespace bender
 template <class T>
 int ReadWeightsFromImage(const std::vector<std::string>& fnames,
                          const typename itk::Image<T, 3>::Pointer image,
-                         bender::WeightMap& weightMap)
+                         bender::WeightMap& weightMap,
+                         const unsigned char* abort)
 {
   typedef itk::ImageRegion<3> Region;
   Region region = image->GetLargestPossibleRegion();
@@ -43,6 +44,10 @@ int ReadWeightsFromImage(const std::vector<std::string>& fnames,
   size_t numInserted(0);
   for (size_t i = 0; i < fnames.size(); ++i)
     {
+    if (abort && *abort)
+      {
+      break;
+      }
     std::cout << "Read " << fnames[i] << "..." << std::endl;
 
     typedef itk::Image<float, 3>  WeightImage;
@@ -55,8 +60,10 @@ int ReadWeightsFromImage(const std::vector<std::string>& fnames,
     if (weight_i->GetLargestPossibleRegion() !=
         image->GetLargestPossibleRegion())
       {
-      std::cerr << "Weight maps regions different from image are not supported."
-                << " Skip weight " << fnames[i] << std::endl;
+      std::cerr << "Weight maps regions different from image are not supported:"
+                << "Image: " << image->GetLargestPossibleRegion()
+                << " Weight: " << weight_i->GetLargestPossibleRegion() << std::endl
+                << "Skip weight " << fnames[i] << std::endl;
       continue;
       }
     itk::ImageRegionConstIteratorWithIndex<itk::Image<T,3> > imageIt(image, region);
