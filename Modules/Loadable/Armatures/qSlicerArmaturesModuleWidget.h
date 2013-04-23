@@ -59,9 +59,6 @@ public:
   /// \sa mrmlArmatureNode()
   //vtkMRMLArmatureDisplayNode* mrmlArmatureDisplayNode()const;
 
-  /// Reimplemented to set the bone node the default bone annotation.
-  virtual void enter();
-
 public slots:
   /// Set \a armatureNode as current.
   /// \sa setMRMLArmatureNode(vtkMRMLNode*) setMRMLNode(vtkMRMLNode* node)
@@ -89,6 +86,9 @@ public slots:
 
   /// Delete the currently selected bone and all its children (if any).
   void deleteBones();
+
+  /// Pops-up a dialog window and load an armature from model.
+  void loadArmatureFromModel();
 
 protected slots:
   /// Update the GUI from the armatures logic.

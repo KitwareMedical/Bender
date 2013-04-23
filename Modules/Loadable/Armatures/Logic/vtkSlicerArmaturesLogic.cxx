@@ -31,6 +31,8 @@
 
 // MRML includes
 #include <vtkEventBroker.h>
+#include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 
 // VTK includes
 #include <vtkCellData.h>
@@ -96,6 +98,16 @@ void vtkSlicerArmaturesLogic::ObserveMRMLScene()
     {
     selectionNode->AddNewAnnotationIDToList(
       "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
+    selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+    }
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      this->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (interactionNode)
+    {
+    interactionNode->SetPlaceModePersistence(1);
+    interactionNode->SetCurrentInteractionMode(
+      vtkMRMLInteractionNode::ViewTransform);
     }
 
   this->Superclass::ObserveMRMLScene();
@@ -124,7 +136,7 @@ void vtkSlicerArmaturesLogic::ProcessMRMLSceneEvents(vtkObject* caller,
   this->Superclass::ProcessMRMLSceneEvents(caller, event, callData);
   if (event == vtkMRMLScene::NodeAboutToBeRemovedEvent)
     {
-    vtkMRMLNode* node = vtkMRMLNode::SafeDownCast(caller);
+    vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
     this->OnMRMLSceneNodeAboutToBeRemoved(node);
     }
 }
@@ -154,9 +166,17 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node)
 {
   this->Superclass::OnMRMLSceneNodeRemoved(node);
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
-  if (armatureNode && this->GetActiveArmature() == armatureNode)
+  if (armatureNode)
     {
-    this->SetActiveArmature(0);
+    vtkMRMLModelNode* model = armatureNode->GetArmatureModel();
+    if (model)
+      {
+      this->GetMRMLScene()->RemoveNode(model);
+      }
+    if (this->GetActiveArmature() == armatureNode)
+      {
+      this->SetActiveArmature(0);
+      }
     }
   vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
   if (boneNode && this->GetActiveBone())
@@ -467,11 +487,18 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
         std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
         return armatureNode;
         }
-      this->SetActiveBone(boneParentNode);
+
+      vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+        vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneParentNode->GetScene(), boneParentNode->GetID()));
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        hierarchyNode != 0 ? hierarchyNode->GetID() : 0);
       }
     else // Root
       {
-      this->SetActiveArmature(armatureNode);
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        armatureNode->GetID());
       }
 
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();

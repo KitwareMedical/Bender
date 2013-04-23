@@ -36,6 +36,10 @@
 #include <vtkNew.h>
 #include <vtkStdString.h>
 
+// QSlicer includes
+#include <qSlicerIOManager.h>
+#include <qSlicerApplication.h>
+
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
 #include <vtkSlicerAnnotationModuleLogic.h>
@@ -129,6 +133,8 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureStateComboBox,
     SIGNAL(currentIndexChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
+  QObject::connect(this->LoadArmatureFromModelPushButton,
+    SIGNAL(clicked()), q, SLOT(loadArmatureFromModel()));
 
   // -- Armature Display --
   QObject::connect(this->ArmatureRepresentationComboBox,
@@ -355,7 +361,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     && boneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
 
   this->ParentBoneNodeComboBox->setEnabled(enable);
-  this->LinkedToParentCheckBox->setEnabled(enable);
+  this->LinkedToParentCheckBox->setEnabled(enable && boneNode->GetHasParent());
 }
 
 //-----------------------------------------------------------------------------
@@ -650,6 +656,22 @@ void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int selec
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
+{
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      q->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (!interactionNode)
+    {
+    qCritical() << "Invalid scene, no interaction node";
+    return;
+    }
+  interactionNode->SwitchToViewTransformMode();
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------
@@ -680,6 +702,11 @@ void qSlicerArmaturesModuleWidget
   if (armatureNode == d->ArmatureNode)
     {
     return;
+    }
+
+  if (d->ArmatureNode) // Switching or deleting current armature
+    {
+    d->stopPlaceBone();
     }
 
   if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
@@ -759,31 +786,6 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 }
 */
 
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::enter()
-{
-  this->Superclass::enter();
-  if (this->mrmlScene())
-    {
-    vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
-      this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    if (selectionNode)
-      {
-      selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
-      }
-    vtkMRMLInteractionNode* interactionNode =
-      vtkMRMLInteractionNode::SafeDownCast(
-        this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
-    if (interactionNode)
-      {
-      interactionNode->SetPlaceModePersistence(1);
-      interactionNode->SetCurrentInteractionMode(
-        vtkMRMLInteractionNode::ViewTransform);
-      }
-    }
-}
-
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)
@@ -835,12 +837,41 @@ void qSlicerArmaturesModuleWidget::deleteBones()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
-  if (!d->BoneNode)
+  vtkMRMLNode* currentNode = d->BonesTreeView->currentNode();
+
+  vtkMRMLBoneNode* bone = vtkMRMLBoneNode::SafeDownCast(currentNode);
+  if (bone)
     {
+    d->deleteBoneChildren(bone);
+    d->stopPlaceBone();
     return;
     }
 
-  d->deleteBoneChildren(d->BoneNode);
+  vtkMRMLArmatureNode* armature =
+    vtkMRMLArmatureNode::SafeDownCast(currentNode);
+  if (armature)
+    {
+    vtkNew<vtkCollection> bones;
+    armature->GetAllBones(bones.GetPointer());
+    for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+      {
+      vtkMRMLBoneNode* childBone =
+        vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+      if (childBone && !childBone->GetHasParent()) // If top-level bone
+        {
+        d->deleteBoneChildren(childBone);
+        }
+      }
+    d->stopPlaceBone();
+    return;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::loadArmatureFromModel()
+{
+  qSlicerApplication::application()->ioManager()->openDialog(
+    QString("ArmatureFile"), qSlicerFileDialog::Read);
 }
 
 //-----------------------------------------------------------------------------

@@ -61,6 +61,9 @@ public:
 
   void deleteBoneChildren(vtkMRMLBoneNode* boneNode);
 
+  // Set the interaction node of the current scene back to ViewTransform mode
+  void stopPlaceBone();
+
 public slots:
   // Calls all the update functions
   void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
