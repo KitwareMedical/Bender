@@ -507,7 +507,6 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     points->GetPoint(pointId, p);
     boneNode->SetWorldHeadRest(p);
 
-    double tail[3];
     points->GetPoint(pointId + 1, p);
     boneNode->SetWorldTailRest(p);
     if (boneParentNode)
