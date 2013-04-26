@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>3</index>
   <title>Compute Armature Weight</title>
-  <description><![CDATA[Compute weights of armature edges using heat diffusion. For an armature of n edges, a weight vector of length n is computed for each voxel, where the ith vector component represents the weight of the ith armature edge at that voxel. The output is a file series named {weight_i.mha}, where weight_i.mha represents the weights for armature edge i. An import detail of the algorithm: As a preprocessing step, the bone voxels (voxels with value >=209) are partitioned by their proximity to the armature edges. Skeleton voxels that belong to the partition for an armature edge i will be assigned weight 1, and these voxels will be used as the source of the heat diffusion process. ]]>
+  <description><![CDATA[Compute the weight of the <b>Input Armature</b> edges for each voxel of the <b>Input Rest Labelmap</b> using heat diffusion. <p>This module outputs a serie of files named "weight_i.mha" in the <b>Weight Output Directory</b>, where each voxel has the weight associated to the armature edge #i from the <b>Input Armature</b>.</p><p>When computing non-binary weight, the skeleton voxels of the <b>Input Rest Labelmap</b> (inside the partition given by the <b>Input Skinned Labelmap</b>) are used as hot source for the heat-diffusion process. This means that any bone within the weight partition will have a weight of 1. This implies that if that edge is posed, the bone will move completely with that edge. The other voxels weight is determined by diffusing the weight from the hot sources (i.e. bones).</p>]]>
   </description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ComputeArmatureWeight</documentation-url>
@@ -17,7 +17,7 @@
     <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <description><![CDATA[Labelmap for which the weights will be computed. This should be the labelmap for which the <b>Input Armature</b> was created and the <b>Input Skinned Labelmap</b> computed.]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -25,15 +25,15 @@
     <geometry fileExtensions=".vtk">
       <name>ArmaturePoly</name>
       <label>Input Armature</label>
-      <description><![CDATA[Resting armature]]></description>
+      <description><![CDATA[Armature in rest position. This should be the armature associated with the <b>Input Skinned Labelmap</b>.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
 
     <image type="label">
       <name>SkinnedVolume</name>
-      <label>Input Skinned Volume Labelmap</label>
-      <description><![CDATA[The labelmap of the segmented volume according to the armature]]></description>
+      <label>Input Skinned Labelmap</label>
+      <description><![CDATA[Volume skinning associated with the <b>Input Armature</b>. This volume represents which voxel of the <b>Input Rest Labelmap</b> is associated to which <b>Input Rest Armature</b>'s edge.<p>For a given edge i of the <b>Input Rest Armature</b>, the volume region associated with it will have the label i + 2. The label 0 is reserved for the outside of the <Input Rest Labelmap</b> body and the label 1 for invalid areas.</p>]]></description>
       <channel>input</channel>
       <index>2</index>
     </image>
@@ -41,7 +41,7 @@
     <directory>
       <name>WeightDirectory</name>
       <label>Weight Output Directory</label>
-      <description><![CDATA[The directory to contain the weight files.]]></description>
+      <description><![CDATA[The directory used to store the weight files. <p>This directory needs write access and enough space.</p>]]></description>
       <channel>output</channel>
       <index>3</index>
       <default>./</default>
@@ -51,18 +51,18 @@
 
   <parameters>
     <label>Controls</label>
-    <description><![CDATA[Control how the module operates]]></description>
+    <description><![CDATA[Control how the module operates.]]></description>
     <integer>
       <name>FirstEdge</name>
       <label>Start Edge</label>
-      <description><![CDATA[The first armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the lower bone index here.]]></description>
+      <description><![CDATA[The first <b>Input Armature</b> egde to process. This specifies the start of the continuous range of bones for which the weights will be generated.]]></description>
       <longflag>--first</longflag>
       <default>0</default>
     </integer>
 
     <integer>
       <name>LastEdge</name>
-      <description><![CDATA[The last armature egde(bone) to process. If you want to specify a continuous range of bones from which you want to generate weights, enter the higher bone index here. Special value -1 means the last bone.]]></description>
+      <description><![CDATA[The last <b>Input Armature</b> egde to process. This specifies the end of the continuous range of bones for which the weights will be generated. If -1 is specifed, all the bones starting from <b>Start Edge</b> will be processed.]]></description>
       <label>End edge</label>
       <longflag>--last</longflag>
       <default>-1</default>
@@ -72,7 +72,7 @@
       <name>SmoothingIteration</name>
       <longflag>--smooth</longflag>
       <label>Smoothing Iteration Number</label>
-      <description><![CDATA[Number of smoothing iterations. This is only necessary because we restrict the solving to a local region]]></description>
+      <description><![CDATA[Number of iterations used for smoothing the weights locally. This is only necessary because we restrict the solving to a local region]]></description>
       <default>10</default>
     </integer>
 
@@ -80,7 +80,7 @@
       <name>ScaleFactor</name>
       <longflag>--scaleFactor</longflag>
       <label>Computation Scale Factor</label>
-      <description><![CDATA[Scale factor applied to the input images to speed up the processing. It is highly encouraged to use a sparser spacing than the input image.]]></description>
+      <description><![CDATA[Scale factor applied to the input images to speed up the processing. <p>When different from 1, the input images will be downsampled before any processing. Then the weights are computed on the downsampled images. After the computation, the weights are upsampled back to the original input image spacing. It is highly encouraged to use a sparser spacing than the input image to prevent very slow computation.</p>]]></description>
       <default>2</default>
     </double>
 
@@ -88,7 +88,7 @@
       <name>Padding</name>
       <longflag>--padding</longflag>
       <label>Padding</label>
-      <description><![CDATA[How far (in voxel units) outside the body the weights region will be computed. A little padding is strongly advised to make sure every voxel of the input as an attributed weight.]]></description>
+      <description><![CDATA[How far (in voxel units) outside the body the weight region will be computed. If any padding is precised, the weight will be computed using a dilated version of the input images.]]></description>
       <default>1</default>
     </integer>
 
@@ -97,7 +97,7 @@
       <label>Use Armature Envelopes</label>
       <longflag>--useEnvelopes</longflag>
       <description><![CDATA[Use the envelope radius of each armature bone segment or not.]]></description>
-      <default>true</default>
+      <default>false</default>
     </boolean>
 
   </parameters>
@@ -109,7 +109,7 @@
       <name>Debug</name>
       <label>Debug Mode</label>
       <longflag>--debug</longflag>
-      <description><![CDATA[Print debug logs and dump intermediate images.]]></description>
+      <description><![CDATA[Print debug logs and dump intermediate images. The debug information will be outputed to a "Debug" folder in the <b>Weight Output Directory</b>.]]></description>
       <default>false</default>
     </boolean>
 
@@ -126,7 +126,7 @@
       <label>Use Binary Weight</label>
       <flag>-b</flag>
       <longflag>--binary</longflag>
-      <description><![CDATA[Use binary weight. for Debugging only]]></description>
+      <description><![CDATA[<b>For Debugging only.</b> Outputs binary weight instead of normal weights. Binary weights are simply the <b>Input Skinned Labelmap</b> region associated with each edge of the <b>Input Armature</b>.]]></description>
       <default>false</default>
     </boolean>
 
@@ -134,9 +134,18 @@
       <name>RunSequential</name>
       <label>Run Sequential</label>
       <longflag>--sequential</longflag>
-      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded.]]></description>
+      <description><![CDATA[Runs the computation of each bone sequentially instead of multi-threaded. By default, the module starts parallel threads to compute the weights. In this case the module consumes considerably more memory which may be an issue.]]></description>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to automatically prevent the propagation of the weight heat diffusion in region that belongs to bones too far in the family tree. For example, with <b>Maximum Parenthood Distance</b> set to 1, the diffusion will be limited to the bone's parent and children. The default (-1) means any distance is allowed, i.e. the weight can diffuse in any regions.]]></description>
+      <default>-1</default>
+    </integer>
+
   </parameters>
 
 </executable>

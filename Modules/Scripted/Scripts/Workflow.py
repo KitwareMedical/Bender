@@ -122,6 +122,7 @@ class WorkflowWidget:
     # a) Volume Skinning
     self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
+    self.get('VolumeSkinningGoToEditorPushButton').connect('clicked()', self.openEditorModule)
     # b) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
@@ -269,16 +270,14 @@ class WorkflowWidget:
 
     # 4) Weights
     # a) Volume skinning
-    # Just hide Go To
+    self.get('VolumeSkinningInputVolumeNodeComboBox').setVisible(advanced)
     self.get('VolumeSkinningGoToPushButton').setVisible(advanced)
+    self.get('VolumeSkinningGoToEditorPushButton').setVisible(advanced)
     # b) Weights
-    # Leave only weight folder
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
                                    'ComputeArmatureWeightArmatureLabel', 'ComputeArmatureWeightAmartureNodeComboBox',
                                    'ComputeArmatureWeightSkinnedVolumeLabel', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
-                                   'ComputeArmatureWeightUseEnvelopeLabel', 'ComputeArmatureWeightUseEnvelopeCheckBox',
                                    'ComputeArmatureWeightPaddingLabel', 'ComputeArmatureWeightPaddingSpinBox',
-                                   'ComputeArmatureWeightScaleFactorLabel', 'ComputeArmatureWeightScaleFactorSpinBox',
                                    'ComputeArmatureWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
 
@@ -286,7 +285,7 @@ class WorkflowWidget:
     # a) Armatures
     # Nothing
     # b) Eval Weight
-    advancedEvalSurfaceWeightWidgets = ['EvalSurfaceWeightInputSurfaceLabel', 'EvalSurfaceWeightInputNodeComboBox',
+    advancedEvalSurfaceWeightWidgets = [
                                  'EvalSurfaceWeightWeightDirectoryLabel', 'EvalSurfaceWeightWeightDirectoryButton',
                                  'EvalSurfaceWeightGoToPushButton']
     self.setWidgetsVisibility(advancedEvalSurfaceWeightWidgets, advanced)
@@ -422,6 +421,7 @@ class WorkflowWidget:
       self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
       boneLabels = self.searchLabels(colorNode, 'bone')
       boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
+      boneLabels.update(self.searchLabels(colorNode, 'mandible'))
       self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
       boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
       self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
@@ -561,6 +561,8 @@ class WorkflowWidget:
   def onBoneModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.resetCamera()
+      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
+        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
     if not cliNode.IsBusy():
       self.get('BoneModelMakerApplyPushButton').setChecked(False)
       self.get('BoneModelMakerApplyPushButton').setEnabled(True)
@@ -807,6 +809,9 @@ class WorkflowWidget:
     parameters = self.volumeSkinningParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
+  def openEditorModule(self):
+    self.openModule('Editor')
+
   def createOutputSkinnedVolume(self, node):
     if node == None:
       return
@@ -823,13 +828,13 @@ class WorkflowWidget:
     parameters["ArmaturePoly"] = self.get('ComputeArmatureWeightAmartureNodeComboBox').currentNode()
     parameters["SkinnedVolume"] = self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputDirectoryButton').directory)
-    parameters["UseEnvelopes"] = self.get('ComputeArmatureWeightUseEnvelopeCheckBox').isChecked()
     parameters["Padding"] = self.get('ComputeArmatureWeightPaddingSpinBox').value
     parameters["ScaleFactor"] = self.get('ComputeArmatureWeightScaleFactorSpinBox').value
-    #parameters["FirstEdge"] = 0
-    #parameters["LastEdge"] = -1
+    parameters["MaximumParenthoodDistance"] = '4'
+    #parameters["FirstEdge"] = '0'
+    #parameters["LastEdge"] = '-1'
     #parameters["BinaryWeight"] = False
-    #parameters["SmoothingIteration"] = 10
+    #parameters["SmoothingIteration"] = '10'
     #parameters["Debug"] = False
     #parameters["RunSequential"] = False
     return parameters
@@ -865,6 +870,9 @@ class WorkflowWidget:
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None:
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+    if self.get('EvalSurfaceWeightInputNodeComboBox').currentNode() == None:
+      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
+        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
 
     # Create output if necessary
     if not self.poseSurfaceCreateOutputConnected:
@@ -925,9 +933,10 @@ class WorkflowWidget:
     parameters["SurfaceInput"] = self.get('PoseSurfaceInputComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputDirectoryButton').directory)
     parameters["OutputSurface"] = self.get('PoseSurfaceOutputNodeComboBox').currentNode()
+    parameters["MaximumParenthoodDistance"] = '4'
     #parameters["IsSurfaceInRAS"] = False
     #parameters["IsArmatureInRAS"] = False
-    parameters["LinearBlend"] = True
+    parameters["LinearBlend"] = True # much faster
     return parameters
 
   def autoRunPoseSurface(self, autoRun):
@@ -1003,7 +1012,8 @@ class WorkflowWidget:
     parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightDirectoryButton').directory)
     parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
     parameters["LinearBlend"] = True
-    #parameters["MaximumPass"] = 4
+    parameters["MaximumParenthoodDistance"] = '4'
+    #parameters["MaximumRadius"] = '64'
     #parameters["Debug"] = False
     #parameters["IsArmatureInRAS"] = False
     return parameters

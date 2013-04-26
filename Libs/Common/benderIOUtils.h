@@ -42,9 +42,28 @@ class BENDER_COMMON_EXPORT IOUtils
 
   static void WritePolyData(vtkPolyData* polyData, const std::string& fileName);
 
+  /// Convenient method to write a vtk debug polydata to disk.
+  /// Internally uses GetDebugDirectory on the given dir.
+  static void WriteDebugPolyData(vtkPolyData* polyData,
+    const std::string& name, const std::string& dir = "");
+
   /// Convenient method to write an itk image to disk.
   template <class ImageType>
-  static void WriteImage(typename ImageType::Pointer image,const char* fname);
+  static void WriteImage(
+    const ImageType* image, const std::string& fname);
+
+  /// Convenient method to write an itk debug image to disk.
+  /// Internally uses GetDebugDirectory on the given dir.
+  template <class ImageType>
+  static void WriteDebugImage(const ImageType* image,
+    const std::string& name, const std::string& debugDirectory = "");
+
+  /// Return the temporary directory.
+  /// If no directory is precised, the functions tries to deduce the system's
+  /// tmp directory. If non tmp directory is found, it returns the current dir.
+  /// If the debug directory is given then this directory is created if it
+  /// did not exist.
+  static std::string GetDebugDirectory(const std::string& dir = 0);
 
   static void FilterStart(const char* filterName, const char* comment =0);
   static void FilterProgress(const char* filterName, float progress,

@@ -106,9 +106,6 @@ p, li { white-space: pre-wrap; }
       <number>0</number>
      </property>
      <widget class="QWidget" name="BoneSegmentationPage">
-      <property name="toolTip">
-       <string/>
-      </property>
       <property name="accessibleName">
        <string>Adjust labelmap</string>
       </property>
@@ -116,10 +113,9 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the labelmap module to load a labelmap and its corresponding color table.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Mirroring the volume is possible using the &amp;quot;LPS &amp;lt;-&amp;gt; RAS&amp;quot; button.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Finally, skins and bones labels can be merged together to obtain a global skin/skeleton volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p&gt;Use the labelmap module to load a labelmap and its corresponding color table. Mirroring the volume is possible using the &amp;quot;LPS &amp;lt;-&amp;gt; RAS&amp;quot; button.&lt;/p&gt;
+&lt;p&gt;Finally, skins and bones labels can be merged together to obtain a global skin/skeleton volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
        <property name="fieldGrowthPolicy">
@@ -185,7 +181,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="renameEnabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="noneDisplay">
              <string/>
@@ -546,11 +542,11 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The two model maker helps to extract the skin and bones label in surfaces.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The first model maker uses the bones labels to extract the skeleton.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The second model maker is based on a threshold that separate the air from the body and then extract the skin. The toggle skin visibility button will toggle the visibility of the Skin model maker output (which opacity is automatically set to 0.2).&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p&gt;The two model maker helps to extract the skin and bones label in surfaces.&lt;/p&gt;
+&lt;p&gt;The first model maker uses the bones labels to extract the skeleton.&lt;/p&gt;
+&lt;p&gt;The second model maker is based on a threshold that separate the air from the body and then extract the skin. The toggle skin visibility button will toggle the visibility of the Skin model maker output (which opacity is automatically set to 0.2).&lt;/p&gt;
+&lt;p&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_6">
        <property name="fieldGrowthPolicy">
@@ -964,8 +960,12 @@ p, li { white-space: pre-wrap; }
        <string>Create armature (rigging)</string>
       </property>
       <property name="accessibleDescription">
-       <string>The armature will enable to animate the volume.
-For more details, see the Armature module.</string>
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p&gt;The armature will enable to animate the volume.&lt;/p&gt;
+&lt;p&gt;For more details, see the Armature module.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_7">
        <property name="fieldGrowthPolicy">
@@ -1079,9 +1079,9 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the segment bones module to attribute each part of the input volume to its closest bone. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armature weight computes the weight of all the voxel in relation with a given bone that will be used to animate the volume. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p&gt;Use the segment bones module to attribute each part of the input volume to its closest bone.&lt;/p&gt;
+&lt;p&gt;The armature weight computes the weight of all the voxel in relation with a given bone that will be used to animate the volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_9">
        <property name="fieldGrowthPolicy">
@@ -1212,6 +1212,13 @@ p, li { white-space: pre-wrap; }
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="VolumeSkinningGoToEditorPushButton">
+              <property name="text">
+               <string>Go to Editor module</string>
+              </property>
+             </widget>
             </item>
             <item>
              <widget class="QPushButton" name="VolumeSkinningGoToPushButton">
@@ -1371,7 +1378,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightOutputFolderLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -1384,7 +1391,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="5" column="1">
            <widget class="ctkDirectoryButton" name="ComputeArmatureWeightOutputDirectoryButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1397,7 +1404,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="7" column="0" colspan="2">
+          <item row="6" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <spacer name="horizontalSpacer_8">
@@ -1442,33 +1449,13 @@ p, li { white-space: pre-wrap; }
            </layout>
           </item>
           <item row="3" column="0">
-           <widget class="QLabel" name="ComputeArmatureWeightUseEnvelopeLabel">
-            <property name="text">
-             <string>Use envelopes</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QCheckBox" name="ComputeArmatureWeightUseEnvelopeCheckBox">
-            <property name="toolTip">
-             <string>Use the envelope radius of each bone to increase the weight area of influence or not</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightPaddingLabel">
             <property name="text">
              <string>Padding</string>
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="3" column="1">
            <widget class="QSpinBox" name="ComputeArmatureWeightPaddingSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1482,14 +1469,14 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightScaleFactorLabel">
             <property name="text">
              <string>Scale Factor</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="4" column="1">
            <widget class="QDoubleSpinBox" name="ComputeArmatureWeightScaleFactorSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1525,10 +1512,10 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Move and animate the armature to a convenient pose. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Evaluate weight helps to paint the weight onto the given surface, allowing the pose body to execute faster.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The pose surface module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body&quot;&gt;
+&lt;p&gt;Move and animate the armature to a convenient pose.&lt;/p&gt;
+&lt;p&gt;Evaluate weight helps to paint the weight onto the given surface, allowing the pose body to execute faster.&lt;/p&gt;
+&lt;p&gt;The pose surface module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_12">
        <property name="leftMargin">
@@ -1546,7 +1533,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Evaluate Surface Weight</string>
+          <string>A) Evaluate surface weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
@@ -1672,7 +1659,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>B) Pose Armature</string>
+          <string>B) Pose armature</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1736,7 +1723,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Pose Surface</string>
+          <string>C) Pose surface</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1909,8 +1896,8 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the resample CLI to move the input volume into its final position.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
+&lt;p&gt;Use the resample CLI to move the input volume into its final position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_16">
        <property name="fieldGrowthPolicy">
@@ -2935,14 +2922,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SkinModelMakerOutputNodeComboBox</sender>
+   <sender>BoneModelMakerOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>192</x>
-     <y>363</y>
+     <x>417</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>

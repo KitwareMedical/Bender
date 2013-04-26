@@ -206,6 +206,22 @@ int main( int argc, char * argv[] )
   bender::IOUtils::FilterStart("Read inputs");
   bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.1, 0.0);
 
+  //----------------------------------
+  // Check output folder
+  //----------------------------------
+  if (!itksys::SystemTools::FileExists(WeightDirectory.c_str()))
+    {
+    std::cerr<<" Cannot find directory named: "<<WeightDirectory
+      <<"."<<std::endl << "Make sure it is a valid directory."<<std::endl;
+    return EXIT_FAILURE;
+    }
+
+  std::string debugDir = WeightDirectory;
+  if (Debug)
+    {
+    debugDir += "/Debug/";
+    }
+
   //----------------------------
   // Read label map
   //----------------------------
@@ -297,8 +313,8 @@ int main( int argc, char * argv[] )
 
   if (Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(
-      dilatedBodyPartition, "./DEBUG_DilatedBodyPartition.nrrd");
+    bender::IOUtils::WriteDebugImage<LabelImageType>(
+      dilatedBodyPartition, "DilatedBodyPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -314,8 +330,8 @@ int main( int argc, char * argv[] )
       dilatedBodyPartition);
   if (Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
-      "./DEBUG_BonesPartition.mha");
+    bender::IOUtils::WriteDebugImage<LabelImageType>(
+      bonesPartition, "BonesPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
@@ -371,7 +387,7 @@ int main( int argc, char * argv[] )
     // Output filename
     std::stringstream filename;
     filename << WeightDirectory << "/weight_"
-             << std::setfill('0') << std::setw(numDigits) << i << ".mha";
+      << std::setfill('0') << std::setw(numDigits) << i << ".mha";
     writeWeight->SetFilename(filename.str());
 
     // Edge Id
@@ -383,6 +399,11 @@ int main( int argc, char * argv[] )
     writeWeight->SetScaleFactor(ScaleFactor);
     writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
+    std::stringstream debugFolder;
+    debugFolder << debugDir << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i << "_DEBUG";
+    writeWeight->SetDebugFolder(debugFolder.str());
+    writeWeight->SetMaximumParenthoodDistance(MaximumParenthoodDistance);
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)
