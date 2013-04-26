@@ -1214,6 +1214,13 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
+             <widget class="QPushButton" name="VolumeSkinningGoToEditorPushButton">
+              <property name="text">
+               <string>Go to Editor module</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QPushButton" name="VolumeSkinningGoToPushButton">
               <property name="toolTip">
                <string>Open the &quot;Volume Skinning&quot; module</string>

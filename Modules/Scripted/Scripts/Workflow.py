@@ -122,6 +122,7 @@ class WorkflowWidget:
     # a) Volume Skinning
     self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
+    self.get('VolumeSkinningGoToEditorPushButton').connect('clicked()', self.openEditorModule)
     # b) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
@@ -269,8 +270,8 @@ class WorkflowWidget:
 
     # 4) Weights
     # a) Volume skinning
-    # Just hide Go To
     self.get('VolumeSkinningGoToPushButton').setVisible(advanced)
+    self.get('VolumeSkinningGoToEditorPushButton').setVisible(advanced)
     # b) Weights
     # Leave only weight folder
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
@@ -806,6 +807,9 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.volumeskinning)
     parameters = self.volumeSkinningParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def openEditorModule(self):
+    self.openModule('Editor')
 
   def createOutputSkinnedVolume(self, node):
     if node == None:
