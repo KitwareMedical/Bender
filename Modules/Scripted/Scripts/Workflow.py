@@ -130,19 +130,19 @@ class WorkflowWidget:
     # a) Eval Weight
     self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
-    self.get('EvalSurfaceWeightWeightDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
     # b) (Pose) Armatures
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # c) Pose Body
     self.get('PoseSurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceWeightInputDirectoryButton').connect('directoryChanged(QString)', self.poseSurfaceParameterChanged)
+    self.get('PoseSurfaceWeightInputPathLineEdit').connect('currentPathChanged(QString)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceApplyPushButton').connect('clicked(bool)', self.runPoseSurface)
     self.get('PoseSurfaceApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunPoseSurface)
 
     self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
-    self.get('ComputeArmatureWeightOutputDirectoryButton').connect('directoryChanged(QString)', self.setWeightDirectory)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
     # 6) Resample
     self.get('PoseLabelmapApplyPushButton').connect('clicked(bool)', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
@@ -286,7 +286,7 @@ class WorkflowWidget:
     # Nothing
     # b) Eval Weight
     advancedEvalSurfaceWeightWidgets = [
-                                 'EvalSurfaceWeightWeightDirectoryLabel', 'EvalSurfaceWeightWeightDirectoryButton',
+                                 'EvalSurfaceWeightWeightDirectoryLabel', 'EvalSurfaceWeightWeightPathLineEdit',
                                  'EvalSurfaceWeightGoToPushButton']
     self.setWidgetsVisibility(advancedEvalSurfaceWeightWidgets, advanced)
 
@@ -294,7 +294,7 @@ class WorkflowWidget:
     # hide almost completely
     advancedPoseSurfaceWidgets = ['PoseSurfaceArmaturesLabel', 'PoseSurfaceArmatureInputNodeComboBox',
                                'PoseSurfaceInputLabel', 'PoseSurfaceInputComboBox',
-                               'PoseSurfaceWeightInputFolderLabel', 'PoseSurfaceWeightInputDirectoryButton',
+                               'PoseSurfaceWeightInputFolderLabel', 'PoseSurfaceWeightInputPathLineEdit',
                                'PoseSurfaceGoToPushButton']
     self.setWidgetsVisibility(advancedPoseSurfaceWidgets, advanced)
 
@@ -302,7 +302,7 @@ class WorkflowWidget:
     # Hide all but output
     advancedPoseLabemapWidgets = ['PoseLabelmapInputLabel', 'PoseLabelmapInputNodeComboBox',
                                   'PoseLabelmapArmatureLabel', 'PoseLabelmapArmatureNodeComboBox',
-                                  'PoseLabelmapWeightDirectoryLabel', 'PoseLabelmapWeightDirectoryButton',
+                                  'PoseLabelmapWeightDirectoryLabel', 'PoseLabelmapWeightPathLineEdit',
                                   'PoseLabelmapGoToPushButton']
     self.setWidgetsVisibility(advancedPoseLabemapWidgets, advanced)
 
@@ -827,7 +827,7 @@ class WorkflowWidget:
     parameters["RestLabelmap"] = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('ComputeArmatureWeightAmartureNodeComboBox').currentNode()
     parameters["SkinnedVolume"] = self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputDirectoryButton').directory)
+    parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath)
     parameters["Padding"] = self.get('ComputeArmatureWeightPaddingSpinBox').value
     parameters["ScaleFactor"] = self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     parameters["MaximumParenthoodDistance"] = '4'
@@ -885,7 +885,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputSurface"] = self.get('EvalSurfaceWeightInputNodeComboBox').currentNode()
     parameters["OutputSurface"] = self.get('EvalSurfaceWeightOutputNodeComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('EvalSurfaceWeightWeightDirectoryButton').directory)
+    parameters["WeightDirectory"] = str(self.get('EvalSurfaceWeightWeightPathLineEdit').currentPath)
     #parameters["IsSurfaceInRAS"] = False
     #parameters["PrintDebug"] = False
     return parameters
@@ -931,7 +931,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["ArmaturePoly"] = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
     parameters["SurfaceInput"] = self.get('PoseSurfaceInputComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputDirectoryButton').directory)
+    parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputPathLineEdit').currentPath)
     parameters["OutputSurface"] = self.get('PoseSurfaceOutputNodeComboBox').currentNode()
     parameters["MaximumParenthoodDistance"] = '4'
     #parameters["IsSurfaceInRAS"] = False
@@ -979,14 +979,9 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def setWeightDirectory(self, dir):
-    if self.get('EvalSurfaceWeightWeightDirectoryButton').directory != dir:
-      self.get('EvalSurfaceWeightWeightDirectoryButton').directory = dir
-
-    if self.get('PoseSurfaceWeightInputDirectoryButton').directory != dir:
-      self.get('PoseSurfaceWeightInputDirectoryButton').directory = dir
-
-    if self.get('PoseLabelmapWeightDirectoryButton').directory != dir:
-      self.get('PoseLabelmapWeightDirectoryButton').directory = dir
+    self.get('EvalSurfaceWeightWeightPathLineEdit').currentPath = dir
+    self.get('PoseSurfaceWeightInputPathLineEdit').currentPath = dir
+    self.get('PoseLabelmapWeightPathLineEdit').currentPath = dir
 
   def createOutputPoseSurface(self, node):
     if node == None:
@@ -1009,7 +1004,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["RestLabelmap"] = self.get('PoseLabelmapInputNodeComboBox').currentNode()
     parameters["ArmaturePoly"] = self.get('PoseLabelmapArmatureNodeComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightDirectoryButton').directory)
+    parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightPathLineEdit').currentPath)
     parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
     parameters["LinearBlend"] = True
     parameters["MaximumParenthoodDistance"] = '4'
