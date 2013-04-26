@@ -270,6 +270,7 @@ class WorkflowWidget:
 
     # 4) Weights
     # a) Volume skinning
+    self.get('VolumeSkinningInputVolumeNodeComboBox').setVisible(advanced)
     self.get('VolumeSkinningGoToPushButton').setVisible(advanced)
     self.get('VolumeSkinningGoToEditorPushButton').setVisible(advanced)
     # b) Weights
