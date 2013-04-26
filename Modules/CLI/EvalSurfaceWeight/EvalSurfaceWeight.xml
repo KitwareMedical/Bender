@@ -3,11 +3,11 @@
   <category>;Segmentation.Bender</category>
   <index>4</index>
   <title>Evaluate Surface Weight</title>
-  <description><![CDATA[Given an input vector field and a polygonal surface, evaluate the vector field at the surface vertices using tri-linear interpolation. The vector field should be represented as a files series of type *.mha. The output is a VTK file where the vectors are stored as point data.]]></description>
+  <description><![CDATA[Evaluate the weights' value for each vertex of the <b>Input Surface</b>.<p>For each weight image of the <b>Weight Directory</b>, a field array with the weight at the <b>Input Surface</b> vertices is added. It is encouraged to run this module on surface that will be posed as it can speed up processing time.</p>]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/EvalSurfaceWeight</documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Johan Andruejol (Kitware), Julien Finet (Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -15,25 +15,32 @@
     <directory>
       <name>WeightDirectory</name>
       <label>Weight Directory</label>
-      <description><![CDATA[The directory to contain the weight files, which are expected to be in *.mha format and have the same image dimensions.]]></description>
+      <description><![CDATA[The directory that contain the weight images. These images are expected to be in *.mha format and all have the same image dimensions.]]></description>
       <channel>input</channel>
       <index>0</index>
       <default>./</default>
     </directory>
     <geometry fileExtensions=".vtk">
       <name>InputSurface</name>
-      <label>Surface vertices to evaluate at</label>
-      <description><![CDATA[The weight vectors will be evaluated at these surface vertices]]></description>
+      <label>Input Surface</label>
+      <description><![CDATA[The <b>Input Surface</b> for which the weights will be evaluated.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
     <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
       <label>Weighted Surface</label>
-      <description><![CDATA[Output surface in VTK format. The weight vectors are stored as point data.]]></description>
+      <description><![CDATA[The same as the <b>Input Surface</b> but with the weight vectors stored as point data.]]></description>
       <channel>output</channel>
       <index>2</index>
     </geometry>
+
+    <geometry>
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <description><![CDATA[Optional armature file. It used if MaximumParenthoodDistance > 0]]></description>
+    </geometry>
+
   </parameters>
 
   <parameters advanced="true">
@@ -55,6 +62,22 @@
       <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
 
   </parameters>
 

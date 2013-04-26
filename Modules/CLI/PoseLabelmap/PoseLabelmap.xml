@@ -3,11 +3,11 @@
   <category>;Segmentation.Bender</category>
   <index>6</index>
   <title>Pose Labelmap</title>
-  <description><![CDATA[Transform a labelmap according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each labelmap vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
+  <description><![CDATA[Pose an <b>Input Rest Labelmap</b> according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/PoseLabelmap</documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware),Julien Finet(Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Julien Finet(Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -16,7 +16,7 @@
     <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <description><![CDATA[Original labelmap for which the <b>Armature</b> was created and the weights computed.]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -24,7 +24,7 @@
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
+      <description><![CDATA[Armature in pose mode. The armature should be associated with the volume the <b>Input Rest Labelmap</b> it originated from.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
@@ -34,13 +34,13 @@
       <label>Directories containing all the weights</label>
       <channel>input</channel>
       <index>2</index>
-      <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
+      <description><![CDATA[Directory containing the weight image files (one for each <b>Armature</b> edge). These weights should be associated with the volume the <b>Input Rest Labelmap</b> they originated from.]]></description>
     </directory>
 
     <image type="label">
       <name>PosedLabelmap</name>
       <label>Output Posed Labelmap</label>
-      <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
+      <description><![CDATA[Output posed labelmap. It is the <b>Input Rest Labelmap</b> where each voxel was posed by the <b>Armature</b> pose transform.]]></description>
       <channel>output</channel>
       <index>3</index>
     </image>
@@ -55,16 +55,16 @@
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
-      <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
+      <description><![CDATA[If set to true, the pose transforms from the <b>Armature</b> will be combined linearly (according to the weights), which will result in rigid transforms. ]]></description>
       <default>false</default>
     </boolean>
 
     <integer>
-      <name>MaximumPass</name>
-      <label>Maximum number of passes</label>
-      <longflag>--pass</longflag>
-      <description><![CDATA[This property controls how many times the image is browse to fill the holes.]]></description>
-      <default>4</default>
+      <name>MaximumRadius</name>
+      <label>Maximum radius</label>
+      <longflag>--radius</longflag>
+      <description><![CDATA[This property controls how far in the posed image the holes are filled. Should be a power of 2.]]></description>
+      <default>64</default>
     </integer>
 
   </parameters>
@@ -88,6 +88,14 @@
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
 
   </parameters>
 

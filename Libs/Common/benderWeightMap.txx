@@ -51,6 +51,8 @@ void WeightMap::Init(const typename itk::Image<T, 3>::Pointer image,
       imageIt.GetIndex(),
       i);
     }
+
+  this->UpdateMaskRegion();
 }
 
 };
