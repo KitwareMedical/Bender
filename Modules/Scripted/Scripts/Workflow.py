@@ -828,10 +828,11 @@ class WorkflowWidget:
     parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputDirectoryButton').directory)
     parameters["Padding"] = self.get('ComputeArmatureWeightPaddingSpinBox').value
     parameters["ScaleFactor"] = self.get('ComputeArmatureWeightScaleFactorSpinBox').value
-    #parameters["FirstEdge"] = 0
-    #parameters["LastEdge"] = -1
+    parameters["MaximumParenthoodDistance"] = '4'
+    #parameters["FirstEdge"] = '0'
+    #parameters["LastEdge"] = '-1'
     #parameters["BinaryWeight"] = False
-    #parameters["SmoothingIteration"] = 10
+    #parameters["SmoothingIteration"] = '10'
     #parameters["Debug"] = False
     #parameters["RunSequential"] = False
     return parameters
@@ -927,9 +928,10 @@ class WorkflowWidget:
     parameters["SurfaceInput"] = self.get('PoseSurfaceInputComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputDirectoryButton').directory)
     parameters["OutputSurface"] = self.get('PoseSurfaceOutputNodeComboBox').currentNode()
+    parameters["MaximumParenthoodDistance"] = '4'
     #parameters["IsSurfaceInRAS"] = False
     #parameters["IsArmatureInRAS"] = False
-    parameters["LinearBlend"] = True
+    parameters["LinearBlend"] = True # much faster
     return parameters
 
   def autoRunPoseSurface(self, autoRun):
@@ -1005,7 +1007,8 @@ class WorkflowWidget:
     parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightDirectoryButton').directory)
     parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
     parameters["LinearBlend"] = True
-    #parameters["MaximumPass"] = 4
+    parameters["MaximumParenthoodDistance"] = '4'
+    #parameters["MaximumRadius"] = '64'
     #parameters["Debug"] = False
     #parameters["IsArmatureInRAS"] = False
     return parameters
