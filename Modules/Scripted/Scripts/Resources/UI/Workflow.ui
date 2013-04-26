@@ -1553,7 +1553,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Evaluate Surface Weight</string>
+          <string>A) Evaluate surface weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
@@ -1679,7 +1679,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>B) Pose Armature</string>
+          <string>B) Pose armature</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1743,7 +1743,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Pose Surface</string>
+          <string>C) Pose surface</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
