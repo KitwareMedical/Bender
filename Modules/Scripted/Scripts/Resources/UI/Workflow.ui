@@ -2922,14 +2922,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>SkinModelMakerOutputNodeComboBox</sender>
+   <sender>BoneModelMakerOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>192</x>
-     <y>363</y>
+     <x>417</x>
+     <y>190</y>
     </hint>
     <hint type="destinationlabel">
      <x>222</x>
