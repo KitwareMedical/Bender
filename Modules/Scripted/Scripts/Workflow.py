@@ -285,7 +285,7 @@ class WorkflowWidget:
     # a) Armatures
     # Nothing
     # b) Eval Weight
-    advancedEvalSurfaceWeightWidgets = ['EvalSurfaceWeightInputSurfaceLabel',
+    advancedEvalSurfaceWeightWidgets = [
                                  'EvalSurfaceWeightWeightDirectoryLabel', 'EvalSurfaceWeightWeightDirectoryButton',
                                  'EvalSurfaceWeightGoToPushButton']
     self.setWidgetsVisibility(advancedEvalSurfaceWeightWidgets, advanced)
@@ -561,6 +561,8 @@ class WorkflowWidget:
   def onBoneModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.resetCamera()
+      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
+        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
     if not cliNode.IsBusy():
       self.get('BoneModelMakerApplyPushButton').setChecked(False)
       self.get('BoneModelMakerApplyPushButton').setEnabled(True)
@@ -868,6 +870,9 @@ class WorkflowWidget:
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None:
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+    if self.get('EvalSurfaceWeightInputNodeComboBox').currentNode() == None:
+      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
+        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
 
     # Create output if necessary
     if not self.poseSurfaceCreateOutputConnected:
