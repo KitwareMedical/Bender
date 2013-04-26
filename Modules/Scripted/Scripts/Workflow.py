@@ -285,7 +285,7 @@ class WorkflowWidget:
     # a) Armatures
     # Nothing
     # b) Eval Weight
-    advancedEvalSurfaceWeightWidgets = ['EvalSurfaceWeightInputSurfaceLabel', 'EvalSurfaceWeightInputNodeComboBox',
+    advancedEvalSurfaceWeightWidgets = ['EvalSurfaceWeightInputSurfaceLabel',
                                  'EvalSurfaceWeightWeightDirectoryLabel', 'EvalSurfaceWeightWeightDirectoryButton',
                                  'EvalSurfaceWeightGoToPushButton']
     self.setWidgetsVisibility(advancedEvalSurfaceWeightWidgets, advanced)
