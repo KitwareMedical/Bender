@@ -421,6 +421,7 @@ class WorkflowWidget:
       self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
       boneLabels = self.searchLabels(colorNode, 'bone')
       boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
+      boneLabels.update(self.searchLabels(colorNode, 'mandible'))
       self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
       boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
       self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
