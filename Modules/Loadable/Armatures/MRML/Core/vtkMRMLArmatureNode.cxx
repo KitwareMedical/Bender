@@ -620,7 +620,7 @@ void vtkMRMLArmatureNode
 
   this->UpdateBoneRepresentation(armatureWidget->GetBonesRepresentation());
 
-  if (ShouldResetPoseMode)
+  if (this->ShouldResetPoseMode)
     {
     this->ShouldResetPoseMode = 0;
     armatureWidget->ResetPoseToRest();

@@ -33,6 +33,20 @@
 // .SECTION Options
 // All the options applied to the armature are applied to all its bones.
 //
+// .SECTION Armature polydata
+// For convenience, the armature automatically updates a polydata model of
+// itself and all its bone everytime it is modified (i.e it or one of its bones
+// is modified). The points have lines that represent each bone's
+// head and tail. The polydata cell data contains multiple arrays:
+// - The "Transforms" array that contains a matrix (4x3) of transforms from
+//   of the world to bone pose.
+// - The "EnvelopeRadiuses" array contains the radius of each bone.
+// - The "Parenthood" array contains an index that refers each bone to its
+//   parent. If the bone has no parent, this index is -1.
+// - The "Names" array contains the bones names.
+// - The "RestToPoseRotation" array contains the rest to pose rotation
+//   quaternion that can be useful for initializing bone in pose mode.
+//
 // .SECTION See Also
 // vtkArmatureRepresentation, vtkBoneWidget
 
@@ -55,7 +69,10 @@ class vtkArmatureRepresentation;
 class vtkArmatureWidgetCallback;
 class vtkBoneRepresentation;
 class vtkCollection;
+class vtkDoubleArray;
+class vtkIdTypeArray;
 class vtkPolyData;
+class vtkStringArray;
 
 class VTK_BENDER_WIDGETS_EXPORT vtkArmatureWidget : public vtkAbstractWidget
 {
@@ -273,7 +290,6 @@ public:
   // or translations.
   void ResetPoseToRest();
 
-
   // Description:
   // Reimplemented for internal reasons (update polydata).
   virtual void Modified();
@@ -281,6 +297,14 @@ public:
   static void ComputeTransform(double start[3], double end[3], double mat[3][3]);
   static double ComputeAngle(double v1[3], double v2[3]);
   static void ComputeAxisAngleMatrix(double axis[3], double angle, double mat[3][3]);
+
+  // Description:
+  // Helper methods for an easier access to the polydata arrays
+  vtkDoubleArray* GetTransformsArray();
+  vtkDoubleArray* GetEnvelopeRadiusesArray();
+  vtkIdTypeArray* GetParenthoodArray();
+  vtkStringArray* GetNamesArray();
+  vtkDoubleArray* GetRestToPoseRotationArray();
 
 protected:
   vtkArmatureWidget();
@@ -359,6 +383,9 @@ protected:
 
   // Create a new node
   ArmatureTreeNode* CreateNewMapElement(vtkBoneWidget* parent);
+
+  // Init function to add the necesseray arrays to the armature.
+  void AddArmatureArrays();
 
 private:
   vtkArmatureWidget(const vtkArmatureWidget&);  //Not implemented

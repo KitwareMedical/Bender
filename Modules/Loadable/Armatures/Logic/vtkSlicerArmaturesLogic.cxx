@@ -36,12 +36,14 @@
 
 // VTK includes
 #include <vtkCellData.h>
+#include <vtkDoubleArray.h>
 #include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
+#include <vtkStringArray.h>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
 
@@ -435,18 +437,18 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     return NULL;
     }
 
-  vtkCellData* cellData = model->GetCellData();
-  if (!cellData)
-    {
-    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
-    return NULL;
-    }
-
   vtkPoints* points = model->GetPoints();
   if (!points)
     {
     std::cerr<<"Cannot create armature from model,"
       <<" No points !"<<std::endl;
+    return NULL;
+    }
+
+  vtkCellData* cellData = model->GetCellData();
+  if (!cellData)
+    {
+    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
     return NULL;
     }
 
@@ -458,6 +460,25 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     std::cerr<<"Cannot create armature from model,"
       <<" parenthood array invalid"<<std::endl;
     return NULL;
+    }
+
+  vtkStringArray* names =
+    vtkStringArray::SafeDownCast(cellData->GetAbstractArray("Names"));
+  if (!names
+    || names->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
+    {
+    std::cout<<"Warning: No names found in the armature file. \n"
+      << "-> Using default naming !" <<std::endl;
+    }
+
+  vtkDoubleArray* restToPose=
+    vtkDoubleArray::SafeDownCast(cellData->GetArray("RestToPoseRotation"));
+  // 1 quaternion per bone
+  if (!restToPose
+    || restToPose->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
+    {
+    std::cout<<"Warning: No Pose found in the armature file. \n"
+      << "-> No pose imported !" <<std::endl;
     }
 
   // First, create an armature node
@@ -503,6 +524,11 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
 
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();
 
+    if (names)
+      {
+      boneNode->SetName(names->GetValue(id));
+      }
+
     double p[3];
     points->GetPoint(pointId, p);
     boneNode->SetWorldHeadRest(p);
@@ -510,6 +536,14 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     double tail[3];
     points->GetPoint(pointId + 1, p);
     boneNode->SetWorldTailRest(p);
+
+    if (restToPose)
+      {
+      double quad[4];
+      restToPose->GetTupleValue(id, quad);
+      boneNode->SetRestToPoseRotation(quad);
+      }
+
     if (boneParentNode)
       {
       double diff[3];
