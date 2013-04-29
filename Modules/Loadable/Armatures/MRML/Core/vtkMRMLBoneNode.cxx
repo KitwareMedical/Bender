@@ -527,6 +527,18 @@ int vtkMRMLBoneNode::GetShowAxes()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetRestToPoseRotation(double quad[4])
+{
+  this->BoneProperties->SetRestToPoseRotation(quad);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetRestToPoseRotation(double quad[4])
+{
+  this->BoneProperties->GetRestToPoseRotation(quad);
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldToParentRestRotation(const double* rotation)
 {
   double rot[4];

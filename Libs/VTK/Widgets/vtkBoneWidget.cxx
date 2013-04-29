@@ -708,6 +708,33 @@ vtkSmartPointer<vtkTransform>
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneWidget::SetRestToPoseRotation(double quat[4])
+{
+  if (CompareQuaternion(this->RestToPoseRotation, quat))
+    {
+    return;
+    }
+
+  this->RestToPoseRotation.Set(quat);
+  this->RestToPoseRotation.Normalize();
+  this->ShouldInitializePoseMode = false;
+  this->UpdatePoseMode();
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkTransform> vtkBoneWidget::CreateRestToPoseRotation() const
+{
+  vtkSmartPointer<vtkTransform> restToPoseRotation =
+    vtkSmartPointer<vtkTransform>::New();
+
+  double axis[3];
+  double angle = this->RestToPoseRotation.GetRotationAngleAndAxis(axis);
+  restToPoseRotation->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
+
+  return restToPoseRotation;
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldHeadAndTailRest(double head[3], double tail[3])
 {
   bool changeHead = ! CompareVector3(this->WorldHeadRest, head);
