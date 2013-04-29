@@ -270,9 +270,9 @@ class WorkflowWidget:
 
     # 4) Weights
     # a) Volume skinning
-    self.get('VolumeSkinningInputVolumeNodeComboBox').setVisible(advanced)
-    self.get('VolumeSkinningGoToPushButton').setVisible(advanced)
-    self.get('VolumeSkinningGoToEditorPushButton').setVisible(advanced)
+    # VolumeSkinningInputVolumeNodeComboBox is not advanced as it can be the merged volume or the original volume.
+    advancedVolumeSkinningWidgets = ['VolumeSkinningGoToPushButton']
+    self.setWidgetsVisibility(advancedVolumeSkinningWidgets, advanced)
     # b) Weights
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
                                    'ComputeArmatureWeightArmatureLabel', 'ComputeArmatureWeightAmartureNodeComboBox',
@@ -364,6 +364,9 @@ class WorkflowWidget:
       labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
     volumeNode.EndModify(wasModifying)
 
+    # We can't just use a regular qt signal/slot connection because the input
+    # node might not be a labelmap at the time it becomes current, which would
+    # not show up in the combobox.
     self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
     self.setupMergeLabels(volumeNode)
     self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
@@ -430,6 +433,7 @@ class WorkflowWidget:
       skinLabel = self.bestLabel(skinLabels, ['skin'])
       self.get('SkinLabelComboBox').setCurrentColor(skinLabel)
 
+      self.createMergeLabelsOutput(volumeNode)
       self.addObserver(volumeNode, 'ModifiedEvent', self.updateMergeLabels)
       self.addObserver(labelmapDisplayNode, 'ModifiedEvent', self.updateMergeLabels)
 
@@ -463,6 +467,25 @@ class WorkflowWidget:
       bestLabels = newBestLabels
       labelIndex = labelIndex + 1
     return bestLabels.keys()[0]
+
+  def createMergeLabelsOutput(self, node):
+    """ Make sure the output scalar volume node is a node with a -posed suffix.
+        Note that the merged volume is used only by the model makers. This
+        Should not be used by the PoseLabelmap filter.
+    """
+    if node == None:
+      return
+    # Don't create the node if the name already contains "merged"
+    if node.GetName().lower().find('merged') != -1:
+      return
+    nodeName = '%s-merged' % node.GetName()
+    # make sure such node does not already exist.
+    mergedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if mergedNode == None:
+      newNode = self.get('MergeLabelsOutputNodeComboBox').addNode()
+      newNode.SetName(nodeName)
+    else:
+      self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
 
   def mergeLabelsParameters(self):
     boneLabels = self.get('BoneLabelsLineEdit').text
@@ -499,9 +522,15 @@ class WorkflowWidget:
     if cliNode.GetStatusString() == 'Completed':
       # apply label map
       newNode = self.get('MergeLabelsOutputNodeComboBox').currentNode()
-      colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
-      if newNode != None and colorNode != None:
-        newNode.GetDisplayNode().SetAndObserveColorNodeID(colorNode.GetID())
+      if newNode != None:
+        displayNode = newNode.GetDisplayNode()
+        if displayNode == None:
+          volumesLogic = slicer.modules.volumes.logic()
+          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
+          displayNode = newNode.GetDisplayNode()
+        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+        if displayNode != None and colorNode != None:
+          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
 
     if not cliNode.IsBusy():
       self.get('MergeLabelsApplyPushButton').setChecked(False)
