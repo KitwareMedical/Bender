@@ -28,34 +28,22 @@
 
 // ITK includes
 #include <itkContinuousIndex.h>
-#include <itkDanielssonDistanceMapImageFilter.h>
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkIndex.h>
-#include <itkLinearInterpolateImageFunction.h>
-#include <itkMath.h>
 #include <itkMatrix.h>
 #include <itkPluginUtilities.h>
-#include <itkStatisticsImageFilter.h>
 #include <itkVersor.h>
-#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
-#include <vtkCubeSource.h>
 #include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
-#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
-#include <vtkSTLReader.h>
 #include <vtkSmartPointer.h>
-#include <vtkTimerLog.h>
 
 // STD includes
 #include <cmath>
@@ -85,6 +73,9 @@ typedef itk::Matrix<double,4,4> Mat44;
 
 typedef itk::Vector<double,3> Vec3;
 typedef itk::Vector<double,4> Vec4;
+
+// Initialized in DoIt;
+itk::Vector<double,3> InvalidCoord;
 
 template<class T> int DoIt(int argc, char* argv[]);
 
@@ -180,22 +171,6 @@ inline Mat33 ToRotationMatrix(const Vec4& R)
   v.Set(R[1],R[2], R[3],R[0]);
   return v.GetMatrix();
 }
-
-//-------------------------------------------------------------------------------
-void ApplyQT(Vec4& q, Vec3& t, double* x)
-{
-  double R[3][3];
-  vtkMath::QuaternionToMatrix3x3(&q[0], R);
-
-  double Rx[3];
-  vtkMath::Multiply3x3(R, x, Rx);
-
-  for (unsigned int i=0; i<3; ++i)
-    {
-    x[i] = Rx[i]+t[i];
-    }
-}
-
 
 //-------------------------------------------------------------------------------
 struct RigidTransform
@@ -495,60 +470,6 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
   out->Allocate();
 }
 
-/*
-//-------------------------------------------------------------------------------
-itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
-                                size_t numSites,
-                                const bender::WeightMap& weightMap,
-                                bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
-{
-  itk::Vector<double,3> posedCoord(0.0);
-  bender::WeightMap::WeightVector w_pi(numSites);
-  weightMap.Get(imageIt.GetIndex(), w_pi);
-  double wSum(0.0);
-  for (size_t i = 0; i < numSites; ++i)
-    {
-    wSum+=w_pi[i];
-    }
-  if (wSum <= 0.0)
-    {
-    posedCoord = restCoord;
-    }
-  else if(linearBlend)
-    {
-    for (size_t i=0; i<numSites;++i)
-      {
-      double w = w_pi[i]/wSum;
-      const RigidTransform& Fi(transforms[i]);
-      Vec3 yi;
-      Fi.Apply(restCoord, yi);
-      posedCoord += w*yi;
-      }
-    }
-  else
-    {
-    Mat24 dq;
-    dq.Fill(0.0);
-    for (size_t i=0; i<numSites;++i)
-      {
-      double w = w_pi[i]/wSum;
-      Mat24& dq_i(dqs[i]);
-      dq+= dq_i*w;
-      }
-    Vec4 q;
-    Vec3 t;
-    DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-    posedCoord = restCoord;
-    ApplyQT(q,t,&posedCoord[0]);
-    }
-  return posedCoord;
-  }
-*/
-// Initialized in DoIt;
-itk::Vector<double,3> InvalidCoord;
-
 //-------------------------------------------------------------------------------
 itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
                                 bender::WeightMap::WeightVector w_pi,
@@ -677,20 +598,22 @@ public:
 
 
 //-------------------------------------------------------------------------------
-// size = 0:             size = 1:             size = 2:
-// /-----------\         *-----*-----*         /--*-----*--\
-// |           |         |           |         |           |
-// |           |         |           |         |           |
-// |           |         |           |         *  *  *  *  *
-// |           |         |           |         |           |
-// |           |         |           |         |           |
-// |     *     |         *           *         |  *     *  |
-// |           |         |           |         |           |
-// |           |         |           |         |           |
-// |           |         |           |         *  *  *  *  *
-// |           |         |           |         |           |
-// |           |         |           |         |           |
-// \-----------/         *-----*-----*         \--*-----*--/
+/**
+    size = 0:             size = 1:             size = 2:
+   /-----------\         *-----*-----*         /--*-----*--\
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |           |         |           |         *  *  *  *  *
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |     *     |         *           *         |  *     *  |
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |           |         |           |         *  *  *  *  *
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   \-----------/         *-----*-----*         \--*-----*--/
+*/
 template<unsigned int dimension>
 class SubNeighborhood
 {
@@ -727,22 +650,6 @@ public:
   size_t Size;
   itk::Offset<dimension>* Offsets;
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -852,12 +759,6 @@ int DoIt(int argc, char* argv[])
             << " " << labelMap->GetLargestPossibleRegion()
             << std::endl;
     }
-  //vtkPoints* inputPoints = inSurface->GetPoints();
-  //int numPoints = inputPoints->GetNumberOfPoints();
-  //std::vector<Voxel> domainVoxels;
-  //ComputeDomainVoxels(weight0,inputPoints,domainVoxels);
-  //std::cout <<numPoints<<" vertices, "<<domainVoxels.size()<<" voxels"<< std::endl;
-
 
   //----------------------------
   // Read Weights
@@ -1008,18 +909,12 @@ int DoIt(int argc, char* argv[])
   origin[0] = posedLabelMap->GetDirection()[0][0] >= 0. ? bounds[0] : bounds[1];
   origin[1] = posedLabelMap->GetDirection()[1][1] >= 0. ? bounds[2] : bounds[3];
   origin[2] = posedLabelMap->GetDirection()[2][2] >= 0. ? bounds[4] : bounds[5];
-  //origin[0] = std::min(origin[0], labelMap->GetOrigin()[0]);
-  //origin[1] = std::min(origin[1], labelMap->GetOrigin()[1]);
-  //origin[2] = std::min(origin[2], labelMap->GetOrigin()[2]);
   posedLabelMap->SetOrigin(origin);
   typename LabelImageType::RegionType region;
   assert(bounds[1] >= bounds[0] && bounds[3] >= bounds[2] && bounds[5] >= bounds[4]);
   region.SetSize(0, (bounds[1]-bounds[0]) / posedLabelMap->GetSpacing()[0]);
   region.SetSize(1, (bounds[3]-bounds[2]) / posedLabelMap->GetSpacing()[1]);
   region.SetSize(2, (bounds[5]-bounds[4]) / posedLabelMap->GetSpacing()[2]);
-  //region.SetSize(0, std::max(region.GetSize()[0], labelMap->GetLargestPossibleRegion().GetSize()[0]));
-  //region.SetSize(1, std::max(region.GetSize()[1], labelMap->GetLargestPossibleRegion().GetSize()[1]));
-  //region.SetSize(2, std::max(region.GetSize()[2], labelMap->GetLargestPossibleRegion().GetSize()[2]));
   posedLabelMap->SetRegions(region);
   std::cout << "Allocate output posed labelmap: \n"
             << " Origin: " << posedLabelMap->GetOrigin() << "\n"
@@ -1029,31 +924,6 @@ int DoIt(int argc, char* argv[])
             << std::endl;
   posedLabelMap->Allocate();
   posedLabelMap->FillBuffer(OutsideLabel);
-/*
-  std::cout << "############# Posed Indexes..." << std::endl;
-  typedef typename LabelImageType::IndexType IndexType;
-  typedef itk::Image<IndexType, 3> IndexImageType;
-  typename IndexImageType::Pointer posedIndexes = IndexImageType::New();
-  posedIndexes->CopyInformation(posedLabelMap);
-  //posedIndexes->SetSpacing(posedLabelMap->GetSpacing());
-  //posedIndexes->SetDirection(posedLabelMap->GetDirection());
-  //posedIndexes->SetOrigin(origin);
-  posedIndexes->SetRegions(region);
-  posedIndexes->Allocate();
-  IndexType invalidIndex = {{-1, -1, -1}};
-  posedIndexes->FillBuffer(invalidIndex);
-
-  
-  std::cout << "############# Posed IDs..." << std::endl;
-  typedef unsigned int IDType;
-  typedef itk::Image<IDType, 3> IDImageType;
-  typename IDImageType::Pointer posedIDs = IDImageType::New();
-  posedIDs->CopyInformation(posedLabelMap);
-  posedIDs->SetRegions(region);
-  posedIDs->Allocate();
-  IDType invalidID = 0;
-  posedIDs->FillBuffer(invalidID);
-  */
 
   //----------------------------
   // Perform interpolation
@@ -1061,19 +931,29 @@ int DoIt(int argc, char* argv[])
 
   std::cout << "############# First pass..." << std::endl;
   itk::ImageRegionConstIteratorWithIndex<LabelImageType> imageIt(labelMap, labelMap->GetLargestPossibleRegion());
-/*
+
+  size_t assignedPixelCount(1);
+  size_t countSkippedVoxels(0);
+  size_t voxelIt(0);
+  const size_t voxelCount =
+    labelMap->GetLargestPossibleRegion().GetSize(0) *
+    labelMap->GetLargestPossibleRegion().GetSize(1) *
+    labelMap->GetLargestPossibleRegion().GetSize(2);
+  size_t progress((voxelCount-1) / 100);
   // First pass, fill as much as possible
-  //IDType index(0);
-  size_t assignedPixelCount(0);
-  for (; !imageIt.IsAtEnd() ; ++imageIt)
+  for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
     {
+    if (voxelIt++ % progress == 0)
+      {
+      std::cout << "+";
+      std::cout.flush();
+      }
     if (imageIt.Get() == OutsideLabel)
       {
       continue;
       }
-    typename itk::ContinuousIndex<double, 3> index = imageIt.GetIndex();
     itk::Vector<double,3> posedCoord =
-      Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, transforms, dqs);
+      Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
     if (posedCoord == InvalidCoord)
       {
       continue;
@@ -1090,183 +970,73 @@ int DoIt(int argc, char* argv[])
       //assert(res);
       std::cerr << "!";
       }
-    else
+    else // need to overwrite ?
       {
       ++assignedPixelCount;
       posedLabelMap->SetPixel(posedIndex, imageIt.Get());
-      //posedIndexes->SetPixel(posedIndex, imageIt.GetIndex());
-      //posedIDs->SetPixel(posedIndex, index);
-      //typename IDImageType::IndexType idIndex;
-      //posedIDs->TransformPhysicalPointToIndex(posedPoint, idIndex);
-      //posedIDs->SetPixel(idIndex, index);
-      //std::cout << "." << std::endl;
-      //typename IndexImageType::IndexType pPosedIndex;
-      //res = posedIndexes->TransformPhysicalPointToIndex(posedPoint, pPosedIndex);
-      //if (res)
-        {
-        //posedIndexes->SetPixel(pPosedIndex, imageIt.GetIndex());
-        }
-      //std::cout << "-" << std::endl;
-      }
-    }
-  std::cout << "############# done." << std::endl;
-  if (Debug)
-    {
-    bender::IOUtils::WriteImage<LabelImageType>(
-      posedLabelMap, "firstPass.mha");
-    std::cout << "############# done." << std::endl;
-    }
-*/
-/*
-  double stepWidth= 1.;
-  size_t maxStepCount = 1;
-  size_t assignedPixelCount(1);
-  size_t maxPosedOffsetNorm = 2;
-  for (size_t pass = 0;
-       (pass <= MaximumPass) &&
-        (pass <= 1 || (assignedPixelCount && maxPosedOffsetNorm > 0));
-       ++pass, stepWidth /=2)
-    {
-    std::cout << "############# " << pass << " pass..." << std::endl;
-    std::cout << "Step width: " << stepWidth << std::endl;
-    maxStepCount *= 2;
-    if (stepWidth >= 0.25)
-      {
-      maxStepCount = 1;
-      }
-    assignedPixelCount = 0;
-    maxPosedOffsetNorm = 0;
-    for (size_t stepIndex = 0; stepIndex < maxStepCount; ++stepIndex )
-      {
-      double step = stepWidth + (stepIndex*stepWidth*2);
-      std::cout << "################### " << stepIndex+1 << "/" << maxStepCount << std::endl;
-      std::cout << "Step: " << step << std::endl;
-*/
-  size_t assignedPixelCount(1);
-  size_t countSkippedVoxels(0);
-  size_t voxelIt(0);
-  const size_t voxelCount =
-    labelMap->GetLargestPossibleRegion().GetSize(0) *
-    labelMap->GetLargestPossibleRegion().GetSize(1) *
-    labelMap->GetLargestPossibleRegion().GetSize(2);
-  size_t progress((voxelCount-1) / 100);
-      // First pass, fill as much as possible
-      for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
-        {
-        if (voxelIt++ % progress == 0)
-          {
-          std::cout << "+";
-          std::cout.flush();
-          }
-        if (imageIt.Get() == OutsideLabel)
-          {
-          continue;
-          }
-        itk::Vector<double,3> posedCoord =
-          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
-        if (posedCoord == InvalidCoord)
-          {
-          continue;
-          }
-        //std::cout << posedCoord << std::endl;
-        typename LabelImageType::PointType posedPoint;
-        posedPoint[0] = posedCoord[0];
-        posedPoint[1] = posedCoord[1];
-        posedPoint[2] = posedCoord[2];
-        typename LabelImageType::IndexType posedIndex;
-        bool res = posedLabelMap->TransformPhysicalPointToIndex(posedPoint, posedIndex);
-        if (!res)
-          {
-          //assert(res);
-          std::cerr << "!";
-          }
-        else // need to overwrite ?
-          {
-          ++assignedPixelCount;
-          posedLabelMap->SetPixel(posedIndex, imageIt.Get());
 
-          size_t maxPosedOffsetNorm = 2; // do it the first time.
-          for (size_t radius = 1;
-            maxPosedOffsetNorm > 1 && radius <= static_cast<unsigned int>(MaximumRadius);
-            radius*=2)
+      size_t maxPosedOffsetNorm = 2; // do it the first time.
+      for (size_t radius = 1;
+           maxPosedOffsetNorm > 1 && radius <= static_cast<unsigned int>(MaximumRadius);
+           radius*=2)
+        {
+        if (radius >= 16)
+          {
+          std::cerr << "@" << radius ;
+          }
+        //size_t assignedNeighborsCount = 0;
+        //itk::Neighborhood<T, 3> neighborhood;
+        //neighborhood.SetRadius(radius);
+        SubNeighborhood<3> neighborhood(radius);
+        double step = 0.5 / radius;
+        //{
+        maxPosedOffsetNorm = 0;
+        size_t stepAssignedPixelCount = 0;
+        for (size_t iOff =0; iOff < neighborhood.Size; ++iOff)
+          {
+          typename itk::ContinuousIndex<double, 3> index(imageIt.GetIndex());
+          index[0] += step * neighborhood.Offsets[iOff][0];
+          index[1] += step * neighborhood.Offsets[iOff][1];
+          index[2] += step * neighborhood.Offsets[iOff][2];
+          itk::Vector<double,3> neighborPosedCoord =
+            Transform<T>(labelMap, index, numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
+          if (neighborPosedCoord == InvalidCoord)
             {
-            if (radius >= 16)
-              {
-              std::cerr << "@" << radius ;
-              }
-            //size_t assignedNeighborsCount = 0;
-            //itk::Neighborhood<T, 3> neighborhood;
-            //neighborhood.SetRadius(radius);
-            SubNeighborhood<3> neighborhood(radius);
-            double step = 0.5 / radius;
-            //{
-            maxPosedOffsetNorm = 0;
-            size_t stepAssignedPixelCount = 0;
-            for (size_t iOff =0; iOff < neighborhood.Size; ++iOff)
-              {
-              typename itk::ContinuousIndex<double, 3> index(imageIt.GetIndex());
-              index[0] += step * neighborhood.Offsets[iOff][0];
-              index[1] += step * neighborhood.Offsets[iOff][1];
-              index[2] += step * neighborhood.Offsets[iOff][2];
-              itk::Vector<double,3> neighborPosedCoord =
-                Transform<T>(labelMap, index, numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
-              if (neighborPosedCoord == InvalidCoord)
-                {
-                continue;
-                }
-              typename LabelImageType::PointType neighborPosedPoint;
-              neighborPosedPoint[0] = neighborPosedCoord[0];
-              neighborPosedPoint[1] = neighborPosedCoord[1];
-              neighborPosedPoint[2] = neighborPosedCoord[2];
-              typename LabelImageType::IndexType neighborPosedIndex;
-              bool neighborRes = posedLabelMap->TransformPhysicalPointToIndex(neighborPosedPoint, neighborPosedIndex);
-              if (neighborRes)
-                {
-                size_t posedOffsetNorm = 0;
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[0] - posedIndex[0])/radius));
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[1] - posedIndex[1])/radius));
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[2] - posedIndex[2])/radius));
-                maxPosedOffsetNorm = std::max(maxPosedOffsetNorm, posedOffsetNorm);
-                if (posedLabelMap->GetPixel(neighborPosedIndex) ==OutsideLabel)
-                  {
-                  posedLabelMap->SetPixel(neighborPosedIndex, imageIt.Get());
-                  ++stepAssignedPixelCount;
-                  }
-                }
-              }
-            // Test to see if the neighbors have been filled.
-            //assignedNeighborsCount = 0;
-            //for (size_t iOff =0; iOff < neighborhood.Size(); ++iOff)
-            //  {
-            //  assignedNeighborsCount +=
-            //    (posedLabelMap->GetPixel(posedIndex + neighborhood.GetOffset(iOff)) != OutsideLabel) ? 1 :0;
-            //  }
-            assignedPixelCount += stepAssignedPixelCount;
+            continue;
             }
-          if (maxPosedOffsetNorm > 1)
+          typename LabelImageType::PointType neighborPosedPoint;
+          neighborPosedPoint[0] = neighborPosedCoord[0];
+          neighborPosedPoint[1] = neighborPosedCoord[1];
+          neighborPosedPoint[2] = neighborPosedCoord[2];
+          typename LabelImageType::IndexType neighborPosedIndex;
+          bool neighborRes = posedLabelMap->TransformPhysicalPointToIndex(neighborPosedPoint, neighborPosedIndex);
+          if (neighborRes)
             {
-            ++countSkippedVoxels;
+            size_t posedOffsetNorm = 0;
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[0] - posedIndex[0])/radius));
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[1] - posedIndex[1])/radius));
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[2] - posedIndex[2])/radius));
+            maxPosedOffsetNorm = std::max(maxPosedOffsetNorm, posedOffsetNorm);
+            if (posedLabelMap->GetPixel(neighborPosedIndex) ==OutsideLabel)
+              {
+              posedLabelMap->SetPixel(neighborPosedIndex, imageIt.Get());
+              ++stepAssignedPixelCount;
+              }
             }
           }
+        assignedPixelCount += stepAssignedPixelCount;
         }
-        //}
-      std::cout << assignedPixelCount << " pixels assigned" << std::endl;
-      std::cout << countSkippedVoxels << " voxels skipped" << std::endl;
-    //std::cout << maxPosedOffsetNorm << " maximum posed offset norm" << std::endl;
-    /*
-    if (Debug)
-      {
-      std::stringstream ss;
-      ss << "Pass-" << pass << ".mha";
-      bender::IOUtils::WriteImage<LabelImageType>(
-        posedLabelMap, ss.str().c_str());
-      std::cout << "############# done." << std::endl;
+      if (maxPosedOffsetNorm > 1)
+        {
+        ++countSkippedVoxels;
+        }
       }
-    */
-    //}
+    }
+  std::cout << assignedPixelCount << " pixels assigned" << std::endl;
+  std::cout << countSkippedVoxels << " voxels skipped" << std::endl;
 
   std::cout << "############# done." << std::endl;
 

@@ -67,6 +67,14 @@
       <default>64</default>
     </integer>
 
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
+
   </parameters>
 
   <parameters advanced="true">
@@ -88,14 +96,6 @@
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
-
-    <integer>
-      <name>MaximumParenthoodDistance</name>
-      <label>Maximum Parenthood Distance</label>
-      <longflag>--distance</longflag>
-      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
-      <default>-1</default>
-    </integer>
 
   </parameters>
 
