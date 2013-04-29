@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>716</width>
+    <width>810</width>
     <height>809</height>
    </rect>
   </property>
@@ -1523,7 +1523,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="6" column="0" colspan="2">
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <spacer name="horizontalSpacer_10">
@@ -1582,6 +1582,26 @@ p, li { white-space: pre-wrap; }
              <string>Posed Labelmap</string>
             </property>
            </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="PoseLabelmapHighPrecedenceLabelsLabel">
+            <property name="text">
+             <string>High precedence labels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="PoseLabelmapHighPrecedenceLabelsLineEdit"/>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="PoseLabelmapLowPrecedenceLabelsLabel">
+            <property name="text">
+             <string>Low precedence labels</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLineEdit" name="PoseLabelmapLowPrecedenceLabelsLineEdit"/>
           </item>
          </layout>
         </widget>

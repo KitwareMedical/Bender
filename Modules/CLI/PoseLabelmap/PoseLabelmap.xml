@@ -75,6 +75,20 @@
       <default>-1</default>
     </integer>
 
+    <integer-vector>
+      <name>HighPrecedenceLabels</name>
+      <label>High Precedence Labels</label>
+      <longflag>--high</longflag>
+      <description><![CDATA[List of label values (comma separated) that should take precedence when multiple labels are repositioned in the same output voxel. Highest precedence labels are listed first. For example, "209, 253, 111" would make the label 209 always overwrite the label 111 if they are repositioned in the same voxel. ]]></description>
+    </integer-vector>
+
+    <integer-vector>
+      <name>LowPrecedenceLabels</name>
+      <label>Low Precedence Labels</label>
+      <longflag>--low</longflag>
+      <description><![CDATA[List of label values (comma separated) that should not take precedence when multiple labels are repositioned in the same output voxel. Lowest precedence labels are listed first. For example, "143, 5, 17" would make the label 17 always overwrite the label 143 if they are repositioned in the same voxel.]]></description>
+    </integer-vector>
+
   </parameters>
 
   <parameters advanced="true">
@@ -96,6 +110,14 @@
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>BackgroundValue</name>
+      <label>BackgroundValue</label>
+      <longflag>--background</longflag>
+      <description><![CDATA[Background scalar value]]></description>
+      <default>0</default>
+    </integer>
 
   </parameters>
 

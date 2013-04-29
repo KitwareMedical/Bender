@@ -57,8 +57,6 @@ typedef itk::Matrix<double,2,4> Mat24;
 typedef unsigned char CharType;
 typedef unsigned short LabelType;
 
-#define OutsideLabel 0
-
 typedef itk::Image<unsigned short, 3>  LabelImage;
 typedef itk::Image<bool, 3>  BoolImage;
 typedef itk::Image<float, 3>  WeightImage;
@@ -653,8 +651,38 @@ public:
 
 
 
-
-
+// Should a label overwrite the existing label value.
+// Return true if it should, false otherwise.
+//-------------------------------------------------------------------------------
+template<class T>
+bool overwriteLabel(T existingLabel, T newLabel,
+                    const std::vector<int>& highPrecedence,
+                    const std::vector<int>& lowPrecedence)
+{
+  if (existingLabel == newLabel)
+    {
+    return false;
+    }
+  // Special case if the existing label is the background value.
+  if (existingLabel == static_cast<T>(lowPrecedence[0]))
+    {
+    return true;
+    }
+  std::vector<int>::const_iterator elHP =
+    std::find(highPrecedence.begin(), highPrecedence.end(),
+              static_cast<int>(existingLabel));
+  std::vector<int>::const_iterator elLP =
+    std::find(lowPrecedence.begin(), lowPrecedence.end(),
+              static_cast<int>(existingLabel));
+  std::vector<int>::const_iterator nlHP =
+    std::find(highPrecedence.begin(), highPrecedence.end(),
+              static_cast<int>(newLabel));
+  std::vector<int>::const_iterator nlLP =
+    std::find(lowPrecedence.begin(), lowPrecedence.end(),
+              static_cast<int>(newLabel));
+  bool res = elHP > nlHP || elLP < nlLP;
+  return res;
+}
 
 
 
@@ -679,6 +707,9 @@ int DoIt(int argc, char* argv[])
   InvalidCoord[2] = std::numeric_limits<double>::max();
 
   PARSE_ARGS;
+
+  T outsideLabel = static_cast<T>(BackgroundValue);
+  LowPrecedenceLabels.insert(LowPrecedenceLabels.begin(), BackgroundValue);
 
   if (!IsArmatureInRAS)
     {
@@ -726,7 +757,7 @@ int DoIt(int argc, char* argv[])
     for (itk::ImageRegionIterator<WeightImage> it(weight0, weightRegion);
          !it.IsAtEnd(); ++it)
       {
-      numForeGround += (it.Get() != OutsideLabel ? 1 : 0);
+      numForeGround += (it.Get() != outsideLabel ? 1 : 0);
       ++numVoxels;
       }
     std::cout << numForeGround << " foreground voxels for "
@@ -923,7 +954,7 @@ int DoIt(int argc, char* argv[])
             << " " << posedLabelMap->GetLargestPossibleRegion()
             << std::endl;
   posedLabelMap->Allocate();
-  posedLabelMap->FillBuffer(OutsideLabel);
+  posedLabelMap->FillBuffer(outsideLabel);
 
   //----------------------------
   // Perform interpolation
@@ -948,7 +979,7 @@ int DoIt(int argc, char* argv[])
       std::cout << "+";
       std::cout.flush();
       }
-    if (imageIt.Get() == OutsideLabel)
+    if (imageIt.Get() == outsideLabel)
       {
       continue;
       }
@@ -973,7 +1004,11 @@ int DoIt(int argc, char* argv[])
     else // need to overwrite ?
       {
       ++assignedPixelCount;
-      posedLabelMap->SetPixel(posedIndex, imageIt.Get());
+      if (overwriteLabel(posedLabelMap->GetPixel(posedIndex),
+                         imageIt.Get(), HighPrecedenceLabels, LowPrecedenceLabels))
+        {
+        posedLabelMap->SetPixel(posedIndex, imageIt.Get());
+        }
 
       size_t maxPosedOffsetNorm = 2; // do it the first time.
       for (size_t radius = 1;
@@ -1020,7 +1055,8 @@ int DoIt(int argc, char* argv[])
             posedOffsetNorm = std::max(posedOffsetNorm,
                                        static_cast<size_t>(std::abs(neighborPosedIndex[2] - posedIndex[2])/radius));
             maxPosedOffsetNorm = std::max(maxPosedOffsetNorm, posedOffsetNorm);
-            if (posedLabelMap->GetPixel(neighborPosedIndex) ==OutsideLabel)
+            if (overwriteLabel(posedLabelMap->GetPixel(neighborPosedIndex),
+                               imageIt.Get(), HighPrecedenceLabels, LowPrecedenceLabels))
               {
               posedLabelMap->SetPixel(neighborPosedIndex, imageIt.Get());
               ++stepAssignedPixelCount;
