@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>716</width>
+    <width>539</width>
     <height>790</height>
    </rect>
   </property>
@@ -231,7 +231,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="2" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <spacer name="horizontalSpacer_5">
@@ -284,6 +284,20 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="LabelmapVolumeNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="LabelmapColorNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -312,7 +326,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -389,7 +403,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="QLineEdit" name="BoneLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -415,7 +429,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="3" column="1" colspan="2">
            <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -441,7 +455,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="1" colspan="2">
            <widget class="QLineEdit" name="SkinLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -467,7 +481,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="5" column="1" colspan="2">
            <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -480,7 +494,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="6" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
              <spacer name="horizontalSpacer_6">
@@ -525,6 +539,13 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="MergeLabelsOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -586,7 +607,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -623,7 +644,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="QLineEdit" name="BoneModelMakerLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -679,7 +700,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <spacer name="horizontalSpacer_2">
@@ -733,7 +754,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="ctkSliderWidget" name="BoneModelMakerDecimateSliderWidget">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -760,6 +781,13 @@ p, li { white-space: pre-wrap; }
            <widget class="QLabel" name="BoneModelMakerDecimateLabel">
             <property name="text">
              <string>Decimate</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="BoneModelMakerOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>
@@ -794,7 +822,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -831,7 +859,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -884,7 +912,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <spacer name="horizontalSpacer_16">
@@ -943,6 +971,13 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1051,6 +1086,13 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Load armature from model</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pushButton">
+              <property name="text">
+               <string>Save armature into file</string>
               </property>
              </widget>
             </item>
@@ -1198,7 +1240,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <spacer name="horizontalSpacer_7">
@@ -1249,6 +1291,27 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="VolumeSkinningInputVolumeNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="VolumeSkinningAmartureNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="VolumeSkinningOutputVolumeNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1280,7 +1343,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
@@ -1317,7 +1380,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightAmartureNodeComboBox">
             <property name="toolTip">
              <string>Select the armature for which the weights are computed</string>
@@ -1442,7 +1505,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="3" column="1" colspan="2">
            <widget class="QSpinBox" name="ComputeArmatureWeightPaddingSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1463,7 +1526,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="1" colspan="2">
            <widget class="QDoubleSpinBox" name="ComputeArmatureWeightScaleFactorSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1480,10 +1543,17 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="5" column="1" colspan="2">
            <widget class="ctkPathLineEdit" name="ComputeArmatureWeightOutputPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>
@@ -1578,7 +1648,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
              <spacer name="horizontalSpacer_17">
@@ -1622,10 +1692,24 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="ctkPathLineEdit" name="EvalSurfaceWeightWeightPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="EvalSurfaceWeightInputNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>
@@ -1724,7 +1808,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseSurfaceArmatureInputNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -1814,7 +1898,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -1858,10 +1942,24 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="ctkPathLineEdit" name="PoseSurfaceWeightInputPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="PoseSurfaceOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="PoseSurfaceInputToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>
@@ -1910,7 +2008,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseLabelmapInputNodeComboBox">
             <property name="toolTip">
              <string>Select the labelmap to pose</string>
@@ -1938,7 +2036,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseLabelmapArmatureNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -1988,7 +2086,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <spacer name="horizontalSpacer_10">
@@ -2032,10 +2130,17 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="ctkPathLineEdit" name="PoseLabelmapWeightPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="PoseLabelmapOutputNodeToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </item>

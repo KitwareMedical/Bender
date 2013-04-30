@@ -78,6 +78,17 @@ class WorkflowWidget:
     # Pose surface variables
     self.poseLabelmapCreateOutputConnected = False
 
+    loadIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
+    saveIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
+    self.get('LabelmapVolumeNodeToolButton').icon = loadIcon
+    self.get('LabelmapColorNodeToolButton').icon = loadIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+
     # --------------------------------------------------------------------------
     # Connections
     # Workflow
@@ -88,11 +99,14 @@ class WorkflowWidget:
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
+    self.get('LabelmapVolumeNodeToolButton').connect('clicked()', self.loadLabelmapVolumeNode)
+    self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
     self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
     # c) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
+    self.get('MergeLabelsOutputNodeToolButton').connect('clicked()', self.saveMergeLabelsVolumeNode)
     self.get('MergeLabelsApplyPushButton').connect('clicked(bool)', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # 2) Model Maker
@@ -346,6 +360,12 @@ class WorkflowWidget:
     self.addObserver(volumeNode, 'ModifiedEvent', self.updateLabelmap)
     self.addObserver(volumeNode.GetDisplayNode(), 'ModifiedEvent', self.updateLabelmap)
 
+  def loadLabelmapVolumeNode(self):
+    self.loadFile('Volume/Labelmap to reposition', 'VolumeFile', self.get('LabelmapVolumeNodeComboBox'))
+
+  def loadLabelmapColorNode(self):
+    self.loadFile('Tissue/Color file', 'ColorTableFile', self.get('LabelmapColorNodeComboBox'))
+
   def applyColorNode(self):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
     if volumeNode == None:
@@ -475,6 +495,7 @@ class WorkflowWidget:
     """
     if node == None:
       return
+    self.get('MergeLabelsOutputNodeToolButton').enabled = False
     # Don't create the node if the name already contains "merged"
     if node.GetName().lower().find('merged') != -1:
       return
@@ -512,7 +533,8 @@ class WorkflowWidget:
       parameters = self.mergeLabelsParameters()
       self.get('MergeLabelsApplyPushButton').setChecked(True)
       self.addObserver(cliNode, self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
+      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = True)
+      print cliNode.GetStatusString()
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
       self.get('MergeLabelsApplyPushButton').setEnabled(False)
@@ -531,12 +553,16 @@ class WorkflowWidget:
         colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
         if displayNode != None and colorNode != None:
           displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      self.get('MergeLabelsOutputNodeToolButton').enabled = True
 
     if not cliNode.IsBusy():
       self.get('MergeLabelsApplyPushButton').setChecked(False)
       self.get('MergeLabelsApplyPushButton').setEnabled(True)
       print 'MergeLabels %s' % cliNode.GetStatusString()
       self.removeObservers(self.onMergeLabelsCLIModified)
+
+  def saveMergeLabelsVolumeNode(self):
+    self.saveFile('Merged label volume', 'VolumeFile', self.get('MergeLabelsOutputNodeComboBox'))
 
   def openMergeLabelsModule(self):
     self.openModule('ChangeLabel')
@@ -1126,6 +1152,17 @@ class WorkflowWidget:
       cliNode = slicer.cli.createNode(cliModule)
       cliNode.SetName(cliModule.title)
     return cliNode
+
+  def loadFile(self, title, fileType, nodeComboBox):
+    manager = slicer.app.ioManager()
+    manager.openDialog(fileType, slicer.qSlicerFileDialog.Read)
+    # todo, set the current node of the combobox with the loaded file
+
+  def saveFile(self, title, fileType, nodeComboBox):
+    manager = slicer.app.ioManager()
+    properties = {}
+    properties['nodeID'] = nodeComboBox.currentNode().GetID()
+    manager.openDialog(fileType, slicer.qSlicerFileDialog.Write, properties)
 
   def resetCamera(self):
     # Reset focal view around volumes
