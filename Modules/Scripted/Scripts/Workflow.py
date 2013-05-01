@@ -259,7 +259,15 @@ class WorkflowWidget:
       self.get('NextPageToolButton').setText('%i) %s >' %(nextIndex + 1, next))
     else:
       self.get('NextPageToolButton').setVisible(False)
+    self.get('WelcomeSimpleWorkflowCheckBox').updatesEnabled = False
     self.openPage[self.WorkflowWidget.currentIndex]()
+    wasChecked = self.get('WelcomeSimpleWorkflowCheckBox').checked
+    self.get('WelcomeSimpleWorkflowCheckBox').checked = True
+    self.WorkflowWidget.maximumHeight = self.WorkflowWidget.currentWidget().sizeHint.height()
+    self.get('WelcomeSimpleWorkflowCheckBox').checked = wasChecked
+    self.get('WelcomeSimpleWorkflowCheckBox').updatesEnabled = True
+    self.WorkflowWidget.resize(self.WorkflowWidget.width,
+      self.WorkflowWidget.currentWidget().sizeHint.height())
 
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
