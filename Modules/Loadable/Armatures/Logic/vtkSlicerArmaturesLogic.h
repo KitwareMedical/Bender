@@ -65,8 +65,9 @@ public:
   ///  node added. Note that the envelopes and transforms
   /// are not initialized and that the model is not actually loaded
   /// in slicer.
-  /// \sa ReadArmatureFromModel(const char*)
-  vtkMRMLArmatureNode* CreateArmatureFromModel(vtkPolyData* model);
+  /// \sa ReadArmatureFromModel()
+  vtkMRMLArmatureNode* CreateArmatureFromModel(
+    vtkPolyData* model, const char* baseName = "Armature");
 
   virtual void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
   vtkGetObjectMacro(ModelsLogic, vtkSlicerModelsLogic);

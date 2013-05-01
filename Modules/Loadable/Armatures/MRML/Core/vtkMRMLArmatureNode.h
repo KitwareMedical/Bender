@@ -93,6 +93,9 @@ public:
   // Armature methods
   //--------------------------------------------------------------------------
 
+  /// Set the armature name.
+  virtual void SetName(const char* name);
+
   /// Set/Get the bones representation type.
   /// \sa GetBonesRepresentationType(), SetBonesRepresentationType()
   void SetBonesRepresentation(vtkBoneRepresentation* rep);

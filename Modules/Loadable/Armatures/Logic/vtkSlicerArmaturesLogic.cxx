@@ -44,6 +44,7 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
 #include <vtkStringArray.h>
+#include <vtkSys/SystemTools.hxx>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
 
@@ -424,18 +425,26 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
   vtkNew<vtkPolyDataReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
-  return this->CreateArmatureFromModel(reader->GetOutput());
+  vtkStdString baseName =
+    vtksys::SystemTools::GetFilenameWithoutExtension(fileName);
+  return this->CreateArmatureFromModel(reader->GetOutput(), baseName.c_str());
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::CreateArmatureFromModel(vtkPolyData* model)
+::CreateArmatureFromModel(vtkPolyData* model, const char* baseName)
 {
   if (!model)
     {
     std::cerr<<"Cannot create armature from model, model is null"<<std::endl;
     return NULL;
     }
+
+  // First, create an armature node
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
+  armatureNode->SetName(baseName);
+  this->GetMRMLScene()->AddNode(armatureNode);
+  armatureNode->Delete();
 
   vtkPoints* points = model->GetPoints();
   if (!points)
@@ -480,11 +489,6 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     std::cout<<"Warning: No Pose found in the armature file. \n"
       << "-> No pose imported !" <<std::endl;
     }
-
-  // First, create an armature node
-  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
-  this->GetMRMLScene()->AddNode(armatureNode);
-  armatureNode->Delete();
 
   vtkNew<vtkCollection> addedBones;
   for (vtkIdType id = 0, pointId = 0;

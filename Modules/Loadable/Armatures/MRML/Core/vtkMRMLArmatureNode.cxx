@@ -254,6 +254,17 @@ vtkMRMLBoneNode* vtkMRMLArmatureNode::GetParentBone(vtkMRMLBoneNode* bone)
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetName(const char* name)
+{
+  vtkMRMLModelNode* armatureModel = this->GetArmatureModel();
+  if (armatureModel)
+    {
+    this->GetArmatureModel()->SetName(name);
+    }
+  this->Superclass::SetName(name);
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetBonesRepresentation(vtkBoneRepresentation* rep)
 {
   this->SetBonesRepresentationType(FindBonesRepresentationType(rep));
@@ -678,4 +689,3 @@ void vtkMRMLArmatureNode::UpdateBoneRepresentation(vtkBoneRepresentation* rep)
   rep->GetEnvelope()->GetProperty()->SetOpacity(this->GetEnvelopesOpacity());
   rep->GetLineProperty()->SetColor(color);
 }
-
