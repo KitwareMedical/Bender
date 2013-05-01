@@ -1075,6 +1075,8 @@ class WorkflowWidget:
       self.poseSurfaceCreateOutputConnected = True
     self.createOutputPoseSurface(self.get('PoseSurfaceInputNodeComboBox').currentNode())
 
+    self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState)
+
   #----------------------------------------------------------------------------
   # a) Pose Armature
   def setPoseArmatureModelNode(self, armatureNode):
