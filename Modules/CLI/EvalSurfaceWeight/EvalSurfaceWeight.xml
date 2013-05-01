@@ -38,6 +38,7 @@
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
+      <longflag>--armature</longflag>
       <description><![CDATA[Optional armature file. It used if MaximumParenthoodDistance > 0]]></description>
     </geometry>
 
