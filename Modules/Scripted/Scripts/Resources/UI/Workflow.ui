@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>595</height>
+    <height>707</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -107,15 +107,19 @@ p, li { white-space: pre-wrap; }
      </property>
      <widget class="QWidget" name="BoneSegmentationPage">
       <property name="accessibleName">
-       <string>Adjust labelmap</string>
+       <string>Load inputs</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
-&lt;p&gt;Use the labelmap module to load a labelmap and its corresponding color table. Mirroring the volume is possible using the &amp;quot;LPS &amp;lt;-&amp;gt; RAS&amp;quot; button.&lt;/p&gt;
-&lt;p&gt;Finally, skins and bones labels can be merged together to obtain a global skin/skeleton volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Load the labelmap to reposition and its corresponding color table.&lt;/span&gt;&lt;span style=&quot; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Load files in &amp;quot;&lt;span style=&quot; font-style:italic;&quot;&gt;File -&amp;gt; Add data&lt;/span&gt;&amp;quot; or using the buttons on the right of the input boxes.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;A color table file contains the labels' names and colors for each volume scalar value.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Associate the color file to the loaded volume with &lt;span style=&quot; font-style:italic;&quot;&gt;Apply colors&lt;/span&gt;.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Mirror the volume with the &lt;span style=&quot; font-style:italic;&quot;&gt;LPS &amp;lt;-&amp;gt; RAS&lt;/span&gt; button.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Advanced volume information and controls are available in the &lt;span style=&quot; font-style:italic;&quot;&gt;Volumes&lt;/span&gt; module.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
        <property name="fieldGrowthPolicy">
@@ -307,7 +311,30 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ModelMakerPage">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="accessibleName">
+       <string>Extract bones and skin</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Create the bones' and skin's surface models.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If the input labelmap contains multiple &amp;quot;bone&amp;quot; labels (e.g. &amp;quot;bone marrow&amp;quot;, &amp;quot;bone cancellous&amp;quot;...) or multiple &amp;quot;skin&amp;quot; labels, the labels must be merged into a unique label.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The bone surface model is created by the &lt;span style=&quot; font-style:italic;&quot;&gt;Bone model maker&lt;/span&gt;. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The skin surface model is created by the &lt;span style=&quot; font-style:italic;&quot;&gt;Skin model maker&lt;/span&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="MergeLabelsCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -316,7 +343,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Merge labels</string>
+          <string>A) Merge labels</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
@@ -562,36 +589,201 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="ModelMakerPage">
-      <property name="toolTip">
-       <string/>
-      </property>
-      <property name="accessibleName">
-       <string>Extract bones and skin</string>
-      </property>
-      <property name="accessibleDescription">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
-&lt;p&gt;The two model maker helps to extract the skin and bones label in surfaces.&lt;/p&gt;
-&lt;p&gt;The first model maker uses the bones labels to extract the skeleton.&lt;/p&gt;
-&lt;p&gt;The second model maker is based on a threshold that separate the air from the body and then extract the skin. The toggle skin visibility button will toggle the visibility of the Skin model maker output (which opacity is automatically set to 0.2).&lt;/p&gt;
-&lt;p&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <layout class="QFormLayout" name="formLayout_6">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="2">
+       <item row="2" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="SkinModelMakerCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>C) Skin model maker</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetMinimumSize</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Input labelmap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the input labelmap to extract the skin from</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="SkinModelMakerThresholdLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Threshold</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Specify the threshold between the outside (usually air) and the body.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the output skin model</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Skin</string>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModelsModulePushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Models&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go To Models</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Greyscale Model Maker&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go To Greyscale Model Maker</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButtton">
+              <property name="toolTip">
+               <string>Toggle the output model visibility</string>
+              </property>
+              <property name="text">
+               <string>Toggle skin visibility</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
+              <property name="toolTip">
+               <string>Create the skin surface using the thresholded input labemap</string>
+              </property>
+              <property name="text">
+               <string>Generate skin model</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;Skin&quot; surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="BoneModelMakerCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -600,7 +792,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Bone model maker</string>
+          <string>B) Bone model maker</string>
          </property>
          <property name="collapsedHeight">
           <number>5</number>
@@ -812,200 +1004,6 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="SkinModelMakerCollapsibleGroupBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>B) Skin model maker</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Input labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the input labelmap to extract the skin from</string>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="removeEnabled">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="SkinModelMakerThresholdLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Threshold</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Specify the threshold between the outside (usually air) and the body.</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Output</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the output skin model</string>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLModelNode</string>
-             </stringlist>
-            </property>
-            <property name="baseName">
-             <string>Skin</string>
-            </property>
-            <property name="removeEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="renameEnabled">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0" colspan="3">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <spacer name="horizontalSpacer_16">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerGoToModelsModulePushButton">
-              <property name="toolTip">
-               <string>Open the &quot;Models&quot; module</string>
-              </property>
-              <property name="text">
-               <string>Go To Models</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
-              <property name="toolTip">
-               <string>Open the &quot;Greyscale Model Maker&quot; module</string>
-              </property>
-              <property name="text">
-               <string>Go To Greyscale Model Maker</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButtton">
-              <property name="toolTip">
-               <string>Toggle the output model visibility</string>
-              </property>
-              <property name="text">
-               <string>Toggle skin visibility</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
-              <property name="toolTip">
-               <string>Create the skin surface using the thresholded input labemap</string>
-              </property>
-              <property name="text">
-               <string>Generate skin model</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Save to file the &quot;Skin&quot; surface model.</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ArmaturesPage">
@@ -1165,18 +1163,14 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;
-&lt;p&gt;Use the segment bones module to attribute each part of the input volume to its closest bone.&lt;/p&gt;
-&lt;p&gt;The armature weight computes the weight of all the voxel in relation with a given bone that will be used to animate the volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Skin the armature to the volume&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volume skinning&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assigns a unique bone ID to each input volume voxel.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; computes the bone weights (influence of a bone over a weight transform) at each voxel. The weights will be used when repositioning the labelmap or the surface models.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assign the computed weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
-      <layout class="QFormLayout" name="formLayout_9">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
+      <layout class="QFormLayout" name="formLayout_2">
+       <property name="margin">
         <number>0</number>
        </property>
        <item row="0" column="0" colspan="2">
@@ -1370,7 +1364,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Compute armature weight</string>
+          <string>B) Compute armature weights</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1609,32 +1603,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="PosePage">
-      <property name="whatsThis">
-       <string/>
-      </property>
-      <property name="accessibleName">
-       <string>Pose armature (posing)</string>
-      </property>
-      <property name="accessibleDescription">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body&quot;&gt;
-&lt;p&gt;Move and animate the armature to a convenient pose.&lt;/p&gt;
-&lt;p&gt;Evaluate weight helps to paint the weight onto the given surface, allowing the pose body to execute faster.&lt;/p&gt;
-&lt;p&gt;The pose surface module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <layout class="QFormLayout" name="formLayout_12">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="2">
+       <item row="2" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="EvalSurfaceWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1643,7 +1612,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Evaluate surface weights</string>
+          <string>C) Evaluate surface weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
@@ -1771,7 +1740,38 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="PosePage">
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="accessibleName">
+       <string>Pose armature (posing)</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Pose the armature&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Animate the armature bones in the 3D view.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Pose surface&lt;/span&gt; reposition interactively a surface model.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The interactive mode is controlled by the &amp;quot;Pose Surface&amp;quot; push button checkbox. When checked, the input surface model is transformed anytime the armature is modified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_12">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1786,7 +1786,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>B) Pose armature</string>
+          <string>A) Pose armature</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1861,7 +1861,7 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseSurfaceCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1870,7 +1870,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Pose surface</string>
+          <string>B) Pose surface</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
