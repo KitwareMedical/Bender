@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>539</width>
-    <height>790</height>
+    <width>492</width>
+    <height>595</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -286,6 +286,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="LabelmapVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load labelmap to reposition.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -293,6 +296,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="1" column="2">
            <widget class="QToolButton" name="LabelmapColorNodeToolButton">
+            <property name="toolTip">
+             <string>Load color file associated to the loaded volume. It must contain the name of each scalar value of the loaded volume (e.g.: 0 -&gt; &quot;air&quot;, 1 -&gt; &quot;bone&quot;, 2-&gt; &quot;skin&quot;, 3-&gt; &quot;muscle&quot;...)</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -542,6 +548,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="1" column="2">
            <widget class="QToolButton" name="MergeLabelsOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save the merged volume</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -786,6 +798,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="2">
            <widget class="QToolButton" name="BoneModelMakerOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;Bones&quot; surface model</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -974,6 +992,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;Skin&quot; surface model.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1038,9 +1062,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="ArmaturesArmatureLabel">
             <property name="text">
-             <string>Use the Armatures module to create the base skeleton of the label map.</string>
+             <string>Armature</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
@@ -1050,7 +1074,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <spacer name="horizontalSpacer_4">
@@ -1076,27 +1100,6 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ArmaturesLoadArmaturePushButton">
-              <property name="toolTip">
-               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Pop-up a dialog to open an armature from a saved armature model&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
-              <property name="text">
-               <string>Load armature from model</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton">
-              <property name="text">
-               <string>Save armature into file</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="ArmaturesGoToPushButton">
               <property name="toolTip">
                <string>Open the &quot;Armatures&quot; module</string>
@@ -1107,6 +1110,47 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmaturesArmatureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLArmatureNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Armature</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="ArmaturesArmatureSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save  to file the current armature.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="ArmaturesArmatureLoadToolButton">
+            <property name="toolTip">
+             <string>Load armature from file.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1188,7 +1232,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="VolumeSkinningAmartureNodeComboBox">
             <property name="toolTip">
              <string>Select the armature that will determine the skinning</string>
@@ -1293,13 +1337,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="VolumeSkinningInputVolumeNodeToolButton">
-            <property name="text">
-             <string>...</string>
+            <property name="toolTip">
+             <string>Load the volume containing the merged bones.</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="VolumeSkinningAmartureNodeToolButton">
             <property name="text">
              <string>...</string>
             </property>
@@ -1307,6 +1347,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="VolumeSkinningOutputVolumeNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;skinned&quot; volume.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1454,7 +1500,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="6" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <spacer name="horizontalSpacer_8">
@@ -1552,6 +1598,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load the edited &quot;skinned&quot; volume.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1563,9 +1612,6 @@ p, li { white-space: pre-wrap; }
       </layout>
      </widget>
      <widget class="QWidget" name="PosePage">
-      <property name="toolTip">
-       <string>Pose armature and surface</string>
-      </property>
       <property name="whatsThis">
        <string/>
       </property>
@@ -1701,6 +1747,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="EvalSurfaceWeightInputNodeToolButton">
+            <property name="toolTip">
+             <string>Load the surface model to pose.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1708,6 +1757,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="2" column="2">
            <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the pre-posed surface model.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -1719,7 +1774,7 @@ p, li { white-space: pre-wrap; }
        <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1746,11 +1801,11 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
+             <string>Armature</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <spacer name="horizontalSpacer_11">
@@ -1767,12 +1822,6 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="toolTip">
                <string>Open the &quot;Armatures&quot; module</string>
               </property>
@@ -1782,6 +1831,32 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
            </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseArmatureArmatureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLArmatureNode</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="PoseArmatureArmatureNodeSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="PoseArmatureArmatureNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1808,7 +1883,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
+          <item row="0" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="PoseSurfaceArmatureInputNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -1836,8 +1911,8 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputComboBox">
+          <item row="1" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputNodeComboBox">
             <property name="toolTip">
              <string>Select the input surface that will be posed</string>
             </property>
@@ -1874,7 +1949,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="3" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseSurfaceOutputNodeComboBox">
             <property name="toolTip">
              <string>Select the output posed surface</string>
@@ -1898,7 +1973,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="3">
+          <item row="4" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -1942,22 +2017,31 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="1" colspan="2">
+          <item row="2" column="1" colspan="3">
            <widget class="ctkPathLineEdit" name="PoseSurfaceWeightInputPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QToolButton" name="PoseSurfaceOutputNodeToolButton">
+          <item row="1" column="3">
+           <widget class="QToolButton" name="PoseSurfaceInputNodeToolButton">
+            <property name="toolTip">
+             <string>Load the surface model to pose.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
-           <widget class="QToolButton" name="PoseSurfaceInputToolButton">
+          <item row="3" column="3">
+           <widget class="QToolButton" name="PoseSurfaceOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;posed&quot; surface model.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -2139,6 +2223,12 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="2">
            <widget class="QToolButton" name="PoseLabelmapOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the repositioned labelmap.</string>
+            </property>
             <property name="text">
              <string>...</string>
             </property>
@@ -2517,7 +2607,7 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>536</x>
+     <x>472</x>
      <y>238</y>
     </hint>
    </hints>
@@ -2533,7 +2623,7 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>584</x>
+     <x>441</x>
      <y>264</y>
     </hint>
    </hints>
@@ -2549,7 +2639,7 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>519</x>
+     <x>472</x>
      <y>316</y>
     </hint>
    </hints>
@@ -2565,7 +2655,7 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
+     <x>472</x>
      <y>368</y>
     </hint>
    </hints>
@@ -2613,8 +2703,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>122</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -2629,8 +2719,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>148</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -2641,11 +2731,11 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>568</x>
+     <x>472</x>
      <y>238</y>
     </hint>
     <hint type="destinationlabel">
-     <x>568</x>
+     <x>441</x>
      <y>264</y>
     </hint>
    </hints>
@@ -2661,7 +2751,7 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
+     <x>441</x>
      <y>148</y>
     </hint>
    </hints>
@@ -2677,7 +2767,7 @@ p, li { white-space: pre-wrap; }
      <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
+     <x>441</x>
      <y>122</y>
     </hint>
    </hints>
@@ -2689,11 +2779,11 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>696</x>
+     <x>441</x>
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>507</x>
+     <x>472</x>
      <y>238</y>
     </hint>
    </hints>
@@ -2705,7 +2795,7 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
+     <x>441</x>
      <y>264</y>
     </hint>
     <hint type="destinationlabel">
@@ -2725,8 +2815,8 @@ p, li { white-space: pre-wrap; }
      <y>122</y>
     </hint>
     <hint type="destinationlabel">
-     <x>408</x>
-     <y>750</y>
+     <x>501</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -2741,8 +2831,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>408</x>
-     <y>750</y>
+     <x>501</x>
+     <y>549</y>
     </hint>
    </hints>
   </connection>
@@ -2869,8 +2959,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>347</y>
+     <x>214</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -2885,15 +2975,15 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>425</y>
+     <x>186</x>
+     <y>406</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseSurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2901,8 +2991,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>373</y>
+     <x>186</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -2945,7 +3035,7 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>665</x>
+     <x>441</x>
      <y>264</y>
     </hint>
     <hint type="destinationlabel">
@@ -2993,7 +3083,7 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>596</x>
+     <x>441</x>
      <y>264</y>
     </hint>
     <hint type="destinationlabel">
@@ -3013,8 +3103,8 @@ p, li { white-space: pre-wrap; }
      <y>190</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>122</y>
+     <x>148</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
@@ -3029,8 +3119,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>122</y>
+     <x>148</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
@@ -3045,24 +3135,24 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>174</y>
+     <x>148</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>EvalSurfaceWeightOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseSurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>348</x>
-     <y>174</y>
+     <x>148</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>373</y>
+     <x>186</x>
+     <y>354</y>
     </hint>
    </hints>
   </connection>
@@ -3077,8 +3167,8 @@ p, li { white-space: pre-wrap; }
      <y>290</y>
     </hint>
     <hint type="destinationlabel">
-     <x>348</x>
-     <y>347</y>
+     <x>214</x>
+     <y>328</y>
     </hint>
    </hints>
   </connection>
@@ -3090,11 +3180,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
-     <y>695</y>
+     <y>493</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
-     <y>754</y>
+     <y>552</y>
     </hint>
    </hints>
   </connection>
@@ -3105,12 +3195,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>477</x>
-     <y>112</y>
+     <x>148</x>
+     <y>103</y>
     </hint>
     <hint type="destinationlabel">
-     <x>477</x>
-     <y>168</y>
+     <x>148</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>
@@ -3125,8 +3215,8 @@ p, li { white-space: pre-wrap; }
      <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>194</y>
+     <x>70</x>
+     <y>98</y>
     </hint>
    </hints>
   </connection>
@@ -3141,8 +3231,8 @@ p, li { white-space: pre-wrap; }
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>112</y>
+     <x>98</x>
+     <y>102</y>
     </hint>
    </hints>
   </connection>
@@ -3153,12 +3243,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>341</y>
+     <x>214</x>
+     <y>328</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>138</y>
+     <x>98</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>
@@ -3169,12 +3259,12 @@ p, li { white-space: pre-wrap; }
    <slot>addCurrentPathToHistory()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>633</x>
-     <y>414</y>
+     <x>471</x>
+     <y>424</y>
     </hint>
     <hint type="destinationlabel">
-     <x>632</x>
-     <y>390</y>
+     <x>472</x>
+     <y>394</y>
     </hint>
    </hints>
   </connection>
@@ -3185,12 +3275,12 @@ p, li { white-space: pre-wrap; }
    <slot>addCurrentPathToHistory()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>190</y>
+     <x>380</x>
+     <y>182</y>
     </hint>
     <hint type="destinationlabel">
-     <x>634</x>
-     <y>143</y>
+     <x>176</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -3201,12 +3291,92 @@ p, li { white-space: pre-wrap; }
    <slot>addCurrentPathToHistory()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>654</x>
-     <y>443</y>
+     <x>414</x>
+     <y>433</y>
     </hint>
     <hint type="destinationlabel">
-     <x>648</x>
-     <y>393</y>
+     <x>214</x>
+     <y>380</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmaturesArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>141</x>
+     <y>119</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmaturesArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>ArmaturesArmatureSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>343</x>
+     <y>111</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>455</x>
+     <y>115</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmaturesArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>282</x>
+     <y>257</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>PoseArmatureArmatureNodeSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>339</x>
+     <y>258</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>465</x>
+     <y>254</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>5</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>85</x>
+     <y>254</y>
     </hint>
    </hints>
   </connection>
