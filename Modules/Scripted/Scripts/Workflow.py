@@ -129,7 +129,7 @@ class WorkflowWidget:
     # c) Skin Model Maker
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
     self.get('SkinModelMakerOutputNodeToolButton').connect('clicked()', self.saveSkinModelMakerModelNode)
-    self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('SkinModelMakerToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
@@ -142,7 +142,7 @@ class WorkflowWidget:
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
     self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
-    self.get('ArmaturesToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('ArmaturesArmatureLoadToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
@@ -794,6 +794,8 @@ class WorkflowWidget:
       else:
         self.get('SkinModelMakerThresholdSpinBox').setValue(0.1) # highly probable outside is 0
     self.get('SkinModelMakerOutputNodeToolButton').enabled = False
+    self.get('SkinModelMakerToggleVisiblePushButton').enabled = False
+    self.get('ArmaturesToggleVisiblePushButton').enabled = False
 
   def skinModelMakerParameters(self):
     parameters = {}
@@ -840,6 +842,8 @@ class WorkflowWidget:
 
       # Enable saving
       self.get('SkinModelMakerOutputNodeToolButton').enabled = True
+      self.get('SkinModelMakerToggleVisiblePushButton').enabled = True
+      self.get('ArmaturesToggleVisiblePushButton').enabled = True
 
     if not cliNode.IsBusy():
       self.get('SkinModelMakerApplyPushButton').setChecked(False)

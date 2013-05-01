@@ -20,9 +20,6 @@
    <string>Workflow</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_7">
-   <property name="margin">
-    <number>0</number>
-   </property>
    <item>
     <widget class="QLabel" name="TitleLabel">
      <property name="text">
@@ -746,12 +743,15 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButtton">
+             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButton">
               <property name="toolTip">
                <string>Toggle the output model visibility</string>
               </property>
               <property name="text">
                <string>Toggle skin visibility</string>
+              </property>
+              <property name="enabled">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -1091,12 +1091,15 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="ArmaturesToggleVisiblePushButtton">
+             <widget class="QPushButton" name="ArmaturesToggleVisiblePushButton">
               <property name="toolTip">
                <string>Toggle the skin model maker output model visibility</string>
               </property>
               <property name="text">
                <string>Toggle skin visibility</string>
+              </property>
+              <property name="enabled">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
