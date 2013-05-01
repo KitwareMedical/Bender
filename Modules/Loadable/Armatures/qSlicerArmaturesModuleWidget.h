@@ -87,8 +87,9 @@ public slots:
   /// Delete the currently selected bone and all its children (if any).
   void deleteBones();
 
-  /// Pops-up a dialog window and load an armature from model.
-  void loadArmatureFromModel();
+  /// Loads a preset model given by node or pops-up a dialog window and load
+  /// an armature from model.
+  void loadArmatureFromModel(int index);
 
 protected slots:
   /// Update the GUI from the armatures logic.

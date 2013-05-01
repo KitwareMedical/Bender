@@ -20,7 +20,9 @@
 
 // Qt includes
 #include <QDebug>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QVector3D>
 
 // Armatures includes
@@ -133,8 +135,11 @@ void qSlicerArmaturesModuleWidgetPrivate
   QObject::connect(this->ArmatureStateComboBox,
     SIGNAL(currentIndexChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->LoadArmatureFromModelPushButton,
-    SIGNAL(clicked()), q, SLOT(loadArmatureFromModel()));
+
+  // -- Load --
+  this->populateLoadFromArmature();
+  QObject::connect(this->LoadArmatureFromModelComboBox,
+    SIGNAL(currentIndexChanged(int)), q, SLOT(loadArmatureFromModel(int)));
 
   // -- Armature Display --
   QObject::connect(this->ArmatureRepresentationComboBox,
@@ -672,6 +677,26 @@ void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::populateLoadFromArmature()
+{
+  QDir armaturesDir = this->logic()->GetModuleShareDirectory().c_str();
+  foreach(QFileInfo file, armaturesDir.entryInfoList(QDir::Files))
+    {
+    qDebug()<<file.filePath();
+    this->LoadArmatureFromModelComboBox->addItem(
+      file.baseName(), file.filePath());
+    }
+
+  this->LoadArmatureFromModelComboBox->insertSeparator(
+    this->LoadArmatureFromModelComboBox->count());
+
+  this->LoadArmatureFromModelComboBox->addItem(
+    "Load armature from file...", "");
+
+  this->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
+}
+
+//-----------------------------------------------------------------------------
 // qSlicerArmaturesModuleWidget methods
 
 //-----------------------------------------------------------------------------
@@ -868,10 +893,27 @@ void qSlicerArmaturesModuleWidget::deleteBones()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::loadArmatureFromModel()
+void qSlicerArmaturesModuleWidget::loadArmatureFromModel(int index)
 {
-  qSlicerApplication::application()->ioManager()->openDialog(
-    QString("ArmatureFile"), qSlicerFileDialog::Read);
+  Q_D(qSlicerArmaturesModuleWidget);
+  if (index < 0)
+    {
+    return;
+    }
+
+  // Get the filename
+  QString path = d->LoadArmatureFromModelComboBox->itemData(index).toString();
+  if (path == "") // Case index is Load from file
+    {
+    qSlicerApplication::application()->ioManager()->openDialog(
+      QString("ArmatureFile"), qSlicerFileDialog::Read);
+    }
+  else
+    {
+    d->logic()->ReadArmatureFromModel(path.toLatin1());
+    }
+
+  d->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
 }
 
 //-----------------------------------------------------------------------------
@@ -879,14 +921,17 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
 {
   Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLNode* activeNode = d->logic()->GetActiveBone();
-  if (activeNode == 0)
-    {
-    activeNode = d->logic()->GetActiveArmature();
-    }
-
   if (activeNode)
     {
     d->BonesTreeView->setCurrentNode(activeNode);
+    }
+  else
+    {
+    activeNode = d->logic()->GetActiveArmature();
+    if (activeNode)
+      {
+      d->ArmatureNodeComboBox->setCurrentNode(activeNode);
+      }
     }
 }
 

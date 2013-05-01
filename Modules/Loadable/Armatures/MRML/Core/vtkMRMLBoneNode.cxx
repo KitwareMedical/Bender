@@ -118,6 +118,9 @@ void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
   of << indent << " WorldToParentRestTranslation=";
   vtkMRMLNodeHelper::PrintQuotedVector3(of,
     this->BoneProperties->GetWorldToParentRestTranslation());
+  of << indent << " RestToPoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetRestToPoseRotation().GetData(), 4);
 
   of << indent << " BoneLinkedWithParent=\""
     << this->GetBoneLinkedWithParent() << "\"";
@@ -204,6 +207,12 @@ void vtkMRMLBoneNode::ReadXMLAttributes(const char** atts)
       double translation[3];
       vtkMRMLNodeHelper::StringToVector3(attValue, translation);
       this->BoneProperties->SetWorldToParentRestTranslation(translation);
+      }
+    else if (!strcmp(attName, "RestToPoseRotation"))
+      {
+      double rotation[4];
+      vtkMRMLNodeHelper::StringToVector(attValue, rotation, 4);
+      this->BoneProperties->SetRestToPoseRotation(rotation);
       }
     else if (!strcmp(attName, "BoneLinkedWithParent"))
       {
