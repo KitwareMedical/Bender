@@ -3290,54 +3290,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>ComputeArmatureWeightApplyPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>ComputeArmatureWeightOutputPathLineEdit</receiver>
-   <slot>addCurrentPathToHistory()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>471</x>
-     <y>424</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>472</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>EvalSurfaceWeightApplyPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>EvalSurfaceWeightWeightPathLineEdit</receiver>
-   <slot>addCurrentPathToHistory()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>380</x>
-     <y>182</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>176</x>
-     <y>129</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>PoseSurfaceApplyPushButton</sender>
-   <signal>clicked()</signal>
-   <receiver>PoseSurfaceWeightInputPathLineEdit</receiver>
-   <slot>addCurrentPathToHistory()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>414</x>
-     <y>433</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>214</x>
-     <y>380</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>ArmaturesArmatureNodeComboBox</receiver>
