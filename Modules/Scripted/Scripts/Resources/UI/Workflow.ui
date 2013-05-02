@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>713</height>
+    <height>732</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,6 +20,9 @@
    <string>Workflow</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_7">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QLabel" name="TitleLabel">
      <property name="text">
@@ -744,14 +747,14 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>Toggle the output model visibility</string>
               </property>
               <property name="text">
                <string>Toggle skin visibility</string>
-              </property>
-              <property name="enabled">
-               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -1092,14 +1095,14 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="ArmaturesToggleVisiblePushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>Toggle the skin model maker output model visibility</string>
               </property>
               <property name="text">
                <string>Toggle skin visibility</string>
-              </property>
-              <property name="enabled">
-               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -2261,6 +2264,16 @@ p, li { white-space: pre-wrap; }
     </spacer>
    </item>
    <item>
+    <widget class="qSlicerCLIProgressBar" name="CLIProgressBar">
+     <property name="statusVisibility">
+      <enum>qSlicerCLIProgressBar::VisibleAfterCompletion</enum>
+     </property>
+     <property name="progressVisibility">
+      <enum>qSlicerCLIProgressBar::HiddenWhenIdle</enum>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="BottomWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -2574,6 +2587,11 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>qMRMLWidget.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>qSlicerCLIProgressBar</class>
+   <extends>QWidget</extends>
+   <header>qSlicerCLIProgressBar.h</header>
   </customwidget>
   <customwidget>
    <class>ctkCheckablePushButton</class>

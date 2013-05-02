@@ -268,6 +268,10 @@ class WorkflowWidget:
     self.get('WelcomeSimpleWorkflowCheckBox').updatesEnabled = True
     self.WorkflowWidget.resize(self.WorkflowWidget.width,
       self.WorkflowWidget.currentWidget().sizeHint.height())
+    # Hide the Status if not running
+    cliNode = self.get('CLIProgressBar').commandLineModuleNode()
+    if cliNode != None and not cliNode.IsBusy():
+      self.get('CLIProgressBar').setCommandLineModuleNode(0)
 
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
@@ -371,6 +375,11 @@ class WorkflowWidget:
 
     for combobox in labeldMapComboBoxes:
       self.get(combobox).addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
+
+  def observeCLINode(self, cliNode, onCLINodeModified = None):
+    if cliNode != None and onCLINodeModified != None:
+      self.addObserver(cliNode, self.StatusModifiedEvent, onCLINodeModified)
+    self.get('CLIProgressBar').setCommandLineModuleNode(cliNode)
 
   #----------------------------------------------------------------------------
   #     c) Volume Render
@@ -666,7 +675,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.changelabel)
       parameters = self.mergeLabelsParameters()
       self.get('MergeLabelsApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
+      self.observeCLINode(cliNode, self.onMergeLabelsCLIModified)
       cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
@@ -739,7 +748,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.modelmaker)
       parameters = self.boneModelMakerParameters()
       self.get('BoneModelMakerApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
+      self.observeCLINode(cliNode, self.onBoneModelMakerCLIModified)
       cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
@@ -814,7 +823,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
       parameters = self.skinModelMakerParameters()
       self.get('SkinModelMakerApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      self.observeCLINode(cliNode, self.onSkinModelMakerCLIModified)
       cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
@@ -925,7 +934,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.volumeskinning)
       parameters = self.volumeSkinningParameters()
       self.get('VolumeSkinningApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
+      self.observeCLINode(cliNode, self.onVolumeSkinningCLIModified)
       cliNode = slicer.cli.run(slicer.modules.volumeskinning, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
@@ -992,7 +1001,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.computearmatureweight)
       parameters = self.computeArmatureWeightParameters()
       self.get('ComputeArmatureWeightApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
+      self.observeCLINode(cliNode, self.onComputeArmatureWeightCLIModified)
       cliNode = slicer.cli.run(slicer.modules.computearmatureweight, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
@@ -1035,7 +1044,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
       parameters = self.evalSurfaceWeightParameters()
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
+      self.observeCLINode(cliNode, self.onEvalSurfaceWeightCLIModified)
       cliNode = slicer.cli.run(slicer.modules.evalsurfaceweight, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
@@ -1131,6 +1140,7 @@ class WorkflowWidget:
       slicer.cli.setNodeParameters(cliNode, parameters)
       cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
       cliNode.SetAutoRun(autoRun)
+      self.observeCLINode(cliNode)
     else:
       cliNode = self.getCLINode(slicer.modules.posesurface)
       cliNode.SetAutoRun(autoRun)
@@ -1142,7 +1152,7 @@ class WorkflowWidget:
       slicer.cli.setNodeParameters(cliNode, parameters)
       cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
       self.get('PoseSurfaceApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
+      self.observeCLINode(cliNode, self.onPoseSurfaceCLIModified)
       cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
@@ -1218,7 +1228,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.poselabelmap)
       parameters = self.poseLabelmapParameters()
       self.get('PoseLabelmapApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseLabelmapCLIModified)
+      self.observeCLINode(cliNode, self.onPoseLabelmapCLIModified)
       cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onPoseLabelmapCLIModified())
