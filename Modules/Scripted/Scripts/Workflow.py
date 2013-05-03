@@ -66,9 +66,6 @@ class WorkflowWidget:
 
     # Labelmap variables
 
-    # Transform variables
-    self.TransformNode = None
-
     # Compute Weight variables
     self.volumeSkinningCreateOutputConnected = False
 
@@ -78,6 +75,23 @@ class WorkflowWidget:
     # Pose surface variables
     self.poseLabelmapCreateOutputConnected = False
 
+    transformMenu = qt.QMenu(self.get('LPSRASTransformPushButton'))
+    a = transformMenu.addAction('Left <-> Right')
+    a.setToolTip('Switch the volume orientation from Left to Right')
+    a.connect('triggered(bool)', self.runLRTransform)
+    a = transformMenu.addAction('Posterior <-> Anterior')
+    a.setToolTip('Switch the volume orientation from Posterior to Anterior')
+    a.connect('triggered(bool)', self.runPATransform)
+    a = transformMenu.addAction('Superior <-> Inferior')
+    a.setToolTip('Switch the volume orientation from Superior to Inferior')
+    a.connect('triggered(bool)', self.runSITransform)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+    a = transformMenu.addAction('Center')
+    a.setToolTip('Center volume on (0,0,0)')
+    a.connect('triggered(bool)', self.runCenter)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+
+    # Load/Save icons
     loadIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
     saveIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
     self.get('LabelmapVolumeNodeToolButton').icon = loadIcon
@@ -113,7 +127,7 @@ class WorkflowWidget:
     self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
+    self.get('LPSRASTransformPushButton').connect('clicked()', self.runLPSRASTransform)
     # 2) Model Maker
     # a) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
@@ -214,21 +228,6 @@ class WorkflowWidget:
 
     # Init title
     self.updateHeader()
-
-    # Init transform node
-    self.TransformNode = slicer.mrmlScene.GetFirstNodeByName('WorflowTransformNode')
-    if self.TransformNode == None:
-      self.TransformNode = slicer.vtkMRMLLinearTransformNode()
-      self.TransformNode.SetName('WorflowTransformNode')
-      self.TransformNode.HideFromEditorsOn()
-
-      transform = vtk.vtkMatrix4x4()
-      transform.DeepCopy((-1.0, 0.0, 0.0, 0.0,
-                           0.0, -1.0, 0.0, 0.0,
-                           0.0, 0.0, 1.0, 0.0,
-                           0.0, 0.0, 0.0, 1.0))
-      self.TransformNode.ApplyTransformMatrix(transform)
-      slicer.mrmlScene.AddNode(self.TransformNode)
 
     # Workflow page
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
@@ -536,22 +535,49 @@ class WorkflowWidget:
     self.openModule('Volumes')
 
   #    b) Transform
-  def runTransform(self):
+  def runLPSRASTransform(self):
+    self.runTransform((-1.0, 0.0, 0.0, 0.0,
+                        0.0, -1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0))
+
+  def runLRTransform(self):
+    self.runTransform((-1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0))
+
+  def runPATransform(self):
+    self.runTransform((1.0, 0.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0))
+
+  def runSITransform(self):
+    self.runTransform((1.0, 0.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0, 0.0,
+                       0.0, 0.0, -1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0))
+
+  def runTransform(self, matrix):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
     if volumeNode == None:
       return
 
-    self.get('TransformApplyPushButton').setChecked(True)
-      
-    volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
-    transformLogic = slicer.modules.transforms.logic()
+    transform = vtk.vtkMatrix4x4()
+    transform.DeepCopy(matrix)
 
-    if transformLogic.hardenTransform(volumeNode):
-      print "Transform succesful !"
-    else:
-      print "Transform failure !"
-      
-    self.get('TransformApplyPushButton').setChecked(False)
+    volumeNode.ApplyTransformMatrix(transform)
+    volumeNode.Modified()
+
+  def runCenter(self):
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    volumesLogic = slicer.modules.volumes.logic()
+    if volumesLogic != None and volumeNode != None:
+      volumesLogic.CenterVolume(volumeNode)
+    # need to refresh the views
+    self.reset3DViews()
+    self.resetSliceViews()
 
   #----------------------------------------------------------------------------
   # 2) Model Maker
@@ -574,7 +600,7 @@ class WorkflowWidget:
     self.setupMergeLabels(volumeNode)
 
   def setupMergeLabels(self, volumeNode):
-    if volumeNode == None:
+    if volumeNode == None or not volumeNode.GetLabelMap():
       return
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     self.removeObservers(self.updateMergeLabels)
@@ -762,7 +788,7 @@ class WorkflowWidget:
 
   def onBoneModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
-      self.resetCamera()
+      self.reset3DViews()
       modelNode = self.boneModelFromModelHierarchyNode(self.get('BoneModelMakerOutputNodeComboBox').currentNode())
       self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(modelNode)
       self.get('BoneModelMakerOutputNodeToolButton').enabled = True
@@ -852,7 +878,7 @@ class WorkflowWidget:
       newNodeDisplayNode.SetSliceIntersectionVisibility(1)
 
       # Reset camera
-      self.resetCamera()
+      self.reset3DViews()
 
       # Enable saving
       self.get('SkinModelMakerOutputNodeToolButton').enabled = True
@@ -884,7 +910,7 @@ class WorkflowWidget:
   # 3) Rigging
   #----------------------------------------------------------------------------
   def openCreateArmaturePage(self):
-    self.resetCamera()
+    self.reset3DViews()
     # Switch to 3D View only
     manager = slicer.app.layoutManager()
     manager.setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
@@ -1361,6 +1387,7 @@ class WorkflowWidget:
     loadedNode = loadedNodes.GetItemAsObject(0)
     if res == True:
       nodeComboBox.setCurrentNode(loadedNode)
+    self.reset3DViews()
     return loadedNode
 
   def saveFile(self, title, fileType, fileSuffix, nodeComboBox):
@@ -1373,11 +1400,20 @@ class WorkflowWidget:
     properties['defaultFileName'] = node.GetName() + fileSuffix
     manager.openDialog(fileType, slicer.qSlicerFileDialog.Write, properties)
 
-  def resetCamera(self):
+  def reset3DViews(self):
     # Reset focal view around volumes
     manager = slicer.app.layoutManager()
     for i in range(0, manager.threeDViewCount):
       manager.threeDWidget(i).threeDView().resetFocalPoint()
+      rendererCollection = manager.threeDWidget(i).threeDView().renderWindow().GetRenderers()
+      for i in range(0, rendererCollection.GetNumberOfItems()):
+        rendererCollection.GetItemAsObject(i).ResetCamera()
+
+  def resetSliceViews(self):
+    # Reset focal view around volumes
+    manager = slicer.app.layoutManager()
+    for i in manager.sliceViewNames():
+      manager.sliceWidget(i).sliceController().fitSliceToBackground()
 
   def openModule(self, moduleName):
     slicer.util.selectModule(moduleName)

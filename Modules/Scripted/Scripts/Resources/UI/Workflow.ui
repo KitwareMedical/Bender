@@ -255,6 +255,9 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="LabelmapGoToModulePushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>Open the &quot;Volumes&quot; module</string>
               </property>
@@ -264,9 +267,9 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="TransformApplyPushButton">
-              <property name="toolTip">
-               <string>Switch the volume orientation between LPS and RAS</string>
+             <widget class="ctkMenuButton" name="LPSRASTransformPushButton">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
               <property name="text">
                <string>LPS &lt;-&gt; RAS</string>
@@ -2693,6 +2696,11 @@ p, li { white-space: pre-wrap; }
    <header>ctkExpandButton.h</header>
   </customwidget>
   <customwidget>
+   <class>ctkMenuButton</class>
+   <extends>QPushButton</extends>
+   <header>ctkMenuButton.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkPathLineEdit</class>
    <extends>QWidget</extends>
    <header>ctkPathLineEdit.h</header>
@@ -3470,6 +3478,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>49</x>
      <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LabelmapVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>LPSRASTransformPushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LabelmapVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>LabelmapGoToModulePushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
