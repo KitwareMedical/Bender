@@ -75,21 +75,8 @@ class WorkflowWidget:
     # Pose surface variables
     self.poseLabelmapCreateOutputConnected = False
 
-    transformMenu = qt.QMenu(self.get('LPSRASTransformPushButton'))
-    a = transformMenu.addAction('Left <-> Right')
-    a.setToolTip('Switch the volume orientation from Left to Right')
-    a.connect('triggered(bool)', self.runLRTransform)
-    a = transformMenu.addAction('Posterior <-> Anterior')
-    a.setToolTip('Switch the volume orientation from Posterior to Anterior')
-    a.connect('triggered(bool)', self.runPATransform)
-    a = transformMenu.addAction('Superior <-> Inferior')
-    a.setToolTip('Switch the volume orientation from Superior to Inferior')
-    a.connect('triggered(bool)', self.runSITransform)
-    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
-    a = transformMenu.addAction('Center')
-    a.setToolTip('Center volume on (0,0,0)')
-    a.connect('triggered(bool)', self.runCenter)
-    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+    # init pages
+    self.initAdjustPage()
 
     # Load/Save icons
     loadIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
@@ -123,6 +110,7 @@ class WorkflowWidget:
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
+    self.get('LabelmapColorNodeComboBox').connect('nodeActivated(vtkMRMLNode*)', self.applyColorNode)
     self.get('LabelmapVolumeNodeToolButton').connect('clicked()', self.loadLabelmapVolumeNode)
     self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
@@ -469,6 +457,33 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   # 1) Load inputs
   #----------------------------------------------------------------------------
+
+  def initAdjustPage(self):
+    # Init color node combo box <=> make 'Generic Colors' labelmap visible
+    model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
+    visibleNodeIDs = []
+    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
+    model.visibleNodeIDs = visibleNodeIDs
+
+    # LPS <-> RAS Transform
+    transformMenu = qt.QMenu(self.get('LPSRASTransformPushButton'))
+    a = transformMenu.addAction('Left <-> Right')
+    a.setToolTip('Switch the volume orientation from Left to Right')
+    a.connect('triggered(bool)', self.runLRTransform)
+    a = transformMenu.addAction('Posterior <-> Anterior')
+    a.setToolTip('Switch the volume orientation from Posterior to Anterior')
+    a.connect('triggered(bool)', self.runPATransform)
+    a = transformMenu.addAction('Superior <-> Inferior')
+    a.setToolTip('Switch the volume orientation from Superior to Inferior')
+    a.connect('triggered(bool)', self.runSITransform)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+    a = transformMenu.addAction('Center')
+    a.setToolTip('Center volume on (0,0,0)')
+    a.connect('triggered(bool)', self.runCenter)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+
+    self.get('LabelMapApplyColorNodePushButton').visible = False
+
   def openAdjustPage(self):
     # Switch to 3D View only
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
@@ -485,13 +500,6 @@ class WorkflowWidget:
   def setupLabelmap(self, volumeNode):
     if volumeNode == None:
       return
-
-    # Init color node combo box <=> make 'Generic Colors' labelmap visible
-    model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
-    visibleNodeIDs = []
-    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericColors').GetID())
-    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
-    model.visibleNodeIDs = visibleNodeIDs
 
     # Labelmapcolornode should get its scene before the volume node selector
     # gets it. That way, setCurrentNode can work at first
@@ -510,8 +518,6 @@ class WorkflowWidget:
     if volumeNode == None:
       return
 
-    self.get('LabelMapApplyColorNodePushButton').setChecked(True)
-      
     colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
     volumesLogic = slicer.modules.volumes.logic()
 
@@ -521,6 +527,7 @@ class WorkflowWidget:
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     if colorNode != None:
       labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      print '>>>>>%s'% colorNode.GetID()
     volumeNode.EndModify(wasModifying)
 
     # We can't just use a regular qt signal/slot connection because the input
@@ -529,7 +536,6 @@ class WorkflowWidget:
     self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
     self.setupMergeLabels(volumeNode)
     self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
-    self.get('LabelMapApplyColorNodePushButton').setChecked(False)
 
   def openLabelmapModule(self):
     self.openModule('Volumes')
@@ -592,7 +598,7 @@ class WorkflowWidget:
   #    a) Merge Labels
   def updateMergeLabels(self, node, event):
     volumeNode = self.get('MergeLabelsInputNodeComboBox').currentNode()
-    if node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode:
+    if volumeNode == None or (node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode):
       return
     elif node.IsA('vtkMRMLVolumeDisplayNode'):
       if node != volumeNode.GetDisplayNode():
