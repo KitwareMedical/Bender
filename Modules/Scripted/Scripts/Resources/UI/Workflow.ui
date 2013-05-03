@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>732</height>
+    <height>714</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1166,7 +1166,7 @@ p, li { white-space: pre-wrap; }
      </widget>
      <widget class="QWidget" name="SkinningPage">
       <property name="accessibleName">
-       <string>Compute weights (skinning)</string>
+       <string>Skin armature to volume</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1175,10 +1175,12 @@ p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Skin the armature to the volume&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volume skinning&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assigns a unique bone ID to each input volume voxel.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; computes the bone weights (influence of a bone over a weight transform) at each voxel. The weights will be used when repositioning the labelmap or the surface models.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assign the computed weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Edit skinned volume&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; to manually edit the results from &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volume skinning.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_2">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <property name="margin">
         <number>0</number>
        </property>
@@ -1303,13 +1305,6 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="VolumeSkinningGoToEditorPushButton">
-              <property name="text">
-               <string>Go to Editor module</string>
-              </property>
-             </widget>
-            </item>
-            <item>
              <widget class="QPushButton" name="VolumeSkinningGoToPushButton">
               <property name="toolTip">
                <string>Open the &quot;Volume Skinning&quot; module</string>
@@ -1365,6 +1360,93 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox">
+         <property name="title">
+          <string>B) Edit skinned volume</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_15">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Skinned volume</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <spacer name="horizontalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="EditSkinnedVolumeGoToEditorPushButton">
+              <property name="text">
+               <string>Go to Editor module</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="EditSkinnedVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="EditSkinnedVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load the edited &quot;skinned&quot; volume.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="EditSkinnedVolumeNodeSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="WeightsPage">
+      <property name="accessibleName">
+       <string>Compute weights</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; computes the bone weights (influence of a bone over a weight transform) at each voxel. The weights will be used when repositioning the labelmap or the surface models.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assign the computed weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_4">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="ComputeArmatureWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1373,7 +1455,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Compute armature weights</string>
+          <string>A) Compute armature weights</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1466,7 +1548,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox">
             <property name="toolTip">
              <string>Select the skinned volume for which each voxel as a bone associated</string>
@@ -1599,20 +1681,10 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
-           <widget class="QToolButton" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeToolButton">
-            <property name="toolTip">
-             <string>Load the edited &quot;skinned&quot; volume.</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="EvalSurfaceWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1621,7 +1693,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Evaluate surface weights</string>
+          <string>B) Evaluate surface weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
@@ -2644,8 +2716,8 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>472</x>
-     <y>238</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2660,8 +2732,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>441</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2676,8 +2748,8 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>472</x>
-     <y>316</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2692,8 +2764,8 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>472</x>
-     <y>368</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2708,8 +2780,8 @@ p, li { white-space: pre-wrap; }
      <y>7</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2724,8 +2796,8 @@ p, li { white-space: pre-wrap; }
      <y>5</y>
     </hint>
     <hint type="destinationlabel">
-     <x>372</x>
-     <y>200</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2740,8 +2812,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2756,8 +2828,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>101</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2768,12 +2840,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>472</x>
-     <y>238</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>441</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2788,8 +2860,8 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>441</x>
-     <y>148</y>
+     <x>450</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -2804,8 +2876,8 @@ p, li { white-space: pre-wrap; }
      <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>441</x>
-     <y>122</y>
+     <x>450</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2816,12 +2888,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>122</y>
+     <x>450</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>472</x>
-     <y>238</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2832,12 +2904,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2848,12 +2920,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>234</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>501</x>
-     <y>549</y>
+     <x>481</x>
+     <y>683</y>
     </hint>
    </hints>
   </connection>
@@ -2868,8 +2940,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>501</x>
-     <y>549</y>
+     <x>481</x>
+     <y>683</y>
     </hint>
    </hints>
   </connection>
@@ -2884,8 +2956,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>148</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2900,8 +2972,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>174</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2916,8 +2988,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2932,8 +3004,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>290</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2948,8 +3020,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>316</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2964,8 +3036,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2976,12 +3048,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2996,8 +3068,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>214</x>
-     <y>328</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3012,8 +3084,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>406</y>
+     <x>66</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3028,8 +3100,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>354</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3040,28 +3112,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>148</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>290</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>VolumeSkinningOutputVolumeNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>231</x>
-     <y>174</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>316</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3072,12 +3128,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>122</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3092,8 +3148,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>288</x>
-     <y>290</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3108,8 +3164,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>288</x>
-     <y>342</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3120,12 +3176,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>441</x>
-     <y>264</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>288</x>
-     <y>290</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3136,12 +3192,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>417</x>
-     <y>190</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>103</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3156,8 +3212,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>103</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3172,8 +3228,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>155</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3184,12 +3240,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>155</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>186</x>
-     <y>354</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3200,12 +3256,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>290</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>214</x>
-     <y>328</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3217,11 +3273,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
-     <y>493</y>
+     <y>628</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
-     <y>552</y>
+     <y>687</y>
     </hint>
    </hints>
   </connection>
@@ -3232,12 +3288,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>148</x>
-     <y>103</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>155</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3252,8 +3308,8 @@ p, li { white-space: pre-wrap; }
      <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>70</x>
-     <y>98</y>
+     <x>61</x>
+     <y>89</y>
     </hint>
    </hints>
   </connection>
@@ -3268,8 +3324,8 @@ p, li { white-space: pre-wrap; }
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>102</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3280,12 +3336,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>214</x>
-     <y>328</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>98</x>
-     <y>101</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3300,8 +3356,8 @@ p, li { white-space: pre-wrap; }
      <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>141</x>
-     <y>119</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3312,12 +3368,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>343</x>
-     <y>111</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>455</x>
-     <y>115</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3328,12 +3384,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>240</x>
-     <y>112</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>282</x>
-     <y>257</y>
+     <x>46</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3344,12 +3400,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>339</x>
-     <y>258</y>
+     <x>46</x>
+     <y>91</y>
     </hint>
     <hint type="destinationlabel">
-     <x>465</x>
-     <y>254</y>
+     <x>89</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -3364,8 +3420,56 @@ p, li { white-space: pre-wrap; }
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>254</y>
+     <x>46</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>EditSkinnedVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeSkinningOutputVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>EditSkinnedVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>91</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EditSkinnedVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

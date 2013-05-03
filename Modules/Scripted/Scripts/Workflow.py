@@ -89,7 +89,8 @@ class WorkflowWidget:
     self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
     self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
     self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
-    self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeToolButton').icon = loadIcon
+    self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
+    self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
     self.get('PoseArmatureArmatureNodeToolButton').icon = loadIcon
@@ -152,13 +153,16 @@ class WorkflowWidget:
     self.get('VolumeSkinningOutputVolumeNodeToolButton').connect('clicked()', self.saveSkinningVolumeNode)
     self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
-    self.get('VolumeSkinningGoToEditorPushButton').connect('clicked()', self.openEditorModule)
-    # b) Armatures Weight
-    self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeToolButton').connect('clicked()', self.loadComputeArmatureWeightSkinnedVolumeNode)
+    # b) Edit skinned volume
+    self.get('EditSkinnedVolumeNodeToolButton').connect('clicked()', self.loadEditSkinnedVolumeNode)
+    self.get('EditSkinnedVolumeNodeSaveToolButton').connect('clicked()', self.saveEditSkinnedVolumeNode)
+    self.get('EditSkinnedVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.editSkinnedVolumeParameterChanged)
+    self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
+    # 5) Weights
+    # a) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
-    # 5) (Pose) Armature And Pose Body
-    # a) Eval Weight
+    # b) Eval Weight
     self.get('EvalSurfaceWeightInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
     self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.evalSurfaceWeightParameterChanged)
     self.get('EvalSurfaceWeightOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
@@ -167,12 +171,13 @@ class WorkflowWidget:
     self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
     self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
-    # b) Pose Armature
+    # 6) (Pose) Armature And Pose Body
+    # a) Pose Armature
     self.get('PoseArmatureArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseArmatureModelNode)
     self.get('PoseArmatureArmatureNodeToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('PoseArmatureArmatureNodeSaveToolButton').connect('clicked()', self.savePoseArmatureArmatureNode)
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
-    # c) Pose Surface
+    # b) Pose Surface
     self.get('PoseSurfaceInputNodeToolButton').connect('clicked()', self.loadPoseSurfaceInputNode)
     self.get('PoseSurfaceOutputNodeToolButton').connect('clicked()', self.savePoseSurfaceOutputNode)
     self.get('PoseSurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
@@ -184,7 +189,7 @@ class WorkflowWidget:
 
     self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
     self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
-    # 6) Resample
+    # 7) Resample
     self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
     self.get('PoseLabelmapArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
     self.get('PoseLabelmapWeightPathLineEdit').connect('currentPathChanged(QString)', self.poseLabelmapParameterChanged)
@@ -197,8 +202,9 @@ class WorkflowWidget:
                       1 : self.openExtractPage,
                       2 : self.openCreateArmaturePage,
                       3 : self.openSkinningPage,
-                      4 : self.openPoseArmaturePage,
-                      5 : self.openPoseLabelmapPage
+                      4 : self.openWeightsPage,
+                      5 : self.openPoseArmaturePage,
+                      6 : self.openPoseLabelmapPage
                       }
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
@@ -370,6 +376,7 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox', 'MergeLabelsOutputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox', 'VolumeSkinningOutputVolumeNodeComboBox',
+                           'EditSkinnedVolumeNodeComboBox',
                            'ComputeArmatureWeightInputVolumeNodeComboBox', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
                            'PoseLabelmapInputNodeComboBox', 'PoseLabelmapOutputNodeComboBox']
 
@@ -569,8 +576,6 @@ class WorkflowWidget:
   def setupMergeLabels(self, volumeNode):
     if volumeNode == None:
       return
-    self.get('MergeLabelsInputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
-    self.get('MergeLabelsOutputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     self.removeObservers(self.updateMergeLabels)
     colorNode = labelmapDisplayNode.GetColorNode()
@@ -964,9 +969,6 @@ class WorkflowWidget:
     parameters = self.volumeSkinningParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  def openEditorModule(self):
-    self.openModule('Editor')
-
   def createOutputSkinnedVolume(self, node):
     if node == None:
       return
@@ -978,7 +980,41 @@ class WorkflowWidget:
       newNode.SetName(nodeName)
 
   #----------------------------------------------------------------------------
-  #    b) Compute Armature Weight
+  #    b) Edit skinned volume
+  def editSkinnedVolumeParameterChanged(self, skinnedVolume = None, event = None):
+    canEdit = False
+    canSave = False
+    self.removeObservers(self.editSkinnedVolumeParameterChanged)
+    if skinnedVolume != None:
+      canEdit = skinnedVolume.GetDisplayNode() != None
+      canSave = canEdit and skinnedVolume.GetModifiedSinceRead()
+      self.addObserver(skinnedVolume, 'ModifiedEvent', self.editSkinnedVolumeParameterChanged)
+    self.get('EditSkinnedVolumeGoToEditorPushButton').enabled = canEdit
+    self.get('EditSkinnedVolumeNodeSaveToolButton').enabled = canSave
+
+  def loadEditSkinnedVolumeNode(self):
+    self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('EditSkinnedVolumeNodeComboBox'))
+
+  def saveEditSkinnedVolumeNode(self):
+    self.saveFile('Skinned volume', 'VolumeFile', '.mha', self.get('EditSkinnedVolumeNodeComboBox'))
+
+  def openEditorModule(self):
+    self.removeObservers(self.editSkinnedVolumeParameterChanged)
+    self.openModule('Editor')
+    editorWidget = slicer.modules.editor.widgetRepresentation()
+    masterVolumeNodeComboBox = editorWidget.findChild('qMRMLNodeComboBox')
+    masterVolumeNodeComboBox.addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
+    masterVolumeNodeComboBox.setCurrentNode(self.get('EditSkinnedVolumeNodeComboBox').currentNode())
+    setButton = editorWidget.findChild('QPushButton')
+    setButton.click()
+
+  #----------------------------------------------------------------------------
+  # 5) Weights
+  #----------------------------------------------------------------------------
+  def openWeightsPage(self):
+    pass
+  #----------------------------------------------------------------------------
+  #    a) Compute Armature Weight
   def computeArmatureWeightParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
@@ -1014,9 +1050,6 @@ class WorkflowWidget:
       self.get('ComputeArmatureWeightApplyPushButton').setEnabled(True)
       print 'ComputeArmatureWeight %s' % cliNode.GetStatusString()
       self.removeObservers(self.onComputeArmatureWeightCLIModified)
-
-  def loadComputeArmatureWeightSkinnedVolumeNode(self):
-    self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox'))
 
   def openComputeArmatureWeightModule(self):
     self.openModule('ComputeArmatureWeight')
@@ -1075,7 +1108,7 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   #----------------------------------------------------------------------------
-  # 5) Pose Armature & Pose surface
+  # 6) Pose Armature & Pose surface
   #----------------------------------------------------------------------------
   def openPoseArmaturePage(self):
     armatureLogic = slicer.modules.armatures.logic()
@@ -1198,7 +1231,7 @@ class WorkflowWidget:
       newNode.SetName(nodeName)
 
   #----------------------------------------------------------------------------
-  # 6) Resample NOTE: SHOULD BE LAST STEP
+  # 7) Resample NOTE: SHOULD BE LAST STEP
   #----------------------------------------------------------------------------
   def openPoseLabelmapPage(self):
     # Create output if necessary
