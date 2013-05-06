@@ -41,6 +41,10 @@ void SolveHeatDiffusionProblem<Image>::Solve(const HeatDiffusionProblem<Image::I
       }
     }
   std::cout << "Problem dimension: "<<m<<" x "<<n << std::endl;
+  if (m == 0 || n == 0)
+    {
+    return;
+    }
 
   typedef itk::Image<int, Image::ImageDimension> ImageIndexMap;
   typename ImageIndexMap::Pointer matrixIndex = ImageIndexMap::New();
