@@ -78,10 +78,6 @@ public:
   vtkSetVector3Macro(InteractionColor, double);
   vtkGetVector3Macro(InteractionColor, double);
 
-  /// Set/Get the opacity of the envelope.
-  vtkSetMacro(EnvelopeOpacity, double);
-  vtkGetMacro(EnvelopeOpacity, double);
-
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -99,7 +95,6 @@ protected:
   ~vtkMRMLBoneDisplayNode();
 
   double InteractionColor[3];
-  double EnvelopeOpacity;
 
   vtkMRMLBoneDisplayNode(const vtkMRMLBoneDisplayNode&); /// not implemented
   void operator=(const vtkMRMLBoneDisplayNode&); /// not implemented

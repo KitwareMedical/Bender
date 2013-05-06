@@ -193,21 +193,6 @@ public:
     };
   //ETX
 
-  /// Show/Hide the bone's envelopes.
-  /// \sa SetShowEnvelopes(), GetShowEnvelopes()
-  void SetShowEnvelopes(int show);
-  int GetShowEnvelopes();
-
-  /// Set/Get the overall radius ratio.
-  vtkSetMacro(OverallRadiusRatio, double);
-  vtkGetMacro(OverallRadiusRatio, double);
-
-  /// Set/Get the envelopes opacity.
-  /// The envelopes opacity will be propagated to all the bones' envelopes.
-  void SetEnvelopesOpacity(double opacity);
-  double GetEnvelopesOpacity();
-
-
   //--------------------------------------------------------------------------
   // Bone methods
   //--------------------------------------------------------------------------
@@ -283,7 +268,6 @@ protected:
   int WidgetState;
   int BonesRepresentationType;
   int ShouldResetPoseMode;
-  double OverallRadiusRatio;
 };
 
 //----------------------------------------------------------------------------

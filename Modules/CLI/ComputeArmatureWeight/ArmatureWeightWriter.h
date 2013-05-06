@@ -121,9 +121,6 @@ public:
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
 
-  vtkSetMacro(UseEnvelopes, bool);
-  vtkGetMacro(UseEnvelopes, bool);
-
   // Computation methods
   bool Write();
 
@@ -164,7 +161,6 @@ protected:
   bool BinaryWeight;
   int SmoothingIterations;
   double ScaleFactor;
-  bool UseEnvelopes;
 
   // Debug info
   bool DebugInfo;
