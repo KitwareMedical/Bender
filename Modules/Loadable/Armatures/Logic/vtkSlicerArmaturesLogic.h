@@ -62,8 +62,7 @@ public:
   vtkMRMLArmatureNode* ReadArmatureFromModel(const char* fileName);
 
   /// Create an armature from a model. Returns a the armature
-  ///  node added. Note that the envelopes and transforms
-  /// are not initialized and that the model is not actually loaded
+  ///  node added. Note that the model is not actually loaded
   /// in slicer.
   /// \sa ReadArmatureFromModel()
   vtkMRMLArmatureNode* CreateArmatureFromModel(

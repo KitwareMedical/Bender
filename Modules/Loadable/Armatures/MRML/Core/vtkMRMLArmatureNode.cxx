@@ -29,7 +29,6 @@
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
-#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkBoneWidget.h>
 #include <vtkCallbackCommand.h>
@@ -106,9 +105,6 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->SetBonesAlwaysOnTop(1);
 
   this->ShouldResetPoseMode = 0;
-  this->ArmatureProperties->GetBonesRepresentation()->SetShowEnvelope(1);
-  this->OverallRadiusRatio = 0.5;
-  this->SetEnvelopesOpacity(0.2);
 
   this->Callback->SetClientData(this);
   this->Callback->SetCallback(MRMLArmatureNodeCallback);
@@ -135,8 +131,6 @@ void vtkMRMLArmatureNode::WriteXML(ostream& of, int nIndent)
     << this->ArmatureProperties->GetShowAxes() << "\"";
   of << indent << " ShowParenthood=\""
     << this->ArmatureProperties->GetShowParenthood() << "\"";
-  of << indent << " ShowEnvelopes=\""
-    << this->GetShowEnvelopes() << "\"";
 
   of << indent << " Visibility=\"" << this->GetVisibility() << "\"";
   of << indent << " Opacity=\"" << this->GetOpacity() << "\"";
@@ -196,11 +190,6 @@ void vtkMRMLArmatureNode::ReadXMLAttributes(const char** atts)
       double rgb[3];
       vtkMRMLNodeHelper::StringToVector3(attValue, rgb);
       this->SetColor(rgb);
-      }
-    else if (!strcmp(attName, "ShowEnvelopes"))
-      {
-      this->SetShowEnvelopes(
-        vtkMRMLNodeHelper::StringToInt(attValue));
       }
     }
   this->EndModify(disabledModify);
@@ -319,14 +308,7 @@ void vtkMRMLArmatureNode::SetWidgetState(int state)
     }
 
   this->WidgetState = state;
-
-  int wasModifying = this->StartModify();
-  if (this->WidgetState == vtkMRMLArmatureNode::Pose)
-    {
-    this->SetShowEnvelopes(0);
-    }
   this->Modified();
-  this->EndModify(wasModifying);
 }
 
 //---------------------------------------------------------------------------
@@ -421,102 +403,6 @@ int vtkMRMLArmatureNode::GetBonesAlwaysOnTop()
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetShowEnvelopes(int show)
-{
-  if (static_cast<bool>(show) ==
-    this->ArmatureProperties->GetBonesRepresentation()->GetShowEnvelope())
-    {
-    return;
-    }
-
-  this->ArmatureProperties->GetBonesRepresentation()->SetShowEnvelope(show);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-int vtkMRMLArmatureNode::GetShowEnvelopes()
-{
-  return this->ArmatureProperties->GetBonesRepresentation()
-    ->GetShowEnvelope();
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetEnvelopesOpacity(double opacity)
-{
-  if (fabs(opacity - this->GetOpacity()) < 1e-6)
-    {
-    return;
-    }
-
-  this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
-    ->GetProperty()->SetOpacity(opacity);
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-double vtkMRMLArmatureNode::GetEnvelopesOpacity()
-{
-  return this->ArmatureProperties->GetBonesRepresentation()->GetEnvelope()
-    ->GetProperty()->GetOpacity();
-}
-
-/*
-//---------------------------------------------------------------------------
-void vtkMRMLArmatureNode
-::SetBoneLinkedWithParent(vtkBoneWidget* bone, bool linked)
-{
-  if (CompareColor(this->Color, rgb))
-    {
-    return;
-    }
-
-  for (int i=0; i<3; ++i)
-    {
-    this->Color[i] = rgb[i];
-    }
-
-  double doubleRGB[3];
-  doubleRGB[0] = rgb[0]/255.0;
-  doubleRGB[1] = rgb[1]/255.0;
-  doubleRGB[2] = rgb[2]/255.0;
-
-  // vv This should go to logic vv
-  for (int i = 0; i < bones->GetNumberOfItems();++i)
-    {
-    vtkBoneWidget* bone
-      = vtkBoneWidget::Safedowncast(bones->GetItemAsObject(i));
-    if (bone && bone->GetBoneRepresentation())
-      {
-      bone->GetBoneRepresenation()->GetLineProperty()->SetColor(doubleRGB);
-
-      if (vtkCylinderBoneRepresentation::SafeDownCast(
-          bone->GetBoneRepresentation()))
-        {
-        vtkCylinderBoneRepresentation::SafeDownCast(
-          bone->GetBoneRepresentation())->GetCylinderProperty()
-            ->SetColor(doubleRGB);
-        }
-      else if (vtkDoubleConeBoneRepresentation::SafeDownCast(
-          bone->GetBoneRepresentation()))
-        {
-        vtkDoubleConeBoneRepresentation::SafeDownCast(
-          bone->GetBoneRepresentation())->GetConesProperty()
-            ->SetColor(doubleRGB);
-        }
-      }
-    }
-  // ^^ This should go to logic ^^
-
-  this->Modified();
-}
-
-//---------------------------------------------------------------------------
-bool vtkMRMLArmatureNode::GetBoneLinkedWithParent(vtkBoneWidget* bone)
-{
-  this->ArmatureProperties->
-}*/
-
-//---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::ResetPoseMode()
 {
   this->ShouldResetPoseMode = 1;
@@ -546,12 +432,6 @@ void vtkMRMLArmatureNode
     armatureWidget->GetBonesRepresentation()->GetLineProperty()->GetOpacity());
   this->SetColor(
     armatureWidget->GetBonesRepresentation()->GetLineProperty()->GetColor());
-
-  this->SetShowEnvelopes(
-    armatureWidget->GetBonesRepresentation()->GetShowEnvelope());
-  this->SetEnvelopesOpacity(
-    armatureWidget->GetBonesRepresentation()->GetEnvelope()->GetProperty()
-      ->GetOpacity());
 }
 
 //---------------------------------------------------------------------------
@@ -593,8 +473,6 @@ void vtkMRMLArmatureNode
     this->ArmatureProperties->GetShowAxes());
   armatureWidget->GetBonesRepresentation()->SetAlwaysOnTop(
     this->GetBonesAlwaysOnTop());
-  armatureWidget->GetBonesRepresentation()->SetShowEnvelope(
-    this->GetShowEnvelopes());
 
   double color[3];
   this->GetColor(color);
@@ -614,8 +492,6 @@ void vtkMRMLArmatureNode
         this->ArmatureProperties->GetShowParenthood()
         && boneNode->GetHasParent());
 
-      boneNode->SetOverallRadiusRatio(this->GetOverallRadiusRatio());
-
       // Color and opacity are tricky.
       // Each display node needs to be updated as well as the
       // armature bones representation
@@ -624,7 +500,6 @@ void vtkMRMLArmatureNode
         {
         boneDisplayNode->SetColor(color);
         boneDisplayNode->SetOpacity(this->GetOpacity());
-        boneDisplayNode->SetEnvelopeOpacity(this->GetEnvelopesOpacity());
         }
       }
     }
@@ -686,6 +561,5 @@ void vtkMRMLArmatureNode::UpdateBoneRepresentation(vtkBoneRepresentation* rep)
 
   rep->SetAlwaysOnTop(this->GetBonesAlwaysOnTop());
   rep->SetOpacity(this->GetOpacity());
-  rep->GetEnvelope()->GetProperty()->SetOpacity(this->GetEnvelopesOpacity());
   rep->GetLineProperty()->SetColor(color);
 }
