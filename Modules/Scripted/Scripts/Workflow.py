@@ -38,7 +38,7 @@ class WorkflowWidget:
 
     self.Observations = []
 
-    import imp, sys, os, slicer
+    import imp, sys, os, slicer, qt
     loader = qt.QUiLoader()
     moduleName = 'Workflow'
     scriptedModulesPath = eval('slicer.modules.%s.path' % moduleName.lower())
@@ -66,9 +66,6 @@ class WorkflowWidget:
 
     # Labelmap variables
 
-    # Transform variables
-    self.TransformNode = None
-
     # Compute Weight variables
     self.volumeSkinningCreateOutputConnected = False
 
@@ -77,6 +74,32 @@ class WorkflowWidget:
 
     # Pose surface variables
     self.poseLabelmapCreateOutputConnected = False
+
+    # init pages
+    self.initAdjustPage()
+    self.initWeightsPage()
+
+    # Load/Save icons
+    loadIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
+    saveIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogSaveButton)
+    self.get('LabelmapVolumeNodeToolButton').icon = loadIcon
+    self.get('LabelmapColorNodeToolButton').icon = loadIcon
+    self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('BoneModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('ArmaturesArmatureLoadToolButton').icon = loadIcon
+    self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
+    self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
+    self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
+    self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
+    self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
+    self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
+    self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
+    self.get('PoseArmatureArmatureNodeToolButton').icon = loadIcon
+    self.get('PoseArmatureArmatureNodeSaveToolButton').icon = saveIcon
+    self.get('PoseSurfaceInputNodeToolButton').icon = loadIcon
+    self.get('PoseSurfaceOutputNodeToolButton').icon = saveIcon
+    self.get('PoseLabelmapOutputNodeToolButton').icon = saveIcon
 
     # --------------------------------------------------------------------------
     # Connections
@@ -88,22 +111,29 @@ class WorkflowWidget:
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
+    self.get('LabelmapColorNodeComboBox').connect('nodeActivated(vtkMRMLNode*)', self.applyColorNode)
+    self.get('LabelmapVolumeNodeToolButton').connect('clicked()', self.loadLabelmapVolumeNode)
+    self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
-    self.get('TransformApplyPushButton').connect('clicked()', self.runTransform)
-    # c) Merge Labels
+    self.get('LPSRASTransformPushButton').connect('clicked()', self.runLPSRASTransform)
+    # 2) Model Maker
+    # a) Merge Labels
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
+    self.get('MergeLabelsOutputNodeToolButton').connect('clicked()', self.saveMergeLabelsVolumeNode)
     self.get('MergeLabelsApplyPushButton').connect('clicked(bool)', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
-    # 2) Model Maker
-    # a) Bone Model Maker
+    # b) Bone Model Maker
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
+    self.get('BoneModelMakerOutputNodeComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
+    self.get('BoneModelMakerOutputNodeToolButton').connect('clicked()', self.saveBoneModelMakerModelNode)
     self.get('BoneModelMakerApplyPushButton').connect('clicked(bool)', self.runBoneModelMaker)
     self.get('BoneModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('BoneModelMakerGoToModulePushButton').connect('clicked()', self.openBoneModelMakerModule)
-    # b) Skin Model Maker
+    # c) Skin Model Maker
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupSkinModelMakerLabels)
-    self.get('SkinModelMakerToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('SkinModelMakerOutputNodeToolButton').connect('clicked()', self.saveSkinModelMakerModelNode)
+    self.get('SkinModelMakerToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
@@ -115,35 +145,59 @@ class WorkflowWidget:
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
-    self.get('ArmaturesToggleVisiblePushButtton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('ArmaturesLoadArmaturePushButton').connect('clicked()', self.loadArmatureFile)
+    self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
+    self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('ArmaturesArmatureLoadToolButton').connect('clicked()', self.loadArmatureNode)
+    self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Skinning
     # a) Volume Skinning
+    self.get('VolumeSkinningInputVolumeNodeToolButton').connect('clicked()', self.loadSkinningInputVolumeNode)
+    self.get('VolumeSkinningOutputVolumeNodeToolButton').connect('clicked()', self.saveSkinningVolumeNode)
     self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
-    self.get('VolumeSkinningGoToEditorPushButton').connect('clicked()', self.openEditorModule)
-    # b) Armatures Weight
+    # b) Edit skinned volume
+    self.get('EditSkinnedVolumeNodeToolButton').connect('clicked()', self.loadEditSkinnedVolumeNode)
+    self.get('EditSkinnedVolumeNodeSaveToolButton').connect('clicked()', self.saveEditSkinnedVolumeNode)
+    self.get('EditSkinnedVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.editSkinnedVolumeParameterChanged)
+    self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
+    # 5) Weights
+    # a) Armatures Weight
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
-    # 5) (Pose) Armature And Pose Body
-    # a) Eval Weight
+    # b) Eval Weight
+    self.get('EvalSurfaceWeightInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
+    self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.evalSurfaceWeightParameterChanged)
+    self.get('EvalSurfaceWeightOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
+    self.get('EvalSurfaceWeightInputNodeToolButton').connect('clicked()', self.loadEvalSurfaceWeightInputNode)
+    self.get('EvalSurfaceWeightOutputNodeToolButton').connect('clicked()', self.saveEvalSurfaceWeightOutputNode)
     self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
     self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
-    # b) (Pose) Armatures
+    # 6) (Pose) Armature And Pose Body
+    # a) Pose Armature
+    self.get('PoseArmatureArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseArmatureModelNode)
+    self.get('PoseArmatureArmatureNodeToolButton').connect('clicked()', self.loadArmatureNode)
+    self.get('PoseArmatureArmatureNodeSaveToolButton').connect('clicked()', self.savePoseArmatureArmatureNode)
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
-    # c) Pose Body
+    # b) Pose Surface
+    self.get('PoseSurfaceInputNodeToolButton').connect('clicked()', self.loadPoseSurfaceInputNode)
+    self.get('PoseSurfaceOutputNodeToolButton').connect('clicked()', self.savePoseSurfaceOutputNode)
     self.get('PoseSurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceWeightInputPathLineEdit').connect('currentPathChanged(QString)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
+    self.get('PoseSurfaceInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
     self.get('PoseSurfaceApplyPushButton').connect('clicked(bool)', self.runPoseSurface)
     self.get('PoseSurfaceApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunPoseSurface)
 
     self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
     self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
-    # 6) Resample
+    # 7) Resample
+    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
+    self.get('PoseLabelmapArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
+    self.get('PoseLabelmapWeightPathLineEdit').connect('currentPathChanged(QString)', self.poseLabelmapParameterChanged)
+    self.get('PoseLabelmapOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
+    self.get('PoseLabelmapOutputNodeToolButton').connect('clicked()', self.savePoseLabelmapOutputNode)
     self.get('PoseLabelmapApplyPushButton').connect('clicked(bool)', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
 
@@ -151,8 +205,9 @@ class WorkflowWidget:
                       1 : self.openExtractPage,
                       2 : self.openCreateArmaturePage,
                       3 : self.openSkinningPage,
-                      4 : self.openPoseArmaturePage,
-                      5 : self.openPoseLabelmapPage
+                      4 : self.openWeightsPage,
+                      5 : self.openPoseArmaturePage,
+                      6 : self.openPoseLabelmapPage
                       }
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
@@ -162,21 +217,6 @@ class WorkflowWidget:
 
     # Init title
     self.updateHeader()
-
-    # Init transform node
-    self.TransformNode = slicer.mrmlScene.GetFirstNodeByName('WorflowTransformNode')
-    if self.TransformNode == None:
-      self.TransformNode = slicer.vtkMRMLLinearTransformNode()
-      self.TransformNode.SetName('WorflowTransformNode')
-      self.TransformNode.HideFromEditorsOn()
-
-      transform = vtk.vtkMatrix4x4()
-      transform.DeepCopy((-1.0, 0.0, 0.0, 0.0,
-                           0.0, -1.0, 0.0, 0.0,
-                           0.0, 0.0, 1.0, 0.0,
-                           0.0, 0.0, 0.0, 1.0))
-      self.TransformNode.ApplyTransformMatrix(transform)
-      slicer.mrmlScene.AddNode(self.TransformNode)
 
     # Workflow page
     self.setupSimpleWorkflow(self.get('WelcomeSimpleWorkflowCheckBox').isChecked())
@@ -213,7 +253,19 @@ class WorkflowWidget:
       self.get('NextPageToolButton').setText('%i) %s >' %(nextIndex + 1, next))
     else:
       self.get('NextPageToolButton').setVisible(False)
+    self.get('WelcomeSimpleWorkflowCheckBox').updatesEnabled = False
     self.openPage[self.WorkflowWidget.currentIndex]()
+    wasChecked = self.get('WelcomeSimpleWorkflowCheckBox').checked
+    self.get('WelcomeSimpleWorkflowCheckBox').checked = True
+    self.WorkflowWidget.maximumHeight = self.WorkflowWidget.currentWidget().sizeHint.height()
+    self.get('WelcomeSimpleWorkflowCheckBox').checked = wasChecked
+    self.get('WelcomeSimpleWorkflowCheckBox').updatesEnabled = True
+    self.WorkflowWidget.resize(self.WorkflowWidget.width,
+      self.WorkflowWidget.currentWidget().sizeHint.height())
+    # Hide the Status if not running
+    cliNode = self.get('CLIProgressBar').commandLineModuleNode()
+    if cliNode != None and not cliNode.IsBusy():
+      self.get('CLIProgressBar').setCommandLineModuleNode(0)
 
   def goToPrevious(self):
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex - 1)
@@ -223,7 +275,9 @@ class WorkflowWidget:
     self.WorkflowWidget.setCurrentIndex(self.WorkflowWidget.currentIndex + 1)
     self.updateHeader()
 
+  #----------------------------------------------------------------------------
   # 0) Welcome
+  #----------------------------------------------------------------------------
   def openWelcomePage(self):
     print('welcome')
 
@@ -271,12 +325,12 @@ class WorkflowWidget:
     # 4) Weights
     # a) Volume skinning
     # VolumeSkinningInputVolumeNodeComboBox is not advanced as it can be the merged volume or the original volume.
-    advancedVolumeSkinningWidgets = ['VolumeSkinningGoToPushButton']
+    advancedVolumeSkinningWidgets = ['VolumeSkinningArmatureLabel','VolumeSkinningAmartureNodeComboBox',
+                                    'VolumeSkinningGoToPushButton']
     self.setWidgetsVisibility(advancedVolumeSkinningWidgets, advanced)
     # b) Weights
     advancedComputeWeightWidgets = ['ComputeArmatureWeightInputVolumeLabel', 'ComputeArmatureWeightInputVolumeNodeComboBox',
                                    'ComputeArmatureWeightArmatureLabel', 'ComputeArmatureWeightAmartureNodeComboBox',
-                                   'ComputeArmatureWeightSkinnedVolumeLabel', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
                                    'ComputeArmatureWeightPaddingLabel', 'ComputeArmatureWeightPaddingSpinBox',
                                    'ComputeArmatureWeightGoToPushButton']
     self.setWidgetsVisibility(advancedComputeWeightWidgets, advanced)
@@ -290,10 +344,10 @@ class WorkflowWidget:
                                  'EvalSurfaceWeightGoToPushButton']
     self.setWidgetsVisibility(advancedEvalSurfaceWeightWidgets, advanced)
 
-    # c) Pose Body
+    # c) Pose Surface
     # hide almost completely
     advancedPoseSurfaceWidgets = ['PoseSurfaceArmaturesLabel', 'PoseSurfaceArmatureInputNodeComboBox',
-                               'PoseSurfaceInputLabel', 'PoseSurfaceInputComboBox',
+                               'PoseSurfaceInputLabel', 'PoseSurfaceInputNodeComboBox', 'PoseSurfaceInputNodeToolButton',
                                'PoseSurfaceWeightInputFolderLabel', 'PoseSurfaceWeightInputPathLineEdit',
                                'PoseSurfaceGoToPushButton']
     self.setWidgetsVisibility(advancedPoseSurfaceWidgets, advanced)
@@ -310,387 +364,21 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox', 'MergeLabelsOutputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox', 'VolumeSkinningOutputVolumeNodeComboBox',
+                           'EditSkinnedVolumeNodeComboBox',
                            'ComputeArmatureWeightInputVolumeNodeComboBox', 'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
                            'PoseLabelmapInputNodeComboBox', 'PoseLabelmapOutputNodeComboBox']
 
     for combobox in labeldMapComboBoxes:
       self.get(combobox).addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
 
-  # 1) Adjust Labelmap
-  def openAdjustPage(self):
-    # Switch to 3D View only
-    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
+  def observeCLINode(self, cliNode, onCLINodeModified = None):
+    if cliNode != None and onCLINodeModified != None:
+      self.addObserver(cliNode, self.StatusModifiedEvent, onCLINodeModified)
+    self.get('CLIProgressBar').setCommandLineModuleNode(cliNode)
 
-  #     a) Labelmap
-  def updateLabelmap(self, node, event):
-    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
-    if node != volumeNode and node != volumeNode.GetDisplayNode():
-      return
-    self.setupLabelmap(volumeNode)
-    self.setupMergeLabels(volumeNode)
-
-  def setupLabelmap(self, volumeNode):
-    if volumeNode == None:
-      return
-
-    # Init color node combo box <=> make 'Generic Colors' labelmap visible
-    model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
-    visibleNodeIDs = []
-    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericColors').GetID())
-    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
-    model.visibleNodeIDs = visibleNodeIDs
-
-    # Labelmapcolornode should get its scene before the volume node selector
-    # gets it. That way, setCurrentNode can work at first
-    self.get('LabelmapColorNodeComboBox').setCurrentNode(volumeNode.GetDisplayNode().GetColorNode())
-    self.addObserver(volumeNode, 'ModifiedEvent', self.updateLabelmap)
-    self.addObserver(volumeNode.GetDisplayNode(), 'ModifiedEvent', self.updateLabelmap)
-
-  def applyColorNode(self):
-    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
-    if volumeNode == None:
-      return
-
-    self.get('LabelMapApplyColorNodePushButton').setChecked(True)
-      
-    colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
-    volumesLogic = slicer.modules.volumes.logic()
-
-    wasModifying = volumeNode.StartModify()
-    volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None) # Greyscale is None
-
-    labelmapDisplayNode = volumeNode.GetDisplayNode()
-    if colorNode != None:
-      labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
-    volumeNode.EndModify(wasModifying)
-
-    # We can't just use a regular qt signal/slot connection because the input
-    # node might not be a labelmap at the time it becomes current, which would
-    # not show up in the combobox.
-    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
-    self.setupMergeLabels(volumeNode)
-    self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
-    self.get('LabelMapApplyColorNodePushButton').setChecked(False)
-
-  def openLabelmapModule(self):
-    self.openModule('Volumes')
-
-  #    b) Transform
-  def runTransform(self):
-    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
-    if volumeNode == None:
-      return
-
-    self.get('TransformApplyPushButton').setChecked(True)
-      
-    volumeNode.SetAndObserveTransformNodeID(self.TransformNode.GetID())
-    transformLogic = slicer.modules.transforms.logic()
-
-    if transformLogic.hardenTransform(volumeNode):
-      print "Transform succesful !"
-    else:
-      print "Transform failure !"
-      
-    self.get('TransformApplyPushButton').setChecked(False)
-
-  #    c) Merge Labels
-  def updateMergeLabels(self, node, event):
-    volumeNode = self.get('MergeLabelsInputNodeComboBox').currentNode()
-    if node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode:
-      return
-    elif node.IsA('vtkMRMLVolumeDisplayNode'):
-      if node != volumeNode.GetDisplayNode():
-        return
-    self.setupMergeLabels(volumeNode)
-
-  def setupMergeLabels(self, volumeNode):
-    if volumeNode == None:
-      return
-    self.get('MergeLabelsInputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
-    self.get('MergeLabelsOutputNodeComboBox').addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
-    labelmapDisplayNode = volumeNode.GetDisplayNode()
-    self.removeObservers(self.updateMergeLabels)
-    colorNode = labelmapDisplayNode.GetColorNode()
-    if colorNode == None:
-      self.get('BoneLabelComboBox').setMRMLColorNode(None)
-      self.get('SkinLabelComboBox').setMRMLColorNode(None)
-      self.get('BoneLabelsLineEdit').setText('')
-      self.get('BoneLabelComboBox').setCurrentColor(None)
-      self.get('SkinLabelsLineEdit').setText('')
-      self.get('SkinLabelComboBox').setCurrentColor(None)
-
-    else:
-      self.get('BoneLabelComboBox').setMRMLColorNode(colorNode)
-      self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
-      boneLabels = self.searchLabels(colorNode, 'bone')
-      boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
-      boneLabels.update(self.searchLabels(colorNode, 'mandible'))
-      self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
-      boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
-      self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
-      skinLabels = self.searchLabels(colorNode, 'skin')
-      self.get('SkinLabelsLineEdit').setText(', '.join(str(val) for val in skinLabels.keys()))
-      skinLabel = self.bestLabel(skinLabels, ['skin'])
-      self.get('SkinLabelComboBox').setCurrentColor(skinLabel)
-
-      self.createMergeLabelsOutput(volumeNode)
-      self.addObserver(volumeNode, 'ModifiedEvent', self.updateMergeLabels)
-      self.addObserver(labelmapDisplayNode, 'ModifiedEvent', self.updateMergeLabels)
-
-  def searchLabels(self, colorNode, label):
-    """ Search the color node for all the labels that contain the word 'label'
-    """
-    labels = {}
-    for index in range(colorNode.GetNumberOfColors()):
-      if label in colorNode.GetColorName(index).lower():
-        labels[index] = colorNode.GetColorName(index)
-    return labels
-
-  def bestLabel(self, labels, labelNames):
-    """ Return the label from a [index, colorName] map that fits the best the
-         label name
-    """
-    bestLabels = labels
-    if (len(bestLabels) == 0):
-      return -1
-
-    labelIndex = 0
-    for labelName in labelNames:
-      newBestLabels = {}
-      for key in bestLabels.keys():
-        startswith = bestLabels[key].lower().startswith(labelName)
-        contains = labelName in bestLabels[key].lower()
-        if (labelIndex == 0 and startswith) or (labelIndex > 0 and contains):
-          newBestLabels[key] = bestLabels[key]
-      if len(newBestLabels) == 1:
-        return newBestLabels.keys()[0]
-      bestLabels = newBestLabels
-      labelIndex = labelIndex + 1
-    return bestLabels.keys()[0]
-
-  def createMergeLabelsOutput(self, node):
-    """ Make sure the output scalar volume node is a node with a -posed suffix.
-        Note that the merged volume is used only by the model makers. This
-        Should not be used by the PoseLabelmap filter.
-    """
-    if node == None:
-      return
-    # Don't create the node if the name already contains "merged"
-    if node.GetName().lower().find('merged') != -1:
-      return
-    nodeName = '%s-merged' % node.GetName()
-    # make sure such node does not already exist.
-    mergedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
-    if mergedNode == None:
-      newNode = self.get('MergeLabelsOutputNodeComboBox').addNode()
-      newNode.SetName(nodeName)
-    else:
-      self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
-
-  def mergeLabelsParameters(self):
-    boneLabels = self.get('BoneLabelsLineEdit').text
-    skinLabels = self.get('SkinLabelsLineEdit').text
-    parameters = {}
-    parameters["InputVolume"] = self.get('MergeLabelsInputNodeComboBox').currentNode()
-    parameters["OutputVolume"] = self.get('MergeLabelsOutputNodeComboBox').currentNode()
-    # That's my dream:
-    #parameters["InputLabelNumber"] = len(boneLabels.split(','))
-    #parameters["InputLabelNumber"] = len(skinLabels.split(','))
-    #parameters["InputLabel"] = boneLabels
-    #parameters["InputLabel"] = skinLabels
-    #parameters["OutputLabel"] = self.get('BoneLabelComboBox').currentColor
-    #parameters["OutputLabel"] = self.get('SkinLabelComboBox').currentColor
-    # But that's how it is done for now
-    parameters["InputLabelNumber"] = str(len(boneLabels.split(','))) + ', ' + str(len(skinLabels.split(',')))
-    parameters["InputLabel"] = boneLabels + ', ' + skinLabels
-    parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
-    return parameters
-
-  def runMergeLabels(self, run):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.changelabel)
-      parameters = self.mergeLabelsParameters()
-      self.get('MergeLabelsApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
-      self.get('MergeLabelsApplyPushButton').setEnabled(False)
-      cliNode.Cancel()
-
-  def onMergeLabelsCLIModified(self, cliNode, event):
-    if cliNode.GetStatusString() == 'Completed':
-      # apply label map
-      newNode = self.get('MergeLabelsOutputNodeComboBox').currentNode()
-      if newNode != None:
-        displayNode = newNode.GetDisplayNode()
-        if displayNode == None:
-          volumesLogic = slicer.modules.volumes.logic()
-          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
-          displayNode = newNode.GetDisplayNode()
-        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
-        if displayNode != None and colorNode != None:
-          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
-
-    if not cliNode.IsBusy():
-      self.get('MergeLabelsApplyPushButton').setChecked(False)
-      self.get('MergeLabelsApplyPushButton').setEnabled(True)
-      print 'MergeLabels %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onMergeLabelsCLIModified)
-
-  def openMergeLabelsModule(self):
-    self.openModule('ChangeLabel')
-
-    cliNode = self.getCLINode(slicer.modules.changelabel)
-    parameters = self.mergeLabelsParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
-  # 2) Model Maker
-  def openExtractPage(self):
-    if self.get('BoneModelMakerOutputNodeComboBox').currentNode() == None:
-      self.get('BoneModelMakerOutputNodeComboBox').addNode()
-    if self.get('SkinModelMakerOutputNodeComboBox').currentNode() == None:
-      self.get('SkinModelMakerOutputNodeComboBox').addNode()
-
-  #     a) Bone Model Maker
-  def setupBoneModelMakerLabels(self):
-    """ Update the labels of the bone model maker
-    """
-    labels = []
-    labels.append(self.get('BoneLabelComboBox').currentColor)
-    self.get('BoneModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
-
-  def boneModelMakerParameters(self):
-    parameters = {}
-    parameters["InputVolume"] = self.get('BoneModelMakerInputNodeComboBox').currentNode()
-    parameters["ModelSceneFile"] = self.get('BoneModelMakerOutputNodeComboBox').currentNode()
-    parameters["Labels"] = self.get('BoneModelMakerLabelsLineEdit').text
-    parameters["Name"] = 'Bones'
-    parameters['GenerateAll'] = False
-    parameters["JointSmoothing"] = False
-    parameters["SplitNormals"] = True
-    parameters["PointNormals"] = True
-    parameters["SkipUnNamed"] = True
-    parameters["Decimate"] = self.get('BoneModelMakerDecimateSliderWidget').value
-    parameters["Smooth"] = 10
-    return parameters
-
-  def runBoneModelMaker(self, run):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.modelmaker)
-      parameters = self.boneModelMakerParameters()
-      self.get('BoneModelMakerApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
-      self.get('BoneModelMakerApplyPushButton').setEnabled(False)
-      cliNode.Cancel()
-
-  def onBoneModelMakerCLIModified(self, cliNode, event):
-    if cliNode.GetStatusString() == 'Completed':
-      self.resetCamera()
-      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
-        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
-    if not cliNode.IsBusy():
-      self.get('BoneModelMakerApplyPushButton').setChecked(False)
-      self.get('BoneModelMakerApplyPushButton').setEnabled(True)
-      print 'Bone ModelMaker %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onBoneModelMakerCLIModified)
-
-  def openModelsModule(self):
-    self.openModule('Models')
-
-  def openBoneModelMakerModule(self):
-    self.openModule('ModelMaker')
-
-    cliNode = self.getCLINode(slicer.modules.modelmaker)
-    parameters = self.boneModelMakerParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
-  #     b) Skin Model Maker
-  def setupSkinModelMakerLabels(self, volumeNode):
-    """ Update the labels of the skin model maker
-    """
-    if volumeNode == None:
-      return
-
-    labelmapDisplayNode = volumeNode.GetDisplayNode()
-    if labelmapDisplayNode == None:
-      return
-
-    colorNode = labelmapDisplayNode.GetColorNode()
-    if colorNode == None:
-      self.get('SkinModelMakerLabelsLineEdit').setText('')
-    else:
-      airLabels = self.searchLabels(colorNode, 'air')
-      if len(airLabels) > 0:
-        self.get('SkinModelMakerThresholdSpinBox').setValue( min(airLabels) + 0.1 ) # highly probable outside is lowest label
-      else:
-        self.get('SkinModelMakerThresholdSpinBox').setValue(0.1) # highly probable outside is 0
-
-  def skinModelMakerParameters(self):
-    parameters = {}
-    parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode()
-    parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
-    parameters["Threshold"] = self.get('SkinModelMakerThresholdSpinBox').value + 0.1
-    #parameters["SplitNormals"] = True
-    #parameters["PointNormals"] = True
-    #parameters["Decimate"] = 0.25
-    parameters["Smooth"] = 10
-    parameters["Name"] = 'Skin'
-    return parameters
-
-  def runSkinModelMaker(self, run):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
-      parameters = self.skinModelMakerParameters()
-      self.get('SkinModelMakerApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
-      self.get('SkinModelMakerApplyPushButton').setEnabled(False)
-      cliNode.Cancel()
-
-  def onSkinModelMakerCLIModified(self, cliNode, event):
-    if cliNode.GetStatusString() == 'Completed':
-      # Set opacity
-      newNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
-      newNodeDisplayNode = newNode.GetModelDisplayNode()
-      newNodeDisplayNode.SetOpacity(0.2)
-
-      # Set color
-      colorNode = self.get('SkinModelMakerInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
-      color = [0, 0, 0]
-      lookupTable = colorNode.GetLookupTable().GetColor(self.get('SkinLabelComboBox').currentColor, color)
-      newNodeDisplayNode.SetColor(color)
-
-      # Set Clip intersection ON
-      newNodeDisplayNode.SetSliceIntersectionVisibility(1)
-
-      # Reset camera
-      self.resetCamera()
-
-    if not cliNode.IsBusy():
-      self.get('SkinModelMakerApplyPushButton').setChecked(False)
-      self.get('SkinModelMakerApplyPushButton').setEnabled(True)
-      print 'Skin ModelMaker %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onSkinModelMakerCLIModified)
-
-  def openSkinModelMakerModule(self):
-    self.openModule('GrayscaleModelMaker')
-
-    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
-    parameters = self.skinModelMakerParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
-  def updateSkinNodeVisibility(self):
-    skinModel = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
-    if skinModel != None:
-      skinModel.SetDisplayVisibility(not skinModel.GetDisplayVisibility())
-
+  #----------------------------------------------------------------------------
   #     c) Volume Render
+  #----------------------------------------------------------------------------
   def updateVolumeRender(self, volumeNode, event):
     if volumeNode != self.get('VolumeRenderInputNodeComboBox').currentNode():
       return
@@ -767,33 +455,499 @@ class WorkflowWidget:
   def openVolumeRenderModule(self):
     self.openModule('VolumeRendering')
 
-  # 3) Create rest armature
+  #----------------------------------------------------------------------------
+  # 1) Load inputs
+  #----------------------------------------------------------------------------
+
+  def initAdjustPage(self):
+    # Init color node combo box <=> make 'Generic Colors' labelmap visible
+    model = self.get('LabelmapColorNodeComboBox').sortFilterProxyModel()
+    visibleNodeIDs = []
+    visibleNodeIDs.append(slicer.mrmlScene.GetFirstNodeByName('GenericAnatomyColors').GetID())
+    model.visibleNodeIDs = visibleNodeIDs
+
+    # LPS <-> RAS Transform
+    transformMenu = qt.QMenu(self.get('LPSRASTransformPushButton'))
+    a = transformMenu.addAction('Left <-> Right')
+    a.setToolTip('Switch the volume orientation from Left to Right')
+    a.connect('triggered(bool)', self.runLRTransform)
+    a = transformMenu.addAction('Posterior <-> Anterior')
+    a.setToolTip('Switch the volume orientation from Posterior to Anterior')
+    a.connect('triggered(bool)', self.runPATransform)
+    a = transformMenu.addAction('Superior <-> Inferior')
+    a.setToolTip('Switch the volume orientation from Superior to Inferior')
+    a.connect('triggered(bool)', self.runSITransform)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+    a = transformMenu.addAction('Center')
+    a.setToolTip('Center volume on (0,0,0)')
+    a.connect('triggered(bool)', self.runCenter)
+    self.get('LPSRASTransformPushButton').setMenu(transformMenu)
+
+    self.get('LabelMapApplyColorNodePushButton').visible = False
+
+  def openAdjustPage(self):
+    # Switch to 3D View only
+    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
+
+  #----------------------------------------------------------------------------
+  #     a) Labelmap
+  def updateLabelmap(self, node, event):
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    if node != volumeNode and node != volumeNode.GetDisplayNode():
+      return
+    self.setupLabelmap(volumeNode)
+    self.setupMergeLabels(volumeNode)
+
+  def setupLabelmap(self, volumeNode):
+    if volumeNode == None:
+      return
+
+    # Labelmapcolornode should get its scene before the volume node selector
+    # gets it. That way, setCurrentNode can work at first
+    self.get('LabelmapColorNodeComboBox').setCurrentNode(volumeNode.GetDisplayNode().GetColorNode())
+    self.addObserver(volumeNode, 'ModifiedEvent', self.updateLabelmap)
+    self.addObserver(volumeNode.GetDisplayNode(), 'ModifiedEvent', self.updateLabelmap)
+
+  def loadLabelmapVolumeNode(self):
+    self.loadFile('Volume/Labelmap to reposition', 'VolumeFile', self.get('LabelmapVolumeNodeComboBox'))
+
+  def loadLabelmapColorNode(self):
+    self.loadFile('Tissue/Color file', 'ColorTableFile', self.get('LabelmapColorNodeComboBox'))
+
+  def applyColorNode(self):
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    if volumeNode == None:
+      return
+
+    colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+    volumesLogic = slicer.modules.volumes.logic()
+
+    wasModifying = volumeNode.StartModify()
+    volumesLogic.SetVolumeAsLabelMap(volumeNode, colorNode != None) # Greyscale is None
+
+    labelmapDisplayNode = volumeNode.GetDisplayNode()
+    if colorNode != None:
+      labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      print '>>>>>%s'% colorNode.GetID()
+    volumeNode.EndModify(wasModifying)
+
+    # We can't just use a regular qt signal/slot connection because the input
+    # node might not be a labelmap at the time it becomes current, which would
+    # not show up in the combobox.
+    self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
+    self.setupMergeLabels(volumeNode)
+    self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
+
+  def openLabelmapModule(self):
+    self.openModule('Volumes')
+
+  #    b) Transform
+  def runLPSRASTransform(self):
+    self.runTransform((-1.0, 0.0, 0.0, 0.0,
+                        0.0, -1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0))
+
+  def runLRTransform(self):
+    self.runTransform((-1.0, 0.0, 0.0, 0.0,
+                        0.0, 1.0, 0.0, 0.0,
+                        0.0, 0.0, 1.0, 0.0,
+                        0.0, 0.0, 0.0, 1.0))
+
+  def runPATransform(self):
+    self.runTransform((1.0, 0.0, 0.0, 0.0,
+                       0.0, -1.0, 0.0, 0.0,
+                       0.0, 0.0, 1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0))
+
+  def runSITransform(self):
+    self.runTransform((1.0, 0.0, 0.0, 0.0,
+                       0.0, 1.0, 0.0, 0.0,
+                       0.0, 0.0, -1.0, 0.0,
+                       0.0, 0.0, 0.0, 1.0))
+
+  def runTransform(self, matrix):
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    if volumeNode == None:
+      return
+
+    transform = vtk.vtkMatrix4x4()
+    transform.DeepCopy(matrix)
+
+    volumeNode.ApplyTransformMatrix(transform)
+    volumeNode.Modified()
+
+  def runCenter(self):
+    volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
+    volumesLogic = slicer.modules.volumes.logic()
+    if volumesLogic != None and volumeNode != None:
+      volumesLogic.CenterVolume(volumeNode)
+    # need to refresh the views
+    self.reset3DViews()
+    self.resetSliceViews()
+
+  #----------------------------------------------------------------------------
+  # 2) Model Maker
+  #----------------------------------------------------------------------------
+  def openExtractPage(self):
+    if self.get('BoneModelMakerOutputNodeComboBox').currentNode() == None:
+      self.get('BoneModelMakerOutputNodeComboBox').addNode()
+    if self.get('SkinModelMakerOutputNodeComboBox').currentNode() == None:
+      self.get('SkinModelMakerOutputNodeComboBox').addNode()
+
+  #----------------------------------------------------------------------------
+  #    a) Merge Labels
+  def updateMergeLabels(self, node, event):
+    volumeNode = self.get('MergeLabelsInputNodeComboBox').currentNode()
+    if volumeNode == None or (node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode):
+      return
+    elif node.IsA('vtkMRMLVolumeDisplayNode'):
+      if node != volumeNode.GetDisplayNode():
+        return
+    self.setupMergeLabels(volumeNode)
+
+  def setupMergeLabels(self, volumeNode):
+    if volumeNode == None or not volumeNode.GetLabelMap():
+      return
+    labelmapDisplayNode = volumeNode.GetDisplayNode()
+    self.removeObservers(self.updateMergeLabels)
+    colorNode = labelmapDisplayNode.GetColorNode()
+    if colorNode == None:
+      self.get('BoneLabelComboBox').setMRMLColorNode(None)
+      self.get('SkinLabelComboBox').setMRMLColorNode(None)
+      self.get('BoneLabelsLineEdit').setText('')
+      self.get('BoneLabelComboBox').setCurrentColor(None)
+      self.get('SkinLabelsLineEdit').setText('')
+      self.get('SkinLabelComboBox').setCurrentColor(None)
+
+    else:
+      self.get('BoneLabelComboBox').setMRMLColorNode(colorNode)
+      self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
+      boneLabels = self.searchLabels(colorNode, 'bone')
+      boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
+      boneLabels.update(self.searchLabels(colorNode, 'mandible'))
+      self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
+      boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
+      self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
+      skinLabels = self.searchLabels(colorNode, 'skin')
+      self.get('SkinLabelsLineEdit').setText(', '.join(str(val) for val in skinLabels.keys()))
+      skinLabel = self.bestLabel(skinLabels, ['skin'])
+      self.get('SkinLabelComboBox').setCurrentColor(skinLabel)
+
+      self.createMergeLabelsOutput(volumeNode)
+      self.addObserver(volumeNode, 'ModifiedEvent', self.updateMergeLabels)
+      self.addObserver(labelmapDisplayNode, 'ModifiedEvent', self.updateMergeLabels)
+
+  def searchLabels(self, colorNode, label):
+    """ Search the color node for all the labels that contain the word 'label'
+    """
+    labels = {}
+    for index in range(colorNode.GetNumberOfColors()):
+      if label in colorNode.GetColorName(index).lower():
+        labels[index] = colorNode.GetColorName(index)
+    return labels
+
+  def bestLabel(self, labels, labelNames):
+    """ Return the label from a [index, colorName] map that fits the best the
+         label name
+    """
+    bestLabels = labels
+    if (len(bestLabels) == 0):
+      return -1
+
+    labelIndex = 0
+    for labelName in labelNames:
+      newBestLabels = {}
+      for key in bestLabels.keys():
+        startswith = bestLabels[key].lower().startswith(labelName)
+        contains = labelName in bestLabels[key].lower()
+        if (labelIndex == 0 and startswith) or (labelIndex > 0 and contains):
+          newBestLabels[key] = bestLabels[key]
+      if len(newBestLabels) == 1:
+        return newBestLabels.keys()[0]
+      bestLabels = newBestLabels
+      labelIndex = labelIndex + 1
+    return bestLabels.keys()[0]
+
+  def createMergeLabelsOutput(self, node):
+    """ Make sure the output scalar volume node is a node with a -posed suffix.
+        Note that the merged volume is used only by the model makers. This
+        Should not be used by the PoseLabelmap filter.
+    """
+    if node == None:
+      return
+    self.get('MergeLabelsOutputNodeToolButton').enabled = False
+    # Don't create the node if the name already contains "merged"
+    if node.GetName().lower().find('merged') != -1:
+      return
+    nodeName = '%s-merged' % node.GetName()
+    # make sure such node does not already exist.
+    mergedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if mergedNode == None:
+      newNode = self.get('MergeLabelsOutputNodeComboBox').addNode()
+      newNode.SetName(nodeName)
+    else:
+      self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
+
+  def mergeLabelsParameters(self):
+    boneLabels = self.get('BoneLabelsLineEdit').text
+    skinLabels = self.get('SkinLabelsLineEdit').text
+    parameters = {}
+    parameters["InputVolume"] = self.get('MergeLabelsInputNodeComboBox').currentNode()
+    parameters["OutputVolume"] = self.get('MergeLabelsOutputNodeComboBox').currentNode()
+    # That's my dream:
+    #parameters["InputLabelNumber"] = len(boneLabels.split(','))
+    #parameters["InputLabelNumber"] = len(skinLabels.split(','))
+    #parameters["InputLabel"] = boneLabels
+    #parameters["InputLabel"] = skinLabels
+    #parameters["OutputLabel"] = self.get('BoneLabelComboBox').currentColor
+    #parameters["OutputLabel"] = self.get('SkinLabelComboBox').currentColor
+    # But that's how it is done for now
+    parameters["InputLabelNumber"] = str(len(boneLabels.split(','))) + ', ' + str(len(skinLabels.split(',')))
+    parameters["InputLabel"] = boneLabels + ', ' + skinLabels
+    parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
+    return parameters
+
+  def runMergeLabels(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.changelabel)
+      parameters = self.mergeLabelsParameters()
+      self.get('MergeLabelsApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onMergeLabelsCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
+      self.get('MergeLabelsApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onMergeLabelsCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # apply label map
+      newNode = self.get('MergeLabelsOutputNodeComboBox').currentNode()
+      if newNode != None:
+        displayNode = newNode.GetDisplayNode()
+        if displayNode == None:
+          volumesLogic = slicer.modules.volumes.logic()
+          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
+          displayNode = newNode.GetDisplayNode()
+        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+        if displayNode != None and colorNode != None:
+          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      self.get('MergeLabelsOutputNodeToolButton').enabled = True
+
+    if not cliNode.IsBusy():
+      self.get('MergeLabelsApplyPushButton').setChecked(False)
+      self.get('MergeLabelsApplyPushButton').setEnabled(True)
+      print 'MergeLabels %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onMergeLabelsCLIModified)
+
+  def saveMergeLabelsVolumeNode(self):
+    self.saveFile('Merged label volume', 'VolumeFile', '.mha', self.get('MergeLabelsOutputNodeComboBox'))
+
+  def openMergeLabelsModule(self):
+    self.openModule('ChangeLabel')
+
+    cliNode = self.getCLINode(slicer.modules.changelabel)
+    parameters = self.mergeLabelsParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  #----------------------------------------------------------------------------
+  #     b) Bone Model Maker
+  def setupBoneModelMakerLabels(self):
+    """ Update the labels of the bone model maker
+    """
+    labels = []
+    labels.append(self.get('BoneLabelComboBox').currentColor)
+    self.get('BoneModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
+    self.get('BoneModelMakerOutputNodeToolButton').enabled = False
+
+  def boneModelFromModelHierarchyNode(self, modelHierarchyNode):
+    models = vtk.vtkCollection()
+    modelHierarchyNode.GetChildrenModelNodes(models)
+    return models.GetItemAsObject(0)
+
+  def boneModelMakerParameters(self):
+    parameters = {}
+    parameters["InputVolume"] = self.get('BoneModelMakerInputNodeComboBox').currentNode()
+    parameters["ModelSceneFile"] = self.get('BoneModelMakerOutputNodeComboBox').currentNode()
+    parameters["Labels"] = self.get('BoneModelMakerLabelsLineEdit').text
+    parameters["Name"] = 'Bones'
+    parameters['GenerateAll'] = False
+    parameters["JointSmoothing"] = False
+    parameters["SplitNormals"] = True
+    parameters["PointNormals"] = True
+    parameters["SkipUnNamed"] = True
+    parameters["Decimate"] = self.get('BoneModelMakerDecimateSliderWidget').value
+    parameters["Smooth"] = 10
+    return parameters
+
+  def runBoneModelMaker(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.modelmaker)
+      parameters = self.boneModelMakerParameters()
+      self.get('BoneModelMakerApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onBoneModelMakerCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.modelmaker, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onBoneModelMakerCLIModified)
+      self.get('BoneModelMakerApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onBoneModelMakerCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.reset3DViews()
+      modelNode = self.boneModelFromModelHierarchyNode(self.get('BoneModelMakerOutputNodeComboBox').currentNode())
+      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(modelNode)
+      self.get('BoneModelMakerOutputNodeToolButton').enabled = True
+    if not cliNode.IsBusy():
+      self.get('BoneModelMakerApplyPushButton').setChecked(False)
+      self.get('BoneModelMakerApplyPushButton').setEnabled(True)
+      print 'Bone ModelMaker %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onBoneModelMakerCLIModified)
+
+  def saveBoneModelMakerModelNode(self):
+    modelNode = self.boneModelFromModelHierarchyNode(self.get('BoneModelMakerOutputNodeComboBox').currentNode())
+    self.saveNode('Bone model', 'ModelFile', '.vtk', modelNode)
+
+  def openModelsModule(self):
+    self.openModule('Models')
+
+  def openBoneModelMakerModule(self):
+    self.openModule('ModelMaker')
+
+    cliNode = self.getCLINode(slicer.modules.modelmaker)
+    parameters = self.boneModelMakerParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  #----------------------------------------------------------------------------
+  #     c) Skin Model Maker
+  def setupSkinModelMakerLabels(self, volumeNode):
+    """ Update the labels of the skin model maker
+    """
+    if volumeNode == None:
+      return
+
+    labelmapDisplayNode = volumeNode.GetDisplayNode()
+    if labelmapDisplayNode == None:
+      return
+
+    colorNode = labelmapDisplayNode.GetColorNode()
+    if colorNode == None:
+      self.get('SkinModelMakerLabelsLineEdit').setText('')
+    else:
+      airLabels = self.searchLabels(colorNode, 'air')
+      if len(airLabels) > 0:
+        self.get('SkinModelMakerThresholdSpinBox').setValue( min(airLabels) + 0.1 ) # highly probable outside is lowest label
+      else:
+        self.get('SkinModelMakerThresholdSpinBox').setValue(0.1) # highly probable outside is 0
+    self.get('SkinModelMakerOutputNodeToolButton').enabled = False
+    self.get('SkinModelMakerToggleVisiblePushButton').enabled = False
+    self.get('ArmaturesToggleVisiblePushButton').enabled = False
+
+  def skinModelMakerParameters(self):
+    parameters = {}
+    parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode()
+    parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+    parameters["Threshold"] = self.get('SkinModelMakerThresholdSpinBox').value + 0.1
+    #parameters["SplitNormals"] = True
+    #parameters["PointNormals"] = True
+    #parameters["Decimate"] = 0.25
+    parameters["Smooth"] = 10
+    parameters["Name"] = 'Skin'
+    return parameters
+
+  def runSkinModelMaker(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+      parameters = self.skinModelMakerParameters()
+      self.get('SkinModelMakerApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onSkinModelMakerCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      self.get('SkinModelMakerApplyPushButton').setEnabled(False)
+      cliNode.Cancel()
+
+  def onSkinModelMakerCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # Set opacity
+      newNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      newNodeDisplayNode.SetOpacity(0.2)
+
+      # Set color
+      colorNode = self.get('SkinModelMakerInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      color = [0, 0, 0]
+      lookupTable = colorNode.GetLookupTable().GetColor(self.get('SkinLabelComboBox').currentColor, color)
+      newNodeDisplayNode.SetColor(color)
+
+      # Set Clip intersection ON
+      newNodeDisplayNode.SetSliceIntersectionVisibility(1)
+
+      # Reset camera
+      self.reset3DViews()
+
+      # Enable saving
+      self.get('SkinModelMakerOutputNodeToolButton').enabled = True
+      self.get('SkinModelMakerToggleVisiblePushButton').enabled = True
+      self.get('ArmaturesToggleVisiblePushButton').enabled = True
+
+    if not cliNode.IsBusy():
+      self.get('SkinModelMakerApplyPushButton').setChecked(False)
+      self.get('SkinModelMakerApplyPushButton').setEnabled(True)
+      print 'Skin ModelMaker %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onSkinModelMakerCLIModified)
+
+  def saveSkinModelMakerModelNode(self):
+    self.saveFile('Skin model', 'ModelFile', '.vtk', self.get('SkinModelMakerOutputNodeComboBox'))
+
+  def openSkinModelMakerModule(self):
+    self.openModule('GrayscaleModelMaker')
+
+    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    parameters = self.skinModelMakerParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def updateSkinNodeVisibility(self):
+    skinModel = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+    if skinModel != None:
+      skinModel.SetDisplayVisibility(not skinModel.GetDisplayVisibility())
+
+  #----------------------------------------------------------------------------
+  # 3) Rigging
+  #----------------------------------------------------------------------------
   def openCreateArmaturePage(self):
-    self.resetCamera()
+    self.reset3DViews()
     # Switch to 3D View only
     manager = slicer.app.layoutManager()
     manager.setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
 
+  #----------------------------------------------------------------------------
   # 3.A) Armature
-  def loadArmatureFile(self):
-    manager = slicer.app.ioManager()
-    if manager.openDialog('ArmatureFile', slicer.qSlicerFileDialog.Read):
-      print 'Armature loaded successfully'
-    else:
-      print 'Armature loading failed'
+  def setCurrentArmatureModelNode(self, armatureNode):
+    if armatureNode == None:
+      return
+    modelNode = armatureNode.GetAssociatedNode()
+    self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(modelNode)
+
+  def loadArmatureNode(self):
+    self.loadFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))
+
+  def saveArmatureNode(self):
+    armatureNode = self.get('ArmaturesArmatureNodeComboBox').currentNode()
+    modelNode = armatureNode.GetAssociatedNode()
+    self.saveNode('Armature', 'ModelFile', '.vtk', modelNode)
 
   def openArmaturesModule(self):
     # Finaly open armature module
     self.openModule('Armatures')
 
+  #----------------------------------------------------------------------------
   # 4) Skinning
+  #----------------------------------------------------------------------------
   def openSkinningPage(self):
     # Switch to FourUp
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
-    # Get model from armature
-    activeArmatureNode = slicer.modules.armatures.logic().GetActiveArmature()
-    if activeArmatureNode != None:
-      self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(activeArmatureNode.GetAssociatedNode())
 
     # Create output if necessary
     if not self.volumeSkinningCreateOutputConnected:
@@ -801,6 +955,7 @@ class WorkflowWidget:
       self.volumeSkinningCreateOutputConnected = True
     self.createOutputSkinnedVolume(self.get('VolumeSkinningInputVolumeNodeComboBox').currentNode())
 
+  #----------------------------------------------------------------------------
   #  a) Volume Skinning
   def volumeSkinningParameters(self):
     parameters = {}
@@ -817,7 +972,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.volumeskinning)
       parameters = self.volumeSkinningParameters()
       self.get('VolumeSkinningApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
+      self.observeCLINode(cliNode, self.onVolumeSkinningCLIModified)
       cliNode = slicer.cli.run(slicer.modules.volumeskinning, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onVolumeSkinningCLIModified)
@@ -825,11 +980,20 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onVolumeSkinningCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.get('VolumeSkinningOutputVolumeNodeToolButton').enabled = True
+
     if not cliNode.IsBusy():
       self.get('VolumeSkinningApplyPushButton').setChecked(False)
       self.get('VolumeSkinningApplyPushButton').setEnabled(True)
       print 'VolumeSkinning %s' % cliNode.GetStatusString()
       self.removeObservers(self.onVolumeSkinningCLIModified)
+
+  def loadSkinningInputVolumeNode(self):
+    self.loadLabelmapFile('Input volume', 'VolumeFile', self.get('VolumeSkinningInputVolumeNodeComboBox'))
+
+  def saveSkinningVolumeNode(self):
+    self.saveFile('Skinned volume', 'VolumeFile', '.mha', self.get('VolumeSkinningOutputVolumeNodeComboBox'))
 
   def openVolumeSkinningModule(self):
     self.openModule('VolumeSkinning')
@@ -838,19 +1002,55 @@ class WorkflowWidget:
     parameters = self.volumeSkinningParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  def openEditorModule(self):
-    self.openModule('Editor')
-
   def createOutputSkinnedVolume(self, node):
     if node == None:
       return
+    self.get('VolumeSkinningOutputVolumeNodeToolButton').enabled = False
 
     nodeName = '%s-skinned' % node.GetName()
     if self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode') == None:
       newNode = self.get('VolumeSkinningOutputVolumeNodeComboBox').addNode()
       newNode.SetName(nodeName)
 
-    #  b) Compute Armature Weight
+  #----------------------------------------------------------------------------
+  #    b) Edit skinned volume
+  def editSkinnedVolumeParameterChanged(self, skinnedVolume = None, event = None):
+    canEdit = False
+    canSave = False
+    self.removeObservers(self.editSkinnedVolumeParameterChanged)
+    if skinnedVolume != None:
+      canEdit = skinnedVolume.GetDisplayNode() != None
+      canSave = canEdit and skinnedVolume.GetModifiedSinceRead()
+      self.addObserver(skinnedVolume, 'ModifiedEvent', self.editSkinnedVolumeParameterChanged)
+    self.get('EditSkinnedVolumeGoToEditorPushButton').enabled = canEdit
+    self.get('EditSkinnedVolumeNodeSaveToolButton').enabled = canSave
+
+  def loadEditSkinnedVolumeNode(self):
+    self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('EditSkinnedVolumeNodeComboBox'))
+
+  def saveEditSkinnedVolumeNode(self):
+    self.saveFile('Skinned volume', 'VolumeFile', '.mha', self.get('EditSkinnedVolumeNodeComboBox'))
+
+  def openEditorModule(self):
+    self.removeObservers(self.editSkinnedVolumeParameterChanged)
+    self.openModule('Editor')
+    editorWidget = slicer.modules.editor.widgetRepresentation()
+    masterVolumeNodeComboBox = editorWidget.findChild('qMRMLNodeComboBox')
+    masterVolumeNodeComboBox.addAttribute('vtkMRMLScalarVolumeNode', 'LabelMap', 1)
+    masterVolumeNodeComboBox.setCurrentNode(self.get('EditSkinnedVolumeNodeComboBox').currentNode())
+    setButton = editorWidget.findChild('QPushButton')
+    setButton.click()
+
+  #----------------------------------------------------------------------------
+  # 5) Weights
+  #----------------------------------------------------------------------------
+  def initWeightsPage(self):
+    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(qt.QDir.homePath())
+
+  def openWeightsPage(self):
+    pass
+  #----------------------------------------------------------------------------
+  #    a) Compute Armature Weight
   def computeArmatureWeightParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
@@ -873,7 +1073,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.computearmatureweight)
       parameters = self.computeArmatureWeightParameters()
       self.get('ComputeArmatureWeightApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
+      self.observeCLINode(cliNode, self.onComputeArmatureWeightCLIModified)
       cliNode = slicer.cli.run(slicer.modules.computearmatureweight, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onComputeArmatureWeightCLIModified)
@@ -881,6 +1081,11 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onComputeArmatureWeightCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # add path if not already added (bug fixed in CTK #b277f5d4)
+      if self.get('ComputeArmatureWeightOutputPathLineEdit').findChild('QComboBox').findText(
+        self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath) == -1:
+        self.get('ComputeArmatureWeightOutputPathLineEdit').addCurrentPathToHistory()
     if not cliNode.IsBusy():
       self.get('ComputeArmatureWeightApplyPushButton').setChecked(False)
       self.get('ComputeArmatureWeightApplyPushButton').setEnabled(True)
@@ -894,22 +1099,11 @@ class WorkflowWidget:
     parameters = self.computeArmatureWeightParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  # 5) (Pose) Armature And Pose Body
-  def openPoseArmaturePage(self):
-    armatureLogic = slicer.modules.armatures.logic()
-    if armatureLogic != None:
-      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
-    if self.get('EvalSurfaceWeightInputNodeComboBox').currentNode() == None:
-      self.get('EvalSurfaceWeightInputNodeComboBox').setCurrentNode(
-        self.getFirstNodeByNameAndClass('Bones', 'vtkMRMLModelNode'))
+  #----------------------------------------------------------------------------
+  # c) Eval Weight
+  def evalSurfaceWeightParameterChanged(self):
+    self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = False
 
-    # Create output if necessary
-    if not self.poseSurfaceCreateOutputConnected:
-      self.get('PoseSurfaceInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseSurface)
-      self.poseSurfaceCreateOutputConnected = True
-    self.createOutputPoseSurface(self.get('PoseSurfaceInputComboBox').currentNode())
-
-  # a) Eval Weight
   def evalSurfaceWeightParameters(self):
     parameters = {}
     parameters["InputSurface"] = self.get('EvalSurfaceWeightInputNodeComboBox').currentNode()
@@ -924,7 +1118,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
       parameters = self.evalSurfaceWeightParameters()
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
+      self.observeCLINode(cliNode, self.onEvalSurfaceWeightCLIModified)
       cliNode = slicer.cli.run(slicer.modules.evalsurfaceweight, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onEvalSurfaceWeightCLIModified)
@@ -932,11 +1126,20 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onEvalSurfaceWeightCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = True
+
     if not cliNode.IsBusy():
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
       self.get('EvalSurfaceWeightApplyPushButton').setEnabled(True)
       print 'EvalSurfaceWeight %s' % cliNode.GetStatusString()
       self.removeObservers(self.onEvalSurfaceWeightCLIModified)
+
+  def loadEvalSurfaceWeightInputNode(self):
+    self.loadFile('Model to eval', 'ModelFile', self.get('EvalSurfaceWeightInputNodeComboBox'))
+
+  def saveEvalSurfaceWeightOutputNode(self):
+    self.saveFile('Evaluated Model', 'ModelFile', '.vtk', self.get('EvalSurfaceWeightOutputNodeComboBox'))
 
   def openEvalSurfaceWeight(self):
     self.openModule('EvalSurfaceWeight')
@@ -945,12 +1148,48 @@ class WorkflowWidget:
     parameters = self.evalWeightParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  # b) (Pose) Armatures
+  #----------------------------------------------------------------------------
+  # 6) Pose Armature & Pose surface
+  #----------------------------------------------------------------------------
+  def openPoseArmaturePage(self):
+    armatureLogic = slicer.modules.armatures.logic()
+    if armatureLogic != None:
+      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+
+    # Create output if necessary
+    if not self.poseSurfaceCreateOutputConnected:
+      self.get('PoseSurfaceInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseSurface)
+      self.poseSurfaceCreateOutputConnected = True
+    self.createOutputPoseSurface(self.get('PoseSurfaceInputNodeComboBox').currentNode())
+
+    self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState)
+
+  #----------------------------------------------------------------------------
+  # a) Pose Armature
+  def setPoseArmatureModelNode(self, armatureNode):
+    if armatureNode == None:
+      return
+    modelNode = armatureNode.GetAssociatedNode()
+    self.get('PoseSurfaceArmatureInputNodeComboBox').setCurrentNode(modelNode)
+
+    armatureLogic = slicer.modules.armatures.logic()
+    if armatureLogic != None and self.WorkflowWidget.currentIndex == 4:
+      armatureLogic.SetActiveArmature(armatureNode)
+      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+
+  def savePoseArmatureArmatureNode(self):
+    armatureNode = self.get('PoseArmatureArmatureNodeComboBox').currentNode()
+    modelNode = armatureNode.GetAssociatedNode()
+    self.saveNode('Armature', 'ModelFile', '.vtk', modelNode)
+
   def openPosedArmatureModule(self):
     self.openModule('Armatures')
 
-  # c) Pose Surface
+  #----------------------------------------------------------------------------
+  # b) Pose Surface
   def poseSurfaceParameterChanged(self):
+    self.get('PoseSurfaceOutputNodeToolButton').enabled = False
+
     cliNode = self.getCLINode(slicer.modules.posesurface)
     parameters = self.poseSurfaceParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
@@ -959,7 +1198,7 @@ class WorkflowWidget:
     # Setup CLI node on input changed or apply changed
     parameters = {}
     parameters["ArmaturePoly"] = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
-    parameters["SurfaceInput"] = self.get('PoseSurfaceInputComboBox').currentNode()
+    parameters["SurfaceInput"] = self.get('PoseSurfaceInputNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputPathLineEdit').currentPath)
     parameters["OutputSurface"] = self.get('PoseSurfaceOutputNodeComboBox').currentNode()
     parameters["MaximumParenthoodDistance"] = '4'
@@ -975,6 +1214,7 @@ class WorkflowWidget:
       slicer.cli.setNodeParameters(cliNode, parameters)
       cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
       cliNode.SetAutoRun(autoRun)
+      self.observeCLINode(cliNode)
     else:
       cliNode = self.getCLINode(slicer.modules.posesurface)
       cliNode.SetAutoRun(autoRun)
@@ -986,7 +1226,7 @@ class WorkflowWidget:
       slicer.cli.setNodeParameters(cliNode, parameters)
       cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
       self.get('PoseSurfaceApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
+      self.observeCLINode(cliNode, self.onPoseSurfaceCLIModified)
       cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
@@ -994,11 +1234,21 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onPoseSurfaceCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.get('PoseSurfaceOutputNodeToolButton').enabled = True
+      if self.get('PoseSurfaceInputNodeComboBox').currentNode() != self.get('PoseSurfaceOutputNodeComboBox').currentNode():
+        self.get('PoseSurfaceInputNodeComboBox').currentNode().GetDisplayNode().SetVisibility(0)
     if not cliNode.IsBusy():
       self.get('PoseSurfaceApplyPushButton').setChecked(False)
       self.get('PoseSurfaceApplyPushButton').setEnabled(True)
       print 'PoseSurface %s' % cliNode.GetStatusString()
       self.removeObservers(self.onPoseSurfaceCLIModified)
+
+  def loadPoseSurfaceInputNode(self):
+    self.loadFile('Model to pose', 'ModelFile', self.get('PoseSurfaceInputNodeComboBox'))
+
+  def savePoseSurfaceOutputNode(self):
+    self.saveFile('Posed model', 'ModelFile', '.vtk', self.get('PoseSurfaceOutputNodeComboBox'))
 
   def openPoseSurfaceModule(self):
     self.openModule('PoseSurface')
@@ -1021,13 +1271,18 @@ class WorkflowWidget:
       newNode = self.get('PoseSurfaceOutputNodeComboBox').addNode()
       newNode.SetName(nodeName)
 
-  # 6) Resample NOTE: SHOULD BE LAST STEP
+  #----------------------------------------------------------------------------
+  # 7) Resample NOTE: SHOULD BE LAST STEP
+  #----------------------------------------------------------------------------
   def openPoseLabelmapPage(self):
     # Create output if necessary
     if not self.poseLabelmapCreateOutputConnected:
       self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
       self.poseLabelmapCreateOutputConnected = True
     self.createOutputPoseLabelmap(self.get('PoseLabelmapInputNodeComboBox').currentNode())
+
+  def poseLabelmapParameterChanged(self):
+    self.get('PoseLabelmapOutputNodeToolButton').enabled = False
 
   def poseLabelmapParameters(self):
     parameters = {}
@@ -1047,7 +1302,7 @@ class WorkflowWidget:
       cliNode = self.getCLINode(slicer.modules.poselabelmap)
       parameters = self.poseLabelmapParameters()
       self.get('PoseLabelmapApplyPushButton').setChecked(True)
-      self.addObserver(cliNode, self.StatusModifiedEvent, self.onPoseLabelmapCLIModified)
+      self.observeCLINode(cliNode, self.onPoseLabelmapCLIModified)
       cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onPoseLabelmapCLIModified())
@@ -1055,11 +1310,16 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onPoseLabelmapCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.get('PoseLabelmapOutputNodeComboBox').enabled = True
     if not cliNode.IsBusy():
       self.get('PoseLabelmapApplyPushButton').setChecked(False)
       self.get('PoseLabelmapApplyPushButton').setEnabled(True)
       print 'PoseLabelmap %s' % cliNode.GetStatusString()
       self.removeObservers(self.onPoseLabelmapCLIModified)
+
+  def savePoseLabelmapOutputNode(self):
+    self.saveFile('Posed labelmap', 'VolumeFile', '.mha', self.get('PoseLabelmapOutputNodeComboBox'))
 
   def openPoseLabelmap(self):
     self.openModule('PoseLabelmap')
@@ -1127,11 +1387,48 @@ class WorkflowWidget:
       cliNode.SetName(cliModule.title)
     return cliNode
 
-  def resetCamera(self):
+  def loadLabelmapFile(self, title, fileType, nodeComboBox):
+    volumeNode = self.loadFile(title, fileType, nodeComboBox)
+    if volumeNode != None:
+      volumesLogic = slicer.modules.volumes.logic()
+      volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
+      nodeComboBox.setCurrentNode(volumeNode)
+
+  def loadFile(self, title, fileType, nodeComboBox):
+    manager = slicer.app.ioManager()
+    loadedNodes = vtk.vtkCollection()
+    properties = {}
+    res = manager.openDialog(fileType, slicer.qSlicerFileDialog.Read, properties, loadedNodes)
+    loadedNode = loadedNodes.GetItemAsObject(0)
+    if res == True:
+      nodeComboBox.setCurrentNode(loadedNode)
+    self.reset3DViews()
+    return loadedNode
+
+  def saveFile(self, title, fileType, fileSuffix, nodeComboBox):
+    self.saveNode(title, fileType, fileSuffix, nodeComboBox.currentNode())
+
+  def saveNode(self, title, fileType, fileSuffix, node):
+    manager = slicer.app.ioManager()
+    properties = {}
+    properties['nodeID'] = node.GetID()
+    properties['defaultFileName'] = node.GetName() + fileSuffix
+    manager.openDialog(fileType, slicer.qSlicerFileDialog.Write, properties)
+
+  def reset3DViews(self):
     # Reset focal view around volumes
     manager = slicer.app.layoutManager()
     for i in range(0, manager.threeDViewCount):
       manager.threeDWidget(i).threeDView().resetFocalPoint()
+      rendererCollection = manager.threeDWidget(i).threeDView().renderWindow().GetRenderers()
+      for i in range(0, rendererCollection.GetNumberOfItems()):
+        rendererCollection.GetItemAsObject(i).ResetCamera()
+
+  def resetSliceViews(self):
+    # Reset focal view around volumes
+    manager = slicer.app.layoutManager()
+    for i in manager.sliceViewNames():
+      manager.sliceWidget(i).sliceController().fitSliceToBackground()
 
   def openModule(self, moduleName):
     slicer.util.selectModule(moduleName)
@@ -1149,7 +1446,7 @@ class WorkflowWidget:
     """Generic reload method for any scripted module.
     ModuleWizard will subsitute correct default moduleName.
     """
-    import imp, sys, os, slicer
+    import imp, sys, os, slicer, qt
 
     widgetName = moduleName + "Widget"
 
