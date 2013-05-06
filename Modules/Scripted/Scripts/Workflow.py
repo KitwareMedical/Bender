@@ -38,7 +38,7 @@ class WorkflowWidget:
 
     self.Observations = []
 
-    import imp, sys, os, slicer
+    import imp, sys, os, slicer, qt
     loader = qt.QUiLoader()
     moduleName = 'Workflow'
     scriptedModulesPath = eval('slicer.modules.%s.path' % moduleName.lower())
@@ -77,6 +77,7 @@ class WorkflowWidget:
 
     # init pages
     self.initAdjustPage()
+    self.initWeightsPage()
 
     # Load/Save icons
     loadIcon = self.WorkflowWidget.style().standardIcon(qt.QStyle.SP_DialogOpenButton)
@@ -1043,6 +1044,9 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   # 5) Weights
   #----------------------------------------------------------------------------
+  def initWeightsPage(self):
+    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(qt.QDir.homePath())
+
   def openWeightsPage(self):
     pass
   #----------------------------------------------------------------------------
@@ -1077,6 +1081,11 @@ class WorkflowWidget:
       cliNode.Cancel()
 
   def onComputeArmatureWeightCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # add path if not already added (bug fixed in CTK #b277f5d4)
+      if self.get('ComputeArmatureWeightOutputPathLineEdit').findChild('QComboBox').findText(
+        self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath) == -1:
+        self.get('ComputeArmatureWeightOutputPathLineEdit').addCurrentPathToHistory()
     if not cliNode.IsBusy():
       self.get('ComputeArmatureWeightApplyPushButton').setChecked(False)
       self.get('ComputeArmatureWeightApplyPushButton').setEnabled(True)
@@ -1437,7 +1446,7 @@ class WorkflowWidget:
     """Generic reload method for any scripted module.
     ModuleWizard will subsitute correct default moduleName.
     """
-    import imp, sys, os, slicer
+    import imp, sys, os, slicer, qt
 
     widgetName = moduleName + "Widget"
 
