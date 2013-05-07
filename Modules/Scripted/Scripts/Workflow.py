@@ -1,4 +1,8 @@
+# Regular Scripted module import
 from __main__ import vtk, qt, ctk, slicer
+
+# Other scripted modules import
+import SkinModelMaker
 
 #
 # Workflow
@@ -125,7 +129,7 @@ class WorkflowWidget:
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
     # b) Bone Model Maker
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
-    self.get('BoneModelMakerOutputNodeComboBox').connect('currentColorChanged(int)', self.setupBoneModelMakerLabels)
+    self.get('BoneModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupBoneModelMakerLabels)
     self.get('BoneModelMakerOutputNodeToolButton').connect('clicked()', self.saveBoneModelMakerModelNode)
     self.get('BoneModelMakerApplyPushButton').connect('clicked(bool)', self.runBoneModelMaker)
     self.get('BoneModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
@@ -137,6 +141,7 @@ class WorkflowWidget:
     self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runSkinModelMaker)
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
+    self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setSkinModelMakerSkinLabel)
     # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
@@ -314,7 +319,8 @@ class WorkflowWidget:
     # b) Skin model maker
     # Hide all but the output and the toggle button
     advancedSkinModelMakerWidgets = ['SkinModelMakerNodeInputLabel', 'SkinModelMakerInputNodeComboBox',
-                                     'SkinModelMakerThresholdLabel', 'SkinModelMakerThresholdSpinBox',
+                                     'SkinModelMakerBackgroundLabel', 'SkinModelMakerBackgroundLabelSpinBox',
+                                     'SkinModelMakerSkinLabel', 'SkinModelMakerSkinLabelLineEdit',
                                      'SkinModelMakerGoToModelsModulePushButton',
                                      'SkinModelMakerGoToModulePushButton']
     self.setWidgetsVisibility(advancedSkinModelMakerWidgets, advanced)
@@ -528,7 +534,7 @@ class WorkflowWidget:
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     if colorNode != None:
       labelmapDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
-      print '>>>>>%s'% colorNode.GetID()
+      # print '>>>>>%s'% colorNode.GetID()
     volumeNode.EndModify(wasModifying)
 
     # We can't just use a regular qt signal/slot connection because the input
@@ -833,13 +839,13 @@ class WorkflowWidget:
 
     colorNode = labelmapDisplayNode.GetColorNode()
     if colorNode == None:
-      self.get('SkinModelMakerLabelsLineEdit').setText('')
+      self.get('SkinModelMakerBackgroundLabelSpinBox').setText('')
     else:
       airLabels = self.searchLabels(colorNode, 'air')
       if len(airLabels) > 0:
-        self.get('SkinModelMakerThresholdSpinBox').setValue( min(airLabels) + 0.1 ) # highly probable outside is lowest label
+        self.get('SkinModelMakerBackgroundLabelSpinBox').setValue(min(airLabels)) # highly probable outside is lowest label
       else:
-        self.get('SkinModelMakerThresholdSpinBox').setValue(0.1) # highly probable outside is 0
+        self.get('SkinModelMakerBackgroundLabelSpinBox').setValue(0) # highly probable outside is 0
     self.get('SkinModelMakerOutputNodeToolButton').enabled = False
     self.get('SkinModelMakerToggleVisiblePushButton').enabled = False
     self.get('ArmaturesToggleVisiblePushButton').enabled = False
@@ -848,25 +854,26 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode()
     parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
-    parameters["Threshold"] = self.get('SkinModelMakerThresholdSpinBox').value + 0.1
-    #parameters["SplitNormals"] = True
-    #parameters["PointNormals"] = True
-    #parameters["Decimate"] = 0.25
-    parameters["Smooth"] = 10
-    parameters["Name"] = 'Skin'
+    parameters["BackgroundLabel"] = self.get('SkinModelMakerBackgroundLabelSpinBox').value
+    parameters["SkinLabel"] = self.get('SkinModelMakerSkinLabelLineEdit').text
+    parameters["Decimate"] = False
+    parameters["Spacing"] = '5,5,5'
     return parameters
 
   def runSkinModelMaker(self, run):
     if run:
-      cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+      cli = SkinModelMaker.SkinModelMakerLogic()
       parameters = self.skinModelMakerParameters()
       self.get('SkinModelMakerApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onSkinModelMakerCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
       self.get('SkinModelMakerApplyPushButton').setEnabled(False)
-      cliNode.Cancel()
+      self.addObserver(cli.GetCLINode(), self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      cli.CreateSkinModel(parameters["InputVolume"],
+                          parameters["OutputGeometry"],
+                          parameters["BackgroundLabel"],
+                          parameters["SkinLabel"],
+                          parameters["Decimate"],
+                          parameters["Spacing"],
+                          wait_for_completion = False)
 
   def onSkinModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
@@ -902,11 +909,14 @@ class WorkflowWidget:
     self.saveFile('Skin model', 'ModelFile', '.vtk', self.get('SkinModelMakerOutputNodeComboBox'))
 
   def openSkinModelMakerModule(self):
-    self.openModule('GrayscaleModelMaker')
+    self.openModule('SkinModelMaker')
 
-    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    cliNode = self.getCLINode(slicer.modules.skinmodelmaker)
     parameters = self.skinModelMakerParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def setSkinModelMakerSkinLabel(self):
+    self.get('SkinModelMakerSkinLabelLineEdit').text = self.get('SkinLabelComboBox').currentColor
 
   def updateSkinNodeVisibility(self):
     skinModel = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
@@ -1379,10 +1389,11 @@ class WorkflowWidget:
 
   def getCLINode(self, cliModule):
     """ Return the cli node to use for a given CLI module. Create the node in
-    scene if needed.
+    scene if needed. Return None in the case of scripted module.
     """
     cliNode = slicer.mrmlScene.GetFirstNodeByName(cliModule.title)
-    if cliNode == None:
+    # Also check path to make sure the CLI isn't a scripted module
+    if (cliNode == None) and ('qt-scripted-modules' not in cliModule.path):
       cliNode = slicer.cli.createNode(cliModule)
       cliNode.SetName(cliModule.title)
     return cliNode
