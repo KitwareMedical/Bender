@@ -648,7 +648,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QLabel" name="SkinModelMakerThresholdLabel">
+           <widget class="QLabel" name="SkinModelMakerBackgroundLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
               <horstretch>0</horstretch>
@@ -656,24 +656,40 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Threshold</string>
+             <string>Background label</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1" colspan="2">
-           <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+           <widget class="QSpinBox" name="SkinModelMakerBackgroundLabelSpinBox">
             <property name="toolTip">
-             <string>Specify the threshold between the outside (usually air) and the body.</string>
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Set the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Background label&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; used to differentiate the body and the exterior. This is used to extract the outer region of the eroded model.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
+           <widget class="QLabel" name="SkinModelMakerSkinLabel">
+            <property name="text">
+             <string>Skin label</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="SkinModelMakerSkinLabelLineEdit">
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Set the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Skin label(s)&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; used to erode the skin from the model. This ensures that the skin model will lay inside the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Input labelmap&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; when extracting it.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
            <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -681,12 +697,19 @@ p, li { white-space: pre-wrap; }
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Choose the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Output skin model&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; here.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Output</string>
+             <string>Output skin model</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="3" column="1">
            <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -713,7 +736,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <spacer name="horizontalSpacer_16">
@@ -741,10 +764,10 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
               <property name="toolTip">
-               <string>Open the &quot;Greyscale Model Maker&quot; module</string>
+               <string>Open the &quot;Skin Model Maker&quot; module</string>
               </property>
               <property name="text">
-               <string>Go To Greyscale Model Maker</string>
+               <string>Go To Skin Model Maker</string>
               </property>
              </widget>
             </item>
@@ -776,7 +799,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="2" column="2">
+          <item row="3" column="2">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -877,6 +900,13 @@ p, li { white-space: pre-wrap; }
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Choose the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Output skin model&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; here.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Output model hierarchy</string>
@@ -3510,6 +3540,22 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>243</x>
      <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinLabelComboBox</sender>
+   <signal>currentColorChanged(QString)</signal>
+   <receiver>SkinModelMakerSkinLabelLineEdit</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>58</x>
+     <y>85</y>
     </hint>
    </hints>
   </connection>
