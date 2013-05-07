@@ -79,7 +79,7 @@ if(NOT DEFINED ${proj}_DIR)
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
     GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
-    GIT_TAG "91d4d64c4001921255d82206edc32c860f0c60d9"
+    GIT_TAG "989075360f1337764f1f52bc482e86f2e02d4a9c"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
