@@ -397,7 +397,6 @@ int main( int argc, char * argv[] )
     writeWeight->SetBinaryWeight(BinaryWeight);
     writeWeight->SetSmoothingIterations(SmoothingIteration);
     writeWeight->SetScaleFactor(ScaleFactor);
-    writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
     std::stringstream debugFolder;
     debugFolder << debugDir << "/weight_"

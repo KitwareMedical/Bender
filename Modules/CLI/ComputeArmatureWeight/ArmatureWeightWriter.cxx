@@ -307,7 +307,6 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->Debug = false;
   this->DebugFolder = "./DEBUG_";
   this->ScaleFactor = 2.0;
-  this->UseEnvelopes = true;
   this->MaximumParenthoodDistance = -1;
 }
 
@@ -587,20 +586,6 @@ CharImageType::Pointer ArmatureWeightWriter
     return 0;
     }
 
-  vtkDoubleArray* radiuses = this->UseEnvelopes ?
-    vtkDoubleArray::SafeDownCast(
-      this->Armature->GetCellData()->GetArray("EnvelopeRadiuses")) : 0;
-  double radius = radiuses ? radiuses->GetValue(this->Id) : 0;
-  double squareRadius = radius * radius;
-  if (!radiuses)
-    {
-    if (this->UseEnvelopes)
-      {
-      std::cerr << "WARNING: No envelopes found." << std::endl;
-      }
-    std::cout << "Not using envelopes." << std::endl;
-    }
-
   double head[3], tail[3];
   points->GetPoint(this->Id * 2, head);
   points->GetPoint(this->Id * 2 + 1, tail);
@@ -614,7 +599,7 @@ CharImageType::Pointer ArmatureWeightWriter
   CharImageType::Pointer domain = CharImageType::New();
   Allocate<LabelImageType, CharImageType>(bodyPartition, domain);
 
-  // Expand the region based on the bodypartition and optionally the envelopes.
+  // Expand the region based on the bodypartition
   CharType edgeLabel = this->GetLabel();
 
   // Scan through Domain and BodyPartition at the same time. (Same size)
@@ -625,71 +610,13 @@ CharImageType::Pointer ArmatureWeightWriter
   for (domainIt.GoToBegin(); !domainIt.IsAtEnd();
     ++domainIt, ++bodyPartitionIt)
     {
-    // Most likely/simple operation done first to prevent overhead
-
-    LabelType label = bodyPartitionIt.Get();
-    if (label == ArmatureWeightWriter::BackgroundLabel) // Is it backgtound ?
+    if (bodyPartitionIt.Get()== edgeLabel) // Correct label
+      {
+      domainIt.Set(ArmatureWeightWriter::DomainLabel);
+      }
+    else
       {
       domainIt.Set(ArmatureWeightWriter::BackgroundLabel);
-      }
-    else // Not background pixel
-      {
-      if (label == edgeLabel) // Correct label, no need to go further
-        {
-        domainIt.Set(ArmatureWeightWriter::DomainLabel);
-        continue;
-        }
-
-      //
-      // Check if in envelope
-      if (radiuses)
-        {
-        // Create world position
-        double pos[3];
-        for (int i = 0; i < 3; ++i)
-          {
-          pos[i] = domainIt.GetIndex()[i] * domain->GetSpacing()[i]
-            + domain->GetOrigin()[i];
-          }
-
-        // Is the current pixel in the sphere around head ?
-        double headToPos[3];
-        vtkMath::Subtract(pos, head, headToPos);
-        if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
-          {
-          domainIt.Set(ArmatureWeightWriter::DomainLabel);
-          continue;
-          }
-
-        // Is the current pixel the sphere around tail ?
-        double tailToPos[3];
-        vtkMath::Subtract(pos, tail, tailToPos);
-        if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
-          {
-          domainIt.Set(ArmatureWeightWriter::DomainLabel);
-          continue;
-          }
-
-        // Is  the current pixel in the cylinder ?
-        double scale = vtkMath::Dot(cylinderCenterLine, headToPos);
-        if (scale >= 0 && scale <= cylinderLength) // Check in between lids
-          {
-          // Check distance from center
-          double distanceVect[3];
-          for (int i = 0; i < 3; ++i)
-            {
-            distanceVect[i] = pos[i] - (head[i] + cylinderCenterLine[i] * scale);
-            }
-
-          if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
-            {
-            domainIt.Set(ArmatureWeightWriter::DomainLabel);
-            continue;
-            }
-          }
-        }
-
-      domainIt.Set(ArmatureWeightWriter::BackgroundLabel); // Wasn't in the envelope
       }
     }
 

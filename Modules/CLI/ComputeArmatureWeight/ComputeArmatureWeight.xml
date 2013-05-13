@@ -92,14 +92,6 @@
       <default>1</default>
     </integer>
 
-    <boolean>
-      <name>UseEnvelopes</name>
-      <label>Use Armature Envelopes</label>
-      <longflag>--useEnvelopes</longflag>
-      <description><![CDATA[Use the envelope radius of each armature bone segment or not.]]></description>
-      <default>false</default>
-    </boolean>
-
   </parameters>
   <parameters advanced="true">
     <label>Advanced</label>
