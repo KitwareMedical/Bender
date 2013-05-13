@@ -52,3 +52,21 @@ SlicerMacroBuildModuleLogic(
   SRCS ${${KIT}_SRCS}
   TARGET_LIBRARIES ${${KIT}_TARGET_LIBRARIES}
   )
+
+set(${KIT}_PRESET_RESOURCES
+  Adult-armature.vtk
+  Child-armature.vtk
+  StickMan-armature.vtk
+  )
+set (${KIT}_PRESET_RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../Resources/Armatures)
+
+foreach(resource ${${KIT}_PRESET_RESOURCES})
+  configure_file(
+    ${${KIT}_PRESET_RESOURCES_DIR}/${resource}
+    ${CMAKE_BINARY_DIR}/${Slicer_QTLOADABLEMODULES_SHARE_DIR}/${MODULE_NAME}/${resource}
+    COPYONLY)
+
+  install(
+    FILES ${CMAKE_BINARY_DIR}/${Slicer_QTLOADABLEMODULES_SHARE_DIR}/${MODULE_NAME}/${resource}
+    DESTINATION ${Slicer_INSTALL_QTLOADABLEMODULES_SHARE_DIR}/${MODULE_NAME} COMPONENT Runtime)
+endforeach()

@@ -97,7 +97,6 @@ class WorkflowWidget:
     self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
     self.get('BoneModelMakerOutputNodeToolButton').icon = saveIcon
     self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
-    self.get('ArmaturesArmatureLoadToolButton').icon = loadIcon
     self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
     self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
     self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
@@ -158,9 +157,10 @@ class WorkflowWidget:
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
+    self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
     self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
+    self.get('ArmaturesArmatureNodeComboBox').connect('nodeAdded(vtkMRMLNode*)',self.onArmatureNodeAdded)
     self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
-    self.get('ArmaturesArmatureLoadToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
     # 4) Skinning
@@ -977,6 +977,14 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   # 3.A) Armature
   def initArmature(self):
+    presetComboBox = self.findWidget(slicer.modules.armatures.widgetRepresentation(), 'LoadArmatureFromModelComboBox')
+    for i in range(presetComboBox.count):
+      text = presetComboBox.itemText(i)
+      if text:
+        self.get('ArmaturesPresetComboBox').addItem( text )
+      else:
+        self.get('ArmaturesPresetComboBox').insertSeparator(self.get('ArmaturesPresetComboBox').count)
+    self.get('ArmaturesPresetComboBox').setCurrentIndex(-1)
     self.validateArmature()
 
   def validateArmature(self):
@@ -988,6 +996,21 @@ class WorkflowWidget:
       modelNode = armatureNode.GetAssociatedNode()
       self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(modelNode)
     self.validateArmature()
+
+  def loadArmaturePreset(self, index):
+    if index == -1:
+      return
+    presetComboBox = self.findWidget(slicer.modules.armatures.widgetRepresentation(), 'LoadArmatureFromModelComboBox')
+    presetComboBox.setCurrentIndex(index)
+    self.get('ArmaturesPresetComboBox').setCurrentIndex(-1)
+
+  def onArmatureNodeAdded(self, armatureNode):
+    self.get('ArmaturesArmatureNodeComboBox').setCurrentNode(armatureNode)
+    name = 'armature'
+    if self.get('LabelmapVolumeNodeComboBox').currentNode() != None:
+      name = self.get('LabelmapVolumeNodeComboBox').currentNode().GetName() + '-armature'
+    name = slicer.mrmlScene.GenerateUniqueName(name)
+    armatureNode.SetName(name)
 
   def loadArmatureNode(self):
     self.loadFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))

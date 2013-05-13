@@ -31,15 +31,20 @@
 
 // MRML includes
 #include <vtkEventBroker.h>
+#include <vtkMRMLInteractionNode.h>
+#include <vtkMRMLSelectionNode.h>
 
 // VTK includes
 #include <vtkCellData.h>
+#include <vtkDoubleArray.h>
 #include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPoints.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
+#include <vtkStringArray.h>
+#include <vtkSys/SystemTools.hxx>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
 
@@ -96,6 +101,16 @@ void vtkSlicerArmaturesLogic::ObserveMRMLScene()
     {
     selectionNode->AddNewAnnotationIDToList(
       "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
+    selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+    }
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      this->GetMRMLScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (interactionNode)
+    {
+    interactionNode->SetPlaceModePersistence(1);
+    interactionNode->SetCurrentInteractionMode(
+      vtkMRMLInteractionNode::ViewTransform);
     }
 
   this->Superclass::ObserveMRMLScene();
@@ -124,7 +139,7 @@ void vtkSlicerArmaturesLogic::ProcessMRMLSceneEvents(vtkObject* caller,
   this->Superclass::ProcessMRMLSceneEvents(caller, event, callData);
   if (event == vtkMRMLScene::NodeAboutToBeRemovedEvent)
     {
-    vtkMRMLNode* node = vtkMRMLNode::SafeDownCast(caller);
+    vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
     this->OnMRMLSceneNodeAboutToBeRemoved(node);
     }
 }
@@ -154,9 +169,17 @@ void vtkSlicerArmaturesLogic::OnMRMLSceneNodeAboutToBeRemoved(vtkMRMLNode* node)
 {
   this->Superclass::OnMRMLSceneNodeRemoved(node);
   vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::SafeDownCast(node);
-  if (armatureNode && this->GetActiveArmature() == armatureNode)
+  if (armatureNode)
     {
-    this->SetActiveArmature(0);
+    vtkMRMLModelNode* model = armatureNode->GetArmatureModel();
+    if (model)
+      {
+      this->GetMRMLScene()->RemoveNode(model);
+      }
+    if (this->GetActiveArmature() == armatureNode)
+      {
+      this->SetActiveArmature(0);
+      }
     }
   vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
   if (boneNode && this->GetActiveBone())
@@ -402,12 +425,14 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
   vtkNew<vtkPolyDataReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
-  return this->CreateArmatureFromModel(reader->GetOutput());
+  vtkStdString baseName =
+    vtksys::SystemTools::GetFilenameWithoutExtension(fileName);
+  return this->CreateArmatureFromModel(reader->GetOutput(), baseName.c_str());
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::CreateArmatureFromModel(vtkPolyData* model)
+::CreateArmatureFromModel(vtkPolyData* model, const char* baseName)
 {
   if (!model)
     {
@@ -415,18 +440,24 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     return NULL;
     }
 
-  vtkCellData* cellData = model->GetCellData();
-  if (!cellData)
-    {
-    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
-    return NULL;
-    }
+  // First, create an armature node
+  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
+  armatureNode->SetName(baseName);
+  this->GetMRMLScene()->AddNode(armatureNode);
+  armatureNode->Delete();
 
   vtkPoints* points = model->GetPoints();
   if (!points)
     {
     std::cerr<<"Cannot create armature from model,"
       <<" No points !"<<std::endl;
+    return NULL;
+    }
+
+  vtkCellData* cellData = model->GetCellData();
+  if (!cellData)
+    {
+    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
     return NULL;
     }
 
@@ -440,10 +471,24 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     return NULL;
     }
 
-  // First, create an armature node
-  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
-  this->GetMRMLScene()->AddNode(armatureNode);
-  armatureNode->Delete();
+  vtkStringArray* names =
+    vtkStringArray::SafeDownCast(cellData->GetAbstractArray("Names"));
+  if (!names
+    || names->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
+    {
+    std::cout<<"Warning: No names found in the armature file. \n"
+      << "-> Using default naming !" <<std::endl;
+    }
+
+  vtkDoubleArray* restToPose=
+    vtkDoubleArray::SafeDownCast(cellData->GetArray("RestToPoseRotation"));
+  // 1 quaternion per bone
+  if (!restToPose
+    || restToPose->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
+    {
+    std::cout<<"Warning: No Pose found in the armature file. \n"
+      << "-> No pose imported !" <<std::endl;
+    }
 
   vtkNew<vtkCollection> addedBones;
   for (vtkIdType id = 0, pointId = 0;
@@ -467,14 +512,26 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
         std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
         return armatureNode;
         }
-      this->SetActiveBone(boneParentNode);
+
+      vtkMRMLAnnotationHierarchyNode* hierarchyNode =
+        vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+            boneParentNode->GetScene(), boneParentNode->GetID()));
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        hierarchyNode != 0 ? hierarchyNode->GetID() : 0);
       }
     else // Root
       {
-      this->SetActiveArmature(armatureNode);
+      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
+        armatureNode->GetID());
       }
 
     vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();
+
+    if (names)
+      {
+      boneNode->SetName(names->GetValue(id));
+      }
 
     double p[3];
     points->GetPoint(pointId, p);
@@ -483,6 +540,14 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
     double tail[3];
     points->GetPoint(pointId + 1, p);
     boneNode->SetWorldTailRest(p);
+
+    if (restToPose)
+      {
+      double quad[4];
+      restToPose->GetTupleValue(id, quad);
+      boneNode->SetRestToPoseRotation(quad);
+      }
+
     if (boneParentNode)
       {
       double diff[3];

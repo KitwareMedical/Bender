@@ -124,9 +124,6 @@ public:
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
 
-  vtkSetMacro(UseEnvelopes, bool);
-  vtkGetMacro(UseEnvelopes, bool);
-
   // Maximum parenthood distance prevent the heat diffusion to propagate
   // in regions associated with a bone related too far in the family tree.
   // Each bone has a distance of 1 with its direct parent and children.
@@ -203,7 +200,6 @@ protected:
   bool BinaryWeight;
   int SmoothingIterations;
   double ScaleFactor;
-  bool UseEnvelopes;
 
   // Debug info
   bool DebugInfo;
