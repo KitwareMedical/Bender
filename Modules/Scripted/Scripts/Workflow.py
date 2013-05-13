@@ -1175,6 +1175,8 @@ class WorkflowWidget:
     parameters["ArmaturePoly"] = self.get('ComputeArmatureWeightAmartureNodeComboBox').currentNode()
     parameters["SkinnedVolume"] = self.get('ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox').currentNode()
     parameters["WeightDirectory"] = str(self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath)
+    parameters["BackgroundValue"] = self.get('ComputeArmatureWeightBackgroundSpinBox').value
+    parameters["BoneLabel"] = self.get('ComputeArmatureWeightBoneSpinBox').value
     parameters["Padding"] = self.get('ComputeArmatureWeightPaddingSpinBox').value
     parameters["ScaleFactor"] = self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     parameters["MaximumParenthoodDistance"] = '4'
@@ -1498,6 +1500,17 @@ class WorkflowWidget:
     self.get('PoseLabelmapOutputNodeToolButton').enabled = False
     self.get('PoseLabelmapSaveToolButton').enabled = False
 
+  #
+  def setupPoseLabelmap(self):
+    """ Update the labels of the poselabelmap module
+    """
+    labels = []
+    labels.append(self.get('BoneLabelComboBox').currentColor)
+    self.get('BoneModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
+    self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text = self.get('BoneLabelsLineEdit').text
+    self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text = self.get('SkinLabelsLineEdit').text
+
+
   def poseLabelmapParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('PoseLabelmapInputNodeComboBox').currentNode()
@@ -1509,6 +1522,8 @@ class WorkflowWidget:
     #parameters["MaximumRadius"] = '64'
     #parameters["Debug"] = False
     #parameters["IsArmatureInRAS"] = False
+    parameters["HighPrecedenceLabels"] = self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text
+    parameters["LowPrecedenceLabels"] = self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text
     return parameters
 
   def runPoseLabelmap(self, run):

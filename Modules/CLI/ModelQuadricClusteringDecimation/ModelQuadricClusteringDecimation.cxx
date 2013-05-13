@@ -31,6 +31,9 @@
 // Slicer includes
 #include <vtkPluginFilterWatcher.h>
 
+// STD includes
+#include <exception>
+
 namespace
 {
 
@@ -79,6 +82,7 @@ int main( int argc, char * argv[] )
   decimator->SetUseInputPoints(UseInputPoints);
   decimator->SetUseFeatureEdges(UseFeatureEdges);
   decimator->SetUseFeaturePoints(UseFeaturePoints);
+  decimator->AutoAdjustNumberOfDivisionsOff();
 
   if (UseNumberOfDivisions)
     {
@@ -102,8 +106,16 @@ int main( int argc, char * argv[] )
 
     double bounds[6];
     model->GetBounds(bounds);
-    decimator->SetDivisionOrigin(bounds[0], bounds[2], bounds[4]);
-    decimator->SetDivisionSpacing(Spacing[0], Spacing[1], Spacing[2]);
+
+    double divisions[3];
+    for (int i = 0; i < 3; ++i)
+      {
+      divisions[i] = ceil((bounds[2*i+1] - bounds[2*i]) / Spacing[i]);
+      }
+
+    decimator->SetNumberOfXDivisions(static_cast<int>(divisions[0]));
+    decimator->SetNumberOfYDivisions(static_cast<int>(divisions[1]));
+    decimator->SetNumberOfZDivisions(static_cast<int>(divisions[2]));
     }
 
   if (DebugMode)
@@ -114,7 +126,17 @@ int main( int argc, char * argv[] )
 
   vtkPluginFilterWatcher watchDecimate(decimator.GetPointer(),
     "Reducing", CLPProcessInformation, 0.0, 1.0);
-  decimator->Update();
+  try
+    {
+    decimator->Update();
+    }
+  catch (std::bad_alloc&)
+    {
+    std::cerr <<"Could not allocate memory for the given inputs. \n"
+      << "-> Stopping."<<std::endl;
+    return EXIT_FAILURE;
+    }
+
   vtkSmartPointer<vtkPolyData> decimatedModel = decimator->GetOutput();
 
   if (DebugMode)

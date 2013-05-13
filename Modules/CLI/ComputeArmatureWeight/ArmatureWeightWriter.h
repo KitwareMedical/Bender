@@ -97,11 +97,11 @@ public:
   void SetArmature(vtkPolyData* armature);
   vtkGetObjectMacro(Armature, vtkPolyData);
 
-  void SetBodyPartition(LabelImageType::Pointer partition);
-  LabelImageType::Pointer GetBodyPartition();
+  void SetBodyPartition(CharImageType::Pointer partition);
+  CharImageType::Pointer GetBodyPartition();
 
-  void SetBones(LabelImageType::Pointer bones);
-  LabelImageType::Pointer GetBones();
+  void SetBones(CharImageType::Pointer bones);
+  CharImageType::Pointer GetBones();
 
   vtkSetMacro(SmoothingIterations, int);
   vtkGetMacro(SmoothingIterations, int);
@@ -145,8 +145,8 @@ protected:
 
   // Input images and polydata
   vtkPolyData* Armature;
-  LabelImageType::Pointer BodyPartition;
-  LabelImageType::Pointer BonesPartition;
+  CharImageType::Pointer BodyPartition;
+  CharImageType::Pointer BonesPartition;
 
   // Edge Id
   EdgeType Id;
@@ -159,14 +159,14 @@ protected:
   // The returned image contains 1 (DomainLabel) at each voxel when the Id edge
   // has weight, 0 otherwise.
   // The domain is later used to compute the interpolated and diffused  weights.
-  CharImageType::Pointer CreateDomain(const LabelImageType* bodyPartition);
+  CharImageType::Pointer CreateDomain(const CharImageType* bodyPartition);
 
   // Create weight based on the domain
   // and the given body and bones partitions
   WeightImageType::Pointer CreateWeight(
     const CharImageType* domain,
-    const LabelImageType* bodyPartition,
-    const LabelImageType* bonesPartition);
+    const CharImageType* bodyPartition,
+    const CharImageType* bonesPartition);
 
   // "Mask" resampled image with the body partition
   // All the weight outside the body are marked off to -1.0
@@ -174,7 +174,7 @@ protected:
   // to a bone too far in the family tree are attributed to
   // the proper value (-1.0 for outside and 0.0 inside).
   void CleanWeight(WeightImageType* weight,
-    const LabelImageType* bodyPartition) const;
+    const CharImageType* bodyPartition) const;
 
   // Uses Djikstra's algorithm to compute the map of distances
   // between the given edge and all the other edges.
@@ -184,14 +184,14 @@ protected:
   // area within the maximum parenthood distance.
   // Any point outside this distance is assigned the BackgroundLabel
   // value. This basically acts as a custom mask filter.
-  LabelImageType::Pointer ApplyDistanceMask(
-    const LabelImageType* image,
+  CharImageType::Pointer ApplyDistanceMask(
+    const CharImageType* image,
     const std::vector<unsigned int>& distances) const;
 
   // Using the given weight image, restricts it to the area within the
   // maximum parenthood distance.
   // Any point outside this distance is assigned to -1.0f value.
-  void ApplyDistanceMask(const LabelImageType* bodyPartition,
+  void ApplyDistanceMask(const CharImageType* bodyPartition,
      WeightImageType::Pointer& weight,
      const std::vector<unsigned int>& distances) const;
 
@@ -224,7 +224,7 @@ class LocalizedBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
 {
 public:
   LocalizedBodyHeatDiffusionProblem(const CharImageType* domain,
-                                    const LabelImageType* sourceMap,
+                                    const CharImageType* sourceMap,
                                     LabelType hotSourceLabel)
     :Domain(domain),
     SourceMap(sourceMap),
@@ -253,7 +253,7 @@ public:
 
 private:
   CharImageType::ConstPointer Domain;   //a binary image that describes the domain
-  LabelImageType::ConstPointer SourceMap; //a label image that defines the heat sources
+  CharImageType::ConstPointer SourceMap; //a label image that defines the heat sources
   LabelType HotSourceLabel; //any source voxel with this label will be assigned weight 1
 
   RegionType WholeDomain;
@@ -264,7 +264,7 @@ class GlobalBodyHeatDiffusionProblem: public HeatDiffusionProblem<3>
 {
 public:
   GlobalBodyHeatDiffusionProblem(
-    const LabelImageType* body, const LabelImageType* bones)
+    const CharImageType* body, const CharImageType* bones)
       :Body(body),Bones(bones)
   {
   }
@@ -288,8 +288,8 @@ public:
     }
 
 private:
-  LabelImageType::ConstPointer Body;
-  LabelImageType::ConstPointer Bones;
+  CharImageType::ConstPointer Body;
+  CharImageType::ConstPointer Bones;
 };
 
 #endif
