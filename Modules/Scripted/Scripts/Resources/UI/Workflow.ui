@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>714</height>
+    <height>720</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -264,6 +264,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Volumes</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -273,6 +278,12 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>LPS &lt;-&gt; RAS</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>1</string>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -289,6 +300,9 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Apply colors</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist/>
               </property>
              </widget>
             </item>
@@ -351,6 +365,9 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>A) Merge labels</string>
          </property>
+         <property name="collapsedHeight">
+          <number>5</number>
+         </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
            <widget class="QLabel" name="MergeLabelsInputLabel">
@@ -362,6 +379,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Input labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -387,6 +409,11 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -399,6 +426,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Output labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -427,6 +460,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -439,6 +478,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Bone label(s)</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -453,6 +497,11 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>List of labels that will be merged into the Bone Label</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
@@ -465,6 +514,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Bone label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -479,6 +533,11 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>Label which the Bone Label(s) will be merged into</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="4" column="0">
@@ -491,6 +550,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Skin label(s)</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -505,6 +569,11 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>List of labels that will be merged into the Skin Label</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="5" column="0">
@@ -518,6 +587,11 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Skin label</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="5" column="1" colspan="2">
@@ -530,6 +604,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>Label which the Skin Label(s) will be merged into</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -555,6 +634,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go To Change Label</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -590,6 +674,12 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
          </layout>
@@ -606,10 +696,10 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>C) Skin model maker</string>
          </property>
+         <property name="collapsedHeight">
+          <number>5</number>
+         </property>
          <layout class="QGridLayout" name="gridLayout">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
-          </property>
           <item row="0" column="0">
            <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
             <property name="sizePolicy">
@@ -620,6 +710,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Input labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -645,6 +740,11 @@ p, li { white-space: pre-wrap; }
             <property name="removeEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -657,6 +757,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Threshold</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -671,6 +776,11 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>Specify the threshold between the outside (usually air) and the body.</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -683,6 +793,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Output</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -711,6 +827,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0" colspan="3">
@@ -736,6 +858,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Models</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -745,6 +872,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go To Greyscale Model Maker</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -787,6 +919,12 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
          </layout>
@@ -818,6 +956,11 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Input labelmap</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="1" colspan="2">
@@ -842,6 +985,11 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -854,6 +1002,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Label(s)</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -868,6 +1021,11 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>Label(s) to extract to surface(s)</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
@@ -880,6 +1038,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Output model hierarchy</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -911,6 +1075,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="4" column="0" colspan="3">
@@ -936,6 +1106,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Models</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -945,6 +1120,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go To Model Maker</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -988,12 +1168,22 @@ p, li { white-space: pre-wrap; }
             <property name="value">
              <double>0.250000000000000</double>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="BoneModelMakerDecimateLabel">
             <property name="text">
              <string>Decimate</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1007,6 +1197,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1207,6 +1403,12 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Volume</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
@@ -1231,12 +1433,23 @@ p, li { white-space: pre-wrap; }
             <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="VolumeSkinningArmatureLabel">
             <property name="text">
              <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1259,12 +1472,23 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="VolumeSkinningOutputVolumeLabel">
             <property name="text">
              <string>Output skinned volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1290,6 +1514,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0" colspan="3">
@@ -1314,6 +1544,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go to Volume Skinning module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -1344,6 +1579,12 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="2">
@@ -1357,21 +1598,33 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="CollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="EditSkinnedVolumeCollapsibleGroupBox">
          <property name="title">
           <string>B) Edit skinned volume</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="EditSkinnedVolumeLabel">
             <property name="text">
              <string>Skinned volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1406,6 +1659,12 @@ p, li { white-space: pre-wrap; }
               <string>vtkMRMLScalarVolumeNode</string>
              </stringlist>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -1416,6 +1675,12 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="3">
@@ -1425,6 +1690,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1475,6 +1746,11 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Volume</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="1" colspan="2">
@@ -1499,6 +1775,11 @@ p, li { white-space: pre-wrap; }
             <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -1511,6 +1792,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1536,6 +1822,11 @@ p, li { white-space: pre-wrap; }
             <property name="removeEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -1548,6 +1839,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Input skinned volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1572,6 +1868,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="removeEnabled">
              <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1611,6 +1912,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Compute Armature Weights module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1637,6 +1943,11 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Padding</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="1" colspan="2">
@@ -1651,12 +1962,23 @@ p, li { white-space: pre-wrap; }
             <property name="value">
              <number>1</number>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightScaleFactorLabel">
             <property name="text">
              <string>Scale Factor</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1673,7 +1995,13 @@ p, li { white-space: pre-wrap; }
              <double>2.000000000000000</double>
             </property>
             <property name="value">
-             <double>2.000000000000000</double>
+             <double>6.000000000000000</double>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1700,9 +2028,15 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <widget class="QLabel" name="EvalSurfaceWeightInputSurfaceLabel">
+           <widget class="QLabel" name="EvalSurfaceWeightInputNodeLabel">
             <property name="text">
              <string>Input surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1719,6 +2053,12 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -1726,12 +2066,23 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Weight images folder</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
              <string>Output surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1743,6 +2094,12 @@ p, li { white-space: pre-wrap; }
             <property name="nodeTypes">
              <stringlist>
               <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
              </stringlist>
             </property>
            </widget>
@@ -1770,6 +2127,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Evaluate Surface Weight module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1796,6 +2158,11 @@ p, li { white-space: pre-wrap; }
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -1805,6 +2172,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1818,6 +2191,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1849,10 +2228,7 @@ p, li { white-space: pre-wrap; }
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item row="0" column="0" colspan="2">
@@ -1886,6 +2262,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1923,6 +2305,12 @@ p, li { white-space: pre-wrap; }
               <string>vtkMRMLArmatureNode</string>
              </stringlist>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="3">
@@ -1933,12 +2321,24 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>...</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
            <widget class="QToolButton" name="PoseArmatureArmatureNodeToolButton">
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1965,6 +2365,11 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Armature</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="0" column="1" colspan="3">
@@ -1985,6 +2390,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="addEnabled">
              <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2024,12 +2434,23 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Weight images folder</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="PoseSurfaceOutputLabel">
             <property name="text">
              <string>Output surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2055,6 +2476,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="4" column="0" colspan="4">
@@ -2079,6 +2506,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go to Pose Surface module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -2106,6 +2538,11 @@ p, li { white-space: pre-wrap; }
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="3">
@@ -2115,6 +2552,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2128,6 +2571,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2145,16 +2594,13 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;
-&lt;p&gt;Use the resample CLI to move the input volume into its final position.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p&gt;Transform the input labelmap with the posed armature.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_16">
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item row="0" column="0" colspan="2">
@@ -2166,13 +2612,18 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Resample labelmap with pose</string>
+          <string>A) Resample labelmap</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="0">
            <widget class="QLabel" name="PoseLabelmapInputLabel">
             <property name="text">
              <string>Input labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2195,12 +2646,22 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="PoseLabelmapArmatureLabel">
             <property name="text">
              <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2223,6 +2684,11 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -2230,12 +2696,23 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Weight images folder</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="PoseLabelmapOutputLabel">
             <property name="text">
              <string>Output posed labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2251,6 +2728,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="baseName">
              <string>Posed Labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2277,6 +2760,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Pose Labelmap</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -2296,12 +2784,32 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="PoseLabelmapSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item row="2" column="1" colspan="2">
            <widget class="ctkPathLineEdit" name="PoseLabelmapWeightPathLineEdit">
             <property name="filters">
              <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2315,6 +2823,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2391,125 +2905,142 @@ p, li { white-space: pre-wrap; }
          <property name="margin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="WelcomeSimpleWorkflowLabel">
-           <property name="toolTip">
-            <string/>
+         <item row="0" column="0" colspan="2">
+          <widget class="QTabWidget" name="AdvancedTabWidget">
+           <property name="currentIndex">
+            <number>0</number>
            </property>
-           <property name="text">
-            <string>Advanced workflow</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
-           <property name="title">
-            <string>Volume render</string>
-           </property>
-           <property name="collapsed">
-            <bool>true</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0">
-             <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
-              <property name="toolTip">
-               <string>Whether the input volume is a labelmap</string>
-              </property>
-              <property name="text">
-               <string>Labelmap</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Select the volume to render</string>
-              </property>
-              <property name="nodeTypes">
-               <stringlist>
-                <string>vtkMRMLScalarVolumeNode</string>
-               </stringlist>
-              </property>
-              <property name="showChildNodeTypes">
-               <bool>false</bool>
-              </property>
-              <property name="addEnabled">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="VolumeRenderLabelsLabel">
-              <property name="text">
-               <string>Label(s)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit">
-              <property name="toolTip">
-               <string>Label(s) to render</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
-                <property name="toolTip">
-                 <string>Open the &quot;Volume Rendering&quot; module</string>
-                </property>
+           <widget class="QWidget" name="SettingsTab">
+            <attribute name="title">
+             <string>Settings</string>
+            </attribute>
+            <layout class="QFormLayout" name="formLayout_5">
+             <property name="fieldGrowthPolicy">
+              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="SettingsWorkflowLabel">
+               <property name="toolTip">
+                <string/>
+               </property>
+               <property name="text">
+                <string>Workflow mode</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="SettingsWorkflowComboBox">
+               <item>
                 <property name="text">
-                 <string>Go To Volume Rendering</string>
+                 <string>Beginner (fully automatic)</string>
                 </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Intermediate (jump to step, load intermediate data...)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Expert (advanced parameters)</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="VolumeRenderingTab">
+            <attribute name="title">
+             <string>Volume Rendering</string>
+            </attribute>
+            <layout class="QFormLayout" name="formLayout_6">
+             <item row="0" column="0" colspan="2">
+              <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
+               <property name="title">
+                <string>Volume render</string>
+               </property>
+               <property name="collapsed">
+                <bool>true</bool>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="0" column="0">
+                 <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
+                  <property name="toolTip">
+                   <string>Whether the input volume is a labelmap</string>
+                  </property>
+                  <property name="text">
+                   <string>Labelmap</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Select the volume to render</string>
+                  </property>
+                  <property name="nodeTypes">
+                   <stringlist>
+                    <string>vtkMRMLScalarVolumeNode</string>
+                   </stringlist>
+                  </property>
+                  <property name="showChildNodeTypes">
+                   <bool>false</bool>
+                  </property>
+                  <property name="addEnabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="VolumeRenderLabelsLabel">
+                  <property name="text">
+                   <string>Label(s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit">
+                  <property name="toolTip">
+                   <string>Label(s) to render</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <item>
+                   <spacer name="horizontalSpacer_3">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
+                    <property name="toolTip">
+                     <string>Open the &quot;Volume Rendering&quot; module</string>
+                    </property>
+                    <property name="text">
+                     <string>Go To Volume Rendering</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="WelcomeSimpleWorkflowCheckBox">
-           <property name="toolTip">
-            <string>Show the workflow modules advanced options</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -2740,8 +3271,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2756,8 +3287,8 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -2772,8 +3303,8 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -2788,8 +3319,8 @@ p, li { white-space: pre-wrap; }
      <y>7</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2804,8 +3335,8 @@ p, li { white-space: pre-wrap; }
      <y>5</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>228</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -2820,8 +3351,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
+     <x>216</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2836,24 +3367,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MergeLabelsInputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>MergeLabelsOutputNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2912,12 +3427,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2928,12 +3443,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>481</x>
-     <y>683</y>
+     <x>468</x>
+     <y>675</y>
     </hint>
    </hints>
   </connection>
@@ -2948,8 +3463,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>481</x>
-     <y>683</y>
+     <x>468</x>
+     <y>675</y>
     </hint>
    </hints>
   </connection>
@@ -2964,8 +3479,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2980,8 +3495,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -2996,8 +3511,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3012,8 +3527,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -3028,8 +3543,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -3044,8 +3559,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3056,12 +3571,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3076,8 +3591,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
+     <x>250</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -3092,8 +3607,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>66</x>
-     <y>91</y>
+     <x>227</x>
+     <y>272</y>
     </hint>
    </hints>
   </connection>
@@ -3108,8 +3623,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>260</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -3120,12 +3635,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -3136,12 +3651,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3156,8 +3671,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>186</x>
+     <y>492</y>
     </hint>
    </hints>
   </connection>
@@ -3172,8 +3687,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>186</x>
+     <y>544</y>
     </hint>
    </hints>
   </connection>
@@ -3184,12 +3699,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>186</x>
+     <y>492</y>
     </hint>
    </hints>
   </connection>
@@ -3200,12 +3715,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>228</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -3220,8 +3735,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -3236,8 +3751,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -3248,12 +3763,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>260</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -3264,12 +3779,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>260</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -3281,7 +3796,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
-     <y>628</y>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
@@ -3296,12 +3811,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -3316,8 +3831,8 @@ p, li { white-space: pre-wrap; }
      <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>61</x>
-     <y>89</y>
+     <x>188</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -3332,8 +3847,8 @@ p, li { white-space: pre-wrap; }
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
+     <x>216</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3344,12 +3859,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>89</x>
-     <y>91</y>
+     <x>250</x>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
+     <x>216</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -3364,8 +3879,8 @@ p, li { white-space: pre-wrap; }
      <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>160</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -3376,12 +3891,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>160</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>481</x>
+     <y>112</y>
     </hint>
    </hints>
   </connection>
@@ -3392,12 +3907,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>160</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>46</x>
-     <y>91</y>
+     <x>107</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3408,12 +3923,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>46</x>
-     <y>91</y>
+     <x>107</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>89</x>
-     <y>91</y>
+     <x>481</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
@@ -3428,8 +3943,8 @@ p, li { white-space: pre-wrap; }
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>46</x>
-     <y>91</y>
+     <x>107</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3444,8 +3959,8 @@ p, li { white-space: pre-wrap; }
      <y>16</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>189</x>
+     <y>246</y>
     </hint>
    </hints>
   </connection>
@@ -3456,12 +3971,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>91</y>
+     <x>225</x>
+     <y>156</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>189</x>
+     <y>246</y>
     </hint>
    </hints>
   </connection>
@@ -3472,12 +3987,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>76</y>
+     <x>139</x>
+     <y>246</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>220</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -3510,6 +4025,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>243</x>
      <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseSurfaceInputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>166</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseLabelmapSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseLabelmapOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>465</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>466</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
