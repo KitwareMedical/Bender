@@ -797,12 +797,15 @@ int DoIt(int argc, char* argv[])
   std::cout << "############# Read weights...";
   typedef bender::WeightMap WeightMap;
   WeightMap weightMap;
+  weightMap.SetMinWeightValue(0.0000000001);
   //bender::ReadWeights(fnames,domainVoxels,weightMap);
   bender::ReadWeightsFromImage<T>(fnames, labelMap, weightMap);
   // Don't interpolate weights outside of the domain (i.e. outside the body).
   // -1. is outside of domain
   // 0. is no weight for bone 0
   // 1. is full weight for bone 0
+  // \tbd Why not using the labelmap as mask instead ? Does the weight image
+  // have better boundaries ?
   weightMap.SetMaskImage(weight0, 0.f);
   std::cout << "############# done." << std::endl;
 
