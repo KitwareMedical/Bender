@@ -658,8 +658,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.changelabel)
     valid = (cliNode.GetStatusString() == 'Completed')
     self.get('MergeLabelsOutputNodeToolButton').enabled = valid
+    self.get('MergeLabelsSaveToolButton').enabled = valid
     self.get('MergeLabelsCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('MergeLabelsCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     if valid:
       self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
         self.get('MergeLabelsInputNodeComboBox').currentNode())
@@ -794,8 +794,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.modelmaker)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('BoneModelMakerOutputNodeToolButton').enabled = valid
+    self.get('BoneModelMakerSaveToolButton').enabled = valid
     self.get('BoneModelMakerCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('BoneModelMakerCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.get('SkinModelMakerApplyPushButton').enabled = not self.isWorkflow(0) or valid
 
   def boneModelFromModelHierarchyNode(self, modelHierarchyNode):
@@ -886,10 +886,10 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('SkinModelMakerOutputNodeToolButton').enabled = valid
+    self.get('SkinModelMakerSaveToolButton').enabled = valid
     self.get('SkinModelMakerToggleVisiblePushButton').enabled = valid
     self.get('ArmaturesToggleVisiblePushButton').enabled = valid
     self.get('SkinModelMakerCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('SkinModelMakerCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.validateExtractPage(validateSections = False)
 
   def skinModelMakerParameters(self):
@@ -1079,8 +1079,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.volumeskinning)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('VolumeSkinningOutputVolumeNodeToolButton').enabled = valid
+    self.get('VolumeSkinningSaveToolButton').enabled = valid
     self.get('VolumeSkinningCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('VolumeSkinningCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.get('EditSkinnedVolumeGoToEditorPushButton').enabled = not self.isWorkflow(0) or valid
 
   def volumeSkinningParameters(self):
@@ -1156,7 +1156,6 @@ class WorkflowWidget:
     self.get('EditSkinnedVolumeSaveToolButton').enabled = canSave
     valid = canEdit
     self.get('EditSkinnedVolumeCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('EditSkinnedVolumeCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     if valid:
       self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
         self.get('EditSkinnedVolumeNodeComboBox').currentNode())
@@ -1212,7 +1211,6 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.computearmatureweight)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('ComputeArmatureWeightCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('ComputeArmatureWeightCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.get('EvalSurfaceWeightApplyPushButton').enabled = not self.isWorkflow(0) or valid
 
   def computeArmatureWeightParameters(self):
@@ -1285,7 +1283,6 @@ class WorkflowWidget:
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('EvalSurfaceWeightCollapsibleGroupBox').setProperty('valid', valid)
     self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = valid
-    self.get('EvalSurfaceWeightCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.validateWeightsPage(validateSections = False)
 
   def evalSurfaceWeightParameterChanged(self):
