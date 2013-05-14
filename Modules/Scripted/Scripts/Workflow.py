@@ -106,10 +106,12 @@ class WorkflowWidget:
     self.get('VolumeSkinningSaveToolButton').icon = saveIcon
     self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
     self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
+    self.get('EditSkinnedVolumeSaveToolButton').icon = saveIcon
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
     self.get('PoseArmatureArmatureNodeToolButton').icon = loadIcon
     self.get('PoseArmatureArmatureNodeSaveToolButton').icon = saveIcon
+    self.get('PoseArmatureSaveToolButton').icon = saveIcon
     self.get('PoseSurfaceInputNodeToolButton').icon = loadIcon
     self.get('PoseSurfaceOutputNodeToolButton').icon = saveIcon
     self.get('PoseLabelmapOutputNodeToolButton').icon = saveIcon
@@ -1135,6 +1137,7 @@ class WorkflowWidget:
       canSave = canEdit and skinnedVolume.GetModifiedSinceRead()
     self.get('EditSkinnedVolumeGoToEditorPushButton').enabled = canEdit
     self.get('EditSkinnedVolumeNodeSaveToolButton').enabled = canSave
+    self.get('EditSkinnedVolumeSaveToolButton').enabled = canSave
     valid = canEdit
     self.get('EditSkinnedVolumeCollapsibleGroupBox').setProperty('valid', valid)
     self.get('EditSkinnedVolumeCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
