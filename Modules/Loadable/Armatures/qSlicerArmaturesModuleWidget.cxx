@@ -613,7 +613,7 @@ void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate::populateLoadFromArmature()
 {
-  QDir armaturesDir = this->logic()->GetModuleShareDirectory().c_str();
+  QDir armaturesDir(QString::fromStdString(this->logic()->GetModuleShareDirectory()));
   foreach(QFileInfo file, armaturesDir.entryInfoList(QDir::Files))
     {
     this->LoadArmatureFromModelComboBox->addItem(
