@@ -4222,6 +4222,22 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>5</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>104</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>ArmaturesArmatureNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
@@ -4284,18 +4300,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <sender>PoseArmatureArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>PoseArmatureSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>5</x>
-     <y>224</y>
-    </hint>
-    <hint type="destinationlabel">
      <x>107</x>
      <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>654</x>
+     <y>147</y>
     </hint>
    </hints>
   </connection>

@@ -164,8 +164,8 @@ class WorkflowWidget:
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
     self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
-    self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
     self.get('ArmaturesArmatureNodeComboBox').connect('nodeAdded(vtkMRMLNode*)',self.onArmatureNodeAdded)
+    self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
     self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
@@ -973,7 +973,7 @@ class WorkflowWidget:
   def validateArmaturePage(self, validateSections = True):
     if validateSections:
       self.validateArmature()
-    valid = self.get('ArmaturesArmatureNodeComboBox').currentNode() != None
+    valid = self.get('ArmaturesCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openArmaturePage(self):
@@ -996,13 +996,18 @@ class WorkflowWidget:
     self.validateArmature()
 
   def validateArmature(self):
-    valid = self.get('ArmaturesArmatureNodeComboBox').currentNode() != None
+    valid = (self.get('ArmaturesArmatureNodeComboBox').currentNode() != None and
+             self.get('ArmaturesArmatureNodeComboBox').currentNode().GetAssociatedNode() != None)
+    self.get('ArmaturesCollapsibleGroupBox').setProperty('valid', valid)
     self.validateArmaturePage(validateSections = False)
 
   def setCurrentArmatureModelNode(self, armatureNode):
     if armatureNode != None:
       modelNode = armatureNode.GetAssociatedNode()
-      self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(modelNode)
+      if modelNode != None:
+        self.get('VolumeSkinningAmartureNodeComboBox').setCurrentNode(modelNode)
+      else:
+        self.addObserver(armatureNode, 'ModifiedEvent', self.onArmatureNodeModified)
     self.validateArmature()
 
   def loadArmaturePreset(self, index):
@@ -1019,6 +1024,15 @@ class WorkflowWidget:
       name = self.get('LabelmapVolumeNodeComboBox').currentNode().GetName() + '-armature'
     name = slicer.mrmlScene.GenerateUniqueName(name)
     armatureNode.SetName(name)
+
+  def onArmatureNodeModified(self, armatureNode, event):
+    '''This method can be called when a previously (or still) current armature
+    node is modified but that did not have a model node at the time it was set
+    current. It now try to recall the method that set the armature model to
+    the model node comboboxes.'''
+    self.removeObservers(self.onArmatureNodeModified)
+    if self.get('ArmaturesArmatureNodeComboBox').currentNode() == armatureNode:
+      self.setCurrentArmatureModelNode(armatureNode)
 
   def loadArmatureNode(self):
     self.loadFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))
