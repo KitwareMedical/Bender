@@ -44,7 +44,7 @@
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
 #include <vtkStringArray.h>
-#include <vtkSys/SystemTools.hxx>
+#include <vtksys/SystemTools.hxx>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
 
