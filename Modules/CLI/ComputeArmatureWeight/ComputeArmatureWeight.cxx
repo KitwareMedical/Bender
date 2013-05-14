@@ -87,7 +87,7 @@ typename BodyPartitionImageType::Pointer SimpleBoneSegmentation(
   // \todo not needed if the threshold is done manually when boneInside is used
   typedef itk::BinaryThresholdImageFilter<BodyImageType, BodyPartitionImageType>
     ThresholdFilterType;
-  ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
+  typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(body);
   threshold->SetLowerThreshold(boneLabel); //bone marrow
   threshold->SetUpperThreshold(boneLabel);
@@ -95,7 +95,7 @@ typename BodyPartitionImageType::Pointer SimpleBoneSegmentation(
   threshold->SetOutsideValue(ArmatureWeightWriter::BackgroundLabel);
 
   typedef itk::MaskImageFilter<BodyPartitionImageType, BodyPartitionImageType> MaskFilterType;
-  MaskFilterType::Pointer mask = MaskFilterType::New();
+  typename MaskFilterType::Pointer mask = MaskFilterType::New();
   mask->SetInput1(bodyPartition);
   mask->SetInput2(threshold->GetOutput());
   mask->Update();
