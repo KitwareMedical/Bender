@@ -307,7 +307,6 @@ ArmatureWeightWriter::ArmatureWeightWriter()
   this->Debug = false;
   this->DebugFolder = "./DEBUG_";
   this->ScaleFactor = 2.0;
-  this->UseEnvelopes = true;
   this->MaximumParenthoodDistance = -1;
 }
 
@@ -354,7 +353,7 @@ void ArmatureWeightWriter::SetArmature(vtkPolyData* arm)
 }
 
 //-----------------------------------------------------------------------------
-void ArmatureWeightWriter::SetBodyPartition(LabelImageType::Pointer partition)
+void ArmatureWeightWriter::SetBodyPartition(CharImageType::Pointer partition)
 {
   if (this->BodyPartition == partition)
     {
@@ -366,13 +365,13 @@ void ArmatureWeightWriter::SetBodyPartition(LabelImageType::Pointer partition)
 }
 
 //-----------------------------------------------------------------------------
-LabelImageType::Pointer ArmatureWeightWriter::GetBodyPartition()
+CharImageType::Pointer ArmatureWeightWriter::GetBodyPartition()
 {
   return this->BodyPartition;
 }
 
 //-----------------------------------------------------------------------------
-void ArmatureWeightWriter::SetBones(LabelImageType::Pointer bones)
+void ArmatureWeightWriter::SetBones(CharImageType::Pointer bones)
 {
   if (this->BonesPartition == bones)
     {
@@ -384,7 +383,7 @@ void ArmatureWeightWriter::SetBones(LabelImageType::Pointer bones)
 }
 
 //-----------------------------------------------------------------------------
-LabelImageType::Pointer ArmatureWeightWriter::GetBones()
+CharImageType::Pointer ArmatureWeightWriter::GetBones()
 {
   return this->BonesPartition;
 }
@@ -462,10 +461,10 @@ bool ArmatureWeightWriter::Write()
   // Only downsample when not using weights
   bool downsample = !this->BinaryWeight && this->ScaleFactor != 1.0;
 
-  const LabelImageType::SizeType& inputSize =
+  const CharImageType::SizeType& inputSize =
     this->BodyPartition->GetLargestPossibleRegion().GetSize();
-  LabelImageType::SizeType outSize;
-  typedef LabelImageType::SizeType::SizeValueType SizeValueType;
+  CharImageType::SizeType outSize;
+  typedef CharImageType::SizeType::SizeValueType SizeValueType;
   outSize[0] = static_cast<SizeValueType>(inputSize[0] / this->ScaleFactor);
   outSize[1] = static_cast<SizeValueType>(inputSize[1] / this->ScaleFactor);
   outSize[2] = static_cast<SizeValueType>(inputSize[2] / this->ScaleFactor);
@@ -488,8 +487,8 @@ bool ArmatureWeightWriter::Write()
               << " " << outSize[2] << std::endl;
     }
 
-  LabelImageType::Pointer downSampledBodyPartition;
-  LabelImageType::Pointer downSampledBonesPartition;
+  CharImageType::Pointer downSampledBodyPartition;
+  CharImageType::Pointer downSampledBonesPartition;
   if (!downsample)
     {
     downSampledBodyPartition = this->BodyPartition;
@@ -497,21 +496,21 @@ bool ArmatureWeightWriter::Write()
     }
   else
     {
-    downSampledBodyPartition = DownsampleImage<LabelImageType>(
+    downSampledBodyPartition = DownsampleImage<CharImageType>(
       this->BodyPartition, realScaleFactor);
 
-    downSampledBonesPartition = DownsampleImage<LabelImageType>(
+    downSampledBonesPartition = DownsampleImage<CharImageType>(
       this->BonesPartition, realScaleFactor);
     }
 
   if ( downsample && this->GetDebugInfo() )
     {
-    bender::IOUtils::WriteDebugImage<LabelImageType>(
+    bender::IOUtils::WriteDebugImage<CharImageType>(
       downSampledBodyPartition,
       "DownsampledBodyPartition.nrrd",
       this->DebugFolder);
 
-    bender::IOUtils::WriteDebugImage<LabelImageType>(
+    bender::IOUtils::WriteDebugImage<CharImageType>(
       downSampledBonesPartition,
       "DownsampledBonesPartition.nrrd",
       this->DebugFolder);
@@ -568,7 +567,7 @@ bool ArmatureWeightWriter::Write()
 
 //-----------------------------------------------------------------------------
 CharImageType::Pointer ArmatureWeightWriter
-::CreateDomain(const LabelImageType* bodyPartition)
+::CreateDomain(const CharImageType* bodyPartition)
 {
   std::cout<<"Initalizing computation region for edge #"
     << this->Id << std::endl;
@@ -587,20 +586,6 @@ CharImageType::Pointer ArmatureWeightWriter
     return 0;
     }
 
-  vtkDoubleArray* radiuses = this->UseEnvelopes ?
-    vtkDoubleArray::SafeDownCast(
-      this->Armature->GetCellData()->GetArray("EnvelopeRadiuses")) : 0;
-  double radius = radiuses ? radiuses->GetValue(this->Id) : 0;
-  double squareRadius = radius * radius;
-  if (!radiuses)
-    {
-    if (this->UseEnvelopes)
-      {
-      std::cerr << "WARNING: No envelopes found." << std::endl;
-      }
-    std::cout << "Not using envelopes." << std::endl;
-    }
-
   double head[3], tail[3];
   points->GetPoint(this->Id * 2, head);
   points->GetPoint(this->Id * 2 + 1, tail);
@@ -612,84 +597,26 @@ CharImageType::Pointer ArmatureWeightWriter
   double cylinderLength = vtkMath::Normalize(cylinderCenterLine);
 
   CharImageType::Pointer domain = CharImageType::New();
-  Allocate<LabelImageType, CharImageType>(bodyPartition, domain);
+  Allocate<CharImageType, CharImageType>(bodyPartition, domain);
 
-  // Expand the region based on the bodypartition and optionally the envelopes.
+  // Expand the region based on the bodypartition
   CharType edgeLabel = this->GetLabel();
 
   // Scan through Domain and BodyPartition at the same time. (Same size)
   itk::ImageRegionIteratorWithIndex<CharImageType> domainIt(
     domain, domain->GetLargestPossibleRegion());
-  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
+  itk::ImageRegionConstIteratorWithIndex<CharImageType> bodyPartitionIt(
     bodyPartition,bodyPartition->GetLargestPossibleRegion());
   for (domainIt.GoToBegin(); !domainIt.IsAtEnd();
     ++domainIt, ++bodyPartitionIt)
     {
-    // Most likely/simple operation done first to prevent overhead
-
-    LabelType label = bodyPartitionIt.Get();
-    if (label == ArmatureWeightWriter::BackgroundLabel) // Is it backgtound ?
+    if (bodyPartitionIt.Get()== edgeLabel) // Correct label
+      {
+      domainIt.Set(ArmatureWeightWriter::DomainLabel);
+      }
+    else
       {
       domainIt.Set(ArmatureWeightWriter::BackgroundLabel);
-      }
-    else // Not background pixel
-      {
-      if (label == edgeLabel) // Correct label, no need to go further
-        {
-        domainIt.Set(ArmatureWeightWriter::DomainLabel);
-        continue;
-        }
-
-      //
-      // Check if in envelope
-      if (radiuses)
-        {
-        // Create world position
-        double pos[3];
-        for (int i = 0; i < 3; ++i)
-          {
-          pos[i] = domainIt.GetIndex()[i] * domain->GetSpacing()[i]
-            + domain->GetOrigin()[i];
-          }
-
-        // Is the current pixel in the sphere around head ?
-        double headToPos[3];
-        vtkMath::Subtract(pos, head, headToPos);
-        if (vtkMath::Dot(headToPos, headToPos) <= squareRadius)
-          {
-          domainIt.Set(ArmatureWeightWriter::DomainLabel);
-          continue;
-          }
-
-        // Is the current pixel the sphere around tail ?
-        double tailToPos[3];
-        vtkMath::Subtract(pos, tail, tailToPos);
-        if (vtkMath::Dot(tailToPos, tailToPos) <= squareRadius)
-          {
-          domainIt.Set(ArmatureWeightWriter::DomainLabel);
-          continue;
-          }
-
-        // Is  the current pixel in the cylinder ?
-        double scale = vtkMath::Dot(cylinderCenterLine, headToPos);
-        if (scale >= 0 && scale <= cylinderLength) // Check in between lids
-          {
-          // Check distance from center
-          double distanceVect[3];
-          for (int i = 0; i < 3; ++i)
-            {
-            distanceVect[i] = pos[i] - (head[i] + cylinderCenterLine[i] * scale);
-            }
-
-          if (vtkMath::Dot(distanceVect, distanceVect) <= squareRadius)
-            {
-            domainIt.Set(ArmatureWeightWriter::DomainLabel);
-            continue;
-            }
-          }
-        }
-
-      domainIt.Set(ArmatureWeightWriter::BackgroundLabel); // Wasn't in the envelope
       }
     }
 
@@ -727,8 +654,8 @@ CharImageType::Pointer ArmatureWeightWriter
 //-----------------------------------------------------------------------------
 WeightImageType::Pointer ArmatureWeightWriter
 ::CreateWeight(const CharImageType* domain,
-               const LabelImageType* bodyPartition,
-               const LabelImageType* bonesPartition)
+               const CharImageType* bodyPartition,
+               const CharImageType* bonesPartition)
 {
   if (this->GetDebugInfo())
     {
@@ -738,7 +665,7 @@ WeightImageType::Pointer ArmatureWeightWriter
     }
 
   // Attribute -1.0 to outside of the body, 0 inside.
-  typedef itk::BinaryThresholdImageFilter<LabelImageType, WeightImageType>
+  typedef itk::BinaryThresholdImageFilter<CharImageType, WeightImageType>
     ThresholdFilterType;
   ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(bodyPartition);
@@ -774,15 +701,15 @@ WeightImageType::Pointer ArmatureWeightWriter
       this->GetParenthoodDistances(this->GetId());
 
     // Not very efficient but clearer
-    LabelImageType::Pointer maskedBodyPartition =
+    CharImageType::Pointer maskedBodyPartition =
       this->ApplyDistanceMask(bodyPartition, distances);
-    LabelImageType::Pointer maskedBonesPartition =
+    CharImageType::Pointer maskedBonesPartition =
       this->ApplyDistanceMask(bonesPartition, distances);
     if ( this->GetDebugInfo() )
       {
-      bender::IOUtils::WriteDebugImage<LabelImageType>(
+      bender::IOUtils::WriteDebugImage<CharImageType>(
         maskedBodyPartition, "MaskedBodyPartition.nrrd", this->DebugFolder);
-      bender::IOUtils::WriteDebugImage<LabelImageType>(
+      bender::IOUtils::WriteDebugImage<CharImageType>(
         maskedBonesPartition, "MaskedBonesPartition.nrrd", this->DebugFolder);
       }
 
@@ -834,14 +761,14 @@ WeightImageType::Pointer ArmatureWeightWriter
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter
 ::CleanWeight(WeightImageType* weight,
-              const LabelImageType* bodyPartition) const
+              const CharImageType* bodyPartition) const
 {
   std::vector<unsigned int> distances =
     this->GetParenthoodDistances(this->GetId());
 
   itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
     weight, weight->GetLargestPossibleRegion());
-  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
+  itk::ImageRegionConstIteratorWithIndex<CharImageType> bodyPartitionIt(
     bodyPartition, bodyPartition->GetLargestPossibleRegion());
   for (weightIt.GoToBegin(), bodyPartitionIt.GoToBegin();
     !weightIt.IsAtEnd();
@@ -866,16 +793,16 @@ void ArmatureWeightWriter
 }
 
 //-----------------------------------------------------------------------------
-LabelImageType::Pointer ArmatureWeightWriter
-::ApplyDistanceMask(const LabelImageType* image,
+CharImageType::Pointer ArmatureWeightWriter
+::ApplyDistanceMask(const CharImageType* image,
                     const std::vector<unsigned int>& distances) const
 {
-  LabelImageType::Pointer newImage = LabelImageType::New();
-  Allocate<LabelImageType, LabelImageType>(image, newImage);
+  CharImageType::Pointer newImage = CharImageType::New();
+  Allocate<CharImageType, CharImageType>(image, newImage);
 
-  itk::ImageRegionConstIteratorWithIndex<LabelImageType> imageIt(
+  itk::ImageRegionConstIteratorWithIndex<CharImageType> imageIt(
     image, image->GetLargestPossibleRegion());
-  itk::ImageRegionIteratorWithIndex<LabelImageType> newImageIt(
+  itk::ImageRegionIteratorWithIndex<CharImageType> newImageIt(
     newImage, newImage->GetLargestPossibleRegion());
   for (imageIt.GoToBegin(), newImageIt.GoToBegin();
     !imageIt.IsAtEnd(); ++imageIt, ++newImageIt)
@@ -899,14 +826,14 @@ LabelImageType::Pointer ArmatureWeightWriter
 
 //-----------------------------------------------------------------------------
 void ArmatureWeightWriter
-::ApplyDistanceMask(const LabelImageType* bodyPartition,
+::ApplyDistanceMask(const CharImageType* bodyPartition,
                     WeightImageType::Pointer& weight,
                     const std::vector<unsigned int>& distances) const
 {
   // Fill weight image by allowing only "related bone" in weight regions
   itk::ImageRegionIteratorWithIndex<WeightImageType> weightIt(
     weight, weight->GetLargestPossibleRegion());
-  itk::ImageRegionConstIteratorWithIndex<LabelImageType> bodyPartitionIt(
+  itk::ImageRegionConstIteratorWithIndex<CharImageType> bodyPartitionIt(
     bodyPartition, bodyPartition->GetLargestPossibleRegion());
   for (weightIt.GoToBegin(), bodyPartitionIt.GoToBegin();
     !weightIt.IsAtEnd(); ++weightIt, ++bodyPartitionIt)

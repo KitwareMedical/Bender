@@ -261,8 +261,15 @@ public:
   vtkGetVector3Macro(WorldToBoneHeadPoseTranslation, double);
   vtkGetVector3Macro(WorldToBoneTailPoseTranslation, double);
 
+  // Description:
+  // Rest to pose rotations describes the rotations of the bone's
+  // tail when between the rest mode and the pose mode.
   vtkGetQuaterniondMacro(RestToPoseRotation, double);
-  //void SetRestToPoseRotation(double rotation[4]); //\TO DO ?
+  void SetRestToPoseRotation(double quat[4]);
+
+  // Description:
+  // Rest to pose methods to quickly create the rotation.
+  vtkSmartPointer<vtkTransform> CreateRestToPoseRotation() const;
 
   // Description:
   // Pose mode methods to quickly create transforms.
@@ -384,7 +391,7 @@ public:
 
   // Description:
   // Reset the pose mode to the same positions and transformations than
-  // the rest positions and transformations.
+  // the rest positions and transformations (by default).
   void ResetPoseToRest();
 
   // Description:

@@ -64,6 +64,8 @@ public:
   // Set the interaction node of the current scene back to ViewTransform mode
   void stopPlaceBone();
 
+  void populateLoadFromArmature();
+
 public slots:
   // Calls all the update functions
   void updateArmatureWidget(vtkMRMLBoneNode* boneNode);
@@ -73,18 +75,12 @@ public slots:
   void updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode);
   void updateArmatureAdvancedDisplay(vtkMRMLArmatureNode* armatureNode);
 
-  // Armature Envelopes functions
-  void updateArmatureEnvelopes(vtkMRMLArmatureNode* armatureNode);
-
   // Hierarchy update functions
   void updateHierarchy(vtkMRMLBoneNode* boneNode);
 
   // Positions update functions
   void updatePositions(vtkMRMLBoneNode* boneNode);
   void updateAdvancedPositions(vtkMRMLBoneNode* boneNode);
-
-  // Bone Envelope update functions
-  void updateBoneEnvelope(vtkMRMLBoneNode* boneNode);
 
   void setCoordinatesFromBoneNode(vtkMRMLBoneNode* boneNode);
   void setCoordinatesToBoneNode(vtkMRMLBoneNode* boneNode);
@@ -100,8 +96,6 @@ protected slots:
 
   void onParentNodeChanged(vtkMRMLNode* node);
   void onLinkedWithParentChanged(int linked);
-
-  void onArmatureOpacityChanged(double opacity);
 
 protected:
   // Select/Unselect the current bone node.

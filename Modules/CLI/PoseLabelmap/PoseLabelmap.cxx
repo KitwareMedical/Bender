@@ -902,18 +902,6 @@ int DoIt(int argc, char* argv[])
   typename LabelImageType::Pointer posedLabelMap = LabelImageType::New();
   posedLabelMap->CopyInformation(labelMap);
   double padding = 10.;
-  vtkDoubleArray* envelopes = vtkDoubleArray::SafeDownCast(
-    posedArmature->GetCellData()->GetScalars("EnvelopeRadiuses"));
-  if (envelopes)
-    {
-    double maxRadius = 0.;
-    for (vtkIdType i = 0; i < envelopes->GetNumberOfTuples(); ++i)
-      {
-      maxRadius = std::max(maxRadius, envelopes->GetValue(i));
-      }
-    padding = maxRadius;
-    }
-  assert(padding >= 0.);
   std::cout << "Padding: " << padding << std::endl;
   double posedArmatureBounds[6] = {0., -1., 0., -1., 0., -1.};
   posedArmature->GetBounds(posedArmatureBounds);

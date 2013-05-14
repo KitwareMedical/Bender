@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>810</width>
-    <height>790</height>
+    <width>492</width>
+    <height>746</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,6 +20,9 @@
    <string>Workflow</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_7">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QLabel" name="TitleLabel">
      <property name="text">
@@ -106,20 +109,19 @@ p, li { white-space: pre-wrap; }
       <number>0</number>
      </property>
      <widget class="QWidget" name="BoneSegmentationPage">
-      <property name="toolTip">
-       <string/>
-      </property>
       <property name="accessibleName">
-       <string>Adjust labelmap</string>
+       <string>Load inputs</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the labelmap module to load a labelmap and its corresponding color table.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Mirroring the volume is possible using the &amp;quot;LPS &amp;lt;-&amp;gt; RAS&amp;quot; button.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Finally, skins and bones labels can be merged together to obtain a global skin/skeleton volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Load the labelmap to reposition and its corresponding color table.&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Load files in &amp;quot;&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;File -&amp;gt; Add data&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot; or using the buttons on the right of the input boxes.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A color table file contains the labels' names and colors for each volume scalar value. The loaded color file will be automatically associated to the loaded volume upon selection or loading.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The volume can be transformed with the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;LPS &amp;lt;-&amp;gt; RAS&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; button (more transformed available when the button is developed).&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Advanced volume information and controls are available in the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volumes&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; module.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_3">
        <property name="fieldGrowthPolicy">
@@ -185,7 +187,7 @@ p, li { white-space: pre-wrap; }
              <bool>false</bool>
             </property>
             <property name="renameEnabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="noneDisplay">
              <string/>
@@ -235,7 +237,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="2">
+          <item row="2" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
              <spacer name="horizontalSpacer_5">
@@ -252,21 +254,35 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="LabelmapGoToModulePushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="toolTip">
                <string>Open the &quot;Volumes&quot; module</string>
               </property>
               <property name="text">
                <string>Go To Volumes</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="TransformApplyPushButton">
-              <property name="toolTip">
-               <string>Switch the volume orientation between LPS and RAS</string>
+             <widget class="ctkMenuButton" name="LPSRASTransformPushButton">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
               <property name="text">
                <string>LPS &lt;-&gt; RAS</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>1</string>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -284,14 +300,60 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Apply colors</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist/>
+              </property>
              </widget>
             </item>
            </layout>
           </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="LabelmapVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load labelmap to reposition.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="LabelmapColorNodeToolButton">
+            <property name="toolTip">
+             <string>Load color file associated to the loaded volume. It must contain the name of each scalar value of the loaded volume (e.g.: 0 -&gt; &quot;air&quot;, 1 -&gt; &quot;bone&quot;, 2-&gt; &quot;skin&quot;, 3-&gt; &quot;muscle&quot;...)</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="ModelMakerPage">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="accessibleName">
+       <string>Extract bones and skin</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Create the bones' and skin's surface models.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;If the input labelmap contains multiple &amp;quot;bone&amp;quot; labels (e.g. &amp;quot;bone marrow&amp;quot;, &amp;quot;bone cancellous&amp;quot;...) or multiple &amp;quot;skin&amp;quot; labels, the labels must be merged into a unique label. This allows to create the bone surface model and skin surface model more easily.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The bone surface model is created by the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Bone model maker&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The skin surface model is created by the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Skin model maker&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="MergeLabelsCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -300,7 +362,10 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Merge labels</string>
+          <string>A) Merge labels</string>
+         </property>
+         <property name="collapsedHeight">
+          <number>5</number>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
           <item row="0" column="0">
@@ -314,9 +379,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Input labelmap</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -338,6 +408,11 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -350,6 +425,12 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>Output labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -378,6 +459,12 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -391,9 +478,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Bone label(s)</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="QLineEdit" name="BoneLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -403,6 +495,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>List of labels that will be merged into the Bone Label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -417,9 +514,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Bone label</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="3" column="1" colspan="2">
            <widget class="qMRMLLabelComboBox" name="BoneLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -429,6 +531,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>Label which the Bone Label(s) will be merged into</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -443,9 +550,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Skin label(s)</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="4" column="1" colspan="2">
            <widget class="QLineEdit" name="SkinLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -455,6 +567,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>List of labels that will be merged into the Skin Label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -469,9 +586,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Skin label</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="5" column="1" colspan="2">
            <widget class="qMRMLLabelComboBox" name="SkinLabelComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -482,9 +604,14 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>Label which the Skin Label(s) will be merged into</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="6" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
              <spacer name="horizontalSpacer_6">
@@ -507,6 +634,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Change Label</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -518,7 +650,11 @@ p, li { white-space: pre-wrap; }
                </sizepolicy>
               </property>
               <property name="toolTip">
-               <string>Merge the selected label(s)</string>
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Unify the bone(s) and skin(s) labels of the labelmap into respectively a single bone and skin label.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Merge labels</string>
@@ -528,41 +664,347 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="MergeLabelsSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="MergeLabelsOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save the merged volume</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="ModelMakerPage">
-      <property name="toolTip">
-       <string/>
-      </property>
-      <property name="accessibleName">
-       <string>Extract bones and skin</string>
-      </property>
-      <property name="accessibleDescription">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+       <item row="2" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="SkinModelMakerCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>C) Skin model maker</string>
+         </property>
+         <property name="collapsedHeight">
+          <number>5</number>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Input labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the input labelmap to extract the skin from</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="SkinModelMakerBackgroundLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Background label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QSpinBox" name="SkinModelMakerBackgroundLabelSpinBox">
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The two model maker helps to extract the skin and bones label in surfaces.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The first model maker uses the bones labels to extract the skeleton.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The second model maker is based on a threshold that separate the air from the body and then extract the skin. The toggle skin visibility button will toggle the visibility of the Skin model maker output (which opacity is automatically set to 0.2).&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <layout class="QFormLayout" name="formLayout_6">
-       <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
-       </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="2">
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Set the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Background label&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; used to differentiate the body and the exterior. This is used to extract the outer region of the eroded model.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="SkinModelMakerSkinLabel">
+            <property name="text">
+             <string>Skin label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QLineEdit" name="SkinModelMakerSkinLabelLineEdit">
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Set the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Skin label(s)&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; used to erode the skin from the model. This ensures that the skin model will lay inside the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Input labelmap&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; when extracting it.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Choose the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Output skin model&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; here.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Output skin model</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the output skin model</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Skin</string>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModelsModulePushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Models&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go To Models</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Skin Model Maker&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go To Skin Model Maker</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Toggle the skin surface model visibility&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Toggle skin visibility</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
+              <property name="toolTip">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Create the skin surface model using skin label and the input labelmap&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Generate skin model</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="SkinModelMakerSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;Skin&quot; surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="BoneModelMakerCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -571,7 +1013,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Bone model maker</string>
+          <string>B) Bone model maker</string>
          </property>
          <property name="collapsedHeight">
           <number>5</number>
@@ -588,9 +1030,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Input labelmap</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="BoneModelMakerInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -612,6 +1059,11 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -625,9 +1077,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Label(s)</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="QLineEdit" name="BoneModelMakerLabelsLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -637,6 +1094,11 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>Label(s) to extract to surface(s)</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -648,8 +1110,21 @@ p, li { white-space: pre-wrap; }
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="toolTip">
+             <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Choose the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Output skin model&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; here.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Output model hierarchy</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -681,9 +1156,15 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <spacer name="horizontalSpacer_2">
@@ -706,6 +1187,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Models</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -716,6 +1202,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Model Maker</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -725,7 +1216,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Generate the surface(s) from the input labelmap and the given label(s)&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Generate the bone surface model from the bone label.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
                <string>Generate bone model</string>
@@ -735,9 +1226,24 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="BoneModelMakerSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="ctkSliderWidget" name="BoneModelMakerDecimateSliderWidget">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -758,6 +1264,11 @@ p, li { white-space: pre-wrap; }
             <property name="value">
              <double>0.250000000000000</double>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -765,188 +1276,31 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Decimate</string>
             </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="1" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="SkinModelMakerCollapsibleGroupBox">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="title">
-          <string>B) Skin model maker</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <property name="sizeConstraint">
-           <enum>QLayout::SetMinimumSize</enum>
-          </property>
-          <item row="0" column="0">
-           <widget class="QLabel" name="SkinModelMakerNodeInputLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Input labelmap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the input labelmap to extract the skin from</string>
-            </property>
-            <property name="nodeTypes">
+            <property name="workflow" stdset="0">
              <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
+              <string>2</string>
              </stringlist>
             </property>
-            <property name="addEnabled">
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="BoneModelMakerOutputNodeToolButton">
+            <property name="enabled">
              <bool>false</bool>
             </property>
-            <property name="removeEnabled">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="SkinModelMakerThresholdLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
+            <property name="toolTip">
+             <string>Save to file the &quot;Bones&quot; surface model</string>
             </property>
             <property name="text">
-             <string>Threshold</string>
+             <string>...</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QDoubleSpinBox" name="SkinModelMakerThresholdSpinBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Specify the threshold between the outside (usually air) and the body.</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Output</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the output skin model</string>
-            </property>
-            <property name="nodeTypes">
+            <property name="workflow" stdset="0">
              <stringlist>
-              <string>vtkMRMLModelNode</string>
+              <string>1</string>
+              <string>2</string>
              </stringlist>
             </property>
-            <property name="baseName">
-             <string>Skin</string>
-            </property>
-            <property name="removeEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="renameEnabled">
-             <bool>true</bool>
-            </property>
            </widget>
-          </item>
-          <item row="3" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <spacer name="horizontalSpacer_16">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerGoToModelsModulePushButton">
-              <property name="toolTip">
-               <string>Open the &quot;Models&quot; module</string>
-              </property>
-              <property name="text">
-               <string>Go To Models</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerGoToModulePushButton">
-              <property name="toolTip">
-               <string>Open the &quot;Greyscale Model Maker&quot; module</string>
-              </property>
-              <property name="text">
-               <string>Go To Greyscale Model Maker</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerToggleVisiblePushButtton">
-              <property name="toolTip">
-               <string>Toggle the output model visibility</string>
-              </property>
-              <property name="text">
-               <string>Toggle skin visibility</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="SkinModelMakerApplyPushButton">
-              <property name="toolTip">
-               <string>Create the skin surface using the thresholded input labemap</string>
-              </property>
-              <property name="text">
-               <string>Generate skin model</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </item>
          </layout>
         </widget>
@@ -964,8 +1318,12 @@ p, li { white-space: pre-wrap; }
        <string>Create armature (rigging)</string>
       </property>
       <property name="accessibleDescription">
-       <string>The armature will enable to animate the volume.
-For more details, see the Armature module.</string>
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Create armature (rigging)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armature will enable to animate the volume. For more details, see the Armature module.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_7">
        <property name="fieldGrowthPolicy">
@@ -993,7 +1351,7 @@ For more details, see the Armature module.</string>
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armatures will enable to animate the input volume. For more details see the armature module.&lt;/span&gt; &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armatures enable to animate the input volume. For more details see the armature module. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
           <string>A) Armatures</string>
@@ -1003,9 +1361,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <layout class="QGridLayout" name="gridLayout_5">
           <item row="0" column="0">
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="ArmaturesArmatureLabel">
             <property name="text">
-             <string>Use the Armatures module to create the base skeleton of the label map.</string>
+             <string>Armature</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
@@ -1015,7 +1373,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <spacer name="horizontalSpacer_4">
@@ -1031,26 +1389,21 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="ArmaturesToggleVisiblePushButtton">
-              <property name="toolTip">
-               <string>Toggle the skin model maker output model visibility</string>
+             <widget class="QPushButton" name="ArmaturesToggleVisiblePushButton">
+              <property name="enabled">
+               <bool>false</bool>
               </property>
-              <property name="text">
-               <string>Toggle skin visibility</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="ArmaturesLoadArmaturePushButton">
               <property name="toolTip">
                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Pop-up a dialog to open an armature from a saved armature model&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Toggle the skin surface model visibility.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;It is highly advised to hide the skin surface model when creating a custom armature as the bone are dropped on first surface under the mouse cursor. In the case where the skin is visible, they would be dropped onto the skin when they should mimic the real bones' positions.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Load armature from model</string>
+               <string>Toggle skin visibility</string>
               </property>
              </widget>
             </item>
@@ -1066,6 +1419,50 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmaturesArmatureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLArmatureNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Armature</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="ArmaturesArmatureSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save  to file the current armature.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="ctkComboBox" name="ArmaturesPresetComboBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+            <property name="duplicatesEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="defaultText">
+             <string>Select a Preset</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1073,24 +1470,22 @@ p, li { white-space: pre-wrap; }
      </widget>
      <widget class="QWidget" name="SkinningPage">
       <property name="accessibleName">
-       <string>Compute weights (skinning)</string>
+       <string>Skin armature to volume</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the segment bones module to attribute each part of the input volume to its closest bone. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The armature weight computes the weight of all the voxel in relation with a given bone that will be used to animate the volume. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Skin the armature to the volume&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volume skinning&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assigns a unique bone ID to each input volume voxel.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Edit skinned volume&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; to manually edit the results from &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Volume skinning.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
-      <layout class="QFormLayout" name="formLayout_9">
+      <layout class="QFormLayout" name="formLayout_2">
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item row="0" column="0" colspan="2">
@@ -1112,6 +1507,12 @@ p, li { white-space: pre-wrap; }
            <widget class="QLabel" name="VolumeSkinningVolumeLabel">
             <property name="text">
              <string>Volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1137,6 +1538,12 @@ p, li { white-space: pre-wrap; }
             <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -1144,9 +1551,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Armature</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="VolumeSkinningAmartureNodeComboBox">
             <property name="toolTip">
              <string>Select the armature that will determine the skinning</string>
@@ -1165,12 +1577,23 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="VolumeSkinningOutputVolumeLabel">
             <property name="text">
              <string>Output skinned volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1196,9 +1619,15 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <spacer name="horizontalSpacer_7">
@@ -1221,6 +1650,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Volume Skinning module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1240,12 +1674,190 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="VolumeSkinningSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="VolumeSkinningInputVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load the volume containing the merged bones.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="VolumeSkinningOutputVolumeNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;skinned&quot; volume.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="EditSkinnedVolumeCollapsibleGroupBox">
+         <property name="title">
+          <string>B) Edit skinned volume</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_15">
+          <item row="0" column="0">
+           <widget class="QLabel" name="EditSkinnedVolumeLabel">
+            <property name="text">
+             <string>Skinned volume</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <spacer name="horizontalSpacer_18">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="EditSkinnedVolumeGoToEditorPushButton">
+              <property name="text">
+               <string>Go to Editor module</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="EditSkinnedVolumeSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="EditSkinnedVolumeNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="EditSkinnedVolumeNodeToolButton">
+            <property name="toolTip">
+             <string>Load the edited &quot;skinned&quot; volume.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="EditSkinnedVolumeNodeSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="WeightsPage">
+      <property name="accessibleName">
+       <string>Compute weights</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Compute Weights&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; computes the bone weights (influence of a bone over a weight transform) at each voxel. The weights will be used when repositioning the labelmap or the surface models.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assign the computed weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_4">
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="ComputeArmatureWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1254,7 +1866,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Compute armature weight</string>
+          <string>A) Compute armature weights</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1263,7 +1875,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightInputVolumeLabel">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1271,12 +1883,23 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Volume</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightInputVolumeNodeComboBox">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
             </property>
             <property name="toolTip">
              <string>Select the volume for which the weights are computed</string>
@@ -1295,12 +1918,17 @@ p, li { white-space: pre-wrap; }
             <property name="selectNodeUponCreation">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightArmatureLabel">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1308,10 +1936,21 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Armature</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightAmartureNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Select the armature for which the weights are computed</string>
             </property>
@@ -1332,12 +1971,17 @@ p, li { white-space: pre-wrap; }
             <property name="removeEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightSkinnedVolumeLabel">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1345,10 +1989,21 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Input skinned volume</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="2" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Select the skinned volume for which each voxel as a bone associated</string>
             </property>
@@ -1369,12 +2024,17 @@ p, li { white-space: pre-wrap; }
             <property name="removeEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="6" column="0">
+          <item row="8" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightOutputFolderLabel">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -1384,20 +2044,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
-           <widget class="ctkDirectoryButton" name="ComputeArmatureWeightOutputDirectoryButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the weights output folder</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0" colspan="2">
+          <item row="9" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_9">
             <item>
              <spacer name="horizontalSpacer_8">
@@ -1420,6 +2067,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Compute Armature Weights module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1441,35 +2093,32 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="ComputeArmatureWeightUseEnvelopeLabel">
-            <property name="text">
-             <string>Use envelopes</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QCheckBox" name="ComputeArmatureWeightUseEnvelopeCheckBox">
-            <property name="toolTip">
-             <string>Use the envelope radius of each bone to increase the weight area of influence or not</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="ComputeArmatureWeightPaddingLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Padding</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1" colspan="2">
            <widget class="QSpinBox" name="ComputeArmatureWeightPaddingSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1480,17 +2129,40 @@ p, li { white-space: pre-wrap; }
             <property name="value">
              <number>1</number>
             </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="ComputeArmatureWeightScaleFactorLabel">
-            <property name="text">
-             <string>Scale Factor</string>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="7" column="0">
+           <widget class="QLabel" name="ComputeArmatureWeightScaleFactorLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Scale Factor</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1" colspan="2">
            <widget class="QDoubleSpinBox" name="ComputeArmatureWeightScaleFactorSpinBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1502,42 +2174,87 @@ p, li { white-space: pre-wrap; }
              <double>2.000000000000000</double>
             </property>
             <property name="value">
-             <double>2.000000000000000</double>
+             <double>6.000000000000000</double>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1" colspan="2">
+           <widget class="ctkPathLineEdit" name="ComputeArmatureWeightOutputPathLineEdit">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="filters">
+             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="ComputeArmatureWeightBackgroundLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Background label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QSpinBox" name="ComputeArmatureWeightBackgroundSpinBox">
+            <property name="maximum">
+             <number>1024</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="2">
+           <widget class="QSpinBox" name="ComputeArmatureWeightBoneSpinBox">
+            <property name="maximum">
+             <number>1024</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="ComputeArmatureWeightBoneLabel">
+            <property name="text">
+             <string>Bone label</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
          </layout>
         </widget>
        </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="PosePage">
-      <property name="toolTip">
-       <string>Pose armature and surface</string>
-      </property>
-      <property name="whatsThis">
-       <string/>
-      </property>
-      <property name="accessibleName">
-       <string>Pose armature (posing)</string>
-      </property>
-      <property name="accessibleDescription">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Move and animate the armature to a convenient pose. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Evaluate weight helps to paint the weight onto the given surface, allowing the pose body to execute faster.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The pose surface module helps you to choose which surface can be animated at the same time by the armature. By checking/unchecking the checkbox on the run Pose Body button, one can choose tu simply pose the surface once or to set it to run automatically every time an input is modified.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <layout class="QFormLayout" name="formLayout_12">
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
-        <number>0</number>
-       </property>
-       <item row="0" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="EvalSurfaceWeightCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1546,13 +2263,19 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Evaluate Surface Weight</string>
+          <string>B) Evaluate surface weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <widget class="QLabel" name="EvalSurfaceWeightInputSurfaceLabel">
+           <widget class="QLabel" name="EvalSurfaceWeightInputNodeLabel">
             <property name="text">
              <string>Input surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1569,6 +2292,12 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -1576,18 +2305,10 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Weight images folder</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="ctkDirectoryButton" name="EvalSurfaceWeightWeightDirectoryButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the folder containning all the weight images</string>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1595,6 +2316,12 @@ p, li { white-space: pre-wrap; }
            <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
              <string>Output surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1608,9 +2335,15 @@ p, li { white-space: pre-wrap; }
               <string>vtkMRMLModelNode</string>
              </stringlist>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="2">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
              <spacer name="horizontalSpacer_17">
@@ -1633,6 +2366,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Evaluate Surface Weight module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1654,13 +2392,88 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="ctkPathLineEdit" name="EvalSurfaceWeightWeightPathLineEdit">
+            <property name="filters">
+             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="EvalSurfaceWeightInputNodeToolButton">
+            <property name="toolTip">
+             <string>Load the surface model to pose.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the pre-posed surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
-       <item row="1" column="0" colspan="2">
+      </layout>
+     </widget>
+     <widget class="QWidget" name="PosePage">
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="accessibleName">
+       <string>Pose armature (posing)</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Pose the armature&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Animate the armature bones in the 3D view.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Pose surface&lt;/span&gt; reposition interactively a surface model.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The interactive mode is controlled by the &amp;quot;Pose Surface&amp;quot; push button checkbox. When checked, the input surface model is transformed anytime the armature is modified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_12">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
+       <property name="margin">
+        <number>0</number>
+       </property>
+       <item row="0" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseArmaturesCollapsibleGroupBox">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
@@ -1672,7 +2485,7 @@ p, li { white-space: pre-wrap; }
           </size>
          </property>
          <property name="title">
-          <string>B) Pose Armature</string>
+          <string>A) Pose armature</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1687,11 +2500,17 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Use the Armatures module in pose mode to animate the armature and the surface.</string>
+             <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="1" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <spacer name="horizontalSpacer_11">
@@ -1708,12 +2527,6 @@ p, li { white-space: pre-wrap; }
             </item>
             <item>
              <widget class="QPushButton" name="PoseArmaturesGoToPushButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="toolTip">
                <string>Open the &quot;Armatures&quot; module</string>
               </property>
@@ -1722,12 +2535,71 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="PoseArmatureSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="PoseArmatureArmatureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLArmatureNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="PoseArmatureArmatureNodeSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="PoseArmatureArmatureNodeToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="1" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PoseSurfaceCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1736,7 +2608,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Pose Surface</string>
+          <string>B) Pose surface</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -1744,12 +2616,23 @@ p, li { white-space: pre-wrap; }
          <layout class="QGridLayout" name="gridLayout_13">
           <item row="0" column="0">
            <widget class="QLabel" name="PoseSurfaceArmaturesLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Armature</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseSurfaceArmatureInputNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -1768,17 +2651,34 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="PoseSurfaceInputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Input surface</string>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputComboBox">
+           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="toolTip">
              <string>Select the input surface that will be posed</string>
             </property>
@@ -1801,30 +2701,74 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="PoseSurfaceWeightInputFolderLabel">
+          <item row="1" column="2">
+           <widget class="QToolButton" name="PoseSurfaceInputNodeToolButton">
+            <property name="toolTip">
+             <string>Load the surface model to pose.</string>
+            </property>
             <property name="text">
-             <string>Weight images folder</string>
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="ctkDirectoryButton" name="PoseSurfaceWeightInputDirectoryButton">
+          <item row="2" column="0">
+           <widget class="QLabel" name="PoseSurfaceWeightInputFolderLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Weight images folder</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="ctkPathLineEdit" name="PoseSurfaceWeightInputPathLineEdit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
-            <property name="toolTip">
-             <string>Select the folder containning all the weight images</string>
+            <property name="filters">
+             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="PoseSurfaceOutputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
              <string>Output surface</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -1850,9 +2794,34 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="2">
+          <item row="3" column="2">
+           <widget class="QToolButton" name="PoseSurfaceOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the &quot;posed&quot; surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -1874,6 +2843,11 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go to Pose Surface module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -1910,16 +2884,14 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Use the resample CLI to move the input volume into its final position.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Pose labelmap (resampling)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Pose the input labelmap with the currently posed armature. This process usually takes quite some time. It is advised to be sure of the pose, notably by posing the skin and bone surface, before starting the resampling step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_16">
        <property name="fieldGrowthPolicy">
         <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
        </property>
-       <property name="leftMargin">
-        <number>0</number>
-       </property>
-       <property name="rightMargin">
+       <property name="margin">
         <number>0</number>
        </property>
        <item row="0" column="0" colspan="2">
@@ -1931,7 +2903,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>A) Resample labelmap with pose</string>
+          <string>A) Resample labelmap</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_14">
           <item row="0" column="0">
@@ -1939,9 +2911,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Input labelmap</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="0" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseLabelmapInputNodeComboBox">
             <property name="toolTip">
              <string>Select the labelmap to pose</string>
@@ -1960,6 +2937,11 @@ p, li { white-space: pre-wrap; }
             <property name="addEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="0">
@@ -1967,9 +2949,14 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Armature</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="1" column="1" colspan="2">
            <widget class="qMRMLNodeComboBox" name="PoseLabelmapArmatureNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -1988,6 +2975,11 @@ p, li { white-space: pre-wrap; }
             <property name="renameEnabled">
              <bool>false</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="2" column="0">
@@ -1995,18 +2987,10 @@ p, li { white-space: pre-wrap; }
             <property name="text">
              <string>Weight images folder</string>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="ctkDirectoryButton" name="PoseLabelmapWeightDirectoryButton">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the folder containning all the weight images</string>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2014,6 +2998,12 @@ p, li { white-space: pre-wrap; }
            <widget class="QLabel" name="PoseLabelmapOutputLabel">
             <property name="text">
              <string>Output posed labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
@@ -2030,9 +3020,15 @@ p, li { white-space: pre-wrap; }
             <property name="baseName">
              <string>Posed Labelmap</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="6" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_11">
             <item>
              <spacer name="horizontalSpacer_10">
@@ -2055,6 +3051,11 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go To Pose Labelmap</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -2074,33 +3075,124 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="PoseLabelmapSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="ctkPathLineEdit" name="PoseLabelmapWeightPathLineEdit">
+            <property name="filters">
+             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="PoseLabelmapOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the repositioned labelmap.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="PoseLabelmapHighPrecedenceLabelsLabel">
             <property name="text">
              <string>High precedence labels</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="PoseLabelmapHighPrecedenceLabelsLineEdit"/>
+          <item row="4" column="1" colspan="2">
+           <widget class="QLineEdit" name="PoseLabelmapHighPrecedenceLabelsLineEdit">
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="PoseLabelmapLowPrecedenceLabelsLabel">
             <property name="text">
              <string>Low precedence labels</string>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QLineEdit" name="PoseLabelmapLowPrecedenceLabelsLineEdit"/>
+          <item row="5" column="1" colspan="2">
+           <widget class="QLineEdit" name="PoseLabelmapLowPrecedenceLabelsLineEdit">
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="qSlicerCLIProgressBar" name="CLIProgressBar">
+     <property name="statusVisibility">
+      <enum>qSlicerCLIProgressBar::VisibleAfterCompletion</enum>
+     </property>
+     <property name="progressVisibility">
+      <enum>qSlicerCLIProgressBar::HiddenWhenIdle</enum>
+     </property>
     </widget>
    </item>
    <item>
@@ -2146,125 +3238,155 @@ p, li { white-space: pre-wrap; }
          <property name="margin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
-          <widget class="QLabel" name="WelcomeSimpleWorkflowLabel">
-           <property name="toolTip">
-            <string/>
+         <item row="0" column="0" colspan="2">
+          <widget class="QTabWidget" name="AdvancedTabWidget">
+           <property name="currentIndex">
+            <number>0</number>
            </property>
-           <property name="text">
-            <string>Advanced workflow</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0" colspan="3">
-          <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
-           <property name="title">
-            <string>Volume render</string>
-           </property>
-           <property name="collapsed">
-            <bool>true</bool>
-           </property>
-           <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0">
-             <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
-              <property name="toolTip">
-               <string>Whether the input volume is a labelmap</string>
-              </property>
-              <property name="text">
-               <string>Labelmap</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="toolTip">
-               <string>Select the volume to render</string>
-              </property>
-              <property name="nodeTypes">
-               <stringlist>
-                <string>vtkMRMLScalarVolumeNode</string>
-               </stringlist>
-              </property>
-              <property name="showChildNodeTypes">
-               <bool>false</bool>
-              </property>
-              <property name="addEnabled">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QLabel" name="VolumeRenderLabelsLabel">
-              <property name="text">
-               <string>Label(s)</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit">
-              <property name="toolTip">
-               <string>Label(s) to render</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item>
-               <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
-                <property name="toolTip">
-                 <string>Open the &quot;Volume Rendering&quot; module</string>
-                </property>
+           <widget class="QWidget" name="SettingsTab">
+            <attribute name="title">
+             <string>Settings</string>
+            </attribute>
+            <layout class="QFormLayout" name="formLayout_5">
+             <property name="fieldGrowthPolicy">
+              <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+             </property>
+             <item row="0" column="0">
+              <widget class="QLabel" name="SettingsWorkflowLabel">
+               <property name="toolTip">
+                <string/>
+               </property>
+               <property name="text">
+                <string>Workflow mode</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QComboBox" name="SettingsWorkflowComboBox">
+               <property name="toolTip">
+                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Choose the mode of the workflow.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Beginner mode is advised for first time user. In this mode, everything is streamlined to help the user run the Bender workflow. It is aimed at providing a experience and feel of how Bender works.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Intermediate mode is for regular users. It is meant for users should be used to quickly go through the Bender workflow. It is recommended for user that have already been through the workflow and understand the overal process of posing a labelmap.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Expert mode is advanced user that want to have a lot of control over the workflow. This mode should be used to fine-tweak the posing process by users that understand the core mechanisms of the workflow and Bender. This is often used in conjunction with the CLIs themselves.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <item>
                 <property name="text">
-                 <string>Go To Volume Rendering</string>
+                 <string>Beginner (fully automatic)</string>
                 </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Intermediate (jump to step, load intermediate data...)</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Expert (advanced parameters)</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="VolumeRenderingTab">
+            <attribute name="title">
+             <string>Volume Rendering</string>
+            </attribute>
+            <layout class="QFormLayout" name="formLayout_6">
+             <item row="0" column="0" colspan="2">
+              <widget class="ctkCollapsibleGroupBox" name="VolumeRenderCollapsibleGroupBox">
+               <property name="title">
+                <string>Volume render</string>
+               </property>
+               <property name="collapsed">
+                <bool>true</bool>
+               </property>
+               <layout class="QGridLayout" name="gridLayout_7">
+                <item row="0" column="0">
+                 <widget class="ctkCheckBox" name="VolumeRenderCheckBox">
+                  <property name="toolTip">
+                   <string>Whether the input volume is a labelmap</string>
+                  </property>
+                  <property name="text">
+                   <string>Labelmap</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="qMRMLNodeComboBox" name="VolumeRenderInputNodeComboBox">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="toolTip">
+                   <string>Select the volume to render</string>
+                  </property>
+                  <property name="nodeTypes">
+                   <stringlist>
+                    <string>vtkMRMLScalarVolumeNode</string>
+                   </stringlist>
+                  </property>
+                  <property name="showChildNodeTypes">
+                   <bool>false</bool>
+                  </property>
+                  <property name="addEnabled">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="VolumeRenderLabelsLabel">
+                  <property name="text">
+                   <string>Label(s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit">
+                  <property name="toolTip">
+                   <string>Label(s) to render</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <layout class="QHBoxLayout" name="horizontalLayout_4">
+                  <item>
+                   <spacer name="horizontalSpacer_3">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="VolumeRenderGoToModulePushButton">
+                    <property name="toolTip">
+                     <string>Open the &quot;Volume Rendering&quot; module</string>
+                    </property>
+                    <property name="text">
+                     <string>Go To Volume Rendering</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
           </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QCheckBox" name="WelcomeSimpleWorkflowCheckBox">
-           <property name="toolTip">
-            <string>Show the workflow modules advanced options</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
@@ -2419,6 +3541,11 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>qSlicerCLIProgressBar</class>
+   <extends>QWidget</extends>
+   <header>qSlicerCLIProgressBar.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkCheckablePushButton</class>
    <extends>QPushButton</extends>
    <header>ctkCheckablePushButton.h</header>
@@ -2441,14 +3568,24 @@ p, li { white-space: pre-wrap; }
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkDirectoryButton</class>
-   <extends>QWidget</extends>
-   <header>ctkDirectoryButton.h</header>
+   <class>ctkComboBox</class>
+   <extends>QComboBox</extends>
+   <header>ctkComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>ctkExpandButton</class>
    <extends>QToolButton</extends>
    <header>ctkExpandButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkMenuButton</class>
+   <extends>QPushButton</extends>
+   <header>ctkMenuButton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ctkPathLineEdit</class>
+   <extends>QWidget</extends>
+   <header>ctkPathLineEdit.h</header>
   </customwidget>
   <customwidget>
    <class>ctkSliderWidget</class>
@@ -2469,8 +3606,8 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>536</x>
-     <y>238</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2485,8 +3622,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>584</x>
-     <y>264</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2501,8 +3638,8 @@ p, li { white-space: pre-wrap; }
      <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>519</x>
-     <y>316</y>
+     <x>194</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -2517,8 +3654,8 @@ p, li { white-space: pre-wrap; }
      <y>8</y>
     </hint>
     <hint type="destinationlabel">
-     <x>538</x>
-     <y>368</y>
+     <x>194</x>
+     <y>234</y>
     </hint>
    </hints>
   </connection>
@@ -2533,8 +3670,8 @@ p, li { white-space: pre-wrap; }
      <y>7</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>122</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2549,8 +3686,8 @@ p, li { white-space: pre-wrap; }
      <y>5</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>174</y>
+     <x>228</x>
+     <y>402</y>
     </hint>
    </hints>
   </connection>
@@ -2565,8 +3702,8 @@ p, li { white-space: pre-wrap; }
      <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>122</y>
+     <x>216</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2581,24 +3718,8 @@ p, li { white-space: pre-wrap; }
      <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>232</x>
-     <y>148</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>MergeLabelsInputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>MergeLabelsOutputNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>568</x>
-     <y>238</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>568</x>
-     <y>264</y>
+     <x>216</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2613,8 +3734,8 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
-     <y>148</y>
+     <x>450</x>
+     <y>139</y>
     </hint>
    </hints>
   </connection>
@@ -2629,8 +3750,8 @@ p, li { white-space: pre-wrap; }
      <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>696</x>
-     <y>122</y>
+     <x>450</x>
+     <y>113</y>
     </hint>
    </hints>
   </connection>
@@ -2641,12 +3762,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>696</x>
-     <y>122</y>
+     <x>450</x>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
-     <x>507</x>
-     <y>238</y>
+     <x>99</x>
+     <y>91</y>
     </hint>
    </hints>
   </connection>
@@ -2657,12 +3778,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>264</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>234</x>
-     <y>122</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2673,12 +3794,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>234</x>
-     <y>122</y>
+     <x>228</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>750</y>
+     <x>468</x>
+     <y>675</y>
     </hint>
    </hints>
   </connection>
@@ -2693,8 +3814,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>315</x>
-     <y>750</y>
+     <x>468</x>
+     <y>675</y>
     </hint>
    </hints>
   </connection>
@@ -2709,8 +3830,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>148</y>
+     <x>225</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2725,8 +3846,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>174</y>
+     <x>225</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -2741,8 +3862,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>122</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2757,8 +3878,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>290</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2773,8 +3894,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>316</y>
+     <x>270</x>
+     <y>156</y>
     </hint>
    </hints>
   </connection>
@@ -2789,8 +3910,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>264</y>
+     <x>270</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2801,12 +3922,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>122</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>264</y>
+     <x>270</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2821,8 +3942,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>351</y>
+     <x>250</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -2837,15 +3958,15 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>433</y>
+     <x>227</x>
+     <y>272</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseSurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2853,8 +3974,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>377</y>
+     <x>260</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -2865,28 +3986,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>231</x>
-     <y>148</y>
+     <x>225</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>290</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>VolumeSkinningOutputVolumeNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>231</x>
-     <y>174</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>257</x>
-     <y>316</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
    </hints>
   </connection>
@@ -2897,12 +4002,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>665</x>
-     <y>264</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>231</x>
-     <y>122</y>
+     <x>225</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -2917,8 +4022,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>192</x>
-     <y>311</y>
+     <x>186</x>
+     <y>492</y>
     </hint>
    </hints>
   </connection>
@@ -2933,8 +4038,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>192</x>
-     <y>363</y>
+     <x>186</x>
+     <y>544</y>
     </hint>
    </hints>
   </connection>
@@ -2945,28 +4050,28 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>596</x>
-     <y>264</y>
+     <x>194</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>192</x>
-     <y>311</y>
+     <x>186</x>
+     <y>492</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>SkinModelMakerOutputNodeComboBox</sender>
+   <sender>BoneModelMakerOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>192</x>
-     <y>363</y>
+     <x>228</x>
+     <y>402</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>122</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2981,8 +4086,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>122</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
    </hints>
   </connection>
@@ -2997,24 +4102,24 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>178</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>EvalSurfaceWeightOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseSurfaceInputComboBox</receiver>
+   <receiver>PoseSurfaceInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>222</x>
-     <y>178</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>377</y>
+     <x>260</x>
+     <y>220</y>
     </hint>
    </hints>
   </connection>
@@ -3025,12 +4130,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>257</x>
-     <y>290</y>
+     <x>270</x>
+     <y>130</y>
     </hint>
     <hint type="destinationlabel">
-     <x>222</x>
-     <y>351</y>
+     <x>260</x>
+     <y>194</y>
     </hint>
    </hints>
   </connection>
@@ -3042,11 +4147,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
-     <y>695</y>
+     <y>615</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
-     <y>754</y>
+     <y>687</y>
     </hint>
    </hints>
   </connection>
@@ -3057,12 +4162,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>477</x>
-     <y>112</y>
+     <x>216</x>
+     <y>324</y>
     </hint>
     <hint type="destinationlabel">
-     <x>477</x>
-     <y>168</y>
+     <x>216</x>
+     <y>376</y>
     </hint>
    </hints>
   </connection>
@@ -3077,8 +4182,8 @@ p, li { white-space: pre-wrap; }
      <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>194</y>
+     <x>188</x>
+     <y>182</y>
     </hint>
    </hints>
   </connection>
@@ -3093,8 +4198,8 @@ p, li { white-space: pre-wrap; }
      <y>112</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>112</y>
+     <x>216</x>
+     <y>104</y>
     </hint>
    </hints>
   </connection>
@@ -3105,12 +4210,364 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>397</x>
-     <y>341</y>
+     <x>250</x>
+     <y>194</y>
     </hint>
     <hint type="destinationlabel">
-     <x>416</x>
-     <y>138</y>
+     <x>216</x>
+     <y>130</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>5</x>
+     <y>224</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>104</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ArmaturesArmatureNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1</x>
+     <y>262</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>160</x>
+     <y>113</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmaturesArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>ArmaturesArmatureSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>160</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>481</x>
+     <y>112</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ArmaturesArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PoseArmatureArmatureNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>160</x>
+     <y>113</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>107</x>
+     <y>104</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>PoseArmatureArmatureNodeSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>481</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureArmatureNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>PoseArmatureSaveToolButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>654</x>
+     <y>147</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>EditSkinnedVolumeNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>16</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeSkinningOutputVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>EditSkinnedVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>225</x>
+     <y>156</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>189</x>
+     <y>246</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EditSkinnedVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>246</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>220</x>
+     <y>156</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LabelmapVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>LPSRASTransformPushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>330</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>341</x>
+     <y>161</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>LabelmapVolumeNodeComboBox</sender>
+   <signal>currentNodeChanged(bool)</signal>
+   <receiver>LabelmapGoToModulePushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>235</x>
+     <y>106</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>243</x>
+     <y>167</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinLabelComboBox</sender>
+   <signal>currentColorChanged(QString)</signal>
+   <receiver>SkinModelMakerSkinLabelLineEdit</receiver>
+   <slot>setText(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>400</x>
+     <y>358</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>58</x>
+     <y>85</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseSurfaceInputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>220</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>166</x>
+     <y>324</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseLabelmapSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseLabelmapOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>465</x>
+     <y>195</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>466</x>
+     <y>177</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BoneLabelComboBox</sender>
+   <signal>currentColorChanged(int)</signal>
+   <receiver>ComputeArmatureWeightBoneSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>288</x>
+     <y>172</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>316</x>
+     <y>198</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinModelMakerBackgroundLabelSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>ComputeArmatureWeightBackgroundSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>291</x>
+     <y>508</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>316</x>
+     <y>172</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeSkinningSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VolumeSkinningOutputVolumeNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MergeLabelsOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>120</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BoneModelMakerSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>BoneModelMakerOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>421</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinModelMakerSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SkinModelMakerOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>667</x>
+     <y>730</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>696</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseArmatureArmatureNodeSaveToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>654</x>
+     <y>147</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>658</x>
+     <y>114</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EditSkinnedVolumeSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>EditSkinnedVolumeNodeSaveToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>655</x>
+     <y>316</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>560</y>
     </hint>
    </hints>
   </connection>

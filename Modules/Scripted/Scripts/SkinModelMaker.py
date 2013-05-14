@@ -1,5 +1,154 @@
 from __main__ import vtk, qt, ctk, slicer
 
+class SkinModelMakerLogic:
+  def __init__(self):
+    # VTK Signals variables
+    self.Observations = []
+    self.StatusModifiedEvent = slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent
+
+    # Parameters dictionnaries
+    self.ChangeLabelParameters = {}
+    self.GenerateModelParameters = {}
+    self.DecimateParameters = {}
+
+    # Status
+    self.CLINode = slicer.vtkMRMLCommandLineModuleNode()
+    self.CLINode.SetStatus(self.CLINode.Idle)
+
+  def GetCLINode(self):
+    return self.CLINode
+
+  def CreateSkinModel(self, volume, skin, backgroundLabel, skinLabels, decimate = False, spacing = "", wait_for_completion = False):
+    self.CLINode.SetStatus(self.CLINode.Running, True)
+
+    erodeSkin = len(skinLabels) > 0
+
+    # 0 - Add intermediate volume to the scene
+    newVolume = slicer.vtkMRMLScalarVolumeNode()
+    newVolume.SetName('SkinModelMakerTemp')
+    if erodeSkin:
+      slicer.mrmlScene.AddNode(newVolume)
+
+    # 1 - Setup change label parameters
+    self.ChangeLabelParameters["RunChangeLabel"] = erodeSkin
+    self.ChangeLabelParameters["InputVolume"] = volume
+    self.ChangeLabelParameters["OutputVolume"] = newVolume
+    self.ChangeLabelParameters["InputLabelNumber"] = str(len(skinLabels.split(',')))
+    self.ChangeLabelParameters["InputLabel"] = skinLabels
+    self.ChangeLabelParameters["OutputLabel"] = backgroundLabel
+
+    # 2 Setup generate model parameters
+    if erodeSkin:
+      self.GenerateModelParameters["InputVolume"] = newVolume
+    else:
+      self.GenerateModelParameters["InputVolume"] = volume
+    self.GenerateModelParameters["OutputGeometry"] = skin
+    self.GenerateModelParameters["Threshold"] = backgroundLabel + 0.1
+    if decimate:
+      self.GenerateModelParameters["Decimate"] = 0.0
+      self.GenerateModelParameters["Smooth"] = 0
+
+    # 3 Setup decimator parameters
+    self.DecimateParameters["RunDecimator"] = decimate
+    self.DecimateParameters["InputModel"] = skin
+    self.DecimateParameters["DecimatedModel"] = skin
+    self.DecimateParameters["Spacing"] = spacing
+    self.DecimateParameters['UseInputPoints'] = True
+    self.DecimateParameters['UseFeatureEdges'] = True
+    self.DecimateParameters['UseFeaturePoints'] = True
+
+    # Start CLI chain
+    self.WaitForCompletion = wait_for_completion
+    self.runChangeLabel()
+
+  def runChangeLabel(self):
+    if self.ChangeLabelParameters["RunChangeLabel"]:
+      cliNode = self.getCLINode(slicer.modules.changelabel)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onChangeLabelModified)
+      cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, self.ChangeLabelParameters, self.WaitForCompletion)
+    else:
+      self.runGenerateModel()
+
+  def onChangeLabelModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.removeObservers(self.onChangeLabelModified)
+
+      if cliNode.GetStatusString() == 'Completed':
+        print ('Merge Labels completed')
+        self.runGenerateModel()
+      else:
+        slicer.mrmlScene.RemoveNode(self.ChangeLabelParameters["OutputVolume"])
+        print ('Skin Model Maker Failed: Merge Labels failed')
+        self.CLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+
+  def runGenerateModel(self):
+    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    self.addObserver(cliNode, self.StatusModifiedEvent, self.onGenerateModelModified)
+    cliNode = slicer.cli.run(slicer.modules.grayscalemodelmaker, cliNode, self.GenerateModelParameters, self.WaitForCompletion)
+
+  def onGenerateModelModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.removeObservers(self.onGenerateModelModified)
+
+      if self.ChangeLabelParameters["RunChangeLabel"]:
+        slicer.mrmlScene.RemoveNode(self.GenerateModelParameters["InputVolume"])
+
+      if cliNode.GetStatusString() == 'Completed':
+        print ('Grayscale Model Maker completed')
+        self.runDecimator()
+      else:
+        print ('Skin Model Maker Failed: Grayscale Model Maker failed')
+        self.CLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+
+  def runDecimator(self):
+    if self.DecimateParameters["RunDecimator"]:
+      cliNode = self.getCLINode(slicer.modules.modelquadricclusteringdecimation)
+      self.addObserver(cliNode, self.StatusModifiedEvent, self.onDecimatorModified)
+      cliNode = slicer.cli.run(slicer.modules.modelquadricclusteringdecimation, cliNode, self.DecimateParameters, self.WaitForCompletion)
+    else:
+      print ('Skin Model Maker Succes !')
+      self.CLINode.SetStatus(self.CLINode.Completed, True)
+
+  def onDecimatorModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.removeObservers(self.onDecimatorModified)
+
+      if cliNode.GetStatusString() == 'Completed':
+        print ('Skin Model Maker Succes !')
+        self.GetCLINode.SetStatus(self.CLINode.Completed, True)
+      else:
+        print ('Skin Model Maker Failed: Model Quadric Clustering Decimation failed')
+        self.GetCLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+
+  def getCLINode(self, cliModule):
+    """ Return the cli node to use for a given CLI module. Create the node in
+    scene if needed.
+    """
+    cliNode = slicer.mrmlScene.GetFirstNodeByName(cliModule.title)
+    if cliNode == None:
+      cliNode = slicer.cli.createNode(cliModule)
+      cliNode.SetName(cliModule.title)
+    return cliNode
+
+  def removeObservers(self, method):
+    for o, e, m, g, t in self.Observations:
+      if method == m:
+        o.RemoveObserver(t)
+        self.Observations.remove([o, e, m, g, t])
+
+  def addObserver(self, object, event, method, group = 'none'):
+    if self.hasObserver(object, event, method):
+      print 'already has observer'
+      return
+    tag = object.AddObserver(event, method)
+    self.Observations.append([object, event, method, group, tag])
+
+  def hasObserver(self, object, event, method):
+    for o, e, m, g, t in self.Observations:
+      if o == object and e == event and m == method:
+        return True
+    return False
+
 #
 # SkinModelMaker
 #
@@ -79,91 +228,10 @@ class SkinModelMakerWidget:
       print 'Parameters incorrect'
       return
 
-    if self.CreateSkinModel(volume, skin, backgroundLabel, skinLabels, spacing, decimate) == True:
-      print 'Skin Model Maker Success'
-    else:
-      print 'Skin Model Maker Error'
+    self.Logic = SkinModelMakerLogic()
+    self.Logic.CreateSkinModel(volume, skin, backgroundLabel, skinLabels, decimate, spacing, False)
 
-  def CreateSkinModel(self, volume, skin, backgroundLabel, skinLabels, spacing, decimate = False):
-    erodeSkin = len(skinLabels) > 0
-
-    # 0 - Add intermediate volume to the scene
-    newVolume = slicer.vtkMRMLScalarVolumeNode()
-    newVolume.SetName('SkinModelMakerTemp')
-    if erodeSkin:
-      slicer.mrmlScene.AddNode(newVolume)
-
-    # 1 - Get rid of the skin
-    if erodeSkin:
-      changeLabelParameters = {}
-      changeLabelParameters["InputVolume"] = volume
-      changeLabelParameters["OutputVolume"] = newVolume
-
-      changeLabelParameters["InputLabelNumber"] = str(len(skinLabels.split(',')))
-      changeLabelParameters["InputLabel"] = skinLabels
-      changeLabelParameters["OutputLabel"] = backgroundLabel
-
-      changeLabelCLI = None
-      changeLabelCLI = slicer.cli.run(slicer.modules.changelabel, changeLabelCLI, changeLabelParameters, wait_for_completion = True)
-      if changeLabelCLI.GetStatusString() == 'Completed':
-        print 'MergeLabels completed'
-      else:
-        print 'MergeLabels failed'
-        if erodeSkin:
-          slicer.mrmlScene.RemoveNode(newVolume)
-        return False
-
-    # 2- Generate model
-    grayscaleParameters = {}
-    if erodeSkin:
-      grayscaleParameters["InputVolume"] = newVolume
-    else:
-      grayscaleParameters["InputVolume"] = volume
-
-    grayscaleParameters["OutputGeometry"] = skin
-    grayscaleParameters["Threshold"] = backgroundLabel + 0.1
-    if decimate:
-      grayscaleParameters["Decimate"] = 0.0
-      grayscaleParameters["Smooth"] = 0
-
-    grayscaleCLI = None
-    grayscaleCLI = slicer.cli.run(slicer.modules.grayscalemodelmaker, grayscaleCLI, grayscaleParameters, wait_for_completion = True)
-    if grayscaleCLI.GetStatusString() == 'Completed':
-      print 'MergeLabels completed'
-    else:
-      print 'MergeLabels failed'
-      if erodeSkin:
-        slicer.mrmlScene.RemoveNode(newVolume)
-      return False
-
-    if not decimate:
-      if erodeSkin:
-        slicer.mrmlScene.RemoveNode(newVolume)
-      return True
-
-    # 3 - Downsample it
-    decimatorParameters = {}
-    decimatorParameters["InputModel"] = skin
-    decimatorParameters["DecimatedModel"] = skin
-    decimatorParameters["Spacing"] = spacing
-    decimatorParameters['UseInputPoints'] = True
-    decimatorParameters['UseFeatureEdges'] = True
-    decimatorParameters['UseFeaturePoints'] = True
-
-    decimatorCLI = None
-    decimatorCLI = slicer.cli.run(slicer.modules.modelquadricclusteringdecimation, decimatorCLI, decimatorParameters, wait_for_completion = True)
-    if decimatorCLI.GetStatusString() == 'Completed':
-      print 'Decimator completed'
-    else:
-      print 'Decimator failed'
-      if erodeSkin:
-        slicer.mrmlScene.RemoveNode(newVolume)
-      return False
-
-    if erodeSkin:
-      slicer.mrmlScene.RemoveNode(newVolume)
-    return True
-
+  # =================== END ==============
   def get(self, objectName):
     return self.findWidget(self.widget, objectName)
 
