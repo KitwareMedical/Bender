@@ -38,6 +38,7 @@ WeightMap::WeightMap()
  : Cols(0)
  , MinForegroundValue(0.)
  , MaxWeightDegree(-1)
+ , MinWeightValue(std::numeric_limits<float>::min())
 {
 }
 
@@ -72,7 +73,7 @@ void WeightMap::Init(const std::vector<Voxel>& voxels, const itk::ImageRegion<3>
 //-------------------------------------------------------------------------------
 bool WeightMap::Insert(const Voxel& v, SiteIndex index, float value)
 {
-  if(value<=0)
+  if (value < this->MinWeightValue)
     {
     return false;
     }
@@ -124,9 +125,22 @@ WeightMap::WeightEntry WeightMap::Get(const Voxel& v, WeightVector& values) cons
 }
 
 //-------------------------------------------------------------------------------
+void WeightMap::SetMinWeightValue(float minWeight)
+{
+  this->MinWeightValue = minWeight;
+}
+
+//-------------------------------------------------------------------------------
+float WeightMap::GetMinWeightValue()const
+{
+  return this->MinWeightValue;
+}
+
+//-------------------------------------------------------------------------------
 void WeightMap::AddRow()
 {
-  this->LUT.push_back(WeightEntries(this->Cols));
+  this->LUT.push_back(WeightEntries(0));
+  this->LUT.back().resize(this->Cols);
 }
 
 //-------------------------------------------------------------------------------

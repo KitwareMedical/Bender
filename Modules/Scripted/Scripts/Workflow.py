@@ -146,6 +146,10 @@ class WorkflowWidget:
     self.get('PoseLabelmapApplyPushButton').connect('clicked(bool)', self.runPoseLabelmap)
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
 
+    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
+    self.get('BoneLabelsLineEdit').connect('textChanged(QString)', self.setupPoseLabelmap)
+    self.get('SkinLabelsLineEdit').connect('textChanged(QString)', self.setupPoseLabelmap)
+
     self.openPage = { 0 : self.openAdjustPage,
                       1 : self.openExtractPage,
                       2 : self.openCreateArmaturePage,
@@ -304,6 +308,8 @@ class WorkflowWidget:
     advancedPoseLabemapWidgets = ['PoseLabelmapInputLabel', 'PoseLabelmapInputNodeComboBox',
                                   'PoseLabelmapArmatureLabel', 'PoseLabelmapArmatureNodeComboBox',
                                   'PoseLabelmapWeightDirectoryLabel', 'PoseLabelmapWeightDirectoryButton',
+                                  'PoseLabelmapHighPrecedenceLabelsLabel', 'PoseLabelmapHighPrecedenceLabelsLineEdit',
+                                  'PoseLabelmapLowPrecedenceLabelsLabel', 'PoseLabelmapLowPrecedenceLabelsLineEdit',
                                   'PoseLabelmapGoToPushButton']
     self.setWidgetsVisibility(advancedPoseLabemapWidgets, advanced)
 
@@ -996,6 +1002,17 @@ class WorkflowWidget:
       self.poseLabelmapCreateOutputConnected = True
     self.createOutputPoseLabelmap(self.get('PoseLabelmapInputNodeComboBox').currentNode())
 
+  #
+  def setupPoseLabelmap(self):
+    """ Update the labels of the poselabelmap module
+    """
+    labels = []
+    labels.append(self.get('BoneLabelComboBox').currentColor)
+    self.get('BoneModelMakerLabelsLineEdit').setText(', '.join(str(val) for val in labels))
+    self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text = self.get('BoneLabelsLineEdit').text
+    self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text = self.get('SkinLabelsLineEdit').text
+
+
   def poseLabelmapParameters(self):
     parameters = {}
     parameters["RestLabelmap"] = self.get('PoseLabelmapInputNodeComboBox').currentNode()
@@ -1006,6 +1023,8 @@ class WorkflowWidget:
     #parameters["MaximumPass"] = 4
     #parameters["Debug"] = False
     #parameters["IsArmatureInRAS"] = False
+    parameters["HighPrecedenceLabels"] = self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text
+    parameters["LowPrecedenceLabels"] = self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text
     return parameters
 
   def runPoseLabelmap(self, run):

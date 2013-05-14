@@ -52,8 +52,8 @@ public:
   typedef unsigned char SiteIndex;
   struct WeightEntry
   {
-    SiteIndex Index;
     float Value;
+    SiteIndex Index;
 
     WeightEntry(): Index(std::numeric_limits<SiteIndex>::max()), Value(0.){}
   };
@@ -78,12 +78,17 @@ public:
   template <class T>
   void Init(const typename itk::Image<T, 3>::Pointer image,
             const itk::ImageRegion<3>& region);
+  /// Add a weight entry at the voxel \a v for the site \a index.
+  /// If value is below MinWeightValue, the entry is discarded
   bool Insert(const Voxel& v, SiteIndex index, float value);
 
   /// Set the list of weight entries at the voxel v.
   /// Return the weight that has the most influence on the voxel v.
   /// If the voxel is outside the region, return an invalid weight entry.
   WeightEntry Get(const Voxel& v, WeightVector& values) const;
+
+  void SetMinWeightValue(float minWeight);
+  float GetMinWeightValue()const;
 
   void AddRow();
   void Print() const;
@@ -142,6 +147,9 @@ private:
   WeightsDegreesType WeightsDegrees;
   /// -1 means all degrees are accepted. -1 by default.
   int MaxWeightDegree;
+  /// Minimum weight value accepted in Insert()
+  /// \sa Insert()
+  float MinWeightValue;
 };
 
 };
