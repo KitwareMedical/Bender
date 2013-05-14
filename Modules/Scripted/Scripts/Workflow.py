@@ -57,11 +57,11 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    self.reloadButton = qt.QPushButton("Reload")
-    self.reloadButton.toolTip = "Reload this module."
-    self.reloadButton.name = "Workflow Reload"
-    self.layout.addWidget(self.reloadButton)
-    self.reloadButton.connect('clicked()', self.reloadModule)
+    # self.reloadButton = qt.QPushButton("Reload")
+    # self.reloadButton.toolTip = "Reload this module."
+    # self.reloadButton.name = "Workflow Reload"
+    # self.layout.addWidget(self.reloadButton)
+    # self.reloadButton.connect('clicked()', self.reloadModule)
 
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
@@ -95,11 +95,15 @@ class WorkflowWidget:
     self.get('LabelmapVolumeNodeToolButton').icon = loadIcon
     self.get('LabelmapColorNodeToolButton').icon = loadIcon
     self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsSaveToolButton').icon = saveIcon
     self.get('BoneModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('BoneModelMakerSaveToolButton').icon = saveIcon
     self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('SkinModelMakerSaveToolButton').icon = saveIcon
     self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
     self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
     self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
+    self.get('VolumeSkinningSaveToolButton').icon = saveIcon
     self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
     self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
