@@ -3,7 +3,7 @@
   <category>;Segmentation.Bender</category>
   <index>6</index>
   <title>Pose Labelmap</title>
-  <description><![CDATA[Pose an <b>Input Rest Labelmap</b> according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
+  <description><![CDATA[Transform a labelmap according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/PoseLabelmap</documentation-url>
   <license/>
@@ -16,7 +16,7 @@
     <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
-      <description><![CDATA[Original labelmap for which the <b>Armature</b> was created and the weights computed.]]></description>
+      <description><![CDATA[Input labelmap to reposition. The <b>Armature</b> must 'fit' inside the volume and the weights computed from it.]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -24,23 +24,23 @@
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature in pose mode. The armature should be associated with the volume the <b>Input Rest Labelmap</b> it originated from.]]></description>
+      <description><![CDATA[Armature model containing the bone poses (i.e. 'Transforms' cell data array). The armature must 'fit' inside <b>Input Rest Labelmap</b>.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
 
     <directory>
       <name>WeightDirectory</name>
-      <label>Directories containing all the weights</label>
+      <label>Directories containing all the weight images.</label>
       <channel>input</channel>
       <index>2</index>
-      <description><![CDATA[Directory containing the weight image files (one for each <b>Armature</b> edge). These weights should be associated with the volume the <b>Input Rest Labelmap</b> they originated from.]]></description>
+      <description><![CDATA[Directory containing the weight image files (one for each <b>Armature</b> bone). These weight images must be comptued from <b>Input Rest Labelmap</b> and <b>Armature</b>.]]></description>
     </directory>
 
     <image type="label">
       <name>PosedLabelmap</name>
       <label>Output Posed Labelmap</label>
-      <description><![CDATA[Output posed labelmap. It is the <b>Input Rest Labelmap</b> where each voxel was posed by the <b>Armature</b> pose transform.]]></description>
+      <description><![CDATA[Output repositioned labelmap. It is the <b>Input Rest Labelmap</b> where each voxel is moved by the <b>Armature</b> pose transforms.]]></description>
       <channel>output</channel>
       <index>3</index>
     </image>
@@ -55,7 +55,7 @@
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
-      <description><![CDATA[If set to true, the pose transforms from the <b>Armature</b> will be combined linearly (according to the weights), which will result in rigid transforms. ]]></description>
+      <description><![CDATA[If set to true, the <b>Armature</b> pose transforms are combined linearly (according to the bone weights). Otherwise, it is a more accurate but slower dual quaternion blending.]]></description>
       <default>false</default>
     </boolean>
 
@@ -63,7 +63,7 @@
       <name>MaximumRadius</name>
       <label>Maximum radius</label>
       <longflag>--radius</longflag>
-      <description><![CDATA[This property controls how far in the posed image the holes are filled. Should be a power of 2.]]></description>
+      <description><![CDATA[This property controls the number of subdivision between voxels to fill holes. Should be a power of 2.]]></description>
       <default>64</default>
     </integer>
 
@@ -71,7 +71,7 @@
       <name>MaximumParenthoodDistance</name>
       <label>Maximum Parenthood Distance</label>
       <longflag>--distance</longflag>
-      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <description><![CDATA[This property prevents the interpolation of weights that are too far away in the armature tree. For example, with Maximum Parenthood Distance set to 1, the interpolation of transforms will be limited to the current bone's parent and children. -1 (by default) means there is no limitation.]]></description>
       <default>-1</default>
     </integer>
 
@@ -106,7 +106,7 @@
     <boolean>
       <name>IsArmatureInRAS</name>
       <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <description><![CDATA[This property controls whether the input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
@@ -115,7 +115,7 @@
       <name>BackgroundValue</name>
       <label>BackgroundValue</label>
       <longflag>--background</longflag>
-      <description><![CDATA[Background scalar value]]></description>
+      <description><![CDATA[Background scalar value.]]></description>
       <default>0</default>
     </integer>
 
