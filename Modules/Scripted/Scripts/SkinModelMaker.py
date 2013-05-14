@@ -18,41 +18,56 @@ class SkinModelMakerLogic:
   def GetCLINode(self):
     return self.CLINode
 
-  def CreateSkinModel(self, volume, skin, backgroundLabel, skinLabels, decimate = False, spacing = "", wait_for_completion = False):
-    self.CLINode.SetStatus(self.CLINode.Running, True)
+  def Cancel(self):
+    self.CLINode.SetStatus(self.CLINode.Cancelling)
 
-    erodeSkin = len(skinLabels) > 0
+    # Stop CLIs
+    # The CLIs will set the CLINode status to Cancel once they stop.
+    changeLabelCLINode = self.getCLINode(slicer.modules.changelabel)
+    changeLabelCLINode.Cancel()
+
+    modelMakerCLINode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    modelMakerCLINode.Cancel()
+
+    decimatorCLINode = self.getCLINode(slicer.modules.modelquadricclusteringdecimation)
+    decimatorCLINode.Cancel()
+
+  def CreateSkinModel(self, parameters, wait_for_completion = False):
+    self.CLINode.SetStatus(self.CLINode.Running)
+
+    erodeSkin = len(parameters['SkinLabel']) > 0
 
     # 0 - Add intermediate volume to the scene
-    newVolume = slicer.vtkMRMLScalarVolumeNode()
-    newVolume.SetName('SkinModelMakerTemp')
+    self.NewVolume = None
     if erodeSkin:
-      slicer.mrmlScene.AddNode(newVolume)
+      self.NewVolume = slicer.vtkMRMLScalarVolumeNode()
+      self.NewVolume.SetName('SkinModelMakerTemp')
+      slicer.mrmlScene.AddNode(self.NewVolume)
 
     # 1 - Setup change label parameters
     self.ChangeLabelParameters["RunChangeLabel"] = erodeSkin
-    self.ChangeLabelParameters["InputVolume"] = volume
-    self.ChangeLabelParameters["OutputVolume"] = newVolume
-    self.ChangeLabelParameters["InputLabelNumber"] = str(len(skinLabels.split(',')))
-    self.ChangeLabelParameters["InputLabel"] = skinLabels
-    self.ChangeLabelParameters["OutputLabel"] = backgroundLabel
+    self.ChangeLabelParameters["InputVolume"] =  parameters["InputVolume"]
+    self.ChangeLabelParameters["OutputVolume"] = self.NewVolume
+    self.ChangeLabelParameters["InputLabelNumber"] = str(len(parameters['SkinLabel'].split(',')))
+    self.ChangeLabelParameters["InputLabel"] = parameters['SkinLabel']
+    self.ChangeLabelParameters["OutputLabel"] = parameters['BackgroundLabel']
 
     # 2 Setup generate model parameters
     if erodeSkin:
-      self.GenerateModelParameters["InputVolume"] = newVolume
+      self.GenerateModelParameters["InputVolume"] = self.NewVolume
     else:
-      self.GenerateModelParameters["InputVolume"] = volume
-    self.GenerateModelParameters["OutputGeometry"] = skin
-    self.GenerateModelParameters["Threshold"] = backgroundLabel + 0.1
-    if decimate:
+      self.GenerateModelParameters["InputVolume"] =  parameters["InputVolume"]
+    self.GenerateModelParameters["OutputGeometry"] = parameters["OutputGeometry"]
+    self.GenerateModelParameters["Threshold"] = parameters['BackgroundLabel'] + 0.1
+    if parameters['Decimate']:
       self.GenerateModelParameters["Decimate"] = 0.0
       self.GenerateModelParameters["Smooth"] = 0
 
     # 3 Setup decimator parameters
-    self.DecimateParameters["RunDecimator"] = decimate
-    self.DecimateParameters["InputModel"] = skin
-    self.DecimateParameters["DecimatedModel"] = skin
-    self.DecimateParameters["Spacing"] = spacing
+    self.DecimateParameters["RunDecimator"] = parameters['Decimate']
+    self.DecimateParameters["InputModel"] = parameters["OutputGeometry"]
+    self.DecimateParameters["DecimatedModel"] = parameters["OutputGeometry"]
+    self.DecimateParameters["Spacing"] = parameters['Spacing']
     self.DecimateParameters['UseInputPoints'] = True
     self.DecimateParameters['UseFeatureEdges'] = True
     self.DecimateParameters['UseFeaturePoints'] = True
@@ -73,13 +88,12 @@ class SkinModelMakerLogic:
     if not cliNode.IsBusy():
       self.removeObservers(self.onChangeLabelModified)
 
+      print ('Merge Labels %s' % cliNode.GetStatusString())
       if cliNode.GetStatusString() == 'Completed':
-        print ('Merge Labels completed')
         self.runGenerateModel()
       else:
         slicer.mrmlScene.RemoveNode(self.ChangeLabelParameters["OutputVolume"])
-        print ('Skin Model Maker Failed: Merge Labels failed')
-        self.CLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+        self.CLINode.SetStatus(cliNode.GetStatus())
 
   def runGenerateModel(self):
     cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
@@ -93,12 +107,11 @@ class SkinModelMakerLogic:
       if self.ChangeLabelParameters["RunChangeLabel"]:
         slicer.mrmlScene.RemoveNode(self.GenerateModelParameters["InputVolume"])
 
+      print ('Grayscale Model Maker %s' % cliNode.GetStatusString())
       if cliNode.GetStatusString() == 'Completed':
-        print ('Grayscale Model Maker completed')
         self.runDecimator()
       else:
-        print ('Skin Model Maker Failed: Grayscale Model Maker failed')
-        self.CLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+        self.CLINode.SetStatus(cliNode.GetStatus())
 
   def runDecimator(self):
     if self.DecimateParameters["RunDecimator"]:
@@ -106,19 +119,17 @@ class SkinModelMakerLogic:
       self.addObserver(cliNode, self.StatusModifiedEvent, self.onDecimatorModified)
       cliNode = slicer.cli.run(slicer.modules.modelquadricclusteringdecimation, cliNode, self.DecimateParameters, self.WaitForCompletion)
     else:
-      print ('Skin Model Maker Succes !')
-      self.CLINode.SetStatus(self.CLINode.Completed, True)
+      self.CLINode.SetStatus(self.CLINode.Completed)
 
   def onDecimatorModified(self, cliNode, event):
     if not cliNode.IsBusy():
       self.removeObservers(self.onDecimatorModified)
 
+      print ('Model Quadric Clustering %s' % cliNode.GetStatusString())
       if cliNode.GetStatusString() == 'Completed':
-        print ('Skin Model Maker Succes !')
-        self.GetCLINode.SetStatus(self.CLINode.Completed, True)
+        self.GetCLINode().SetStatus(self.CLINode.Completed)
       else:
-        print ('Skin Model Maker Failed: Model Quadric Clustering Decimation failed')
-        self.GetCLINode.SetStatus(self.CLINode.CompletedWithErrors, True)
+        self.CLINode.SetStatus(cliNode.GetStatus())
 
   def getCLINode(self, cliModule):
     """ Return the cli node to use for a given CLI module. Create the node in
@@ -205,31 +216,51 @@ class SkinModelMakerWidget:
     # self.layout.addWidget(self.reloadButton)
     # self.reloadButton.connect('clicked()', self.reloadModule)
 
+    # Logic
+    self.Logic = SkinModelMakerLogic()
+
     #
     # Signals / Slots
     #
 
-    self.get('ApplyPushButton').connect('clicked()', self.onApply)
+    self.get('ApplyPushButton').connect('clicked(bool)', self.onApply)
 
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
     # Lots of setup methods are called from this line
     self.widget.setMRMLScene(slicer.mrmlScene)
 
-  def onApply(self):
-    volume = self.get('VolumeNodeComboBox').currentNode()
-    skin = self.get('OutputSkinModelNodeComboBox').currentNode()
-    backgroundLabel = self.get('BackgroundLabelSpinBox').value
-    skinLabels =  self.get('SkinLabelsLineEdit').text
-    decimate = self.get('DecimateOutputSkinLabelCheckBox').isChecked()
-    spacing = self.get('SpacingLineEdit').text
+  def onApply(self, run):
+    if run:
+      self.get('ApplyPushButton').setChecked(True)
 
-    if volume == None or skin == None or backgroundLabel == None or skinLabels == None or spacing == None:
-      print 'Parameters incorrect'
-      return
+      parameters = {}
+      parameters["InputVolume"] = self.get('VolumeNodeComboBox').currentNode()
+      parameters["OutputGeometry"] = self.get('OutputSkinModelNodeComboBox').currentNode()
+      parameters['BackgroundLabel'] = self.get('BackgroundLabelSpinBox').value
+      parameters['SkinLabel'] = self.get('SkinLabelsLineEdit').text
+      parameters['Decimate'] = self.get('DecimateOutputSkinLabelCheckBox').isChecked()
+      parameters['Spacing'] = self.get('SpacingLineEdit').text
 
-    self.Logic = SkinModelMakerLogic()
-    self.Logic.CreateSkinModel(volume, skin, backgroundLabel, skinLabels, decimate, spacing, False)
+      for i in parameters.keys():
+        if parameters[i] == None:
+          print 'Skin model maker not ran: Parameters incorrect'
+          self.get('ApplyPushButton').setChecked(False)
+          return
+
+      self.Logic.addObserver(self.Logic.GetCLINode(), slicer.vtkMRMLCommandLineModuleNode().StatusModifiedEvent, self.onLogicModified)
+      self.Logic.CreateSkinModel(parameters, False)
+    else:
+      self.get('ApplyPushButton').setChecked(True) # Keep checked until actually cancelled
+      self.get('ApplyPushButton').setEnabled(False)
+      self.Logic.Cancel()
+
+  def onLogicModified(self, cliNode, event):
+    if not cliNode.IsBusy():
+      self.Logic.removeObservers(self.onLogicModified)
+      self.get('ApplyPushButton').setEnabled(True)
+      self.get('ApplyPushButton').setChecked(False)
+      print 'Skin Model Maker %s' % cliNode.GetStatusString()
 
   # =================== END ==============
   def get(self, objectName):

@@ -859,6 +859,7 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   #     c) Skin Model Maker
   def initSkinModelMakerLabels(self):
+    self.SkinModelMakerLogic = SkinModelMaker.SkinModelMakerLogic()
     self.validateSkinModelMakerLabels()
 
   def setupSkinModelMakerLabels(self, volumeNode):
@@ -904,18 +905,13 @@ class WorkflowWidget:
 
   def runSkinModelMaker(self, run):
     if run:
-      cli = SkinModelMaker.SkinModelMakerLogic()
       parameters = self.skinModelMakerParameters()
       self.get('SkinModelMakerApplyPushButton').setChecked(True)
+      self.observeCLINode(self.SkinModelMakerLogic.GetCLINode(), self.onSkinModelMakerCLIModified)
+      self.SkinModelMakerLogic.CreateSkinModel(parameters, wait_for_completion = False)
+    else:
       self.get('SkinModelMakerApplyPushButton').enabled = False
-      self.observeCLINode(cli.GetCLINode(), self.onSkinModelMakerCLIModified)
-      cli.CreateSkinModel(parameters["InputVolume"],
-                          parameters["OutputGeometry"],
-                          parameters["BackgroundLabel"],
-                          parameters["SkinLabel"],
-                          parameters["Decimate"],
-                          parameters["Spacing"],
-                          wait_for_completion = False)
+      self.SkinModelMakerLogic.Cancel()
 
   def onSkinModelMakerCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
@@ -936,8 +932,6 @@ class WorkflowWidget:
       # Reset camera
       self.reset3DViews()
 
-      # \todo: why is there a crash if cli node is not reset ?
-      self.get('CLIProgressBar').setCommandLineModuleNode(0)
       self.validateSkinModelMakerLabels()
 
     if not cliNode.IsBusy():
