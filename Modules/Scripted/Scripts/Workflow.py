@@ -908,7 +908,7 @@ class WorkflowWidget:
       parameters = self.skinModelMakerParameters()
       self.get('SkinModelMakerApplyPushButton').setChecked(True)
       self.get('SkinModelMakerApplyPushButton').enabled = False
-      self.addObserver(cli.GetCLINode(), self.StatusModifiedEvent, self.onSkinModelMakerCLIModified)
+      self.observeCLINode(cli.GetCLINode(), self.onSkinModelMakerCLIModified)
       cli.CreateSkinModel(parameters["InputVolume"],
                           parameters["OutputGeometry"],
                           parameters["BackgroundLabel"],
@@ -936,6 +936,8 @@ class WorkflowWidget:
       # Reset camera
       self.reset3DViews()
 
+      # \todo: why is there a crash if cli node is not reset ?
+      self.get('CLIProgressBar').setCommandLineModuleNode(0)
       self.validateSkinModelMakerLabels()
 
     if not cliNode.IsBusy():
