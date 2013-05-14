@@ -57,11 +57,11 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    self.reloadButton = qt.QPushButton("Reload")
-    self.reloadButton.toolTip = "Reload this module."
-    self.reloadButton.name = "Workflow Reload"
-    self.layout.addWidget(self.reloadButton)
-    self.reloadButton.connect('clicked()', self.reloadModule)
+    # self.reloadButton = qt.QPushButton("Reload")
+    # self.reloadButton.toolTip = "Reload this module."
+    # self.reloadButton.name = "Workflow Reload"
+    # self.layout.addWidget(self.reloadButton)
+    # self.reloadButton.connect('clicked()', self.reloadModule)
 
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
@@ -95,12 +95,16 @@ class WorkflowWidget:
     self.get('LabelmapVolumeNodeToolButton').icon = loadIcon
     self.get('LabelmapColorNodeToolButton').icon = loadIcon
     self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
+    self.get('MergeLabelsSaveToolButton').icon = saveIcon
     self.get('BoneModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('BoneModelMakerSaveToolButton').icon = saveIcon
     self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('SkinModelMakerSaveToolButton').icon = saveIcon
     self.get('ArmaturesArmatureLoadToolButton').icon = loadIcon
     self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
     self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
     self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
+    self.get('VolumeSkinningSaveToolButton').icon = saveIcon
     self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
     self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
@@ -652,8 +656,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.changelabel)
     valid = (cliNode.GetStatusString() == 'Completed')
     self.get('MergeLabelsOutputNodeToolButton').enabled = valid
+    self.get('MergeLabelsSaveToolButton').enabled = valid
     self.get('MergeLabelsCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('MergeLabelsCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     if valid:
       self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
         self.get('MergeLabelsInputNodeComboBox').currentNode())
@@ -788,8 +792,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.modelmaker)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('BoneModelMakerOutputNodeToolButton').enabled = valid
+    self.get('BoneModelMakerSaveToolButton').enabled = valid
     self.get('BoneModelMakerCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('BoneModelMakerCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.get('SkinModelMakerApplyPushButton').enabled = not self.isWorkflow(0) or valid
 
   def boneModelFromModelHierarchyNode(self, modelHierarchyNode):
@@ -880,10 +884,10 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('SkinModelMakerOutputNodeToolButton').enabled = valid
+    self.get('SkinModelMakerSaveToolButton').enabled = valid
     self.get('SkinModelMakerToggleVisiblePushButton').enabled = valid
     self.get('ArmaturesToggleVisiblePushButton').enabled = valid
     self.get('SkinModelMakerCollapsibleGroupBox').setProperty('valid',valid)
-    self.get('SkinModelMakerCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.validateExtractPage(validateSections = False)
 
   def skinModelMakerParameters(self):
@@ -1034,8 +1038,8 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.volumeskinning)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('VolumeSkinningOutputVolumeNodeToolButton').enabled = valid
+    self.get('VolumeSkinningSaveToolButton').enabled = valid
     self.get('VolumeSkinningCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('VolumeSkinningCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     self.get('EditSkinnedVolumeGoToEditorPushButton').enabled = not self.isWorkflow(0) or valid
 
   def volumeSkinningParameters(self):
