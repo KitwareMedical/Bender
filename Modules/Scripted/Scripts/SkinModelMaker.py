@@ -170,10 +170,16 @@ class SkinModelMaker:
     parent.categories = ["Surface Models"]
     parent.dependencies = ["ChangeLabel", "GrayscaleModelMaker", "ModelQuadricClusteringDecimation"]
     parent.contributors = ["Johan Andruejol (Kitware)",]
-    parent.helpText = """This module creates a skin model contained within the given volume.
-                        It really is a wrapper around the ChangeLabel, GrayscaleModelMaker and the ModelQuadricClusteringDecimator.
-                        The principle is to set the volume's skin label to background and then run
-                        the model maker, with the option to decimate it after using the decimator."""
+    parent.helpText = string.Template(
+      """This module extracts the outer surface of a volume (labelmap or grayscale).
+         It conveniently wraps the modules ChangeLabel, GrayscaleModelMaker and ModelQuadricClusteringDecimator.
+         In order to ensure the surface lies within the volume, the skin can be peeled off (chaned into backgroun)
+         before extracting the surface.
+         In order to reduce the number of points and cells of the extracted surface model,
+         an additional decimation is possible using Quadric Clustering.
+         See <a href=\"$a/Documentation/$b.$c/Modules/SkinModelMaker\">$a/Documentation/$b.$c/Modules/SkinModelMaker</a> for more information.
+      """
+      ).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
     parent.acknowledgementText = """This work is supported by Air Force Research Laboratory (AFRL)"""
     self.parent = parent
 
