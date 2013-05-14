@@ -1536,10 +1536,10 @@ class WorkflowWidget:
     self.get('PoseLabelmapOutputNodeToolButton').enabled = valid
     self.get('PoseLabelmapSaveToolButton').enabled = valid
     self.get('ResampleCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('ResampleCollapsibleGroupBox').collapsed = self.isWorkflow(0) and valid
     if valid:
       self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
-        self.get('PoseLabelmapInputNodeComboBox').currentNode())
+        self.get('PoseLabelmapOutputNodeComboBox').currentNode())
+      self.get('VolumeRenderLabelsLineEdit').text = ''
     self.validatePoseLabelmapPage(validateSections = False)
 
   def poseLabelmapParameterChanged(self):
