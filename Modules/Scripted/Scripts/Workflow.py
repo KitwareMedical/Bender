@@ -1555,6 +1555,7 @@ class WorkflowWidget:
     parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightPathLineEdit').currentPath)
     parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
     parameters["LinearBlend"] = True
+    parameters["Padding"] = self.get('PoseLabelmapPaddingSpinBox').value
     parameters["MaximumParenthoodDistance"] = '4'
     #parameters["MaximumRadius"] = '64'
     #parameters["Debug"] = False
