@@ -901,8 +901,7 @@ int DoIt(int argc, char* argv[])
   //----------------------------
   typename LabelImageType::Pointer posedLabelMap = LabelImageType::New();
   posedLabelMap->CopyInformation(labelMap);
-  double padding = 10.;
-  std::cout << "Padding: " << padding << std::endl;
+  std::cout << "Padding: " << Padding << std::endl;
   double posedArmatureBounds[6] = {0., -1., 0., -1., 0., -1.};
   posedArmature->GetBounds(posedArmatureBounds);
   if (!IsArmatureInRAS)
@@ -922,8 +921,8 @@ int DoIt(int argc, char* argv[])
   double bounds[6] = {0., -1., 0., -1., 0., -1.};
   for (int i = 0; i < 3; ++i)
     {
-    posedLabelmapBounds[i*2] = posedArmatureBounds[i*2] - padding;
-    posedLabelmapBounds[i*2 + 1] = posedArmatureBounds[i*2 + 1] + padding;
+    posedLabelmapBounds[i*2] = posedArmatureBounds[i*2] - Padding;
+    posedLabelmapBounds[i*2 + 1] = posedArmatureBounds[i*2 + 1] + Padding;
     bounds[i*2] = posedLabelmapBounds[i*2];
     bounds[i*2 + 1] = posedLabelmapBounds[i*2 + 1];
     }

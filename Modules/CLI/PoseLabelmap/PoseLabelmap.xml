@@ -67,6 +67,14 @@
       <default>64</default>
     </integer>
 
+    <double>
+      <name>Padding</name>
+      <label>Padding</label>
+      <longflag>--padding</longflag>
+      <description><![CDATA[This property controls the padding to apply around the armature to define the output boundaries.]]></description>
+      <default>20</default>
+    </double>
+
     <integer>
       <name>MaximumParenthoodDistance</name>
       <label>Maximum Parenthood Distance</label>
