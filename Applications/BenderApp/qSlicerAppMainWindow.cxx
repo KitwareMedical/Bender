@@ -458,6 +458,7 @@ void qSlicerAppMainWindowPrivate::overwriteSettings()
   //this->actionFileLoadScene->setVisible(false);
   this->actionFileAddTransform->setVisible(false);
   this->actionFileImportScene->setVisible(false);
+  this->menuRecentlyLoaded->menuAction()->setVisible(false);
 
   this->menuEdit->menuAction()->setVisible(false);
 
@@ -474,7 +475,6 @@ void qSlicerAppMainWindowPrivate::overwriteSettings()
 
   this->actionHelpBrowseTutorials->setVisible(false);
   this->actionHelpSlicerPublications->setVisible(false);
-  this->actionHelpVisualBlog->setVisible(false);
 
   this->actionHelpAboutSlicerApp->setText("About Bender");
 
