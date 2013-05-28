@@ -22,9 +22,12 @@
 set(BASELINE ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline)
 set(CLP ${MODULE_NAME})
 
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+
 #-----------------------------------------------------------------------------
 add_executable(${CLP}Test ${CLP}Test.cxx)
-target_link_libraries(${CLP}Test ${CLP}Lib)
+target_link_libraries(${CLP}Test ${CLP}Lib ${ITK_LIBRARIES})
 set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
 
 set(testname ${CLP}Test)
