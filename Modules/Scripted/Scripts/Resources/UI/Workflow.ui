@@ -3329,6 +3329,30 @@ p, li { white-space: pre-wrap; }
                </item>
               </widget>
              </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="SettingsReloadLabel">
+               <property name="text">
+                <string>Reload module</string>
+               </property>
+               <property name="workflow" stdset="0">
+                <stringlist>
+                 <string>2</string>
+                </stringlist>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QPushButton" name="SettingsReloadPushButton">
+               <property name="text">
+                <string>Reload</string>
+               </property>
+               <property name="workflow" stdset="0">
+                <stringlist>
+                 <string>2</string>
+                </stringlist>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
            <widget class="QWidget" name="VolumeRenderingTab">

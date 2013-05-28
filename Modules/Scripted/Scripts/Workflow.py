@@ -57,12 +57,6 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    # self.reloadButton = qt.QPushButton("Reload")
-    # self.reloadButton.toolTip = "Reload this module."
-    # self.reloadButton.name = "Workflow Reload"
-    # self.layout.addWidget(self.reloadButton)
-    # self.reloadButton.connect('clicked()', self.reloadModule)
-
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
 
@@ -124,6 +118,7 @@ class WorkflowWidget:
     self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     # 0) Welcome
     self.get('SettingsWorkflowComboBox').connect('currentIndexChanged(int)', self.setupWorkflow)
+    self.get('SettingsReloadPushButton').connect('clicked()', self.reloadModule)
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
@@ -330,6 +325,7 @@ class WorkflowWidget:
 
   def setupWorkflow(self, level):
     self.setWidgetsVisibility(self.getChildren(self.WorkflowWidget), level)
+    self.setWidgetsVisibility(self.getChildren(self.get('AdvancedTabWidget')), level)
     # Validate the current page (to disable/enable the next page tool button if needed)
     self.get('NextPageToolButton').enabled = True
     validateMethod = getattr(self,'validate' + self.pages[self.WorkflowWidget.currentIndex] + 'Page')
@@ -1753,7 +1749,7 @@ class WorkflowWidget:
     # rebuild the widget
     # - find and hide the existing widget
     # - create a new widget in the existing parent
-    parent = slicer.util.findChildren(name='%s Reload' % moduleName)[0].parent()
+    parent = self.widget.parent()
     for child in parent.children():
       try:
         child.hide()
