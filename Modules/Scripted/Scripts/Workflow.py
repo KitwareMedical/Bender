@@ -637,6 +637,7 @@ class WorkflowWidget:
       boneLabels = self.searchLabels(colorNode, 'bone')
       boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
       boneLabels.update(self.searchLabels(colorNode, 'mandible'))
+      boneLabels.update(self.searchLabels(colorNode, 'cartilage'))
       self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
       boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
       self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
