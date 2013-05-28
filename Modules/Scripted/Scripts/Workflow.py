@@ -245,7 +245,7 @@ class WorkflowWidget:
   def updateHeader(self):
     # title
     title = self.WorkflowWidget.currentWidget().accessibleName
-    self.TitleLabel.setText('<h2>%i) %s</h2>' % (self.WorkflowWidget.currentIndex + 1, title))
+    self.TitleLabel.setText('<h2>%i/%i<br>%s</h2>' % (self.WorkflowWidget.currentIndex + 1, self.WorkflowWidget.count, title))
 
     # help
     self.get('HelpCollapsibleButton').setText('Help')
@@ -263,7 +263,7 @@ class WorkflowWidget:
       previousWidget = self.WorkflowWidget.widget(previousIndex)
 
       previous = previousWidget.accessibleName
-      self.get('PreviousPageToolButton').setText('< %i) %s' %(previousIndex + 1, previous))
+      self.get('PreviousPageToolButton').setText('< %i/%i - %s' %(previousIndex + 1, self.WorkflowWidget.count, previous))
     else:
       self.get('PreviousPageToolButton').setVisible(False)
 
@@ -274,7 +274,7 @@ class WorkflowWidget:
       nextWidget = self.WorkflowWidget.widget(nextIndex)
 
       next = nextWidget.accessibleName
-      self.get('NextPageToolButton').setText('%i) %s >' %(nextIndex + 1, next))
+      self.get('NextPageToolButton').setText('%i/%i - %s >' %(nextIndex + 1, self.WorkflowWidget.count, next))
     else:
       self.get('NextPageToolButton').setVisible(False)
     self.get('NextPageToolButton').enabled = not self.isWorkflow( 0 )
