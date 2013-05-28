@@ -3314,7 +3314,7 @@ p, li { white-space: pre-wrap; }
                </property>
                <item>
                 <property name="text">
-                 <string>Beginner (fully automatic)</string>
+                 <string>Basic (step by step)</string>
                 </property>
                </item>
                <item>
@@ -3324,7 +3324,7 @@ p, li { white-space: pre-wrap; }
                </item>
                <item>
                 <property name="text">
-                 <string>Expert (advanced parameters)</string>
+                 <string>Advanced (full control)</string>
                 </property>
                </item>
               </widget>
