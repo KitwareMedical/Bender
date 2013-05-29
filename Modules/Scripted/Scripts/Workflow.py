@@ -177,6 +177,8 @@ class WorkflowWidget:
     self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
     # 5) Weights
     # a) Armatures Weight
+    self.get('ComputeArmatureWeightInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setDefaultPath)
+    self.get('ComputeArmatureWeightScaleFactorSpinBox').connect('valueChanged(double)', self.setDefaultPath)
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
     # b) Eval Weight
@@ -1179,10 +1181,16 @@ class WorkflowWidget:
   # 5) Weights
   #----------------------------------------------------------------------------
   def initWeightsPage(self):
-    defaultPath = qt.QDir.home().absoluteFilePath('Weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value)
-    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     self.initComputeArmatureWeight()
     self.initEvalSurfaceWeight()
+
+  def setDefaultPath(self):
+    defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
+    currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
+    if currentNode != None:
+      defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
+    defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
 
   def validateWeightsPage(self, validateSections = True):
     if validateSections:
