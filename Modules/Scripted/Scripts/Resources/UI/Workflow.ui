@@ -3150,7 +3150,7 @@ p, li { white-space: pre-wrap; }
              <double>1.000000000000000</double>
             </property>
             <property name="value">
-             <double>20.000000000000000</double>
+             <double>60.000000000000000</double>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
