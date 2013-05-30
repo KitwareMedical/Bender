@@ -1191,6 +1191,9 @@ class WorkflowWidget:
       defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
     defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
     self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
+    # observe the input volume node in case its name is changed
+    self.removeObservers(self.setDefaultPath)
+    self.addObserver(currentNode, 'ModifiedEvent', setDefaultPath)
 
   def validateWeightsPage(self, validateSections = True):
     if validateSections:
@@ -1651,6 +1654,8 @@ class WorkflowWidget:
         self.Observations.remove([o, e, m, g, t])
 
   def addObserver(self, object, event, method, group = 'none'):
+    if object == None:
+      return
     if self.hasObserver(object, event, method):
       print 'already has observer'
       return
