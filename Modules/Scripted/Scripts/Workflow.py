@@ -57,12 +57,6 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    # self.reloadButton = qt.QPushButton("Reload")
-    # self.reloadButton.toolTip = "Reload this module."
-    # self.reloadButton.name = "Workflow Reload"
-    # self.layout.addWidget(self.reloadButton)
-    # self.reloadButton.connect('clicked()', self.reloadModule)
-
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
 
@@ -124,6 +118,7 @@ class WorkflowWidget:
     self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     # 0) Welcome
     self.get('SettingsWorkflowComboBox').connect('currentIndexChanged(int)', self.setupWorkflow)
+    self.get('SettingsReloadPushButton').connect('clicked()', self.reloadModule)
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
@@ -182,6 +177,8 @@ class WorkflowWidget:
     self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
     # 5) Weights
     # a) Armatures Weight
+    self.get('ComputeArmatureWeightInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setDefaultPath)
+    self.get('ComputeArmatureWeightScaleFactorSpinBox').connect('valueChanged(double)', self.setDefaultPath)
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
     # b) Eval Weight
@@ -245,7 +242,7 @@ class WorkflowWidget:
   def updateHeader(self):
     # title
     title = self.WorkflowWidget.currentWidget().accessibleName
-    self.TitleLabel.setText('<h2>%i) %s</h2>' % (self.WorkflowWidget.currentIndex + 1, title))
+    self.TitleLabel.setText('<h2>%i/%i<br>%s</h2>' % (self.WorkflowWidget.currentIndex + 1, self.WorkflowWidget.count, title))
 
     # help
     self.get('HelpCollapsibleButton').setText('Help')
@@ -263,7 +260,7 @@ class WorkflowWidget:
       previousWidget = self.WorkflowWidget.widget(previousIndex)
 
       previous = previousWidget.accessibleName
-      self.get('PreviousPageToolButton').setText('< %i) %s' %(previousIndex + 1, previous))
+      self.get('PreviousPageToolButton').setText('< %i/%i - %s' %(previousIndex + 1, self.WorkflowWidget.count, previous))
     else:
       self.get('PreviousPageToolButton').setVisible(False)
 
@@ -274,7 +271,7 @@ class WorkflowWidget:
       nextWidget = self.WorkflowWidget.widget(nextIndex)
 
       next = nextWidget.accessibleName
-      self.get('NextPageToolButton').setText('%i) %s >' %(nextIndex + 1, next))
+      self.get('NextPageToolButton').setText('%i/%i - %s >' %(nextIndex + 1, self.WorkflowWidget.count, next))
     else:
       self.get('NextPageToolButton').setVisible(False)
     self.get('NextPageToolButton').enabled = not self.isWorkflow( 0 )
@@ -330,6 +327,7 @@ class WorkflowWidget:
 
   def setupWorkflow(self, level):
     self.setWidgetsVisibility(self.getChildren(self.WorkflowWidget), level)
+    self.setWidgetsVisibility(self.getChildren(self.get('AdvancedTabWidget')), level)
     # Validate the current page (to disable/enable the next page tool button if needed)
     self.get('NextPageToolButton').enabled = True
     validateMethod = getattr(self,'validate' + self.pages[self.WorkflowWidget.currentIndex] + 'Page')
@@ -641,6 +639,7 @@ class WorkflowWidget:
       boneLabels = self.searchLabels(colorNode, 'bone')
       boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
       boneLabels.update(self.searchLabels(colorNode, 'mandible'))
+      boneLabels.update(self.searchLabels(colorNode, 'cartilage'))
       self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
       boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
       self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
@@ -1182,10 +1181,19 @@ class WorkflowWidget:
   # 5) Weights
   #----------------------------------------------------------------------------
   def initWeightsPage(self):
-    defaultPath = qt.QDir.home().absoluteFilePath('Weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value)
-    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     self.initComputeArmatureWeight()
     self.initEvalSurfaceWeight()
+
+  def setDefaultPath(self):
+    defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
+    currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
+    if currentNode != None:
+      defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
+    defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
+    # observe the input volume node in case its name is changed
+    self.removeObservers(self.setDefaultPath)
+    self.addObserver(currentNode, 'ModifiedEvent', setDefaultPath)
 
   def validateWeightsPage(self, validateSections = True):
     if validateSections:
@@ -1646,6 +1654,8 @@ class WorkflowWidget:
         self.Observations.remove([o, e, m, g, t])
 
   def addObserver(self, object, event, method, group = 'none'):
+    if object == None:
+      return
     if self.hasObserver(object, event, method):
       print 'already has observer'
       return
@@ -1753,7 +1763,7 @@ class WorkflowWidget:
     # rebuild the widget
     # - find and hide the existing widget
     # - create a new widget in the existing parent
-    parent = slicer.util.findChildren(name='%s Reload' % moduleName)[0].parent()
+    parent = self.widget.parent()
     for child in parent.children():
       try:
         child.hide()
