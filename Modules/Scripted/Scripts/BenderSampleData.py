@@ -93,17 +93,23 @@ class BenderSampleDataWidget:
     self.logic = BenderSampleDataLogic(self.logMessage)
     self.dataTree = self.get('BenderSampleDataTree')
     self.dataTree.expandAll()
-    self.get('BenderSampleDataDownloadPushButton').connect('clicked()', self.downloadSelectedItems)
+    self.downloadDirectoryPathLineEdit = self.get('DownloadDirectoryPathLineEdit')
+    self.downloadDirectoryPathLineEdit.currentPath = qt.QDir.homePath()
+    self.get('BenderSampleDataDownloadPushButton').connect('clicked()', self.downloadCheckedItems)
 
-  def downloadSelectedItems(self):
-    items = self.dataTree.selectedItems()
+  def downloadCheckedItems(self):
+    items = self.modelMatch(
+      self.dataTree, self.dataTree.invisibleRootItem(), qt.Qt.CheckStateRole, qt.Qt.Checked, -1)
     if len(items) < 1:
       return
+    qt.QDir().mkpath( self.downloadDirectoryPathLineEdit.currentPath )
 
     for item in items:
       parent = self.getTopLevelItem(item)
       if parent and item:
-        self.logic.download(parent.text(0), item.text(0))
+        self.logic.download(parent.text(0),
+                            item.text(0),
+                            self.downloadDirectoryPathLineEdit.currentPath)
 
   def getTopLevelItem(self, item):
     if not item or not item.parent():
@@ -139,6 +145,19 @@ class BenderSampleDataWidget:
             if resulting_widget:
                 return resulting_widget
         return None
+  def modelMatch(self, view, startItem, role, value, hits):
+    res = []
+    column = 0
+    if startItem.data(column, role) == value:
+      res.append(startItem)
+      hits = hits - 1
+    if hits == 0:
+      return res
+    for childRow in range(0, startItem.childCount()):
+      childItem = startItem.child(childRow)
+      childRes = self.modelMatch(view, childItem, role, value, hits)
+      res.extend(childRes)
+    return res
 
 #
 # Bender Sample Data Logic
@@ -164,21 +183,22 @@ class BenderSampleDataLogic( SampleDataLogic ):
       # Add the tree item's download data here
       })
 
-  def download(self, case, data):
-    filePath = self.downloadFileIntoCache(self.downloadData[case][data][2], self.downloadData[case][data][3])
+  def download(self, case, data, path):
+    filePath = self.downloadFile(self.downloadData[case][data][2],
+                                 path, self.downloadData[case][data][3])
 
-    properties = {'name' : self.downloadData[case][data][0]}
-    filetype = self.downloadData[case][data][1]
-    if filetype == 'LabelmapFile':
-      filetype = 'VolumeFile'
-      properties['labelmap'] = True
+    #properties = {'name' : self.downloadData[case][data][0]}
+    #filetype = self.downloadData[case][data][1]
+    #if filetype == 'LabelmapFile':
+    #filetype = 'VolumeFile'
+    #properties['labelmap'] = True
 
-    success, node = slicer.util.loadNodeFromFile(filePath, filetype, properties, returnNode=True)
-    if success:
-      self.logMessage('<b>Load finished</b>\n')
-    else:
-      self.logMessage('<b><font color="red">\tLoad failed!</font></b>\n')
-    return node
+    #success, node = slicer.util.loadNodeFromFile(filePath, filetype, properties, returnNode=True)
+    #if success:
+    #  self.logMessage('<b>Load finished</b>\n')
+    #else:
+    #  self.logMessage('<b><font color="red">\tLoad failed!</font></b>\n')
+    #return node
 
   def downloadData(self):
     return self.downloadData
