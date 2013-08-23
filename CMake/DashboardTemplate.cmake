@@ -128,15 +128,12 @@ find_program(CTEST_MEMORYCHECK_COMMAND NAMES valgrind)
 find_program(CTEST_GIT_COMMAND NAMES git)
 
 #
-# Git repository - Overwrite the default value provided by the driver script
+# Git repository
 #
-
-# Protocol to use to pull the source
-# E.g. git://, git@, https://
-setOnlyIfNotDefined(GIT_PROTOCOL git://)
-set(GIT_REPOSITORY_URL public.kitware.com/Bender/${CTEST_PROJECT_NAME}.git)
-set(GIT_REPOSITORY ${GIT_PROTOCOL}${GIT_REPOSITORY_URL})
+setOnlyIfNotDefined(GIT_REPOSITORY git://public.kitware.com/Bender/${CTEST_PROJECT_NAME}.git)
 setOnlyIfNotDefined(GIT_BRANCH_NAME master)
+setOnlyIfNotDefined(DRIVER_URL http://public.kitware.com/Bender/${CTEST_PROJECT_NAME};a=blob_plain;f=CMake/DashboardDriver.cmake;hb=${GIT_BRANCH_NAME})
+
 
 ##########################################
 # WARNING: DO NOT EDIT BEYOND THIS POINT #
@@ -171,7 +168,6 @@ endmacro()
 #
 # Download and include dashboard driver script
 #
-set(url http://${GIT_REPOSITORY_URL};a=blob_plain;f=CMake/DashboardDriver.cmake;hb=${GIT_BRANCH_NAME})
 set(dest ${CTEST_SCRIPT_DIRECTORY}/${CTEST_SCRIPT_NAME}.driver)
-downloadFile(${url} ${dest})
+downloadFile(${DRIVER_URL} ${dest})
 include(${dest})
