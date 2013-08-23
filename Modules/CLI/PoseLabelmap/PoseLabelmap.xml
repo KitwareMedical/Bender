@@ -3,11 +3,11 @@
   <category>;Segmentation.Bender</category>
   <index>6</index>
   <title>Pose Labelmap</title>
-  <description><![CDATA[Transform a labelmap according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each labelmap vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
+  <description><![CDATA[Transform a labelmap according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/PoseLabelmap</documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware),Julien Finet(Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Julien Finet(Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -16,7 +16,7 @@
     <image type="label">
       <name>RestLabelmap</name>
       <label>Input Rest Labelmap</label>
-      <description><![CDATA[Labelmap volume in resting pose]]></description>
+      <description><![CDATA[Input labelmap to reposition. The <b>Armature</b> must 'fit' inside the volume and the weights computed from it.]]></description>
       <channel>input</channel>
       <index>0</index>
     </image>
@@ -24,23 +24,23 @@
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms"]]></description>
+      <description><![CDATA[Armature model containing the bone poses (i.e. 'Transforms' cell data array). The armature must 'fit' inside <b>Input Rest Labelmap</b>.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
 
     <directory>
       <name>WeightDirectory</name>
-      <label>Directories containing all the weights</label>
+      <label>Directories containing all the weight images.</label>
       <channel>input</channel>
       <index>2</index>
-      <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
+      <description><![CDATA[Directory containing the weight image files (one for each <b>Armature</b> bone). These weight images must be comptued from <b>Input Rest Labelmap</b> and <b>Armature</b>.]]></description>
     </directory>
 
     <image type="label">
       <name>PosedLabelmap</name>
       <label>Output Posed Labelmap</label>
-      <description><![CDATA[Labelmap of the volume segmented by region according to the input armature.]]></description>
+      <description><![CDATA[Output repositioned labelmap. It is the <b>Input Rest Labelmap</b> where each voxel is moved by the <b>Armature</b> pose transforms.]]></description>
       <channel>output</channel>
       <index>3</index>
     </image>
@@ -55,17 +55,47 @@
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
-      <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
+      <description><![CDATA[If set to true, the <b>Armature</b> pose transforms are combined linearly (according to the bone weights). Otherwise, it is a more accurate but slower dual quaternion blending.]]></description>
       <default>false</default>
     </boolean>
 
     <integer>
-      <name>MaximumPass</name>
-      <label>Maximum number of passes</label>
-      <longflag>--pass</longflag>
-      <description><![CDATA[This property controls how many times the image is browse to fill the holes.]]></description>
-      <default>4</default>
+      <name>MaximumRadius</name>
+      <label>Maximum radius</label>
+      <longflag>--radius</longflag>
+      <description><![CDATA[This property controls the number of subdivision between voxels to fill holes. Should be a power of 2.]]></description>
+      <default>64</default>
     </integer>
+
+    <double>
+      <name>Padding</name>
+      <label>Padding</label>
+      <longflag>--padding</longflag>
+      <description><![CDATA[This property controls the padding to apply around the armature to define the output boundaries.]]></description>
+      <default>20</default>
+    </double>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[This property prevents the interpolation of weights that are too far away in the armature tree. For example, with Maximum Parenthood Distance set to 1, the interpolation of transforms will be limited to the current bone's parent and children. -1 (by default) means there is no limitation.]]></description>
+      <default>-1</default>
+    </integer>
+
+    <integer-vector>
+      <name>HighPrecedenceLabels</name>
+      <label>High Precedence Labels</label>
+      <longflag>--high</longflag>
+      <description><![CDATA[List of label values (comma separated) that should take precedence when multiple labels are repositioned in the same output voxel. Highest precedence labels are listed first. For example, "209, 253, 111" would make the label 209 always overwrite the label 111 if they are repositioned in the same voxel. ]]></description>
+    </integer-vector>
+
+    <integer-vector>
+      <name>LowPrecedenceLabels</name>
+      <label>Low Precedence Labels</label>
+      <longflag>--low</longflag>
+      <description><![CDATA[List of label values (comma separated) that should not take precedence when multiple labels are repositioned in the same output voxel. Lowest precedence labels are listed first. For example, "143, 5, 17" would make the label 17 always overwrite the label 143 if they are repositioned in the same voxel.]]></description>
+    </integer-vector>
 
   </parameters>
 
@@ -84,10 +114,18 @@
     <boolean>
       <name>IsArmatureInRAS</name>
       <label>Armature in RAS</label>
-      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <description><![CDATA[This property controls whether the input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
       <longflag>--armatureInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>BackgroundValue</name>
+      <label>BackgroundValue</label>
+      <longflag>--background</longflag>
+      <description><![CDATA[Background scalar value.]]></description>
+      <default>0</default>
+    </integer>
 
   </parameters>
 

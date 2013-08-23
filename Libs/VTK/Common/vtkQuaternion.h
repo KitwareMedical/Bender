@@ -98,6 +98,10 @@ public:
   vtkQuaternion<T> Inverse() const;
 
   // Description:
+  // Return the dot product of two quaternions.
+  T Dot(const vtkQuaternion<T>& q)const;
+
+  // Description:
   // Convert this quaternion to a unit log quaternion.
   // The unit log quaternion is defined by:
   // [w, x, y, z] =  [0.0, v*sin(theta)].
@@ -209,6 +213,10 @@ public:
   vtkQuaternion<T> operator-(const vtkQuaternion<T>& q) const;
 
   // Description:
+  // Negate the quaternion by multiplying each component by -1.
+  vtkQuaternion<T> operator-() const;
+
+  // Description:
   // Performs multiplication of quaternion of the same basic type.
   vtkQuaternion<T> operator*(const vtkQuaternion<T>& q) const;
 
@@ -231,6 +239,11 @@ public:
   // Description:
   // Performs in place division of the quaternions by a scalar value.
   void operator/=(const T& scalar);
+
+  // Decription:
+  // Compare two quaternions. Return true if the quaternions are equal, false
+  // otherwise.
+  bool operator==(const vtkQuaternion<T>& q) const;
 };
 
 // Description:

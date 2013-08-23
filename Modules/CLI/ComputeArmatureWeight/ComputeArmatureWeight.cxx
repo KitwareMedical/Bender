@@ -77,22 +77,25 @@ inline int NumDigits(unsigned int a)
 
 //-------------------------------------------------------------------------------
 // \todo Move this segmentation to its own CLI
-LabelImageType::Pointer SimpleBoneSegmentation(
-  LabelImageType::Pointer body,
-  LabelImageType::Pointer bodyPartition)
+template <class BodyImageType, class BodyPartitionImageType>
+typename BodyPartitionImageType::Pointer SimpleBoneSegmentation(
+  typename BodyImageType::Pointer body,
+  typename BodyPartitionImageType::Pointer bodyPartition,
+  typename BodyImageType::PixelType boneLabel)
 {
   // Select the bones and label them by componnets
   // \todo not needed if the threshold is done manually when boneInside is used
-  typedef itk::BinaryThresholdImageFilter<LabelImageType, CharImageType>
+  typedef itk::BinaryThresholdImageFilter<BodyImageType, BodyPartitionImageType>
     ThresholdFilterType;
-  ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
+  typename ThresholdFilterType::Pointer threshold = ThresholdFilterType::New();
   threshold->SetInput(body);
-  threshold->SetLowerThreshold(209); //bone marrow
+  threshold->SetLowerThreshold(boneLabel); //bone marrow
+  threshold->SetUpperThreshold(boneLabel);
   threshold->SetInsideValue(ArmatureWeightWriter::DomainLabel);
   threshold->SetOutsideValue(ArmatureWeightWriter::BackgroundLabel);
 
-  typedef itk::MaskImageFilter<LabelImageType, CharImageType> MaskFilterType;
-  MaskFilterType::Pointer mask = MaskFilterType::New();
+  typedef itk::MaskImageFilter<BodyPartitionImageType, BodyPartitionImageType> MaskFilterType;
+  typename MaskFilterType::Pointer mask = MaskFilterType::New();
   mask->SetInput1(bodyPartition);
   mask->SetInput2(threshold->GetOutput());
   mask->Update();
@@ -101,11 +104,11 @@ LabelImageType::Pointer SimpleBoneSegmentation(
 
 //-------------------------------------------------------------------------------
 //Expand the foreground once in place.
-// The new foreground pixels are assigned foreGroundMin and the number of pixel
-// pushed is returned
+// The new foreground pixels are assigned to their neighbor's value and the number
+// of pixel pushed is returned
 template <class ImageType> int ExpandForegroundOnce(
   typename ImageType::Pointer labelMap,
-  typename ImageType::PixelType foreGroundMin)
+  typename ImageType::PixelType backgroundMax)
 {
   typedef typename ImageType::IndexType VoxelType;
   typedef std::pair<VoxelType, typename ImageType::PixelType> ImagePixelType;
@@ -121,13 +124,13 @@ template <class ImageType> int ExpandForegroundOnce(
   for(it.GoToBegin(); !it.IsAtEnd(); ++it)
     {
     VoxelType p = it.GetIndex();
-    if(it.Get() >= foreGroundMin)
+    if(it.Get() > backgroundMax)
       {
       for(int iOff=0; iOff<6; ++iOff)
         {
         const typename ImageType::OffsetType& offset = offsets[iOff];
         VoxelType q = p + offset;
-        if(region.IsInside(q) && labelMap->GetPixel(q) < foreGroundMin)
+        if(region.IsInside(q) && labelMap->GetPixel(q) <= backgroundMax)
           {
           front.push_back(std::make_pair(q, labelMap->GetPixel(p)));
           }
@@ -138,7 +141,7 @@ template <class ImageType> int ExpandForegroundOnce(
   for (typename std::vector<ImagePixelType>::const_iterator i = front.begin();
        i!=front.end(); i++)
     {
-    if(labelMap->GetPixel(i->first) < foreGroundMin)
+    if(labelMap->GetPixel(i->first) <= backgroundMax)
       {
       labelMap->SetPixel(i->first, i->second);
       ++numNewVoxels;
@@ -206,12 +209,29 @@ int main( int argc, char * argv[] )
   bender::IOUtils::FilterStart("Read inputs");
   bender::IOUtils::FilterProgress("Read inputs", 0.01, 0.1, 0.0);
 
+  //----------------------------------
+  // Check output folder
+  //----------------------------------
+  if (!itksys::SystemTools::FileExists(WeightDirectory.c_str()))
+    {
+    std::cerr<<" Cannot find directory named: "<<WeightDirectory
+      <<"."<<std::endl << "Make sure it is a valid directory."<<std::endl;
+    return EXIT_FAILURE;
+    }
+
+  std::string debugDir = WeightDirectory;
+  if (Debug)
+    {
+    debugDir += "/Debug/";
+    }
+
   //----------------------------
   // Read label map
   //----------------------------
-  typedef itk::ImageFileReader<LabelImageType>  ReaderType;
-  ReaderType::Pointer bodyPartitionReader = ReaderType::New();
-  bodyPartitionReader->SetFileName(SkinnedVolume.c_str() );
+  typedef itk::ImageFileReader<CharImageType> BodyPartitionReaderType;
+  BodyPartitionReaderType::Pointer bodyPartitionReader =
+    BodyPartitionReaderType::New();
+  bodyPartitionReader->SetFileName(SkinnedVolume.c_str());
   try
     {
     bodyPartitionReader->Update();
@@ -225,7 +245,8 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterProgress("Read inputs", 0.25, 0.1, 0.0);
 
-  ReaderType::Pointer bodyReader = ReaderType::New();
+  typedef itk::ImageFileReader<LabelImageType> BodyReaderType;
+  BodyReaderType::Pointer bodyReader = BodyReaderType::New();
   bodyReader->SetFileName(RestLabelmap.c_str() );
   try
     {
@@ -258,7 +279,7 @@ int main( int argc, char * argv[] )
   // \todo Be able to process non-continous arrays of lables [1, 3, 4 ...]
   // \todo Define backgound and unknow label values
 
-  typedef itk::StatisticsImageFilter<LabelImageType>  StatisticsType;
+  typedef itk::StatisticsImageFilter<CharImageType> StatisticsType;
   StatisticsType::Pointer statistics = StatisticsType::New();
   itk::PluginFilterWatcher watchStatistics(statistics,
                                        "Get Statistics",
@@ -279,16 +300,16 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterStart("Dilate body partition");
 
-  LabelImageType::Pointer dilatedBodyPartition =
+  CharImageType::Pointer dilatedBodyPartition =
     bodyPartitionReader->GetOutput();
   bender::IOUtils::FilterProgress("Dilate body partition", 0.25, 1.0, 0.0);
 
   int numPaddedVoxels =0;
   for(int i = 0; i < Padding; i++)
     {
-    numPaddedVoxels += ExpandForegroundOnce<LabelImageType>(
+    numPaddedVoxels += ExpandForegroundOnce<CharImageType>(
       dilatedBodyPartition,
-      static_cast<LabelImageType::PixelType>(ArmatureWeightWriter::DomainLabel));
+      BackgroundValue);
     std::cout<<"Padded "<<numPaddedVoxels<<" voxels"<<std::endl;
 
     bender::IOUtils::FilterProgress(
@@ -297,8 +318,8 @@ int main( int argc, char * argv[] )
 
   if (Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(
-      dilatedBodyPartition, "./DEBUG_DilatedBodyPartition.nrrd");
+    bender::IOUtils::WriteDebugImage<CharImageType>(
+      dilatedBodyPartition, "DilatedBodyPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Dilate body partition");
@@ -309,13 +330,13 @@ int main( int argc, char * argv[] )
 
   bender::IOUtils::FilterStart("Compute Bones Partition");
 
-  LabelImageType::Pointer bonesPartition =
-    SimpleBoneSegmentation(bodyReader->GetOutput(),
-      dilatedBodyPartition);
+  CharImageType::Pointer bonesPartition =
+    SimpleBoneSegmentation<LabelImageType, CharImageType>(
+      bodyReader->GetOutput(), dilatedBodyPartition, BoneLabel);
   if (Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(bonesPartition,
-      "./DEBUG_BonesPartition.mha");
+    bender::IOUtils::WriteDebugImage<CharImageType>(
+      bonesPartition, "BonesPartition.mha", debugDir);
     }
 
   bender::IOUtils::FilterEnd("Compute Bones Partition");
@@ -371,7 +392,7 @@ int main( int argc, char * argv[] )
     // Output filename
     std::stringstream filename;
     filename << WeightDirectory << "/weight_"
-             << std::setfill('0') << std::setw(numDigits) << i << ".mha";
+      << std::setfill('0') << std::setw(numDigits) << i << ".mha";
     writeWeight->SetFilename(filename.str());
 
     // Edge Id
@@ -381,8 +402,12 @@ int main( int argc, char * argv[] )
     writeWeight->SetBinaryWeight(BinaryWeight);
     writeWeight->SetSmoothingIterations(SmoothingIteration);
     writeWeight->SetScaleFactor(ScaleFactor);
-    writeWeight->SetUseEnvelopes(UseEnvelopes);
     writeWeight->SetDebugInfo(Debug);
+    std::stringstream debugFolder;
+    debugFolder << debugDir << "/weight_"
+      << std::setfill('0') << std::setw(numDigits) << i << "_DEBUG";
+    writeWeight->SetDebugFolder(debugFolder.str());
+    writeWeight->SetMaximumParenthoodDistance(MaximumParenthoodDistance);
 
     std::cout<<"Start Weight computation for edge #"<<i<<std::endl;
     if (! RunSequential)

@@ -3,11 +3,11 @@
   <category>;Segmentation.Bender</category>
   <index>5</index>
   <title>Pose Surface</title>
-  <description><![CDATA[Transform a polygonal surface according to the input armature transforms and weights. The armature should be of type *.vtk, and the transforms should be encoded as cell data with the name "Transforms". The armature weights should be represented as a files series of type *.mha.  For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field; the resulting weight vector is used to blend the input armature transforms using Dual Quarternion blending.]]></description>
+  <description><![CDATA[Pose a <b>Surface</b> according to the input <b>Armature</b> pose and the associated weights. <p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the vertex.]]></description>
   <version>1.0.0</version>
   <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/PoseSurface</documentation-url>
   <license/>
-  <contributor>Yuanxin Liu (Kitware)</contributor>
+  <contributor>Yuanxin Liu (Kitware), Johan Andruejol (Kitware), Julien Finet (Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -15,16 +15,16 @@
 
     <directory>
       <name>WeightDirectory</name>
-      <label>Directories containing all the weights</label>
+      <label>Directory containing all the weights images</label>
       <channel>input</channel>
       <index>0</index>
-      <description><![CDATA[Directiory containing the weight image files (one for each armature edge)]]></description>
+      <description><![CDATA[Directory containing the weight image files (one for each <b>Armature</b> bone). These weights must be computed from <b>Armature</b> and the same volume <b>Surface</b> is extracted from.]]></description>
     </directory>
 
     <geometry>
       <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature file. The transforms are expected to be stored as cell data for each armature edge with the name "Transforms".]]></description>
+      <description><![CDATA[Armature model containing the bone poses. The armature must 'fit' inside <b>Surface</b>.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
@@ -40,7 +40,7 @@
     <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
       <label>Output posed surface</label>
-      <description><![CDATA[Output surface posed by the armature transforms. The weight information is added to the point data.]]></description>
+      <description><![CDATA[Output surface posed by the <b>Armature</b> transforms.]]></description>
       <channel>output</channel>
       <index>3</index>
     </geometry>
@@ -54,14 +54,14 @@
       <name>LinearBlend</name>
       <label>Use linear blend to pose</label>
       <longflag>--linear</longflag>
-      <description><![CDATA[If set to true, the transform matrices will be combined linearly, which will result in non-rigid transforms. ]]></description>
+      <description><![CDATA[If set to true, the transform matrices of the <b>Armature</b> will be combined linearly (according to the weights), which will result in rigid transforms. ]]></description>
       <default>false</default>
     </boolean>
 
     <boolean>
       <name>ForceWeightFromImage</name>
       <label>Use weights from image</label>
-      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight have changed.]]></description>
+      <description><![CDATA[Ignore the presence (or not) of the weight point data. Useful if the weight in the <b>Directories containing all the weights</b> have changed.]]></description>
       <longflag>--forceUseImage</longflag>
       <default>false</default>
     </boolean>
@@ -94,6 +94,14 @@
       <longflag>--surfaceInRAS</longflag>
       <default>false</default>
     </boolean>
+
+    <integer>
+      <name>MaximumParenthoodDistance</name>
+      <label>Maximum Parenthood Distance</label>
+      <longflag>--distance</longflag>
+      <description><![CDATA[Use this parameter to prevent the interpolation of weights that are too far away in the family tree. For example, with Maximum Parenthood Distance set to 1, the interpolation will be limited to the bone's parent and children. The default (-1) means any distance is allowed.]]></description>
+      <default>-1</default>
+    </integer>
 
   </parameters>
 

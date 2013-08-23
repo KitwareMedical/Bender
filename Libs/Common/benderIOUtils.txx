@@ -22,6 +22,7 @@
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
+#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkNew.h>
@@ -33,7 +34,7 @@ namespace bender
 {
 //-------------------------------------------------------------------------------
 template <class ImageType>
-void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
+void IOUtils::WriteImage(const ImageType* image,  const std::string& fname)
 {
   std::cout << "Write image to " << fname << std::endl;
   typedef typename itk::ImageFileWriter<ImageType> WriterType;
@@ -42,6 +43,16 @@ void IOUtils::WriteImage(typename ImageType::Pointer image,const char* fname)
   writer->SetInput(image);
   writer->SetUseCompression(1);
   writer->Update();
+}
+
+//-------------------------------------------------------------------------------
+template <class ImageType>
+void IOUtils::WriteDebugImage(const ImageType* image,
+                              const std::string& name,
+                              const std::string& debugDirectory)
+{
+  std::string fname = GetDebugDirectory(debugDirectory);
+  WriteImage<ImageType>(image, fname + "/" + name);
 }
 
 };

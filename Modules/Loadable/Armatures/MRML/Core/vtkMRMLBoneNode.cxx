@@ -24,7 +24,6 @@
 //#include "vtkMRMLBoneStorageNode.h"
 
 // Bender includes
-#include <vtkBoneEnvelopeRepresentation.h>
 #include <vtkBoneRepresentation.h>
 #include <vtkCylinderBoneRepresentation.h>
 #include <vtkDoubleConeBoneRepresentation.h>
@@ -54,7 +53,7 @@ vtkMRMLNodeNewMacro(vtkMRMLBoneNode);
 static void MRMLBoneNodeCallback(vtkObject* vtkNotUsed(caller),
                                  long unsigned int eventId,
                                  void* clientData,
-                                 void* vtkNotUsed(callData) )
+                                 void* vtkNotUsed(callData))
 {
   if (eventId == vtkCommand::ModifiedEvent)
     {
@@ -74,8 +73,6 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
   this->BoneRepresentationType = 0;
   this->LinkedWithParent = true;
   this->HasParent = false;
-  this->EnvelopeRadiusRatio = 0.5;
-  this->OverallRadiusRatio = 1.0;
 
   this->Callback->SetCallback(MRMLBoneNodeCallback);
   this->Callback->SetClientData(this);
@@ -120,12 +117,12 @@ void vtkMRMLBoneNode::WriteXML(ostream& of, int nIndent)
   of << indent << " WorldToParentRestTranslation=";
   vtkMRMLNodeHelper::PrintQuotedVector3(of,
     this->BoneProperties->GetWorldToParentRestTranslation());
+  of << indent << " RestToPoseRotation=";
+  vtkMRMLNodeHelper::PrintQuotedVector(of,
+    this->BoneProperties->GetRestToPoseRotation().GetData(), 4);
 
   of << indent << " BoneLinkedWithParent=\""
     << this->GetBoneLinkedWithParent() << "\"";
-
-  of << indent << " EnvelopeRadiusRatio=\""
-    << this->GetEnvelopeRadiusRatio() << "\"";
 }
 
 //----------------------------------------------------------------------------
@@ -207,15 +204,16 @@ void vtkMRMLBoneNode::ReadXMLAttributes(const char** atts)
       vtkMRMLNodeHelper::StringToVector3(attValue, translation);
       this->BoneProperties->SetWorldToParentRestTranslation(translation);
       }
+    else if (!strcmp(attName, "RestToPoseRotation"))
+      {
+      double rotation[4];
+      vtkMRMLNodeHelper::StringToVector(attValue, rotation, 4);
+      this->BoneProperties->SetRestToPoseRotation(rotation);
+      }
     else if (!strcmp(attName, "BoneLinkedWithParent"))
       {
       this->SetBoneLinkedWithParent(
         vtkMRMLNodeHelper::StringToInt(attValue));
-      }
-    else if (!strcmp(attName, "EnvelopeRadiusRatio"))
-      {
-      this->SetEnvelopeRadiusRatio(
-        vtkMRMLNodeHelper::StringToDouble(attValue));
       }
     }
 
@@ -529,6 +527,18 @@ int vtkMRMLBoneNode::GetShowAxes()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetRestToPoseRotation(double quad[4])
+{
+  this->BoneProperties->SetRestToPoseRotation(quad);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetRestToPoseRotation(double quad[4])
+{
+  this->BoneProperties->GetRestToPoseRotation(quad);
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::SetWorldToParentRestRotation(const double* rotation)
 {
   double rot[4];
@@ -737,11 +747,6 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
       boneWidget->SetRepresentation(rep.GetPointer());
       }
     }
-
-  // Envelope radius ratio
-  boneWidget->GetBoneRepresentation()->GetEnvelope()->SetRadius(
-    boneWidget->GetLength()
-      * this->EnvelopeRadiusRatio * this->OverallRadiusRatio);
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);

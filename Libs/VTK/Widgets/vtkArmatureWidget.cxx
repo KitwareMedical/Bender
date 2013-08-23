@@ -42,6 +42,7 @@
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
+#include <vtkStringArray.h>
 #include <vtkWidgetCallbackMapper.h>
 #include <vtkWidgetEvent.h>
 
@@ -236,21 +237,9 @@ vtkArmatureWidget::vtkArmatureWidget()
   // Init map and root
   this->Bones = new ArmatureTreeNodeVectorType;
   this->PolyData = vtkPolyData::New();
-  vtkNew<vtkPoints> points;
-  points->SetDataTypeToDouble();
-  this->PolyData->SetPoints(points.GetPointer());
-  this->PolyData->Allocate(100);
-  vtkNew<vtkDoubleArray> transforms;
-  transforms->SetNumberOfComponents(12);
-  transforms->SetName("Transforms");
-  this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
-  vtkNew<vtkDoubleArray> envelopeRadiuses;
-  envelopeRadiuses->SetNumberOfComponents(1);
-  envelopeRadiuses->SetName("EnvelopeRadiuses");
-  this->PolyData->GetCellData()->AddArray(envelopeRadiuses.GetPointer());
-  vtkNew<vtkIdTypeArray> parenthood;
-  parenthood->SetName("Parenthood");
-  this->PolyData->GetCellData()->AddArray(parenthood.GetPointer());
+
+  // Init arrays
+  this->AddArmatureArrays();
 
   // Init bones properties
   vtkBoneRepresentation* defaultRep = vtkBoneRepresentation::New();
@@ -262,7 +251,7 @@ vtkArmatureWidget::vtkArmatureWidget()
   this->WidgetState = vtkArmatureWidget::Rest;
   this->ShowAxes = vtkBoneWidget::Hidden;
   this->ShowParenthood = true;
-  this->ShouldResetPoseToRest = true;
+  this->ShouldResetPoseToRest = false;
 }
 
 //----------------------------------------------------------------------------
@@ -1065,15 +1054,17 @@ ArmatureTreeNode* vtkArmatureWidget::GetNode(vtkBoneWidget* bone)
 void vtkArmatureWidget::UpdatePolyData()
 {
   this->PolyData->GetPoints()->Reset();
-  vtkDoubleArray* transforms = vtkDoubleArray::SafeDownCast(
-    this->PolyData->GetCellData()->GetArray("Transforms"));
+  vtkDoubleArray* transforms = this->GetTransformsArray();
   transforms->Reset();
-  vtkDoubleArray* envelopeRadiuses = vtkDoubleArray::SafeDownCast(
-    this->PolyData->GetCellData()->GetArray("EnvelopeRadiuses"));
+  vtkDoubleArray* envelopeRadiuses = this->GetEnvelopeRadiusesArray();
   envelopeRadiuses->Reset();
-  vtkIdTypeArray* parenthood = vtkIdTypeArray::SafeDownCast(
-    this->PolyData->GetCellData()->GetArray("Parenthood"));
+  vtkIdTypeArray* parenthood = this->GetParenthoodArray();
   parenthood->Reset();
+  vtkStringArray* names = this->GetNamesArray();
+  names->Reset();
+  vtkDoubleArray* restToPose = this->GetRestToPoseRotationArray();
+  restToPose->Reset();
+
   this->PolyData->Reset();
   for (NodeIteratorType it = this->Bones->begin();
     it != this->Bones->end(); ++it)
@@ -1127,6 +1118,13 @@ void vtkArmatureWidget::UpdatePolyData()
       {
       parenthood->InsertNextValue(-1);
       }
+
+    // Names
+    names->InsertNextValue((*it)->Bone->GetName());
+
+    // Rest to Pose
+    restToPose->InsertNextTuple(
+      (*it)->Bone->GetRestToPoseRotation().GetData());
     }
 
   this->PolyData->Modified();
@@ -1196,6 +1194,42 @@ void vtkArmatureWidget::ComputeAxisAngleMatrix(double axis[3], double angle, dou
   mat[2][0] = vz * vx * (1.0f - co) + vy * si;
   mat[2][1] = vy * vz * (1.0f - co) - vx * si;
   mat[2][2] = vz2 + co * (1.0f - vz2);
+}
+
+//----------------------------------------------------------------------------
+vtkDoubleArray* vtkArmatureWidget::GetTransformsArray()
+{
+  return vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("Transforms"));
+}
+
+//----------------------------------------------------------------------------
+vtkDoubleArray* vtkArmatureWidget::GetEnvelopeRadiusesArray()
+{
+  return vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("EnvelopeRadiuses"));
+}
+
+//----------------------------------------------------------------------------
+vtkIdTypeArray* vtkArmatureWidget::GetParenthoodArray()
+{
+  return vtkIdTypeArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetArray("Parenthood"));
+}
+
+//----------------------------------------------------------------------------
+vtkStringArray* vtkArmatureWidget::GetNamesArray()
+{
+  // /!\ vtkStringArray is not an vtkDataArray !
+  return vtkStringArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetAbstractArray("Names"));
+}
+
+//----------------------------------------------------------------------------
+vtkDoubleArray* vtkArmatureWidget::GetRestToPoseRotationArray()
+{
+  return vtkDoubleArray::SafeDownCast(
+    this->PolyData->GetCellData()->GetAbstractArray("RestToPoseRotation"));
 }
 
 //----------------------------------------------------------------------------
@@ -1336,4 +1370,36 @@ void vtkArmatureWidget::Modified()
 {
   this->UpdatePolyData();
   this->Superclass::Modified();
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::AddArmatureArrays()
+{
+  vtkNew<vtkPoints> points;
+  points->SetDataTypeToDouble();
+  this->PolyData->SetPoints(points.GetPointer());
+  this->PolyData->Allocate(100);
+
+  vtkNew<vtkDoubleArray> transforms;
+  transforms->SetNumberOfComponents(12);
+  transforms->SetName("Transforms");
+  this->PolyData->GetCellData()->AddArray(transforms.GetPointer());
+
+  vtkNew<vtkDoubleArray> envelopeRadiuses;
+  envelopeRadiuses->SetNumberOfComponents(1);
+  envelopeRadiuses->SetName("EnvelopeRadiuses");
+  this->PolyData->GetCellData()->AddArray(envelopeRadiuses.GetPointer());
+
+  vtkNew<vtkIdTypeArray> parenthood;
+  parenthood->SetName("Parenthood");
+  this->PolyData->GetCellData()->AddArray(parenthood.GetPointer());
+
+  vtkNew<vtkStringArray> names;
+  names->SetName("Names");
+  this->PolyData->GetCellData()->AddArray(names.GetPointer());
+
+  vtkNew<vtkDoubleArray> restToPose;
+  restToPose->SetNumberOfComponents(4);
+  restToPose->SetName("RestToPoseRotation");
+  this->PolyData->GetCellData()->AddArray(restToPose.GetPointer());
 }

@@ -33,6 +33,7 @@
 #include <itkMath.h>
 #include <itkIndex.h>
 #include <itkConnectedComponentImageFilter.h>
+#include <itksys/SystemTools.hxx>
 
 // VTK includes
 #include <vtkNew.h>
@@ -353,8 +354,8 @@ bool ArmatureType<T>::InitSkeleton(vtkPolyData* armaturePolyData)
 
   if (this->Debug)
     {
-    bender::IOUtils::WriteImage<LabelImageType>(this->BodyPartition,
-      "./DEBUG_bodybinary.mha");
+    bender::IOUtils::WriteDebugImage<LabelImageType>(this->BodyPartition,
+      "DEBUG_bodybinary.mha");
     }
 
   ComputeManhattanVoronoi<LabelImageType>(

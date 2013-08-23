@@ -708,6 +708,33 @@ vtkSmartPointer<vtkTransform>
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneWidget::SetRestToPoseRotation(double quat[4])
+{
+  if (CompareQuaternion(this->RestToPoseRotation, quat))
+    {
+    return;
+    }
+
+  this->RestToPoseRotation.Set(quat);
+  this->RestToPoseRotation.Normalize();
+  this->ShouldInitializePoseMode = false;
+  this->UpdatePoseMode();
+}
+
+//----------------------------------------------------------------------------
+vtkSmartPointer<vtkTransform> vtkBoneWidget::CreateRestToPoseRotation() const
+{
+  vtkSmartPointer<vtkTransform> restToPoseRotation =
+    vtkSmartPointer<vtkTransform>::New();
+
+  double axis[3];
+  double angle = this->RestToPoseRotation.GetRotationAngleAndAxis(axis);
+  restToPoseRotation->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
+
+  return restToPoseRotation;
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneWidget::SetWorldHeadAndTailRest(double head[3], double tail[3])
 {
   bool changeHead = ! CompareVector3(this->WorldHeadRest, head);
@@ -1055,101 +1082,106 @@ void vtkBoneWidget::DeepCopy(vtkBoneWidget* other)
     return;
     }
 
-  bool modified = false;
+  bool restChanged = false;
+  bool poseChanged = false;
+  bool selectedChanged = false;
+  bool otherChanged = false;
 
   // Name
   if (strcmp(this->Name.c_str(), other->GetName().c_str()) != 0)
     {
     this->Name = other->GetName();
-    modified = true;
+    otherChanged = true;
     }
 
   // The different states of the widget.
   if (this->WidgetState != other->GetWidgetState())
     {
     this->WidgetState = other->GetWidgetState();
-    modified = true;
+    restChanged |= this->GetWidgetState() == vtkBoneWidget::Rest;
+    poseChanged |= this->GetWidgetState() == vtkBoneWidget::PoseChangedEvent;
+    otherChanged = true;
     }
   if (this->BoneSelected != other->GetBoneSelected())
     {
     this->BoneSelected = other->GetBoneSelected();
-    modified = true;
+    selectedChanged = true;
     }
 
   // World positions:
   // - Rest:
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetWorldHeadRest(), this->WorldHeadRest);
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetWorldTailRest(), this->WorldTailRest);
   // - Pose:
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetWorldHeadPose(), this->WorldHeadPose);
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetWorldTailPose(), this->WorldTailPose);
   // Local Positions:
   // - Rest:
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetLocalHeadRest(), this->LocalHeadRest);
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetLocalTailRest(), this->LocalTailRest);
   // - Pose
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetLocalHeadPose(), this->LocalHeadPose);
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetLocalTailPose(), this->LocalTailPose);
 
   // Roll Angle:
   if (fabs(this->Roll - other->GetRoll()) > 1e-6)
     {
     this->Roll = other->GetRoll();
-    modified = true;
+    restChanged = true;
     }
 
   // - Rest Transforms:
   //   * Parent To Bone:
-  modified |= CopyQuaternionIfDifferent(other->GetParentToBoneRestRotation(),
+  restChanged |= CopyQuaternionIfDifferent(other->GetParentToBoneRestRotation(),
     this->ParentToBoneRestRotation);
-  modified |= CopyVector3IfDifferent(other->GetParentToBoneRestTranslation(),
+  restChanged |= CopyVector3IfDifferent(other->GetParentToBoneRestTranslation(),
     this->ParentToBoneRestTranslation);
   //   * World To Parent:
-  modified |= CopyQuaternionIfDifferent(other->GetWorldToParentRestRotation(),
+  restChanged |= CopyQuaternionIfDifferent(other->GetWorldToParentRestRotation(),
     this->WorldToParentRestRotation);
-  modified |= CopyVector3IfDifferent(other->GetWorldToParentRestTranslation(),
+  restChanged |= CopyVector3IfDifferent(other->GetWorldToParentRestTranslation(),
     this->WorldToParentRestTranslation);
   //   * World To Bone:
-  modified |= CopyQuaternionIfDifferent(other->GetWorldToBoneRestRotation(),
+  restChanged |= CopyQuaternionIfDifferent(other->GetWorldToBoneRestRotation(),
     this->WorldToBoneRestRotation);
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetWorldToBoneHeadRestTranslation(),
       this->WorldToBoneHeadRestTranslation);
-  modified
+  restChanged
     |= CopyVector3IfDifferent(other->GetWorldToBoneTailRestTranslation(),
       this->WorldToBoneTailRestTranslation);
 
   // - Pose Transforms:
   //   * Parent To Bone:
-  modified |= CopyQuaternionIfDifferent(other->GetParentToBonePoseRotation(),
+  poseChanged |= CopyQuaternionIfDifferent(other->GetParentToBonePoseRotation(),
     this->ParentToBonePoseRotation);
-  modified |= CopyVector3IfDifferent(other->GetParentToBonePoseTranslation(),
+  poseChanged |= CopyVector3IfDifferent(other->GetParentToBonePoseTranslation(),
     this->ParentToBonePoseTranslation);
   //   * World To Parent:
-  modified |= CopyQuaternionIfDifferent(other->GetWorldToParentPoseRotation(),
+  poseChanged |= CopyQuaternionIfDifferent(other->GetWorldToParentPoseRotation(),
     this->WorldToParentPoseRotation);
-  modified |= CopyVector3IfDifferent(other->GetWorldToParentPoseTranslation(),
+  poseChanged |= CopyVector3IfDifferent(other->GetWorldToParentPoseTranslation(),
     this->WorldToParentPoseTranslation);
   //    * World To Bone:
-  modified |= CopyQuaternionIfDifferent(other->GetWorldToBonePoseRotation(),
+  poseChanged |= CopyQuaternionIfDifferent(other->GetWorldToBonePoseRotation(),
     this->WorldToBonePoseRotation);
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetWorldToBoneHeadPoseTranslation(),
       this->WorldToBoneHeadPoseTranslation);
-  modified
+  poseChanged
     |= CopyVector3IfDifferent(other->GetWorldToBoneTailPoseTranslation(),
       this->WorldToBoneTailPoseTranslation);
 
   // - Pose To Rest Transform:
-  modified |= CopyQuaternionIfDifferent(other->GetRestToPoseRotation(),
+  poseChanged |= CopyQuaternionIfDifferent(other->GetRestToPoseRotation(),
     this->RestToPoseRotation);
 
   // Axes variables:
@@ -1157,25 +1189,38 @@ void vtkBoneWidget::DeepCopy(vtkBoneWidget* other)
   if (this->ShowAxes != other->GetShowAxes())
     {
     this->ShowAxes = other->GetShowAxes();
-    modified = true;
+    otherChanged = true;
     }
 
   if (fabs(this->AxesSize - other->GetAxesSize()) > 1e-6)
     {
     this->AxesSize = other->GetAxesSize();
-    modified = true;
+    otherChanged = true;
     }
 
   // Parentage line
   if (this->ShowParenthood != other->GetShowParenthood())
     {
     this->ShowParenthood = other->GetShowParenthood();
-    modified = true;
+    otherChanged = true;
     }
 
-  if (modified)
+  if (restChanged || poseChanged || selectedChanged || otherChanged)
     {
     this->UpdateDisplay();
+
+    if (restChanged)
+      {
+      this->InvokeEvent(vtkBoneWidget::RestChangedEvent, NULL);
+      }
+    if (poseChanged)
+      {
+      this->InvokeEvent(vtkBoneWidget::PoseChangedEvent, NULL);
+      }
+    if (selectedChanged)
+      {
+      this->InvokeEvent(vtkBoneWidget::SelectedStateChangedEvent, NULL);
+      }
     this->Modified();
     }
 }

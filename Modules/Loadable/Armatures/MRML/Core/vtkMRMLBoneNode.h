@@ -133,7 +133,6 @@ public:
   void SetBoneRepresentationType(int type); // \TO DO to logic
   vtkGetMacro(BoneRepresentationType, int);
 
-
   /// Set/Get the bone roll.
   void SetRoll(double roll);
   double GetRoll();
@@ -171,6 +170,10 @@ public:
   /// Set/Get the bone axes visibility.
   void SetShowAxes(int axesVisibility);
   int GetShowAxes();
+
+  /// Set/Get the rest to pose rotation
+  void SetRestToPoseRotation(double quad[4]);
+  void GetRestToPoseRotation(double quad[4]);
 
   /// Set/Get the world to parent rotations.
   /// \sa GetWorldToParentRestRotation(), SetWorldToParentRestTranslation()
@@ -232,15 +235,6 @@ public:
   vtkSetMacro(HasParent, bool);
   vtkGetMacro(HasParent, bool);
 
-  /// Set/Get if the bone has parent or not.
-  //void SetEnvelopeRadiusRatio(double ratio);
-  vtkSetMacro(EnvelopeRadiusRatio, double);
-  vtkGetMacro(EnvelopeRadiusRatio, double);
-
-  /// Set/Get the overall radius ratio.
-  vtkSetMacro(OverallRadiusRatio, double);
-  vtkGetMacro(OverallRadiusRatio, double)
-
   //--------------------------------------------------------------------------
   // Helper methods
   //--------------------------------------------------------------------------
@@ -266,8 +260,6 @@ protected:
   int BoneRepresentationType;
   bool LinkedWithParent;
   bool HasParent;
-  double EnvelopeRadiusRatio;
-  double OverallRadiusRatio;
 };
 
 #endif

@@ -37,6 +37,9 @@
 #include <itkImage.h>
 #include <itkVariableLengthVector.h>
 
+// VTK includes
+class vtkIdTypeArray;
+
 // STD includes
 #include <vector>
 #include <limits>
@@ -45,14 +48,14 @@ namespace bender
 {
 class BENDER_COMMON_EXPORT WeightMap
 {
- public:
+public:
   typedef unsigned char SiteIndex;
   struct WeightEntry
   {
-    SiteIndex Index;
     float Value;
+    SiteIndex Index;
 
-  WeightEntry(): Index(std::numeric_limits<std::size_t>::max()), Value(0){}
+    WeightEntry(): Index(std::numeric_limits<SiteIndex>::max()), Value(0.){}
   };
 
   typedef itk::Index<3> Voxel;
@@ -60,13 +63,13 @@ class BENDER_COMMON_EXPORT WeightMap
   typedef std::vector<WeightEntry> WeightEntries;
   typedef itk::ImageRegion<3> Region;
   typedef itk::VariableLengthVector<float> WeightVector;
+  typedef std::vector<RowSizes> WeightsDegreesType;
 
-  typedef std::vector<WeightEntries> WeightLUT; //for any j, WeightTable[...][j] correspond to
-  //the weights at a voxel
+  // For any j, WeightTable[...][j] correspond to the weights at a voxel.
+  typedef std::vector<WeightEntries> WeightLUT;
 
-  typedef itk::Image<size_t,3> WeightLUTIndex; //for each voxel v, WeightLUTIndex[v] index into the
-  //the "column" of WeightLUT
-
+  // For each voxel v, WeightLUTIndex[v] index into the "column" of WeightLUT.
+  typedef itk::Image<size_t,3> WeightLUTIndex;
 
   WeightMap();
   /// Init from a list of points
@@ -75,16 +78,78 @@ class BENDER_COMMON_EXPORT WeightMap
   template <class T>
   void Init(const typename itk::Image<T, 3>::Pointer image,
             const itk::ImageRegion<3>& region);
+  /// Add a weight entry at the voxel \a v for the site \a index.
+  /// If value is below MinWeightValue, the entry is discarded
   bool Insert(const Voxel& v, SiteIndex index, float value);
-  void Get(const Voxel& v, WeightVector& values) const;
+
+  /// Set the list of weight entries at the voxel v.
+  /// Return the weight that has the most influence on the voxel v.
+  /// If the voxel is outside the region, return an invalid weight entry.
+  WeightEntry Get(const Voxel& v, WeightVector& values) const;
+
+  void SetMinWeightValue(float minWeight);
+  float GetMinWeightValue()const;
+
   void AddRow();
   void Print() const;
 
- private:
+  /// Mask that defines the function domain, only the voxels in domain will be used.
+  /// Pixels >= minForegroundValue will be considered in the domain.
+  /// \sa Lerp(), SetWeightsFiliation()
+  void SetMaskImage(const itk::Image<float, 3>::Pointer maskImage,
+                    float minForegroundValue);
+
+  /// Set the relationship between weight indexes.
+  /// The maximum degree of filiation (if >0) can be enforced when doing
+  /// interpolation of weights (i.e. Lerp()).
+  /// \sa SetMaskImage(), IsUnfiliated(), Lerp()
+  void SetWeightsFiliation(vtkIdTypeArray* weightsFiliation,
+                           int maxDegree = 4);
+
+  /// Interpolate the weights at a given point.
+  /// \a coord: the point to evaluate at.
+  /// \a w_pi: out, assumed to be initialized to the vector dimension of the
+  /// weight map.
+  /// \sa SetMaskImage(), SetWeightsFiliation()
+  bool Lerp(const itk::ContinuousIndex<double,3>& coord,
+            WeightMap::WeightVector& w_pi)const;
+
+private:
+  /// Set the mask region to the smallest region between the weight map region
+  /// and the mask image region.
+  /// \sa SetMaskImage()
+  void UpdateMaskRegion();
+
+  /// Return true if the voxel should be discarded/masked.
+  /// Voxels are masked if
+  ///  * they are outside the weight map region or mask region if any.
+  ///  * or their value in the mask image is < MinForegroundValue.
+  /// \sa IsUnfiliated(), SetMaskImage()
+  bool IsMasked(const WeightMap::Voxel& voxel)const;
+
+  /// Return true if the cornerIndex is not filiated to index.
+  /// Non filiated indexes are too far (> MaxWeightDegree) in degrees from each
+  /// others.
+  /// \sa IsMasked(), SetWeightsFiliation()
+  bool IsUnfiliated(SiteIndex index, SiteIndex cornerIndex)const;
+
+
   WeightLUT LUT;
   WeightLUTIndex::Pointer LUTIndex;
   RowSizes RowSize;
   size_t Cols;
+
+  itk::Image<float,3>::Pointer MaskImage;
+  float MinForegroundValue;
+  itk::ImageRegion<3> MaskRegion;
+
+  /// Contains the degrees between each weight indexes.
+  WeightsDegreesType WeightsDegrees;
+  /// -1 means all degrees are accepted. -1 by default.
+  int MaxWeightDegree;
+  /// Minimum weight value accepted in Insert()
+  /// \sa Insert()
+  float MinWeightValue;
 };
 
 };

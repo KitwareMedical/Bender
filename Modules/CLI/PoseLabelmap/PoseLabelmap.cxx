@@ -24,37 +24,26 @@
 #include "benderWeightMap.h"
 #include "benderWeightMapIO.h"
 #include "benderWeightMapMath.h"
-#include "dqconv.h"
+#include "vtkDualQuaternion.h"
 
 // ITK includes
 #include <itkContinuousIndex.h>
-#include <itkDanielssonDistanceMapImageFilter.h>
 #include <itkImage.h>
 #include <itkImageFileWriter.h>
 #include <itkImageRegionIteratorWithIndex.h>
 #include <itkIndex.h>
-#include <itkLinearInterpolateImageFunction.h>
-#include <itkMath.h>
 #include <itkMatrix.h>
 #include <itkPluginUtilities.h>
-#include <itkStatisticsImageFilter.h>
 #include <itkVersor.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
 
 // VTK includes
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
-#include <vtkCubeSource.h>
 #include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
-#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPolyData.h>
-#include <vtkSTLReader.h>
 #include <vtkSmartPointer.h>
-#include <vtkTimerLog.h>
 
 // STD includes
 #include <cmath>
@@ -67,8 +56,6 @@ typedef itk::Matrix<double,2,4> Mat24;
 
 typedef unsigned char CharType;
 typedef unsigned short LabelType;
-
-#define OutsideLabel 0
 
 typedef itk::Image<unsigned short, 3>  LabelImage;
 typedef itk::Image<bool, 3>  BoolImage;
@@ -84,6 +71,9 @@ typedef itk::Matrix<double,4,4> Mat44;
 
 typedef itk::Vector<double,3> Vec3;
 typedef itk::Vector<double,4> Vec4;
+
+// Initialized in DoIt;
+itk::Vector<double,3> InvalidCoord;
 
 template<class T> int DoIt(int argc, char* argv[]);
 
@@ -158,6 +148,21 @@ inline void InvertXY(T& x)
 }
 
 //-------------------------------------------------------------------------------
+Mat33 ToItkMatrix(double M[3][3])
+{
+  Mat33 itkM;
+  for (int i=0; i<3; ++i)
+    {
+    for (int j=0; j<3; ++j)
+      {
+      itkM(i,j)  = M[i][j];
+      }
+    }
+
+  return itkM;
+}
+
+//-------------------------------------------------------------------------------
 inline Mat33 ToRotationMatrix(const Vec4& R)
 {
   Versor v;
@@ -166,78 +171,63 @@ inline Mat33 ToRotationMatrix(const Vec4& R)
 }
 
 //-------------------------------------------------------------------------------
-void ApplyQT(Vec4& q, Vec3& t, double* x)
-{
-  double R[3][3];
-  vtkMath::QuaternionToMatrix3x3(&q[0], R);
-
-  double Rx[3];
-  vtkMath::Multiply3x3(R, x, Rx);
-
-  for(unsigned int i=0; i<3; ++i)
-    {
-    x[i] = Rx[i]+t[i];
-    }
-}
-
-//-------------------------------------------------------------------------------
 struct RigidTransform
 {
   Vec3 O;
   Vec3 T;
-  Vec4 R; //rotation quarternion
+  Mat33 R;
+  //vtkQuaternion<double> R; //rotation quarternion
+
   RigidTransform()
   {
     //initialize to identity transform
     T[0] = T[1] = T[2] = 0.0;
 
-    R[0] = 1.0;
-    R[1] = R[2] = R[3] = 0.0;
+    R.SetIdentity();
 
     O[0]=O[1]=O[2]=0.0;
   }
 
   void SetRotation(double* M)
   {
-    vtkMath::Matrix3x3ToQuaternion((double (*)[3])M, &R[0]);
-  }
-  void SetRotation(double axisX,
-                   double axisY,
-                   double axisZ,
-                   double angle)
-  {
-    double c = cos(angle);
-    double s = sin(angle);
-    this->R[0] = c;
-    this->R[1] = s*axisX;
-    this->R[2] = s*axisY;
-    this->R[3] = s*axisZ;
+    this->R = ToItkMatrix((double (*)[3])M);
   }
 
   void SetRotationCenter(const double* center)
   {
     this->O = Vec3(center);
   }
+  void GetRotationCenter(double* center)
+  {
+    center[0] = this->O[0];
+    center[1] = this->O[1];
+    center[2] = this->O[2];
+  }
 
-  void SetTranslation(double* t)
+  void SetTranslation(const double* t)
   {
     this->T = Vec3(t);
   }
-  Vec3 GetTranslationComponent()
+  void GetTranslation(double* t)const
   {
-    return ToRotationMatrix(this->R)*(-this->O) + this->O +T;
+    t[0] = this->T[0];
+    t[1] = this->T[1];
+    t[2] = this->T[2];
+  }
+  void GetTranslationComponent(double* tc)const
+  {
+    Vec3 res = this->R*(-this->O) + this->O +T;
+    tc[0] = res[0];
+    tc[1] = res[1];
+    tc[2] = res[2];
   }
   void Apply(const double in[3], double out[3]) const
   {
-    Vec3 transformed(in);
-    Apply(Vec3(in), transformed);
-    out[0] = transformed[0];
-    out[1] = transformed[1];
-    out[2] = transformed[2];
-  }
-  void Apply(Vec3 in, Vec3& out) const
-  {
-    out = ToRotationMatrix(this->R)*(in-this->O) + this->O +T;
+    Vec3 x(in);
+    x = this->R*(x-this->O) + this->O +T;
+    out[0] =x[0];
+    out[1] =x[1];
+    out[2] =x[2];
   }
 };
 
@@ -253,15 +243,15 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
   double T[3];
   double RCenter[3];
   int iA(0);
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
-    for(int j=0; j<3; ++j,++iA)
+    for (int j=0; j<3; ++j,++iA)
       {
       R[j][i] = A[iA];
       }
     }
 
-  for(int i=0; i<3; ++i)
+  for (int i=0; i<3; ++i)
     {
     T[i] = A[i+9];
     RCenter[i] = rcenter[i];
@@ -269,9 +259,9 @@ void GetArmatureTransform(vtkPolyData* polyData, vtkIdType cellId,
 
   if(invertXY)
     {
-    for(int i=0; i<3; ++i)
+    for (int i=0; i<3; ++i)
       {
-      for(int j=0; j<3; ++j)
+      for (int j=0; j<3; ++j)
         {
         if( (i>1 || j>1) && i!=j)
           {
@@ -312,8 +302,8 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,
 
     Mat33 R;
     int iA(0);
-    for(int i=0; i<3; ++i)
-      for(int j=0; j<3; ++j,++iA)
+    for (int i=0; i<3; ++i)
+      for (int j=0; j<3; ++j,++iA)
         {
         R(i,j) = A[iA];
         }
@@ -327,9 +317,9 @@ vtkSmartPointer<vtkPolyData> TransformArmature(vtkPolyData* armature,
     if(invertXY)
       {
       //    Mat33 flipY;
-      for(int i=0; i<3; ++i)
+      for (int i=0; i<3; ++i)
         {
-        for(int j=0; j<3; ++j)
+        for (int j=0; j<3; ++j)
           {
           if( (i>1 || j>1) && i!=j)
             {
@@ -405,11 +395,11 @@ public:
   CubeNeighborhood()
   {
     int index=0;
-    for(unsigned int i=0; i<=1; ++i)
+    for (unsigned int i=0; i<=1; ++i)
       {
-      for(unsigned int j=0; j<=1; ++j)
+      for (unsigned int j=0; j<=1; ++j)
         {
-        for(unsigned int k=0; k<=1; ++k,++index)
+        for (unsigned int k=0; k<=1; ++k,++index)
           {
           this->Offsets[index][0] = i;
           this->Offsets[index][1] = j;
@@ -421,6 +411,11 @@ public:
   VoxelOffset Offsets[8];
 };
 
+//-------------------------------------------------------------------------------
+bool WIComp(const std::pair<double, int>& left, const std::pair<double, int>& right)
+{
+  return left.first > right.first;
+}
 
 //-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
@@ -439,7 +434,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
   domain->Allocate();
   domain->FillBuffer(false);
 
-  for(int pi=0; pi<points->GetNumberOfPoints();++pi)
+  for (int pi=0; pi<points->GetNumberOfPoints();++pi)
     {
     double xraw[3];
     points->GetPoint(pi,xraw);
@@ -451,7 +446,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
     Voxel p;
     p.CopyWithCast(coord);
 
-    for(int iOff=0; iOff<8; ++iOff)
+    for (int iOff=0; iOff<8; ++iOff)
       {
       Voxel q = p + offsets[iOff];
 
@@ -473,71 +468,22 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
   out->Allocate();
 }
 
-/*
-//-------------------------------------------------------------------------------
-itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
-                                size_t numSites,
-                                const bender::WeightMap& weightMap,
-                                bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
-{
-  itk::Vector<double,3> posedCoord(0.0);
-  bender::WeightMap::WeightVector w_pi(numSites);
-  weightMap.Get(imageIt.GetIndex(), w_pi);
-  double wSum(0.0);
-  for(size_t i = 0; i < numSites; ++i)
-    {
-    wSum+=w_pi[i];
-    }
-  if (wSum <= 0.0)
-    {
-    posedCoord = restCoord;
-    }
-  else if(linearBlend)
-    {
-    for(size_t i=0; i<numSites;++i)
-      {
-      double w = w_pi[i]/wSum;
-      const RigidTransform& Fi(transforms[i]);
-      Vec3 yi;
-      Fi.Apply(restCoord, yi);
-      posedCoord += w*yi;
-      }
-    }
-  else
-    {
-    Mat24 dq;
-    dq.Fill(0.0);
-    for(size_t i=0; i<numSites;++i)
-      {
-      double w = w_pi[i]/wSum;
-      Mat24& dq_i(dqs[i]);
-      dq+= dq_i*w;
-      }
-    Vec4 q;
-    Vec3 t;
-    DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-    posedCoord = restCoord;
-    ApplyQT(q,t,&posedCoord[0]);
-    }
-  return posedCoord;
-  }
-*/
-// Initialized in DoIt;
-itk::Vector<double,3> InvalidCoord;
-
 //-------------------------------------------------------------------------------
 itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
                                 bender::WeightMap::WeightVector w_pi,
                                 bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
+                                const int maximumNumberOfInterpolatedBones,
+                                const std::vector<vtkDualQuaternion<double> >& dqs)
 {
+  double restPos[3];
+  restPos[0] = restCoord[0];
+  restPos[1] = restCoord[1];
+  restPos[2] = restCoord[2];
   itk::Vector<double,3> posedCoord(0.0);
-  size_t numSites = w_pi.GetSize();
+
+  const size_t numSites = w_pi.GetSize();
   double wSum(0.0);
-  for(size_t i = 0; i < numSites; ++i)
+  for (size_t i = 0; i < numSites; ++i)
     {
     wSum+=w_pi[i];
     }
@@ -545,33 +491,44 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
     {
     posedCoord = InvalidCoord;//restCoord;
     }
-  else if(linearBlend)
+  else if (linearBlend)
     {
-    for(size_t i=0; i<numSites;++i)
+    for (size_t i = 0; i < numSites; ++i)
       {
-      double w = w_pi[i]/wSum;
-      const RigidTransform& Fi(transforms[i]);
-      Vec3 yi;
-      Fi.Apply(restCoord, yi);
-      posedCoord += w*yi;
+      double w = w_pi[i] / wSum;
+      double yi[3];
+      const vtkDualQuaternion<double>& transform(dqs[i]);
+      transform.TransformPoint(restPos, yi);
+      posedCoord += w*Vec3(yi);
       }
     }
   else
     {
-    Mat24 dq;
-    dq.Fill(0.0);
-    for(size_t i=0; i<numSites;++i)
+    std::vector<std::pair<double, int> > ws;
+    ws.reserve(numSites);
+    for (size_t i=0; i < numSites; ++i)
       {
-      const double w = w_pi[i] / wSum;
-      // const_cast due to HISTITK-1389
-      Mat24& dq_i(const_cast<std::vector<Mat24>&>(dqs)[i]);
-      dq += dq_i*w;
+      double w = w_pi[i] / wSum;
+      ws.push_back(std::make_pair(w, static_cast<int>(i)));
       }
-    Vec4 q;
-    Vec3 t;
-    DQ2QuatTrans((const double (*)[4])&dq(0,0), &q[0], &t[0]);
-    posedCoord = restCoord;
-    ApplyQT(q,t,&posedCoord[0]);
+    // To limit computation errors, it is important to start interpolating with the
+    // highest w first.
+    std::partial_sort(ws.begin(),
+                      ws.begin() + maximumNumberOfInterpolatedBones,
+                      ws.end(),
+                      WIComp);
+    vtkDualQuaternion<double> transform = dqs[ws[0].second];
+    double w = ws[0].first;
+    // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
+    // sure it works with more than 2.
+    for (int i = 1; i < maximumNumberOfInterpolatedBones; ++i)
+      {
+      double w2 = ws[i].first;
+      int i2 = ws[i].second;
+      transform = transform.ScLerp2(w2 / (w + w2), dqs[i2]);
+      w += w2;
+      }
+    transform.TransformPoint(restPos, &posedCoord[0]);
     }
   return posedCoord;
 }
@@ -582,10 +539,9 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
                                 const itk::ContinuousIndex<double,3>& index,
                                 size_t numSites,
                                 const bender::WeightMap& weightMap,
-                                typename itk::Image<float, 3>::Pointer weightImage,
                                 bool linearBlend,
-                                const std::vector<RigidTransform>& transforms,
-                                const std::vector<Mat24>& dqs)
+                                int maximumNumberOfInterpolatedBones,
+                                const std::vector<vtkDualQuaternion<double> >& dqs)
 {
   typename itk::Image<T,3>::PointType p;
   image->TransformContinuousIndexToPhysicalPoint(index, p);
@@ -599,8 +555,12 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
   //weightIndex[1] = round(index[1]);
   //weightIndex[2] = round(index[2]);
   //weightMap.Get(weightIndex, w_pi);
-  bender::Lerp<itk::Image<float,3> >(weightMap,index,weightImage, 0., w_pi);
-  return Transform(restCoord, w_pi, linearBlend, transforms, dqs);
+  bool res = weightMap.Lerp(index, w_pi);
+  if (!res)
+    {
+    return InvalidCoord;
+    }
+  return Transform(restCoord, w_pi, linearBlend, maximumNumberOfInterpolatedBones, dqs);
 }
 
 
@@ -613,11 +573,11 @@ class Neighborhood
 public:
   Neighborhood()
   {
-    for(unsigned int i=0; i<dimension; ++i)
+    for (unsigned int i=0; i<dimension; ++i)
       {
       int lo = includeSelf + 2*i;
       int hi = includeSelf + 2*i+1;
-      for(unsigned int j=0; j<dimension; ++j)
+      for (unsigned int j=0; j<dimension; ++j)
         {
         if (includeSelf)
           {
@@ -635,27 +595,94 @@ public:
 
 
 
+//-------------------------------------------------------------------------------
+/**
+    size = 0:             size = 1:             size = 2:
+   /-----------\         *-----*-----*         /--*-----*--\
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |           |         |           |         *  *  *  *  *
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |     *     |         *           *         |  *     *  |
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   |           |         |           |         *  *  *  *  *
+   |           |         |           |         |           |
+   |           |         |           |         |           |
+   \-----------/         *-----*-----*         \--*-----*--/
+*/
+template<unsigned int dimension>
+class SubNeighborhood
+{
+public:
+  SubNeighborhood(int size)
+  {
+    this->Size = pow(static_cast<double>(size*2+1), static_cast<int>(dimension))
+                 - pow(static_cast<double>((size / 2)*2 + 1), static_cast<int>(dimension));
+    this->Offsets = new itk::Offset<dimension>[this->Size];
+    size_t count = 0;
+    for (int z = -size; z <= size; ++z)
+      {
+      for (int y = -size; y <= size; ++y)
+        {
+        for (int x = -size; x <= size; ++x)
+          {
+          if ( z % 2 == 0 && y % 2 == 0 && x % 2 == 0)
+            {
+            continue;
+            }
+          this->Offsets[count][0] = x;
+          this->Offsets[count][1] = y;
+          this->Offsets[count][2] = z;
+          ++count;
+          }
+        }
+      }
+    assert(count == this->Size);
+  }
+  ~SubNeighborhood()
+  {
+    delete [] this->Offsets;
+  }
+  size_t Size;
+  itk::Offset<dimension>* Offsets;
+};
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+// Should a label overwrite the existing label value.
+// Return true if it should, false otherwise.
+//-------------------------------------------------------------------------------
+template<class T>
+bool overwriteLabel(T existingLabel, T newLabel,
+                    const std::vector<int>& highPrecedence,
+                    const std::vector<int>& lowPrecedence)
+{
+  if (existingLabel == newLabel)
+    {
+    return false;
+    }
+  // Special case if the existing label is the background value.
+  if (existingLabel == static_cast<T>(lowPrecedence[0]))
+    {
+    return true;
+    }
+  std::vector<int>::const_iterator elHP =
+    std::find(highPrecedence.begin(), highPrecedence.end(),
+              static_cast<int>(existingLabel));
+  std::vector<int>::const_iterator elLP =
+    std::find(lowPrecedence.begin(), lowPrecedence.end(),
+              static_cast<int>(existingLabel));
+  std::vector<int>::const_iterator nlHP =
+    std::find(highPrecedence.begin(), highPrecedence.end(),
+              static_cast<int>(newLabel));
+  std::vector<int>::const_iterator nlLP =
+    std::find(lowPrecedence.begin(), lowPrecedence.end(),
+              static_cast<int>(newLabel));
+  bool res = elHP > nlHP || elLP < nlLP;
+  return res;
+}
 
 
 
@@ -665,11 +692,24 @@ public:
 template<class T>
 int DoIt(int argc, char* argv[])
 {
+ // This property controls how many bone transforms are blended together
+  // when interpolating. Usually 2 but can go up to 4 sometimes.
+  // 1 for no interpolation (use the closest bone transform).
+  const int MaximumNumberOfInterpolatedBones = 4;
+  // This property controls whether to interpolate with ScLerp
+  // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
+  // Blending).
+  // Note that DLB (faster) is not tweaked to give proper results.
+  // const bool UseScLerp = true;
+
   InvalidCoord[0] = std::numeric_limits<double>::max();
   InvalidCoord[1] = std::numeric_limits<double>::max();
   InvalidCoord[2] = std::numeric_limits<double>::max();
 
   PARSE_ARGS;
+
+  T outsideLabel = static_cast<T>(BackgroundValue);
+  LowPrecedenceLabels.insert(LowPrecedenceLabels.begin(), BackgroundValue);
 
   if (!IsArmatureInRAS)
     {
@@ -717,7 +757,7 @@ int DoIt(int argc, char* argv[])
     for (itk::ImageRegionIterator<WeightImage> it(weight0, weightRegion);
          !it.IsAtEnd(); ++it)
       {
-      numForeGround += (it.Get() != OutsideLabel ? 1 : 0);
+      numForeGround += (it.Get() != outsideLabel ? 1 : 0);
       ++numVoxels;
       }
     std::cout << numForeGround << " foreground voxels for "
@@ -750,12 +790,6 @@ int DoIt(int argc, char* argv[])
             << " " << labelMap->GetLargestPossibleRegion()
             << std::endl;
     }
-  //vtkPoints* inputPoints = inSurface->GetPoints();
-  //int numPoints = inputPoints->GetNumberOfPoints();
-  //std::vector<Voxel> domainVoxels;
-  //ComputeDomainVoxels(weight0,inputPoints,domainVoxels);
-  //std::cout <<numPoints<<" vertices, "<<domainVoxels.size()<<" voxels"<< std::endl;
-
 
   //----------------------------
   // Read Weights
@@ -763,8 +797,16 @@ int DoIt(int argc, char* argv[])
   std::cout << "############# Read weights...";
   typedef bender::WeightMap WeightMap;
   WeightMap weightMap;
+  weightMap.SetMinWeightValue(0.0000000001);
   //bender::ReadWeights(fnames,domainVoxels,weightMap);
   bender::ReadWeightsFromImage<T>(fnames, labelMap, weightMap);
+  // Don't interpolate weights outside of the domain (i.e. outside the body).
+  // -1. is outside of domain
+  // 0. is no weight for bone 0
+  // 1. is full weight for bone 0
+  // \tbd Why not using the labelmap as mask instead ? Does the weight image
+  // have better boundaries ?
+  weightMap.SetMaskImage(weight0, 0.f);
   std::cout << "############# done." << std::endl;
 
   //----------------------------
@@ -784,7 +826,8 @@ int DoIt(int argc, char* argv[])
   //  {
     std::cout << "############# Transform armature...";
     vtkSmartPointer<vtkPolyData> posedArmature = TransformArmature(armature,"Transforms",!IsArmatureInRAS);
-    bender::IOUtils::WritePolyData(posedArmature,"./PosedArmature.vtk");
+    bender::IOUtils::WriteDebugPolyData(posedArmature,
+      "PoseLabelmap_PosedArmature.vtk", WeightDirectory + "/Debug");
     std::cout << "############# done." << std::endl;
   //  }
 
@@ -825,13 +868,28 @@ int DoIt(int argc, char* argv[])
     }
 
   numSites = transforms.size();
-  std::vector<Mat24> dqs;
-  for(size_t i=0; i<transforms.size(); ++i)
+  vtkIdTypeArray* filiation = vtkIdTypeArray::SafeDownCast(
+    armature->GetCellData()->GetArray("Parenthood"));
+  if (filiation)
     {
-    Mat24 dq;
+    weightMap.SetWeightsFiliation(filiation, MaximumParenthoodDistance);
+    if (Debug)
+      {
+      std::cout << "No more than " << MaximumParenthoodDistance
+                << " degrees of separation" << std::endl;
+      }
+    }
+
+  std::vector<vtkDualQuaternion<double> > dqs;
+  for (size_t i = 0; i < numSites; ++i)
+    {
     RigidTransform& trans = transforms[i];
-    Vec3 t = trans.GetTranslationComponent();
-    QuatTrans2UDQ(&trans.R[0], &t[0], (double (*)[4]) &dq(0,0));
+    vtkQuaternion<double> rotation;
+    rotation.FromMatrix3x3((double (*)[3])&trans.R(0,0));
+    double tc[3];
+    trans.GetTranslationComponent(tc);
+    vtkDualQuaternion<double> dq;
+    dq.SetRotationTranslation(rotation, &tc[0]);
     dqs.push_back(dq);
     }
 
@@ -843,27 +901,14 @@ int DoIt(int argc, char* argv[])
   //----------------------------
   typename LabelImageType::Pointer posedLabelMap = LabelImageType::New();
   posedLabelMap->CopyInformation(labelMap);
-  double padding = 10.;
-  vtkDoubleArray* envelopes = vtkDoubleArray::SafeDownCast(
-    posedArmature->GetCellData()->GetScalars("EnvelopeRadiuses"));
-  if (envelopes)
-    {
-    double maxRadius = 0.;
-    for (vtkIdType i = 0; i < envelopes->GetNumberOfTuples(); ++i)
-      {
-      maxRadius = std::max(maxRadius, envelopes->GetValue(i));
-      }
-    padding = maxRadius;
-    }
-  assert(padding >= 0.);
-  std::cout << "Padding: " << padding << std::endl;
+  std::cout << "Padding: " << Padding << std::endl;
   double posedArmatureBounds[6] = {0., -1., 0., -1., 0., -1.};
   posedArmature->GetBounds(posedArmatureBounds);
   if (!IsArmatureInRAS)
     {
     posedArmatureBounds[0] *= -1;
     posedArmatureBounds[1] *= -1;
-	  posedArmatureBounds[2] *= -1;
+    posedArmatureBounds[2] *= -1;
     posedArmatureBounds[3] *= -1;
     std::swap(posedArmatureBounds[0], posedArmatureBounds[1]);
     std::swap(posedArmatureBounds[2], posedArmatureBounds[3]);
@@ -876,8 +921,8 @@ int DoIt(int argc, char* argv[])
   double bounds[6] = {0., -1., 0., -1., 0., -1.};
   for (int i = 0; i < 3; ++i)
     {
-    posedLabelmapBounds[i*2] = posedArmatureBounds[i*2] - padding;
-    posedLabelmapBounds[i*2 + 1] = posedArmatureBounds[i*2 + 1] + padding;
+    posedLabelmapBounds[i*2] = posedArmatureBounds[i*2] - Padding;
+    posedLabelmapBounds[i*2 + 1] = posedArmatureBounds[i*2 + 1] + Padding;
     bounds[i*2] = posedLabelmapBounds[i*2];
     bounds[i*2 + 1] = posedLabelmapBounds[i*2 + 1];
     }
@@ -885,18 +930,12 @@ int DoIt(int argc, char* argv[])
   origin[0] = posedLabelMap->GetDirection()[0][0] >= 0. ? bounds[0] : bounds[1];
   origin[1] = posedLabelMap->GetDirection()[1][1] >= 0. ? bounds[2] : bounds[3];
   origin[2] = posedLabelMap->GetDirection()[2][2] >= 0. ? bounds[4] : bounds[5];
-  //origin[0] = std::min(origin[0], labelMap->GetOrigin()[0]);
-  //origin[1] = std::min(origin[1], labelMap->GetOrigin()[1]);
-  //origin[2] = std::min(origin[2], labelMap->GetOrigin()[2]);
   posedLabelMap->SetOrigin(origin);
   typename LabelImageType::RegionType region;
   assert(bounds[1] >= bounds[0] && bounds[3] >= bounds[2] && bounds[5] >= bounds[4]);
   region.SetSize(0, (bounds[1]-bounds[0]) / posedLabelMap->GetSpacing()[0]);
   region.SetSize(1, (bounds[3]-bounds[2]) / posedLabelMap->GetSpacing()[1]);
   region.SetSize(2, (bounds[5]-bounds[4]) / posedLabelMap->GetSpacing()[2]);
-  //region.SetSize(0, std::max(region.GetSize()[0], labelMap->GetLargestPossibleRegion().GetSize()[0]));
-  //region.SetSize(1, std::max(region.GetSize()[1], labelMap->GetLargestPossibleRegion().GetSize()[1]));
-  //region.SetSize(2, std::max(region.GetSize()[2], labelMap->GetLargestPossibleRegion().GetSize()[2]));
   posedLabelMap->SetRegions(region);
   std::cout << "Allocate output posed labelmap: \n"
             << " Origin: " << posedLabelMap->GetOrigin() << "\n"
@@ -905,32 +944,7 @@ int DoIt(int argc, char* argv[])
             << " " << posedLabelMap->GetLargestPossibleRegion()
             << std::endl;
   posedLabelMap->Allocate();
-  posedLabelMap->FillBuffer(OutsideLabel);
-/*
-  std::cout << "############# Posed Indexes..." << std::endl;
-  typedef typename LabelImageType::IndexType IndexType;
-  typedef itk::Image<IndexType, 3> IndexImageType;
-  typename IndexImageType::Pointer posedIndexes = IndexImageType::New();
-  posedIndexes->CopyInformation(posedLabelMap);
-  //posedIndexes->SetSpacing(posedLabelMap->GetSpacing());
-  //posedIndexes->SetDirection(posedLabelMap->GetDirection());
-  //posedIndexes->SetOrigin(origin);
-  posedIndexes->SetRegions(region);
-  posedIndexes->Allocate();
-  IndexType invalidIndex = {{-1, -1, -1}};
-  posedIndexes->FillBuffer(invalidIndex);
-
-  
-  std::cout << "############# Posed IDs..." << std::endl;
-  typedef unsigned int IDType;
-  typedef itk::Image<IDType, 3> IDImageType;
-  typename IDImageType::Pointer posedIDs = IDImageType::New();
-  posedIDs->CopyInformation(posedLabelMap);
-  posedIDs->SetRegions(region);
-  posedIDs->Allocate();
-  IDType invalidID = 0;
-  posedIDs->FillBuffer(invalidID);
-  */
+  posedLabelMap->FillBuffer(outsideLabel);
 
   //----------------------------
   // Perform interpolation
@@ -938,19 +952,29 @@ int DoIt(int argc, char* argv[])
 
   std::cout << "############# First pass..." << std::endl;
   itk::ImageRegionConstIteratorWithIndex<LabelImageType> imageIt(labelMap, labelMap->GetLargestPossibleRegion());
-/*
+
+  size_t assignedPixelCount(1);
+  size_t countSkippedVoxels(0);
+  size_t voxelIt(0);
+  const size_t voxelCount =
+    labelMap->GetLargestPossibleRegion().GetSize(0) *
+    labelMap->GetLargestPossibleRegion().GetSize(1) *
+    labelMap->GetLargestPossibleRegion().GetSize(2);
+  size_t progress((voxelCount-1) / 100);
   // First pass, fill as much as possible
-  //IDType index(0);
-  size_t assignedPixelCount(0);
-  for (; !imageIt.IsAtEnd() ; ++imageIt)
+  for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
     {
-    if (imageIt.Get() == OutsideLabel)
+    if (voxelIt++ % progress == 0)
+      {
+      std::cout << "+";
+      std::cout.flush();
+      }
+    if (imageIt.Get() == outsideLabel)
       {
       continue;
       }
-    typename itk::ContinuousIndex<double, 3> index = imageIt.GetIndex();
     itk::Vector<double,3> posedCoord =
-      Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, transforms, dqs);
+      Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
     if (posedCoord == InvalidCoord)
       {
       continue;
@@ -967,169 +991,78 @@ int DoIt(int argc, char* argv[])
       //assert(res);
       std::cerr << "!";
       }
-    else
+    else // need to overwrite ?
       {
       ++assignedPixelCount;
-      posedLabelMap->SetPixel(posedIndex, imageIt.Get());
-      //posedIndexes->SetPixel(posedIndex, imageIt.GetIndex());
-      //posedIDs->SetPixel(posedIndex, index);
-      //typename IDImageType::IndexType idIndex;
-      //posedIDs->TransformPhysicalPointToIndex(posedPoint, idIndex);
-      //posedIDs->SetPixel(idIndex, index);
-      //std::cout << "." << std::endl;
-      //typename IndexImageType::IndexType pPosedIndex;
-      //res = posedIndexes->TransformPhysicalPointToIndex(posedPoint, pPosedIndex);
-      //if (res)
+      if (overwriteLabel(posedLabelMap->GetPixel(posedIndex),
+                         imageIt.Get(), HighPrecedenceLabels, LowPrecedenceLabels))
         {
-        //posedIndexes->SetPixel(pPosedIndex, imageIt.GetIndex());
+        posedLabelMap->SetPixel(posedIndex, imageIt.Get());
         }
-      //std::cout << "-" << std::endl;
-      }
-    }
-  std::cout << "############# done." << std::endl;
-  if (Debug)
-    {
-    bender::IOUtils::WriteImage<LabelImageType>(
-      posedLabelMap, "firstPass.mha");
-    std::cout << "############# done." << std::endl;
-    }
-*/
-/*
-  double stepWidth= 1.;
-  size_t maxStepCount = 1;
-  size_t assignedPixelCount(1);
-  size_t maxPosedOffsetNorm = 2;
-  for (size_t pass = 0;
-       (pass <= MaximumPass) &&
-        (pass <= 1 || (assignedPixelCount && maxPosedOffsetNorm > 0));
-       ++pass, stepWidth /=2)
-    {
-    std::cout << "############# " << pass << " pass..." << std::endl;
-    std::cout << "Step width: " << stepWidth << std::endl;
-    maxStepCount *= 2;
-    if (stepWidth >= 0.25)
-      {
-      maxStepCount = 1;
-      }
-    assignedPixelCount = 0;
-    maxPosedOffsetNorm = 0;
-    for (size_t stepIndex = 0; stepIndex < maxStepCount; ++stepIndex )
-      {
-      double step = stepWidth + (stepIndex*stepWidth*2);
-      std::cout << "################### " << stepIndex+1 << "/" << maxStepCount << std::endl;
-      std::cout << "Step: " << step << std::endl;
-*/
-  size_t assignedPixelCount(1);
-  size_t countSkippedVoxels(0);
-      // First pass, fill as much as possible
-      for (imageIt.GoToBegin(); !imageIt.IsAtEnd() ; ++imageIt)
-        {
-        if (imageIt.Get() == OutsideLabel)
-          {
-          continue;
-          }
-        itk::Vector<double,3> posedCoord =
-          Transform<T>(labelMap, imageIt.GetIndex(), numSites, weightMap, weight0, LinearBlend, transforms, dqs);
-        if (posedCoord == InvalidCoord)
-          {
-          continue;
-          }
-        //std::cout << posedCoord << std::endl;
-        typename LabelImageType::PointType posedPoint;
-        posedPoint[0] = posedCoord[0];
-        posedPoint[1] = posedCoord[1];
-        posedPoint[2] = posedCoord[2];
-        typename LabelImageType::IndexType posedIndex;
-        bool res = posedLabelMap->TransformPhysicalPointToIndex(posedPoint, posedIndex);
-        if (!res)
-          {
-          //assert(res);
-          std::cerr << "!";
-          }
-        else // need to overwrite ?
-          {
-          ++assignedPixelCount;
-          posedLabelMap->SetPixel(posedIndex, imageIt.Get());
 
-          size_t maxPosedOffsetNorm = 2; // do it the first time.
-          for (size_t radius = 1; maxPosedOffsetNorm > 1 && radius < 50; ++radius)
+      size_t maxPosedOffsetNorm = 2; // do it the first time.
+      for (size_t radius = 1;
+           maxPosedOffsetNorm > 1 && radius <= static_cast<unsigned int>(MaximumRadius);
+           radius*=2)
+        {
+        if (radius >= 16)
+          {
+          std::cerr << "@" << radius ;
+          }
+        //size_t assignedNeighborsCount = 0;
+        //itk::Neighborhood<T, 3> neighborhood;
+        //neighborhood.SetRadius(radius);
+        SubNeighborhood<3> neighborhood(radius);
+        double step = 0.5 / radius;
+        //{
+        maxPosedOffsetNorm = 0;
+        size_t stepAssignedPixelCount = 0;
+        for (size_t iOff =0; iOff < neighborhood.Size; ++iOff)
+          {
+          typename itk::ContinuousIndex<double, 3> index(imageIt.GetIndex());
+          index[0] += step * neighborhood.Offsets[iOff][0];
+          index[1] += step * neighborhood.Offsets[iOff][1];
+          index[2] += step * neighborhood.Offsets[iOff][2];
+          itk::Vector<double,3> neighborPosedCoord =
+            Transform<T>(labelMap, index, numSites, weightMap, LinearBlend, MaximumNumberOfInterpolatedBones, dqs);
+          if (neighborPosedCoord == InvalidCoord)
             {
-            if (radius > 14)
-              {
-              std::cerr << "@" << radius ;
-              }
-            //size_t assignedNeighborsCount = 0;
-            itk::Neighborhood<T, 3> neighborhood;
-            neighborhood.SetRadius(radius);
-            //{
-            maxPosedOffsetNorm = 0;
-            size_t stepAssignedPixelCount = 0;
-            for (size_t iOff =0; iOff < neighborhood.Size(); ++iOff)
-              {
-              double step = 0.9999999 / radius;
-              typename itk::ContinuousIndex<double, 3> index(imageIt.GetIndex());
-              index[0] += step * neighborhood.GetOffset(iOff)[0];
-              index[1] += step * neighborhood.GetOffset(iOff)[1];
-              index[2] += step * neighborhood.GetOffset(iOff)[2];
-              itk::Vector<double,3> neighborPosedCoord =
-                Transform<T>(labelMap, index, numSites, weightMap, weight0, LinearBlend, transforms, dqs);
-              if (neighborPosedCoord == InvalidCoord)
-                {
-                continue;
-                }
-              typename LabelImageType::PointType neighborPosedPoint;
-              neighborPosedPoint[0] = neighborPosedCoord[0];
-              neighborPosedPoint[1] = neighborPosedCoord[1];
-              neighborPosedPoint[2] = neighborPosedCoord[2];
-              typename LabelImageType::IndexType neighborPosedIndex;
-              bool neighborRes = posedLabelMap->TransformPhysicalPointToIndex(neighborPosedPoint, neighborPosedIndex);
-              if (neighborRes)
-                {
-                size_t posedOffsetNorm = 0;
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[0] - posedIndex[0])/radius));
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[1] - posedIndex[1])/radius));
-                posedOffsetNorm = std::max(posedOffsetNorm,
-                                           static_cast<size_t>(std::abs(neighborPosedIndex[2] - posedIndex[2])/radius));
-                maxPosedOffsetNorm = std::max(maxPosedOffsetNorm, posedOffsetNorm);
-                if (posedLabelMap->GetPixel(neighborPosedIndex) ==OutsideLabel)
-                  {
-                  posedLabelMap->SetPixel(neighborPosedIndex, imageIt.Get());
-                  ++stepAssignedPixelCount;
-                  }
-                }
-              }
-            // Test to see if the neighbors have been filled.
-            //assignedNeighborsCount = 0;
-            //for (size_t iOff =0; iOff < neighborhood.Size(); ++iOff)
-            //  {
-            //  assignedNeighborsCount +=
-            //    (posedLabelMap->GetPixel(posedIndex + neighborhood.GetOffset(iOff)) != OutsideLabel) ? 1 :0;
-            //  }
-            assignedPixelCount += stepAssignedPixelCount;
+            continue;
             }
-          if (maxPosedOffsetNorm > 1)
+          typename LabelImageType::PointType neighborPosedPoint;
+          neighborPosedPoint[0] = neighborPosedCoord[0];
+          neighborPosedPoint[1] = neighborPosedCoord[1];
+          neighborPosedPoint[2] = neighborPosedCoord[2];
+          typename LabelImageType::IndexType neighborPosedIndex;
+          bool neighborRes = posedLabelMap->TransformPhysicalPointToIndex(neighborPosedPoint, neighborPosedIndex);
+          if (neighborRes)
             {
-            ++countSkippedVoxels;
+            size_t posedOffsetNorm = 0;
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[0] - posedIndex[0])/radius));
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[1] - posedIndex[1])/radius));
+            posedOffsetNorm = std::max(posedOffsetNorm,
+                                       static_cast<size_t>(std::abs(neighborPosedIndex[2] - posedIndex[2])/radius));
+            maxPosedOffsetNorm = std::max(maxPosedOffsetNorm, posedOffsetNorm);
+            if (overwriteLabel(posedLabelMap->GetPixel(neighborPosedIndex),
+                               imageIt.Get(), HighPrecedenceLabels, LowPrecedenceLabels))
+              {
+              posedLabelMap->SetPixel(neighborPosedIndex, imageIt.Get());
+              ++stepAssignedPixelCount;
+              }
             }
           }
+        assignedPixelCount += stepAssignedPixelCount;
         }
-        //}
-      std::cout << assignedPixelCount << " pixels assigned" << std::endl;
-      std::cout << countSkippedVoxels << " voxels skipped" << std::endl;
-    //std::cout << maxPosedOffsetNorm << " maximum posed offset norm" << std::endl;
-    /*
-    if (Debug)
-      {
-      std::stringstream ss;
-      ss << "Pass-" << pass << ".mha";
-      bender::IOUtils::WriteImage<LabelImageType>(
-        posedLabelMap, ss.str().c_str());
-      std::cout << "############# done." << std::endl;
+      if (maxPosedOffsetNorm > 1)
+        {
+        ++countSkippedVoxels;
+        }
       }
-    */
-    //}
+    }
+  std::cout << assignedPixelCount << " pixels assigned" << std::endl;
+  std::cout << countSkippedVoxels << " voxels skipped" << std::endl;
 
   std::cout << "############# done." << std::endl;
 

@@ -143,47 +143,6 @@ int DoIt( int argc, char * argv[] )
     return EXIT_FAILURE;
     }
 
-  bender::IOUtils::FilterProgress("Read inputs", 0.33, 0.1, 0.0);
-
-  if (Debug)
-    {
-    //----------------------------
-    // Print out some statistics
-    //----------------------------
-
-    typedef itk::StatisticsImageFilter<ImageType>  StatisticsType;
-    typename StatisticsType::Pointer statistics = StatisticsType::New();
-    statistics->SetInput( volume );
-    statistics->Update();
-
-    itk::ImageRegion<3> allRegion = volume->GetLargestPossibleRegion();
-    itk::ImageRegionIteratorWithIndex<ImageType> it(volume,
-                                                    volume->GetLargestPossibleRegion());
-    const LabelType backgroundIntensity = 0;
-    const LabelType boneIntensity = 253; //cancellous
-    size_t numBodyVoxels(0),numBoneVoxels(0);
-    for (it.GoToBegin(); !it.IsAtEnd(); ++it)
-      {
-      if (static_cast<LabelType>(it.Get()) > backgroundIntensity)
-        {
-        ++numBodyVoxels;
-        }
-      if (static_cast<LabelType>(it.Get()) == boneIntensity)
-        {
-        ++numBoneVoxels;
-        }
-      }
-    int totalVoxels =
-      allRegion.GetSize()[0]*allRegion.GetSize()[1]*allRegion.GetSize()[2];
-
-    std::cout << "Image statistics\n";
-    std::cout << "  min: "<<static_cast<int>(statistics->GetMinimum())
-              <<" max: "<<static_cast<int>(statistics->GetMaximum()) << std::endl;
-    std::cout << "  total # voxels  : "<<totalVoxels << std::endl;
-    std::cout << "  num body voxels : "<<numBodyVoxels << std::endl;
-    std::cout << "  num bone voxels : "<<numBoneVoxels << std::endl;
-    }
-
   bender::IOUtils::FilterProgress("Read inputs", 0.99, 0.1, 0.0);
   bender::IOUtils::FilterEnd("Read inputs");
   bender::IOUtils::FilterStart("Segment bones");

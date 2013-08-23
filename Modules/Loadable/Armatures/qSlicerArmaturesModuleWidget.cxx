@@ -20,7 +20,9 @@
 
 // Qt includes
 #include <QDebug>
+#include <QDir>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QVector3D>
 
 // Armatures includes
@@ -35,6 +37,10 @@
 #include <vtkCollection.h>
 #include <vtkNew.h>
 #include <vtkStdString.h>
+
+// QSlicer includes
+#include <qSlicerIOManager.h>
+#include <qSlicerApplication.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
@@ -130,6 +136,11 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(currentIndexChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
 
+  // -- Load --
+  this->populateLoadFromArmature();
+  QObject::connect(this->LoadArmatureFromModelComboBox,
+    SIGNAL(currentIndexChanged(int)), q, SLOT(loadArmatureFromModel(int)));
+
   // -- Armature Display --
   QObject::connect(this->ArmatureRepresentationComboBox,
     SIGNAL(currentIndexChanged(int)),
@@ -138,8 +149,6 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(colorChanged(QColor)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureOpacitySlider,
     SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureOpacitySlider,
-    SIGNAL(valueChanged(double)), this, SLOT(onArmatureOpacityChanged(double)));
   QObject::connect(this->ArmatureShowAxesCheckBox,
     SIGNAL(stateChanged(int)),
     q, SLOT(updateCurrentMRMLArmatureNode()));
@@ -149,15 +158,6 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
-  QObject::connect(this->ArmatureShowEnvelopesCheckBox,
-    SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureEnvelopeRadiusRatioSliderWidget,
-    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->ArmatureEnvelopeOpacitySliderWidget,
-    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLArmatureNode()));
-  QObject::connect(this->BoneEnvelopeRadiusSlider,
-    SIGNAL(valueChanged(double)), q, SLOT(updateCurrentMRMLBoneNode()));
-
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -321,7 +321,6 @@ void qSlicerArmaturesModuleWidgetPrivate
 {
   this->updateHierarchy(boneNode);
   this->updatePositions(boneNode);
-  this->updateBoneEnvelope(boneNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -329,7 +328,6 @@ void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureWidget(vtkMRMLArmatureNode* armatureNode)
 {
   this->updateArmatureDisplay(armatureNode);
-  this->updateArmatureEnvelopes(armatureNode);
   this->BonesTreeView->setEnabled(armatureNode != 0);
 }
 
@@ -355,7 +353,7 @@ void qSlicerArmaturesModuleWidgetPrivate
     && boneNode->GetWidgetState() != vtkMRMLBoneNode::Pose;
 
   this->ParentBoneNodeComboBox->setEnabled(enable);
-  this->LinkedToParentCheckBox->setEnabled(enable);
+  this->LinkedToParentCheckBox->setEnabled(enable && boneNode->GetHasParent());
 }
 
 //-----------------------------------------------------------------------------
@@ -413,20 +411,6 @@ void qSlicerArmaturesModuleWidgetPrivate
 
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate
-::updateBoneEnvelope(vtkMRMLBoneNode* boneNode)
-{
-  if (boneNode)
-    {
-    bool wasBlockingEnvelopeRadiusSignal =
-      this->BoneEnvelopeRadiusSlider->blockSignals(true);
-    this->BoneEnvelopeRadiusSlider->setValue(boneNode->GetEnvelopeRadiusRatio());
-    this->BoneEnvelopeRadiusSlider->blockSignals(wasBlockingEnvelopeRadiusSignal);
-    }
-  this->BoneEnvelopeRadiusSlider->setEnabled(boneNode != 0);
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidgetPrivate
 ::updateArmatureDisplay(vtkMRMLArmatureNode* armatureNode)
 {
   if (armatureNode)
@@ -457,31 +441,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   this->ArmatureColorPickerButton->setEnabled(armatureNode != 0);
   this->ArmatureOpacitySlider->setEnabled(armatureNode != 0);
   this->BonesAlwaysOnTopCheckBox->setEnabled(armatureNode != 0);
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidgetPrivate
-::updateArmatureEnvelopes(vtkMRMLArmatureNode* armatureNode)
-{
-  if (armatureNode)
-    {
-    this->ArmatureEnvelopeRadiusRatioSliderWidget->setValue(
-      armatureNode->GetOverallRadiusRatio());
-
-    this->ArmatureShowEnvelopesCheckBox->setChecked(
-      armatureNode->GetShowEnvelopes());
-
-    this->ArmatureEnvelopeOpacitySliderWidget->setValue(
-      armatureNode->GetEnvelopesOpacity());
-    }
-
-  // Enable only in Rest mode
-  bool enable = armatureNode ?
-    armatureNode->GetWidgetState() == vtkMRMLArmatureNode::Rest : 0;
-
-  this->ArmatureEnvelopeRadiusRatioSliderWidget->setEnabled(enable);
-  this->ArmatureShowEnvelopesCheckBox->setEnabled(enable);
-  this->ArmatureEnvelopeOpacitySliderWidget->setEnabled(enable);
 }
 
 //-----------------------------------------------------------------------------
@@ -621,20 +580,6 @@ void qSlicerArmaturesModuleWidgetPrivate::onLinkedWithParentChanged(int linked)
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidgetPrivate
-::onArmatureOpacityChanged(double opacity)
-{
-  if (fabs(opacity - 1.0) < 1e-2)
-    {
-    this->ArmatureEnvelopeOpacitySliderWidget->setMaximum(1.0);
-    }
-  else
-    {
-    this->ArmatureEnvelopeOpacitySliderWidget->setMaximum(opacity);
-    }
-}
-
-//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int select)
 {
   if (!this->BoneNode)
@@ -647,6 +592,41 @@ void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int selec
     {
     displayNode->SetSelected(select);
     }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::stopPlaceBone()
+{
+  Q_Q(qSlicerArmaturesModuleWidget);
+
+  vtkMRMLInteractionNode* interactionNode =
+    vtkMRMLInteractionNode::SafeDownCast(
+      q->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
+  if (!interactionNode)
+    {
+    qCritical() << "Invalid scene, no interaction node";
+    return;
+    }
+  interactionNode->SwitchToViewTransformMode();
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::populateLoadFromArmature()
+{
+  QDir armaturesDir(QString::fromStdString(this->logic()->GetModuleShareDirectory()));
+  foreach(QFileInfo file, armaturesDir.entryInfoList(QDir::Files))
+    {
+    this->LoadArmatureFromModelComboBox->addItem(
+      file.baseName(), file.filePath());
+    }
+
+  this->LoadArmatureFromModelComboBox->insertSeparator(
+    this->LoadArmatureFromModelComboBox->count());
+
+  this->LoadArmatureFromModelComboBox->addItem(
+    "Load armature from file...", "");
+
+  this->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
 }
 
 //-----------------------------------------------------------------------------
@@ -680,6 +660,11 @@ void qSlicerArmaturesModuleWidget
   if (armatureNode == d->ArmatureNode)
     {
     return;
+    }
+
+  if (d->ArmatureNode) // Switching or deleting current armature
+    {
+    d->stopPlaceBone();
     }
 
   if (armatureNode && !d->ArmatureNodeComboBox->currentNode())
@@ -759,31 +744,6 @@ vtkMRMLArmatureDisplayNode* qSlicerArmaturesModuleWidget
 }
 */
 
-
-//-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::enter()
-{
-  this->Superclass::enter();
-  if (this->mrmlScene())
-    {
-    vtkMRMLSelectionNode* selectionNode = vtkMRMLSelectionNode::SafeDownCast(
-      this->mrmlScene()->GetNodeByID("vtkMRMLSelectionNodeSingleton"));
-    if (selectionNode)
-      {
-      selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
-      }
-    vtkMRMLInteractionNode* interactionNode =
-      vtkMRMLInteractionNode::SafeDownCast(
-        this->mrmlScene()->GetNodeByID("vtkMRMLInteractionNodeSingleton"));
-    if (interactionNode)
-      {
-      interactionNode->SetPlaceModePersistence(1);
-      interactionNode->SetCurrentInteractionMode(
-        vtkMRMLInteractionNode::ViewTransform);
-      }
-    }
-}
-
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget
 ::setMRMLBoneNode(vtkMRMLBoneNode* boneNode)
@@ -835,12 +795,58 @@ void qSlicerArmaturesModuleWidget::deleteBones()
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
-  if (!d->BoneNode)
+  vtkMRMLNode* currentNode = d->BonesTreeView->currentNode();
+
+  vtkMRMLBoneNode* bone = vtkMRMLBoneNode::SafeDownCast(currentNode);
+  if (bone)
+    {
+    d->deleteBoneChildren(bone);
+    d->stopPlaceBone();
+    return;
+    }
+
+  vtkMRMLArmatureNode* armature =
+    vtkMRMLArmatureNode::SafeDownCast(currentNode);
+  if (armature)
+    {
+    vtkNew<vtkCollection> bones;
+    armature->GetAllBones(bones.GetPointer());
+    for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+      {
+      vtkMRMLBoneNode* childBone =
+        vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+      if (childBone && !childBone->GetHasParent()) // If top-level bone
+        {
+        d->deleteBoneChildren(childBone);
+        }
+      }
+    d->stopPlaceBone();
+    return;
+    }
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidget::loadArmatureFromModel(int index)
+{
+  Q_D(qSlicerArmaturesModuleWidget);
+  if (index < 0)
     {
     return;
     }
 
-  d->deleteBoneChildren(d->BoneNode);
+  // Get the filename
+  QString path = d->LoadArmatureFromModelComboBox->itemData(index).toString();
+  if (path == "") // Case index is Load from file
+    {
+    qSlicerApplication::application()->ioManager()->openDialog(
+      QString("ArmatureFile"), qSlicerFileDialog::Read);
+    }
+  else
+    {
+    d->logic()->ReadArmatureFromModel(path.toLatin1());
+    }
+
+  d->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
 }
 
 //-----------------------------------------------------------------------------
@@ -848,14 +854,17 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
 {
   Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLNode* activeNode = d->logic()->GetActiveBone();
-  if (activeNode == 0)
-    {
-    activeNode = d->logic()->GetActiveArmature();
-    }
-
   if (activeNode)
     {
     d->BonesTreeView->setCurrentNode(activeNode);
+    }
+  else
+    {
+    activeNode = d->logic()->GetActiveArmature();
+    if (activeNode)
+      {
+      d->ArmatureNodeComboBox->setCurrentNode(activeNode);
+      }
     }
 }
 
@@ -964,18 +973,6 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLArmatureNode()
   d->ArmatureNode->SetBonesAlwaysOnTop(
     d->BonesAlwaysOnTopCheckBox->isChecked());
 
-  // Envelopes:
-  // Show envelopes only in armature mode
-  d->ArmatureNode->SetShowEnvelopes(
-    d->ArmatureShowEnvelopesCheckBox->isChecked()
-      && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Rest);
-
-  d->ArmatureNode->SetOverallRadiusRatio(
-    d->ArmatureEnvelopeRadiusRatioSliderWidget->value());
-
-  d->ArmatureNode->SetEnvelopesOpacity(
-    d->ArmatureEnvelopeOpacitySliderWidget->value());
-
   d->ArmatureNode->EndModify(wasModifying);
 }
 
@@ -992,8 +989,6 @@ void qSlicerArmaturesModuleWidget::updateCurrentMRMLBoneNode()
   int wasModifying = d->BoneNode->StartModify();
 
   d->setCoordinatesToBoneNode(d->BoneNode);
-
-  d->BoneNode->SetEnvelopeRadiusRatio(d->BoneEnvelopeRadiusSlider->value());
 
   d->BoneNode->EndModify(wasModifying);
 }
