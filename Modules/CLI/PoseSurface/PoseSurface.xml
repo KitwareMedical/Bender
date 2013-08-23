@@ -4,8 +4,8 @@
   <index>5</index>
   <title>Pose Surface</title>
   <description><![CDATA[Pose a <b>Surface</b> according to the input <b>Armature</b> pose and the associated weights. <p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface vertex, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the vertex.]]></description>
-  <version>1.0.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/PoseSurface</documentation-url>
+  <version>1.1.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/PoseSurface</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware), Johan Andruejol (Kitware), Julien Finet (Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
