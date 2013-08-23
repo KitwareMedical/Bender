@@ -1739,6 +1739,9 @@ p, li { white-space: pre-wrap; }
          <property name="title">
           <string>B) Edit skinned volume</string>
          </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
          <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
            <widget class="QLabel" name="EditSkinnedVolumeLabel">
@@ -3415,11 +3418,25 @@ p, li { white-space: pre-wrap; }
                 <item row="1" column="1">
                  <widget class="QLineEdit" name="VolumeRenderLabelsLineEdit">
                   <property name="toolTip">
-                   <string>Label(s) to render</string>
+                   <string>Label(s) to render. An empty displays all the labels.</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="VolumeRenderCropLabel">
+                  <property name="text">
+                   <string>Crop</string>
                   </property>
                  </widget>
                 </item>
                 <item row="2" column="1">
+                 <widget class="QCheckBox" name="VolumeRenderCropCheckBox">
+                  <property name="toolTip">
+                   <string>Enable/Disable the crop box</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="1">
                  <layout class="QHBoxLayout" name="horizontalLayout_4">
                   <item>
                    <spacer name="horizontalSpacer_3">

@@ -378,7 +378,9 @@ class WorkflowWidget:
     self.get('VolumeRenderLabelsLineEdit').setText(', '.join(str(val) for val in labels))
 
   def getVolumeRenderLabels(self):
-    return self.get('VolumeRenderLabelsLineEdit').text.split(', ')
+    labels = self.get('VolumeRenderLabelsLineEdit').text.split(', ')
+    labels = filter(lambda x: x != '', labels)
+    return labels
 
   def updateVolumeRenderLabels(self):
     """ Update the LUT used to volume render the labelmap
@@ -393,7 +395,7 @@ class WorkflowWidget:
     for i in range(opacities.GetSize()):
       node = [0, 0, 0, 0]
       opacities.GetNodeValue(i, node)
-      if str(i) in labels:
+      if (str(i) in labels) or (i != 0 and len(labels) == 0):
         node[1] = 0.5
         node[3] = 1
       else:
@@ -403,6 +405,7 @@ class WorkflowWidget:
     opacities.Modified()
 
   def runVolumeRender(self, show):
+    """Start/stop to volume render a volume"""
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
     displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     if not show:
@@ -424,6 +427,18 @@ class WorkflowWidget:
       volumeProperty = volumePropertyNode.GetVolumeProperty()
       volumeProperty.SetShade(0)
       displayNode.SetVisibility(1)
+      self.onCropVolumeRender(self.get('VolumeRenderCropCheckBox').checked)
+
+  def onCropVolumeRender(self, crop):
+    volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
+    if volumeNode == None:
+      return
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    if displayNode == None:
+      return
+    roiNode = displayNode.GetROINode()
+    roiNode.SetDisplayVisibility(crop)
+    displayNode.SetCroppingEnabled(crop)
 
   def openVolumeRenderModule(self):
     self.openModule('VolumeRendering')
@@ -1184,7 +1199,7 @@ class WorkflowWidget:
     self.initComputeArmatureWeight()
     self.initEvalSurfaceWeight()
 
-  def setDefaultPath(self):
+  def setDefaultPath(self, *args):
     defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
     if currentNode != None:
@@ -1314,6 +1329,8 @@ class WorkflowWidget:
   def onEvalSurfaceWeightCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.validateEvalSurfaceWeight()
+      # Pose the surface as soon as the weights are computed.
+      self.runPoseSurface(True)
 
     if not cliNode.IsBusy():
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
@@ -1413,6 +1430,7 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def poseSurfaceInputNodeChanged(self):
+    """Makes sure the weights are computed for the new input surface."""
     surfaceNode = self.get('PoseSurfaceInputNodeComboBox').currentNode()
     armatureModelNode = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
     if surfaceNode != None and surfaceNode.GetPolyData() != None and armatureModelNode != None:
@@ -1518,6 +1536,7 @@ class WorkflowWidget:
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openPoseLabelmapPage(self):
+    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
     # Create output if necessary
     if not self.poseLabelmapCreateOutputConnected:
       self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
@@ -1586,6 +1605,7 @@ class WorkflowWidget:
 
   def onPoseLabelmapCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # apply color table to generated volume
       newNode = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
       displayNode = newNode.GetDisplayNode()
       if displayNode == None:
@@ -1595,7 +1615,19 @@ class WorkflowWidget:
       inputColorNode = self.get('PoseLabelmapInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
       if displayNode != None and inputColorNode != None:
         displayNode.SetAndObserveColorNodeID(inputColorNode.GetID())
+      # hide the models that would hide the volume rendering
+      displayNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLModelDisplayNode')
+      displayNodes.UnRegister(displayNodes)
+      for i in range(0, displayNodes.GetNumberOfItems()):
+        displayNode = displayNodes.GetItemAsObject(i)
+        if (not displayNode.IsA('vtkMRMLAnnotationDisplayNode')):
+          displayNode.SetVisibility(0)
       self.validatePoseLabelmap()
+      #enable volume rendering
+      self.get('ExpandAdvancedPropertiesButton').setChecked(True)
+      self.get('AdvancedTabWidget').setCurrentWidget(self.get('VolumeRenderingTab'))
+      self.get('VolumeRenderCollapsibleGroupBox').checked = True
+      self.get('VolumeRenderCheckBox').setChecked(True)
     if not cliNode.IsBusy():
       self.get('PoseLabelmapApplyPushButton').setChecked(False)
       self.get('PoseLabelmapApplyPushButton').enabled = True
