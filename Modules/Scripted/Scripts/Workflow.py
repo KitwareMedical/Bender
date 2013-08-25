@@ -1193,7 +1193,7 @@ class WorkflowWidget:
     self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     # observe the input volume node in case its name is changed
     self.removeObservers(self.setDefaultPath)
-    self.addObserver(currentNode, 'ModifiedEvent', setDefaultPath)
+    self.addObserver(currentNode, 'ModifiedEvent', self.setDefaultPath)
 
   def validateWeightsPage(self, validateSections = True):
     if validateSections:

@@ -180,8 +180,10 @@ void setupModuleFactoryManager(qSlicerModuleFactoryManager * moduleFactoryManage
 #endif
   moduleFactoryManager->addSearchPaths(
     settings.value("Modules/AdditionalPaths").toStringList());
-  moduleFactoryManager->setModulesToIgnore(
-    settings.value("Modules/IgnoreModules").toStringList());
+  QStringList ignoreModules =
+    settings.value("Modules/IgnoreModules").toStringList();
+  ignoreModules << "SampleData"; // Use BenderSampleData instead
+  moduleFactoryManager->setModulesToIgnore(ignoreModules);
   moduleFactoryManager->setVerboseModuleDiscovery(app->commandOptions()->verboseModuleDiscovery());
 }
 
