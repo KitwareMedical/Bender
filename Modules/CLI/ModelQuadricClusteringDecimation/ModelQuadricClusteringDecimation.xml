@@ -3,8 +3,8 @@
   <category>Surface Models</category>
   <title>Model Quadric Clustering Decimation</title>
   <description><![CDATA[<p>This module reduces the number of triangles in a triangle mesh, forming a good approximation to the original geometry.</p><p>It is a wrapper for the vtkQuadricClustering filter.</p>]]></description>
-  <version>1.0.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.0/Modules/ReduceModelTriangle</documentation-url>
+  <version>1.1.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/ModelQuadricClusteringDecimation</documentation-url>
   <license>Apache 2.0</license>
   <contributor>Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
