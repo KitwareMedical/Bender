@@ -34,14 +34,16 @@ set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
 
 function(add_module_test)
   set(testname ${CLP}Test)
-  set(restLabelMap ${INPUT}/labelmap.mha)
-  set(armature ${INPUT}/armature.vtk)
+  set(restLabelmap ${INPUT}/man-arm-2mm.mha)
+  set(armature ${INPUT}/man-arm-2mm-armature.vtk)
+  set(skinnedLabelmap ${INPUT}/man-arm-2mm-skinned.mha)
   set(weightDirectory ${TEMP})
 
   add_test(NAME ${testname} COMMAND ${Launcher_Command} $<TARGET_FILE:${CLP}Test>
-    --compare ${BASELINE}/weight_0.mha
-              ${TEMP}/weight_0.mha
-    ModuleEntryPoint ${restLabelMap} ${armature} ${weightDirectory}
+    --compare ${BASELINE}/weight_00.mha
+              ${TEMP}/weight_00.mha
+    ModuleEntryPoint ${restLabelmap} ${armature} ${skinnedLabelmap} ${weightDirectory}
+      --boneLabel 253 --last 0
     )
   set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 endfunction()

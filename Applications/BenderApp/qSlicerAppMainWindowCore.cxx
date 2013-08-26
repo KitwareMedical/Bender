@@ -391,15 +391,11 @@ void qSlicerAppMainWindowCore::onHelpAboutSlicerAppActionTriggered()
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindowCore::onHelpReportBugOrFeatureRequestActionTriggered()
 {
-  // [Ninja]
-  QDesktopServices::openUrl(QUrl("http://public.kitware.com/Bug/my_view_page.php"));
-  // [/Ninja]
+  QDesktopServices::openUrl(QUrl("http://public.kitware.com/Bug/search.php?project_id=41"));
 }
 
 //---------------------------------------------------------------------------
 void qSlicerAppMainWindowCore::onHelpVisualBlogActionTriggered()
 {
-  // [Ninja]
-  QDesktopServices::openUrl(QUrl("http://kwsource.kitwarein.com/bender"));
-  // [/Ninja]
+  QDesktopServices::openUrl(QUrl("http://public.kitware.com/Wiki/Bender"));
 }

@@ -696,26 +696,9 @@ void qSlicerArmaturesModuleWidget
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidget::setArmatureVisibility(bool visible)
 {
+  Q_D(qSlicerArmaturesModuleWidget);
   vtkMRMLArmatureNode* armatureNode = this->mrmlArmatureNode();
-  if (!armatureNode)
-    {
-    return;
-    }
-
-  armatureNode->SetVisibility(visible);
-
-  vtkNew<vtkCollection> bones;
-  armatureNode->GetAllBones(bones.GetPointer());
-  for (int i = 0; i < bones->GetNumberOfItems(); ++i)
-    {
-    vtkMRMLBoneNode* boneNode
-      = vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
-
-    if (boneNode)
-      {
-      boneNode->SetDisplayVisibility(visible);
-      }
-    }
+  d->logic()->SetArmatureVisibility(armatureNode, visible);
 }
 
 //-----------------------------------------------------------------------------

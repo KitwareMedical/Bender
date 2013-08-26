@@ -331,6 +331,41 @@ vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetActiveBone()
 }
 
 //----------------------------------------------------------------------------
+void vtkSlicerArmaturesLogic
+::SetArmatureVisibility(vtkMRMLArmatureNode* armatureNode, bool visible)
+{
+  if (!armatureNode)
+    {
+    return;
+    }
+  armatureNode->SetVisibility(visible);
+
+  vtkNew<vtkCollection> bones;
+  armatureNode->GetAllBones(bones.GetPointer());
+  for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+    {
+    vtkMRMLBoneNode* boneNode
+      = vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+
+    if (boneNode)
+      {
+      boneNode->SetDisplayVisibility(visible);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+bool vtkSlicerArmaturesLogic
+::GetArmatureVisibility(vtkMRMLArmatureNode* armature)
+{
+  if (armature)
+    {
+    return armature->GetVisibility();
+    }
+  return false;
+}
+
+//----------------------------------------------------------------------------
 vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
 ::GetBoneArmature(vtkMRMLBoneNode* bone)
 {
@@ -386,6 +421,17 @@ vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetBoneParent(vtkMRMLBoneNode* bone)
     }
 
   return boneNode;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLModelNode* vtkSlicerArmaturesLogic
+::GetArmatureModel(vtkMRMLArmatureNode* armature)
+{
+  if (!armature)
+    {
+    return 0;
+    }
+  return armature->GetArmatureModel();
 }
 
 //----------------------------------------------------------------------------

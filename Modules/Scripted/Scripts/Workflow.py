@@ -57,12 +57,6 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    # self.reloadButton = qt.QPushButton("Reload")
-    # self.reloadButton.toolTip = "Reload this module."
-    # self.reloadButton.name = "Workflow Reload"
-    # self.layout.addWidget(self.reloadButton)
-    # self.reloadButton.connect('clicked()', self.reloadModule)
-
     self.WorkflowWidget = self.get('WorkflowWidget')
     self.TitleLabel = self.get('TitleLabel')
 
@@ -124,6 +118,7 @@ class WorkflowWidget:
     self.get('PreviousPageToolButton').connect('clicked()', self.goToPrevious)
     # 0) Welcome
     self.get('SettingsWorkflowComboBox').connect('currentIndexChanged(int)', self.setupWorkflow)
+    self.get('SettingsReloadPushButton').connect('clicked()', self.reloadModule)
     # 1) Adjust Labelmap
     # a) Labelmap
     self.get('LabelmapVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupLabelmap)
@@ -155,12 +150,16 @@ class WorkflowWidget:
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setSkinModelMakerSkinLabel)
+    # b) Data
+    self.get('VisibleNodesComboBox').connect('checkedNodesChanged()', self.setNodesVisibility)
+    self.get('VisibleNodesComboBox').connect('nodeAdded(vtkMRMLNode*)', self.onNodeAdded)
     # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('VolumeRenderInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupVolumeRender)
     self.get('VolumeRenderLabelsLineEdit').connect('editingFinished()', self.updateVolumeRenderLabels)
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
+    self.get('VolumeRenderCropCheckBox').connect('toggled(bool)', self.onCropVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
     self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
@@ -182,6 +181,8 @@ class WorkflowWidget:
     self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
     # 5) Weights
     # a) Armatures Weight
+    self.get('ComputeArmatureWeightInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setDefaultPath)
+    self.get('ComputeArmatureWeightScaleFactorSpinBox').connect('valueChanged(double)', self.setDefaultPath)
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
     # b) Eval Weight
@@ -234,6 +235,7 @@ class WorkflowWidget:
     self.IsSetup = False
 
     # init pages after the scene is set.
+    self.initWelcomePage()
     for page in self.pages.values():
       initMethod = getattr(self, 'init' + page + 'Page')
       initMethod()
@@ -249,7 +251,7 @@ class WorkflowWidget:
   def updateHeader(self):
     # title
     title = self.WorkflowWidget.currentWidget().accessibleName
-    self.TitleLabel.setText('<h2>%i) %s</h2>' % (self.WorkflowWidget.currentIndex + 1, title))
+    self.TitleLabel.setText('<h2>%i/%i<br>%s</h2>' % (self.WorkflowWidget.currentIndex + 1, self.WorkflowWidget.count, title))
 
     # help
     self.get('HelpCollapsibleButton').setText('Help')
@@ -267,7 +269,7 @@ class WorkflowWidget:
       previousWidget = self.WorkflowWidget.widget(previousIndex)
 
       previous = previousWidget.accessibleName
-      self.get('PreviousPageToolButton').setText('< %i) %s' %(previousIndex + 1, previous))
+      self.get('PreviousPageToolButton').setText('< %i/%i - %s' %(previousIndex + 1, self.WorkflowWidget.count, previous))
     else:
       self.get('PreviousPageToolButton').setVisible(False)
 
@@ -278,7 +280,7 @@ class WorkflowWidget:
       nextWidget = self.WorkflowWidget.widget(nextIndex)
 
       next = nextWidget.accessibleName
-      self.get('NextPageToolButton').setText('%i) %s >' %(nextIndex + 1, next))
+      self.get('NextPageToolButton').setText('%i/%i - %s >' %(nextIndex + 1, self.WorkflowWidget.count, next))
     else:
       self.get('NextPageToolButton').setVisible(False)
     self.get('NextPageToolButton').enabled = not self.isWorkflow( 0 )
@@ -319,6 +321,13 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   # 0) Settings
   #----------------------------------------------------------------------------
+  def initWelcomePage(self):
+    self.initData()
+    # Collapse DataProbe as it takes screen real estate
+    dataProbeCollapsibleWidget = self.findWidget(
+      slicer.util.mainWindow(), 'DataProbeCollapsibleWidget')
+    dataProbeCollapsibleWidget.checked = False
+
   def openWelcomePage(self):
     print('welcome')
 
@@ -334,6 +343,7 @@ class WorkflowWidget:
 
   def setupWorkflow(self, level):
     self.setWidgetsVisibility(self.getChildren(self.WorkflowWidget), level)
+    self.setWidgetsVisibility(self.getChildren(self.get('AdvancedTabWidget')), level)
     # Validate the current page (to disable/enable the next page tool button if needed)
     self.get('NextPageToolButton').enabled = True
     validateMethod = getattr(self,'validate' + self.pages[self.WorkflowWidget.currentIndex] + 'Page')
@@ -355,6 +365,95 @@ class WorkflowWidget:
       self.addObserver(cliNode, self.StatusModifiedEvent, onCLINodeModified)
     self.get('CLIProgressBar').setCommandLineModuleNode(cliNode)
 
+  #----------------------------------------------------------------------------
+  #     b) Data
+  #----------------------------------------------------------------------------
+  def initData(self):
+    self.IgnoreSetNodesVisibility = False
+    self.get('VisibleNodesComboBox').sortFilterProxyModel().filterCaseSensitivity = qt.Qt.CaseInsensitive
+    self.get('VisibleNodesComboBox').sortFilterProxyModel().sort(0)
+
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    self.addObserver(selectionNode, 'ModifiedEvent', self.onNodeModified)
+
+  def setNodesVisibility(self):
+    """Set the visibility of nodes based on their check marks."""
+    visibleNodes = self.get('VisibleNodesComboBox').checkedNodes()
+    for node in visibleNodes:
+      self.setNodeVisibility(node, 1)
+    hiddenNodes =  self.get('VisibleNodesComboBox').uncheckedNodes()
+    for node in hiddenNodes:
+      self.setNodeVisibility(node, 0)
+
+  def setNodeVisibility(self, node, visible):
+    """Set the visiblity of a displayable node when the user checks it."""
+    if self.IgnoreSetNodesVisibility == True:
+      return
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    if (node.IsA('vtkMRMLScalarVolumeNode')):
+      if (not visible):
+        if (selectionNode.GetActiveVolumeID() == node.GetID()):
+          selectionNode.SetActiveVolumeID(None)
+        if (selectionNode.GetActiveLabelVolumeID() == node.GetID()):
+          selectionNode.SetActiveLabelVolumeID(None)
+      else:
+        if (node.GetLabelMap() == 0):
+          selectionNode.SetActiveVolumeID(node.GetID())
+        else:
+          selectionNode.SetActiveLabelVolumeID(node.GetID())
+      slicer.app.applicationLogic().PropagateVolumeSelection()
+    elif node.IsA('vtkMRMLArmatureNode'):
+      armatureLogic = slicer.modules.armatures.logic()
+      armatureLogic.SetArmatureVisibility(node, visible)
+    else:
+      displayNode = node.GetDisplayNode()
+      if displayNode != None:
+        displayNode.SetVisibility(visible)
+
+  def nodeVisibility(self, node):
+    """Return true if the node is visible, false if it is hidden."""
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    visible = False
+    if (node.IsA('vtkMRMLScalarVolumeNode')):
+      visible = (selectionNode.GetActiveVolumeID() == node.GetID() or
+                 selectionNode.GetActiveLabelVolumeID() == node.GetID())
+    elif node.IsA('vtkMRMLArmatureNode'):
+      armatureLogic = slicer.modules.armatures.logic()
+      visible = armatureLogic.GetArmatureVisibility(node)
+    else:
+      displayNode = node.GetDisplayNode()
+      if (displayNode != None):
+        visible = displayNode.GetVisibility() == 1
+    return visible
+
+  def onNodeAdded(self, node):
+    """Observe the node to synchronize its visibility with the checkmarks"""
+    self.addObserver(node, slicer.vtkMRMLDisplayableNode.DisplayModifiedEvent, self.onNodeModified)
+    self.onNodeModified(node, 'DisplayModifiedEvent')
+
+  def onNodeModified(self, node, event):
+    """Update the node checkmark based on its visibility"""
+    # Selection node is a special case
+    if node.IsA('vtkMRMLSelectionNode'):
+      # check all the volumes to see which one is active
+      volumeNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLScalarVolumeNode')
+      volumeNodes.UnRegister(slicer.mrmlScene)
+      for i in range(0, volumeNodes.GetNumberOfItems()):
+        volumeNode = volumeNodes.GetItemAsObject(i)
+        self.onNodeModified(volumeNode, 'ModifiedEvent')
+      return
+    elif node.IsA('vtkMRMLArmatureNode'):
+      # Hide the armature model node, it is not to be displayed
+      armatureLogic = slicer.modules.armatures.logic()
+      modelNode = armatureLogic.GetArmatureModel(node)
+      if modelNode != None:
+        self.get('VisibleNodesComboBox').sortFilterProxyModel().hiddenNodeIDs = [modelNode.GetID()]
+
+    visible = self.nodeVisibility(node)
+    checkState = qt.Qt.Checked if visible else qt.Qt.Unchecked
+    self.IgnoreSetNodesVisibility = True
+    self.get('VisibleNodesComboBox').setCheckState(node, checkState)
+    self.IgnoreSetNodesVisibility = False
   #----------------------------------------------------------------------------
   #     c) Volume Render
   #----------------------------------------------------------------------------
@@ -384,7 +483,9 @@ class WorkflowWidget:
     self.get('VolumeRenderLabelsLineEdit').setText(', '.join(str(val) for val in labels))
 
   def getVolumeRenderLabels(self):
-    return self.get('VolumeRenderLabelsLineEdit').text.split(', ')
+    labels = self.get('VolumeRenderLabelsLineEdit').text.split(', ')
+    labels = filter(lambda x: x != '', labels)
+    return labels
 
   def updateVolumeRenderLabels(self):
     """ Update the LUT used to volume render the labelmap
@@ -399,7 +500,7 @@ class WorkflowWidget:
     for i in range(opacities.GetSize()):
       node = [0, 0, 0, 0]
       opacities.GetNodeValue(i, node)
-      if str(i) in labels:
+      if (str(i) in labels) or (i != 0 and len(labels) == 0):
         node[1] = 0.5
         node[3] = 1
       else:
@@ -409,6 +510,7 @@ class WorkflowWidget:
     opacities.Modified()
 
   def runVolumeRender(self, show):
+    """Start/stop to volume render a volume"""
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
     displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     if not show:
@@ -430,6 +532,18 @@ class WorkflowWidget:
       volumeProperty = volumePropertyNode.GetVolumeProperty()
       volumeProperty.SetShade(0)
       displayNode.SetVisibility(1)
+      self.onCropVolumeRender(self.get('VolumeRenderCropCheckBox').checked)
+
+  def onCropVolumeRender(self, crop):
+    volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
+    if volumeNode == None:
+      return
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    if displayNode == None:
+      return
+    roiNode = displayNode.GetROINode()
+    roiNode.SetDisplayVisibility(crop)
+    displayNode.SetCroppingEnabled(crop)
 
   def openVolumeRenderModule(self):
     self.openModule('VolumeRendering')
@@ -645,6 +759,7 @@ class WorkflowWidget:
       boneLabels = self.searchLabels(colorNode, 'bone')
       boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
       boneLabels.update(self.searchLabels(colorNode, 'mandible'))
+      boneLabels.update(self.searchLabels(colorNode, 'cartilage'))
       self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
       boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
       self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
@@ -1186,10 +1301,19 @@ class WorkflowWidget:
   # 5) Weights
   #----------------------------------------------------------------------------
   def initWeightsPage(self):
-    defaultPath = qt.QDir.home().absoluteFilePath('Weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value)
-    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     self.initComputeArmatureWeight()
     self.initEvalSurfaceWeight()
+
+  def setDefaultPath(self, *args):
+    defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
+    currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
+    if currentNode != None:
+      defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
+    defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
+    # observe the input volume node in case its name is changed
+    self.removeObservers(self.setDefaultPath)
+    self.addObserver(currentNode, 'ModifiedEvent', self.setDefaultPath)
 
   def validateWeightsPage(self, validateSections = True):
     if validateSections:
@@ -1310,6 +1434,8 @@ class WorkflowWidget:
   def onEvalSurfaceWeightCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.validateEvalSurfaceWeight()
+      # Pose the surface as soon as the weights are computed.
+      self.runPoseSurface(True)
 
     if not cliNode.IsBusy():
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
@@ -1409,6 +1535,7 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def poseSurfaceInputNodeChanged(self):
+    """Makes sure the weights are computed for the new input surface."""
     surfaceNode = self.get('PoseSurfaceInputNodeComboBox').currentNode()
     armatureModelNode = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
     if surfaceNode != None and surfaceNode.GetPolyData() != None and armatureModelNode != None:
@@ -1514,6 +1641,7 @@ class WorkflowWidget:
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openPoseLabelmapPage(self):
+    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
     # Create output if necessary
     if not self.poseLabelmapCreateOutputConnected:
       self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
@@ -1582,6 +1710,7 @@ class WorkflowWidget:
 
   def onPoseLabelmapCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # apply color table to generated volume
       newNode = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
       displayNode = newNode.GetDisplayNode()
       if displayNode == None:
@@ -1591,7 +1720,19 @@ class WorkflowWidget:
       inputColorNode = self.get('PoseLabelmapInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
       if displayNode != None and inputColorNode != None:
         displayNode.SetAndObserveColorNodeID(inputColorNode.GetID())
+      # hide the models that would hide the volume rendering
+      displayNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLModelDisplayNode')
+      displayNodes.UnRegister(displayNodes)
+      for i in range(0, displayNodes.GetNumberOfItems()):
+        displayNode = displayNodes.GetItemAsObject(i)
+        if (not displayNode.IsA('vtkMRMLAnnotationDisplayNode')):
+          displayNode.SetVisibility(0)
       self.validatePoseLabelmap()
+      #enable volume rendering
+      self.get('ExpandAdvancedPropertiesButton').setChecked(True)
+      self.get('AdvancedTabWidget').setCurrentWidget(self.get('VolumeRenderingTab'))
+      self.get('VolumeRenderCollapsibleGroupBox').checked = True
+      self.get('VolumeRenderCheckBox').setChecked(True)
     if not cliNode.IsBusy():
       self.get('PoseLabelmapApplyPushButton').setChecked(False)
       self.get('PoseLabelmapApplyPushButton').enabled = True
@@ -1650,6 +1791,8 @@ class WorkflowWidget:
         self.Observations.remove([o, e, m, g, t])
 
   def addObserver(self, object, event, method, group = 'none'):
+    if object == None:
+      return
     if self.hasObserver(object, event, method):
       print 'already has observer'
       return
@@ -1757,7 +1900,7 @@ class WorkflowWidget:
     # rebuild the widget
     # - find and hide the existing widget
     # - create a new widget in the existing parent
-    parent = slicer.util.findChildren(name='%s Reload' % moduleName)[0].parent()
+    parent = self.widget.parent()
     for child in parent.children():
       try:
         child.hide()

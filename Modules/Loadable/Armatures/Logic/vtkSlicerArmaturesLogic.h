@@ -95,6 +95,10 @@ public:
   void SetActiveBone(vtkMRMLBoneNode* bone);
   vtkMRMLBoneNode* GetActiveBone();
 
+  /// Show/Hide armature
+  void SetArmatureVisibility(vtkMRMLArmatureNode* armature, bool show);
+  bool GetArmatureVisibility(vtkMRMLArmatureNode* armature);
+
   /// Return the armature the bone belongs to.
   /// \sa GetBoneParent()
   vtkMRMLArmatureNode* GetBoneArmature(vtkMRMLBoneNode* bone);
@@ -102,6 +106,10 @@ public:
   /// parent is an armature.
   /// \sa GetBoneArmature()
   vtkMRMLBoneNode* GetBoneParent(vtkMRMLBoneNode* bone);
+
+  /// Return the model of the armature. There should be always a model node.
+  /// \sa vtkMRMLArmatureNode::GetArmatureModel()
+  vtkMRMLModelNode* GetArmatureModel(vtkMRMLArmatureNode* armature);
 
   /// Observe MRML scene events
   virtual void SetMRMLSceneInternal(vtkMRMLScene * newScene);
