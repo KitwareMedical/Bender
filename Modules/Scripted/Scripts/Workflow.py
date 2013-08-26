@@ -150,12 +150,16 @@ class WorkflowWidget:
     self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
     self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openSkinModelMakerModule)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setSkinModelMakerSkinLabel)
+    # b) Data
+    self.get('VisibleNodesComboBox').connect('checkedNodesChanged()', self.setNodesVisibility)
+    self.get('VisibleNodesComboBox').connect('nodeAdded(vtkMRMLNode*)', self.onNodeAdded)
     # c) Volume Render
     self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
     self.get('VolumeRenderInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupVolumeRender)
     self.get('VolumeRenderLabelsLineEdit').connect('editingFinished()', self.updateVolumeRenderLabels)
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
+    self.get('VolumeRenderCropCheckBox').connect('toggled(bool)', self.onCropVolumeRender)
     self.get('VolumeRenderGoToModulePushButton').connect('clicked()', self.openVolumeRenderModule)
     # 3) Armatures
     self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
@@ -227,6 +231,7 @@ class WorkflowWidget:
     self.IsSetup = False
 
     # init pages after the scene is set.
+    self.initWelcomePage()
     for page in self.pages.values():
       initMethod = getattr(self, 'init' + page + 'Page')
       initMethod()
@@ -312,6 +317,13 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   # 0) Settings
   #----------------------------------------------------------------------------
+  def initWelcomePage(self):
+    self.initData()
+    # Collapse DataProbe as it takes screen real estate
+    dataProbeCollapsibleWidget = self.findWidget(
+      slicer.util.mainWindow(), 'DataProbeCollapsibleWidget')
+    dataProbeCollapsibleWidget.checked = False
+
   def openWelcomePage(self):
     print('welcome')
 
@@ -349,6 +361,95 @@ class WorkflowWidget:
       self.addObserver(cliNode, self.StatusModifiedEvent, onCLINodeModified)
     self.get('CLIProgressBar').setCommandLineModuleNode(cliNode)
 
+  #----------------------------------------------------------------------------
+  #     b) Data
+  #----------------------------------------------------------------------------
+  def initData(self):
+    self.IgnoreSetNodesVisibility = False
+    self.get('VisibleNodesComboBox').sortFilterProxyModel().filterCaseSensitivity = qt.Qt.CaseInsensitive
+    self.get('VisibleNodesComboBox').sortFilterProxyModel().sort(0)
+
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    self.addObserver(selectionNode, 'ModifiedEvent', self.onNodeModified)
+
+  def setNodesVisibility(self):
+    """Set the visibility of nodes based on their check marks."""
+    visibleNodes = self.get('VisibleNodesComboBox').checkedNodes()
+    for node in visibleNodes:
+      self.setNodeVisibility(node, 1)
+    hiddenNodes =  self.get('VisibleNodesComboBox').uncheckedNodes()
+    for node in hiddenNodes:
+      self.setNodeVisibility(node, 0)
+
+  def setNodeVisibility(self, node, visible):
+    """Set the visiblity of a displayable node when the user checks it."""
+    if self.IgnoreSetNodesVisibility == True:
+      return
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    if (node.IsA('vtkMRMLScalarVolumeNode')):
+      if (not visible):
+        if (selectionNode.GetActiveVolumeID() == node.GetID()):
+          selectionNode.SetActiveVolumeID(None)
+        if (selectionNode.GetActiveLabelVolumeID() == node.GetID()):
+          selectionNode.SetActiveLabelVolumeID(None)
+      else:
+        if (node.GetLabelMap() == 0):
+          selectionNode.SetActiveVolumeID(node.GetID())
+        else:
+          selectionNode.SetActiveLabelVolumeID(node.GetID())
+      slicer.app.applicationLogic().PropagateVolumeSelection()
+    elif node.IsA('vtkMRMLArmatureNode'):
+      armatureLogic = slicer.modules.armatures.logic()
+      armatureLogic.SetArmatureVisibility(node, visible)
+    else:
+      displayNode = node.GetDisplayNode()
+      if displayNode != None:
+        displayNode.SetVisibility(visible)
+
+  def nodeVisibility(self, node):
+    """Return true if the node is visible, false if it is hidden."""
+    selectionNode = slicer.app.applicationLogic().GetSelectionNode()
+    visible = False
+    if (node.IsA('vtkMRMLScalarVolumeNode')):
+      visible = (selectionNode.GetActiveVolumeID() == node.GetID() or
+                 selectionNode.GetActiveLabelVolumeID() == node.GetID())
+    elif node.IsA('vtkMRMLArmatureNode'):
+      armatureLogic = slicer.modules.armatures.logic()
+      visible = armatureLogic.GetArmatureVisibility(node)
+    else:
+      displayNode = node.GetDisplayNode()
+      if (displayNode != None):
+        visible = displayNode.GetVisibility() == 1
+    return visible
+
+  def onNodeAdded(self, node):
+    """Observe the node to synchronize its visibility with the checkmarks"""
+    self.addObserver(node, slicer.vtkMRMLDisplayableNode.DisplayModifiedEvent, self.onNodeModified)
+    self.onNodeModified(node, 'DisplayModifiedEvent')
+
+  def onNodeModified(self, node, event):
+    """Update the node checkmark based on its visibility"""
+    # Selection node is a special case
+    if node.IsA('vtkMRMLSelectionNode'):
+      # check all the volumes to see which one is active
+      volumeNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLScalarVolumeNode')
+      volumeNodes.UnRegister(slicer.mrmlScene)
+      for i in range(0, volumeNodes.GetNumberOfItems()):
+        volumeNode = volumeNodes.GetItemAsObject(i)
+        self.onNodeModified(volumeNode, 'ModifiedEvent')
+      return
+    elif node.IsA('vtkMRMLArmatureNode'):
+      # Hide the armature model node, it is not to be displayed
+      armatureLogic = slicer.modules.armatures.logic()
+      modelNode = armatureLogic.GetArmatureModel(node)
+      if modelNode != None:
+        self.get('VisibleNodesComboBox').sortFilterProxyModel().hiddenNodeIDs = [modelNode.GetID()]
+
+    visible = self.nodeVisibility(node)
+    checkState = qt.Qt.Checked if visible else qt.Qt.Unchecked
+    self.IgnoreSetNodesVisibility = True
+    self.get('VisibleNodesComboBox').setCheckState(node, checkState)
+    self.IgnoreSetNodesVisibility = False
   #----------------------------------------------------------------------------
   #     c) Volume Render
   #----------------------------------------------------------------------------
