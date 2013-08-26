@@ -344,7 +344,13 @@ int vtkMRMLArmatureNode::GetShowParenthood()
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode::SetVisibility(bool visible)
 {
+  if (this->ArmatureProperties->GetRepresentation()->GetVisibility() == visible)
+    {
+    return;
+    }
   this->ArmatureProperties->GetRepresentation()->SetVisibility(visible);
+  this->Modified();
+  this->InvokeEvent(vtkMRMLDisplayableNode::DisplayModifiedEvent);
 }
 
 //---------------------------------------------------------------------------
