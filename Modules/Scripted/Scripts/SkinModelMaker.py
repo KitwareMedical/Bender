@@ -166,6 +166,7 @@ class SkinModelMakerLogic:
 
 class SkinModelMaker:
   def __init__(self, parent):
+    import string
     parent.title = "Skin Model Maker"
     parent.categories = ["Surface Models"]
     parent.dependencies = ["ChangeLabel", "GrayscaleModelMaker", "ModelQuadricClusteringDecimation"]
