@@ -234,6 +234,12 @@ p, li { white-space: pre-wrap; }
    </item>
    <item row="1" column="1">
     <widget class="ctkPathLineEdit" name="DownloadDirectoryPathLineEdit">
+     <property name="filters">
+      <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Hidden|ctkPathLineEdit::NoDotAndDotDot|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+     </property>
+     <property name="options">
+      <set>ctkPathLineEdit::ShowDirsOnly</set>
+     </property>
      <property name="showHistoryButton">
       <bool>false</bool>
      </property>
