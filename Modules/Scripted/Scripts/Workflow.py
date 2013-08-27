@@ -1430,8 +1430,9 @@ class WorkflowWidget:
   def onEvalSurfaceWeightCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.validateEvalSurfaceWeight()
-      # Pose the surface as soon as the weights are computed.
-      self.runPoseSurface(True)
+      if self.get('PoseSurfaceApplyPushButton').checkState != qt.Qt.Unchecked:
+        # Pose the surface as soon as the weights are computed.
+        self.runPoseSurface(True)
 
     if not cliNode.IsBusy():
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
@@ -1477,8 +1478,8 @@ class WorkflowWidget:
       self.poseSurfaceCreateOutputConnected = True
     self.createOutputPoseSurface(self.get('PoseSurfaceInputNodeComboBox').currentNode())
 
+    self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState != qt.Qt.Unchecked)
     self.poseSurfaceInputNodeChanged()
-    self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState)
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
 
   #----------------------------------------------------------------------------
@@ -1577,7 +1578,8 @@ class WorkflowWidget:
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
       self.get('PoseSurfaceApplyPushButton').enabled = False
-      cliNode.Cancel()
+      if cliNode != None:
+        cliNode.Cancel()
 
   def onPoseSurfaceCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':

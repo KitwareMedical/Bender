@@ -2874,6 +2874,9 @@ p, li { white-space: pre-wrap; }
               <property name="checkState">
                <enum>Qt::Checked</enum>
               </property>
+              <property name="checkBoxControlsButton">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
