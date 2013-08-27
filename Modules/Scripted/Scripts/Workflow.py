@@ -1468,10 +1468,6 @@ class WorkflowWidget:
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openPoseArmaturePage(self):
-    armatureLogic = slicer.modules.armatures.logic()
-    if armatureLogic != None:
-      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
-
     # Create output if necessary
     if not self.poseSurfaceCreateOutputConnected:
       self.get('PoseSurfaceInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseSurface)
@@ -1479,6 +1475,11 @@ class WorkflowWidget:
     self.createOutputPoseSurface(self.get('PoseSurfaceInputNodeComboBox').currentNode())
 
     self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState != qt.Qt.Unchecked)
+
+    armatureLogic = slicer.modules.armatures.logic()
+    if armatureLogic != None:
+      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+
     self.poseSurfaceInputNodeChanged()
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
 
