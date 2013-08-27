@@ -857,22 +857,22 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   Q_D(qSlicerArmaturesModuleWidget);
 
   d->ArmatureVisibilityCheckBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode != 0
+                                            && d->ArmatureNode->GetVisibility());
   d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
-  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
-    && d->ArmatureStateComboBox->currentText() == "Pose");
-
-  if (!d->ArmatureNode)
-    {
-    return;
-    }
-
-  d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
   d->ArmatureStateComboBox->setCurrentIndex(
-    d->ArmatureNode->GetWidgetState() - 2);
+    (d->ArmatureNode != 0
+     && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose) ? 1 : 0);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
 
-  d->updateArmatureWidget(d->ArmatureNode);
+  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
+    && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose);
+
+  if (d->ArmatureNode)
+    {
+    d->updateArmatureWidget(d->ArmatureNode);
+    }
 }
 
 //-----------------------------------------------------------------------------
