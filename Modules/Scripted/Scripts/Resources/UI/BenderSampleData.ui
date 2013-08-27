@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>BenderSampleData</class>
- <widget class="qSlicerWidget" name="BenderSampleData">
+ <widget class="qMRMLWidget" name="BenderSampleData">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -260,9 +260,9 @@ p, li { white-space: pre-wrap; }
    <header>ctkPathLineEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>qSlicerWidget</class>
+   <class>qMRMLWidget</class>
    <extends>QWidget</extends>
-   <header>qSlicerWidget.h</header>
+   <header>qMRMLWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
