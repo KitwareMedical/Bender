@@ -17,13 +17,13 @@ class BenderSampleData:
     parent.title = "Bender Sample Data"
     parent.categories = ["Informatics"]
     #parent.dependencies = ["SampleData"]
-    parent.contributors = ["Johan Andruejol (Kitware)"]
+    parent.contributors = ["Johan Andruejol (Kitware), Julien Finet (Kitware)"]
     parent.helpText = string.Template("""
       This module can be used to download data for working with in Bender. The data is downloaded into the application
       cache so it will be available directly next time.
       Use of this module requires an active network connection.
-      See <a href=\"$a/Documentation/$b.$c/Modules/BenderSampleData\">$a/Documentation/$b.$c/Modules/SampleData</a> for more information.
-      """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':0 })
+      See <a href=\"$a/Documentation/$b.$c/Modules/SampleData\">$a/Documentation/$b.$c/Modules/SampleData</a> for more information.
+      """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
