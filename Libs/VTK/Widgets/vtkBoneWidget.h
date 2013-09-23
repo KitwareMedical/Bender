@@ -195,6 +195,24 @@ public:
   const double* GetCurrentWorldTail() const;
 
   // Description:
+  // Get the current world to parent rotations.
+  // \sa GetWorldToParentRestRotation(), GetWorldToParentPoseRotation()
+  vtkQuaterniond GetCurrentWorldToParentRotation();
+  void GetCurrentWorldToParentRotation(double rot[4]);
+
+  // Description:
+  // Get the current world to bone rotations.
+  // \sa GetWorldToBoneRestRotation(), GetWorldToBonePoseRotation()
+  vtkQuaterniond GetCurrentWorldToBoneRotation();
+  void GetCurrentWorldToBoneRotation(double rot[4]);
+
+  // Description:
+  // Get the current world to bone rotations.
+  // \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
+  vtkQuaterniond GetCurrentParentToBoneRotation();
+  void GetCurrentParentToBoneRotation(double rot[4]);
+
+  // Description:
   // Rest mode Set methods.
   // Those methods set the world to parent REST transformation.
   // When linking multiple bones together, those methods should be
@@ -374,13 +392,32 @@ public:
   vtkLineRepresentation* GetParenthoodRepresentation();
 
   // Description:
-  // Rotation methods to move the tail. Those methods can be used in
+  // Rotation methods to transform the tail. Those methods can be used in
   // rest or pose mode. Angle is in radians.
-  void RotateTailX(double angle);
-  void RotateTailY(double angle);
-  void RotateTailZ(double angle);
-  void RotateTailWXYZ(double angle, double x, double y, double z);
-  void RotateTailWXYZ(double angle, double axis[3]); //TO CHECK !
+  // The rotation is made with respect to the world coordinates.
+  // @sa RotateTailWithWorldX, RotateTailWithWorldY, RotateTailWithWorldZ
+  // @sa RotateTailWithWorldWXYZ
+  // @sa RotateTailWithParentX, RotateTailWithParentY, RotateTailWithParentZ
+  // @sa RotateTailWithParentWXYZ
+  void RotateTailWithWorldX(double angle);
+  void RotateTailWithWorldY(double angle);
+  void RotateTailWithWorldZ(double angle);
+  void RotateTailWithWorldWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithWorldWXYZ(double angle, double axis[3]);
+
+  // Description:
+  // Rotation methods to transform the tail. Those methods can be used in
+  // rest or pose mode. Angle is in radians.
+  // The rotation is made with respect to the parent coordinates.
+  // @sa RotateTailWithWorldX, RotateTailWithWorldY, RotateTailWithWorldZ
+  // @sa RotateTailWithWorldWXYZ
+  // @sa RotateTailWithParentX, RotateTailWithParentY, RotateTailWithParentZ
+  // @sa RotateTailWithParentWXYZ
+  void RotateTailWithParentX(double angle);
+  void RotateTailWithParentY(double angle);
+  void RotateTailWithParentZ(double angle);
+  void RotateTailWithParentWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithParentWXYZ(double angle, double axis[3]);
 
   // Description
   // Show/Hide the link between a child's head an its parent origin.
@@ -635,6 +672,17 @@ protected:
 
   // Selects and highlight the widget representation
   void SetWidgetSelectedState(int selectionState);
+
+  // Transform the given global rotation (rotation on the canonical XYZ)
+  // to a transform in the ParentToBone coordinates
+  // (rotation in the bone's current XYZ).
+  // \sa TransformToWorldRotation()
+  vtkQuaterniond TransformToBoneRotation(vtkQuaterniond worldRotation);
+
+  // Transform the given local rotation (rotation on the bone's current XYZ)
+  // to a transform in the World coordinates (rotation in the canonical XYZ).
+  // \sa TransformToBoneRotation()
+  vtkQuaterniond TransformToWorldRotation(vtkQuaterniond localRotation);
 
 private:
   vtkBoneWidget(const vtkBoneWidget&);  //Not implemented

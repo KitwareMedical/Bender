@@ -174,12 +174,12 @@ public:
   // Description:
   // Returns if the parent is directly the bone's parent.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  bool IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+  bool AreBonesDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
 
  // Description:
-  // Returns if the parent is directly or inderectly the bone's parent.
+  // Returns if the parent is directly or indirectly the bone's parent.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  bool IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+  bool AreBonesParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
 
   // Description:
   // Returns the bone's children if the bone has any and it belongs
@@ -187,6 +187,12 @@ public:
   // The user is responsible for deleting the returned collection.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
   vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
+
+  // Description:
+  // Returns whether or not the number of children the bone has.
+  // In the case where the bone does not belong to the armature, returns -1.
+  // @sa FindBoneChildren()
+  int CountDirectBoneChildren(vtkBoneWidget* parent);
 
   // Description:
   // Get a bone using its name. This will return the first bone with

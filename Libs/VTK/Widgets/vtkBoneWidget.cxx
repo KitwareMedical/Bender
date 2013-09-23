@@ -422,6 +422,75 @@ const double* vtkBoneWidget::GetCurrentWorldTail() const
 }
 
 //----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget::GetCurrentWorldToParentRotation()
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    return this->GetWorldToParentPoseRotation();
+    }
+  return this->GetWorldToParentRestRotation();
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::GetCurrentWorldToParentRotation(double rot[4])
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    this->GetWorldToParentPoseRotation(rot);
+    }
+  else
+    {
+    this->GetWorldToParentRestRotation(rot);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget::GetCurrentWorldToBoneRotation()
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    return this->GetWorldToBonePoseRotation();
+    }
+  return this->GetWorldToBoneRestRotation();
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::GetCurrentWorldToBoneRotation(double rot[4])
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    this->GetWorldToBonePoseRotation(rot);
+    }
+  else
+    {
+    this->GetWorldToBoneRestRotation(rot);
+    }
+}
+
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget::GetCurrentParentToBoneRotation()
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    return this->GetParentToBonePoseRotation();
+    }
+  return this->GetParentToBoneRestRotation();
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::GetCurrentParentToBoneRotation(double rot[4])
+{
+  if (this->WidgetState == vtkBoneWidget::Pose)
+    {
+    this->GetParentToBonePoseRotation(rot);
+    }
+  else
+    {
+    this->GetParentToBoneRestRotation(rot);
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneWidget
 ::SetWorldToParentRestRotationAndTranslation(double quat[4],
                                              double translate[3])
@@ -998,38 +1067,39 @@ vtkLineRepresentation* vtkBoneWidget::GetParenthoodRepresentation()
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::RotateTailX(double angle)
+void vtkBoneWidget::RotateTailWithWorldX(double angle)
 {
-  this->RotateTailWXYZ(angle, 1.0, 0.0, 0.0);
+  this->RotateTailWithWorldWXYZ(angle, 1.0, 0.0, 0.0);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::RotateTailY(double angle)
+void vtkBoneWidget::RotateTailWithWorldY(double angle)
 {
-  this->RotateTailWXYZ(angle, 0.0, 1.0, 0.0);
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 1.0, 0.0);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::RotateTailZ(double angle)
+void vtkBoneWidget::RotateTailWithWorldZ(double angle)
 {
-  this->RotateTailWXYZ(angle, 0.0, 0.0, 1.0);
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 0.0, 1.0);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::RotateTailWXYZ(double angle, double x, double y, double z)
+void vtkBoneWidget
+::RotateTailWithWorldWXYZ(double angle, double x, double y, double z)
 {
   double axis[3];
   axis[0] = x;
   axis[1] = y;
   axis[2] = z;
-  this->RotateTailWXYZ(angle, axis);
+  this->RotateTailWithWorldWXYZ(angle, axis);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::RotateTailWXYZ(double angle, double axis[3])
+void vtkBoneWidget::RotateTailWithWorldWXYZ(double angle, double axis[3])
 {
   double newTail[3];
-  this->RotateTail(angle, axis, newTail);
+  this->RotateTail(vtkMath::DegreesFromRadians(angle), axis, newTail);
 
   if (this->WidgetState == vtkBoneWidget::Pose)
     {
@@ -1040,7 +1110,9 @@ void vtkBoneWidget::RotateTailWXYZ(double angle, double axis[3])
 
     vtkQuaterniond rotation;
     rotation.SetRotationAngleAndAxis(angle, axis);
+    rotation = this->TransformToBoneRotation(rotation);
     rotation.Normalize();
+
     this->ParentToBonePoseRotation = rotation * this->ParentToBonePoseRotation;
     this->ParentToBonePoseRotation.Normalize();
     this->UpdateRestToPoseRotation();
@@ -1051,6 +1123,47 @@ void vtkBoneWidget::RotateTailWXYZ(double angle, double axis[3])
     {
     this->SetWorldTailRest(newTail);
     }
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateTailWithParentX(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateTailWithParentY(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateTailWithParentZ(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget
+::RotateTailWithParentWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateTailWithParentWXYZ(double angle, double axis[3])
+{
+  vtkQuaterniond rotation;
+  rotation.SetRotationAngleAndAxis(angle, axis);
+  rotation = this->TransformToWorldRotation(rotation);
+
+  double globalAxis[3];
+  double globalAngle = rotation.GetRotationAngleAndAxis(globalAxis);
+  this->RotateTailWithWorldWXYZ(globalAngle, globalAxis);
 }
 
 //----------------------------------------------------------------------------
@@ -2144,6 +2257,22 @@ void vtkBoneWidget::SetWidgetSelectedState(int selectionState)
 
   this->InvokeEvent(vtkBoneWidget::SelectedStateChangedEvent, NULL);
   this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget
+::TransformToBoneRotation(vtkQuaterniond globalRotation)
+{
+  vtkQuaterniond worldToParent = this->GetCurrentWorldToParentRotation();
+  return worldToParent.Inverse() * globalRotation * worldToParent;
+}
+
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget
+::TransformToWorldRotation(vtkQuaterniond localRotation)
+{
+  vtkQuaterniond worldToParent = this->GetCurrentWorldToParentRotation();
+  return worldToParent * localRotation * worldToParent.Inverse();
 }
 
 //----------------------------------------------------------------------------

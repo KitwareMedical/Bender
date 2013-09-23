@@ -136,7 +136,7 @@ int vtkArmatureWidgetArmTest(int argc, char* argv[])
   //indexFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
   armature->ReparentBone(arm, fore);
-  if (! armature->IsBoneDirectParent(arm, fore))
+  if (! armature->AreBonesDirectParent(arm, fore))
     {
     std::cout<<"Arm parent should be Fore !"<<std::endl;
     return EXIT_FAILURE;
@@ -164,7 +164,7 @@ int vtkArmatureWidgetArmTest(int argc, char* argv[])
   armature->AddBone(littleFinger, forearm);
   //littleFinger->SetShowAxes(vtkBoneWidget::ShowPoseTransform);
 
-  if (! armature->IsBoneParent(littleFinger, biceps))
+  if (! armature->AreBonesParent(littleFinger, biceps))
     {
     std::cout<<"Little finger should be inderectly "
       <<"related to the biceps"<<std::endl;

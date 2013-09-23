@@ -65,7 +65,7 @@ int vtkBoneWidgetTest_PoseMode(int, char *[])
   axis[0] = 0.0;   axis[1] = 28.0;   axis[2] = -100.0002;
   vtkMath::Normalize(axis);
   spy->ClearEvents();
-  bone->RotateTailWXYZ(angle, axis);
+  bone->RotateTailWithWorldWXYZ(angle, axis);
   sectionErrors += spy->CalledEvents[0] != vtkBoneWidget::PoseChangedEvent;
   sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
   sectionErrors += spy->CalledEvents.size() != 2;

@@ -614,14 +614,14 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneParent(vtkBoneWidget* bone)
 
 //----------------------------------------------------------------------------
 bool vtkArmatureWidget
-::IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+::AreBonesDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   return this->GetBoneParent(bone) == parent;
 }
 
 //----------------------------------------------------------------------------
 bool vtkArmatureWidget
-::IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+::AreBonesParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   if (!parent)
     {
@@ -662,6 +662,14 @@ vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
     }
 
   return children;
+}
+
+
+//----------------------------------------------------------------------------
+int vtkArmatureWidget::CountDirectBoneChildren(vtkBoneWidget* parent)
+{
+  ArmatureTreeNode* node = this->GetNode(parent);
+  return node ?  static_cast<int>(node->Children.size()) : -1;
 }
 
 //----------------------------------------------------------------------------
@@ -848,7 +856,7 @@ vtkBoneWidget* vtkArmatureWidget
     return NULL;
     }
 
-  if (! this->IsBoneParent(tailBone, headBone))
+  if (! this->AreBonesParent(tailBone, headBone))
     {
     vtkErrorMacro("Cannot merge bones that are not parented");
     return NULL;
@@ -889,20 +897,12 @@ vtkBoneWidget* vtkArmatureWidget
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::ResetPoseToRest()
 {
-  int oldState = this->WidgetState;
   this->ShouldResetPoseToRest = true;
 
-  if (this->WidgetState == vtkArmatureWidget::Pose)
-    {
-    this->SetWidgetState(vtkArmatureWidget::Rest);
-    }
-
+  int oldState = this->WidgetState;
+  this->SetWidgetState(vtkArmatureWidget::Rest);
   this->SetWidgetState(vtkArmatureWidget::Pose);
-
-  if(oldState == vtkArmatureWidget::Rest)
-    {
-    this->SetWidgetState(vtkArmatureWidget::Rest);
-    }
+  this->SetWidgetState(oldState);
 }
 
 //----------------------------------------------------------------------------
