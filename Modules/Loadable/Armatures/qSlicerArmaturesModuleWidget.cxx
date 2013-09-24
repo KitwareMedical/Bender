@@ -843,7 +843,7 @@ void qSlicerArmaturesModuleWidget::loadArmatureFromModel(int index)
     }
   else
     {
-    d->logic()->ReadArmatureFromModel(path.toLatin1());
+    d->logic()->AddArmatureFile(path.toLatin1());
     }
 
   d->LoadArmatureFromModelComboBox->setCurrentIndex(-1);

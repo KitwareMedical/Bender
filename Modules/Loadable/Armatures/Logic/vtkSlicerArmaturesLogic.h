@@ -55,11 +55,9 @@ public:
   vtkTypeMacro(vtkSlicerArmaturesLogic,vtkSlicerModuleLogic);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  vtkMRMLModelNode* AddArmatureFile(const char* fileName);
-
-  /// Read an armature from a model. Returns a armature node added.
+  /// Reads an armature from a model. Returns the armature node added.
   /// \sa CreateArmatureFromModel(vtkPolyData*)
-  vtkMRMLArmatureNode* ReadArmatureFromModel(const char* fileName);
+  vtkMRMLArmatureNode* AddArmatureFile(const char* fileName);
 
   /// Create an armature from a model. Returns a the armature
   ///  node added. Note that the model is not actually loaded

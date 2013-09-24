@@ -103,27 +103,10 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
     return false;
     }
 
-  if (fileName.endsWith(".arm"))
-    {
-    vtkMRMLModelNode* node = d->ArmaturesLogic->AddArmatureFile(
-      fileName.toLatin1());
-    if (!node)
-      {
-      return false;
-      }
-    this->setLoadedNodes( QStringList(QString(node->GetID())) );
-    if (properties.contains("name"))
-      {
-      std::string uname = this->mrmlScene()->GetUniqueNameByString(
-        properties["name"].toString().toLatin1());
-      node->SetName(uname.c_str());
-      }
-    return true;
-    }
-  else if (fileName.endsWith(".vtk"))
+  if (fileName.endsWith(".vtk") || fileName.endsWith(".arm"))
     {
     vtkMRMLArmatureNode* armatureNode =
-      d->ArmaturesLogic->ReadArmatureFromModel(fileName.toLatin1());
+      d->ArmaturesLogic->AddArmatureFile(fileName.toLatin1());
     if (!armatureNode)
       {
       return false;
