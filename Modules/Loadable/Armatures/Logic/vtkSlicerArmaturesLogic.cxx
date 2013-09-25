@@ -24,29 +24,28 @@
 
 // Armatures includes
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLArmatureStorageNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
 #include "vtkMRMLSelectionNode.h"
 #include "vtkSlicerArmaturesLogic.h"
 
-// MRML includes
+// Slicer includes
+#include <vtkCacheManager.h>
 #include <vtkEventBroker.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
 
 // VTK includes
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkMath.h>
+#include <vtkCallbackCommand.h>
 #include <vtkNew.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataReader.h>
-#include <vtkStringArray.h>
 #include <vtksys/SystemTools.hxx>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
+
+/// ITK includes
+#include <itksys/Directory.hxx>
+#include <itksys/SystemTools.hxx>
 
 // STD includes
 #include <cassert>
@@ -390,177 +389,60 @@ vtkMRMLBoneNode* vtkSlicerArmaturesLogic::GetBoneParent(vtkMRMLBoneNode* bone)
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::AddArmatureFile(const char* fileName)
+::AddArmatureFile(const char* filename)
 {
-  vtkNew<vtkPolyDataReader> reader;
-  reader->SetFileName(fileName);
-  reader->Update();
-  vtkStdString baseName =
-    vtksys::SystemTools::GetFilenameWithoutExtension(fileName);
-  return this->CreateArmatureFromModel(reader->GetOutput(), baseName.c_str());
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::CreateArmatureFromModel(vtkPolyData* model, const char* baseName)
-{
-  if (!model)
+  if (this->GetMRMLScene() == 0 || filename == 0)
     {
-    std::cerr<<"Cannot create armature from model, model is null"<<std::endl;
-    return NULL;
+    return 0;
+    }
+  vtkSmartPointer<vtkMRMLArmatureStorageNode> storageNode =
+    vtkSmartPointer<vtkMRMLArmatureStorageNode>::New();
+  vtkSmartPointer<vtkMRMLArmatureNode> armatureNode =
+    vtkSmartPointer<vtkMRMLArmatureNode>::New();
+
+  // check for local or remote files
+  int useURI = 0;
+  vtkCacheManager* cacheManager = this->GetMRMLScene()->GetCacheManager();
+  if (cacheManager)
+    {
+    useURI =
+      this->GetMRMLScene()->GetCacheManager()->IsRemoteReference(filename);
+    vtkDebugMacro("AddArmature: file name is remote: " << filename);
     }
 
-  // First, create an armature node
-  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
-  armatureNode->SetName(baseName);
-  this->GetMRMLScene()->AddNode(armatureNode);
-  armatureNode->Delete();
-
-  vtkPoints* points = model->GetPoints();
-  if (!points)
+  const char* localFile;
+  if (useURI)
     {
-    std::cerr<<"Cannot create armature from model,"
-      <<" No points !"<<std::endl;
-    return NULL;
-    }
-
-  vtkCellData* cellData = model->GetCellData();
-  if (!cellData)
-    {
-    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
-    return NULL;
-    }
-
-  vtkIdTypeArray* parenthood =
-    vtkIdTypeArray::SafeDownCast(cellData->GetArray("Parenthood"));
-  if (!parenthood
-    || parenthood->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cerr<<"Cannot create armature from model,"
-      <<" parenthood array invalid"<<std::endl;
-    if (parenthood)
-      {
-      std::cerr<<parenthood->GetNumberOfTuples()<<std::endl;
-      }
-    else
-      {
-      std::cerr<<"No parenthood array"<<std::endl;
-      }
-
-    return NULL;
-    }
-
-  vtkStringArray* names =
-    vtkStringArray::SafeDownCast(cellData->GetAbstractArray("Names"));
-  if (!names
-    || names->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cout<<"Warning: No names found in the armature file. \n"
-      << "-> Using default naming !" <<std::endl;
-    }
-
-  vtkDoubleArray* restToPose=
-    vtkDoubleArray::SafeDownCast(cellData->GetArray("RestToPoseRotation"));
-  // 1 quaternion per bone
-  if (!restToPose
-    || restToPose->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cout<<"Warning: No Pose found in the armature file. \n"
-      << "-> No pose imported !" <<std::endl;
-    }
-
-  vtkNew<vtkCollection> addedBones;
-  for (vtkIdType id = 0, pointId = 0;
-    id < parenthood->GetNumberOfTuples(); ++id, pointId += 2)
-    {
-    vtkIdType parentId = parenthood->GetValue(id);
-    if (parentId > id)
-      {
-      std::cerr<<"There most likely were reparenting."
-        << " Not supported yet."<<std::endl;
-      return armatureNode;
-      }
-
-    vtkMRMLBoneNode* boneParentNode = 0;
-    if (parentId > -1)
-      {
-      boneParentNode =
-        vtkMRMLBoneNode::SafeDownCast(addedBones->GetItemAsObject(parentId));
-      if (! boneParentNode)
-        {
-        std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
-        return armatureNode;
-        }
-
-      vtkMRMLAnnotationHierarchyNode* hierarchyNode =
-        vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
-            boneParentNode->GetScene(), boneParentNode->GetID()));
-      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
-        hierarchyNode != 0 ? hierarchyNode->GetID() : 0);
-      }
-    else // Root
-      {
-      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
-        armatureNode->GetID());
-      }
-
-    vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();
-
-    if (names)
-      {
-      boneNode->SetName(names->GetValue(id));
-      }
-
-    double p[3];
-    points->GetPoint(pointId, p);
-    boneNode->SetWorldHeadRest(p);
-
-    points->GetPoint(pointId + 1, p);
-    boneNode->SetWorldTailRest(p);
-
-    if (restToPose)
-      {
-      double quad[4];
-      restToPose->GetTupleValue(id, quad);
-      boneNode->SetRestToPoseRotation(quad);
-      }
-
-    if (boneParentNode)
-      {
-      double diff[3];
-      vtkMath::Subtract(
-        boneParentNode->GetWorldTailRest(),
-        boneNode->GetWorldHeadRest(),
-        diff);
-      if (vtkMath::Dot(diff, diff) > 1e-6)
-        {
-        boneNode->SetBoneLinkedWithParent(false);
-        }
-      }
-
-    boneNode->Initialize(this->GetMRMLScene());
-    addedBones->AddItem(boneNode);
-    boneNode->Delete();
-    }
-
-  return armatureNode;
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerArmaturesLogic::ReadPose(vtkXMLDataElement* poseElement,
-                                       double parentOrientation[4], bool invert)
-{
-  double poseRotationXYZW[4] = {0., 0., 0., 0.};
-  poseElement->GetVectorAttribute("rotation", 4, poseRotationXYZW);
-  double poseRotationWXYZ[4] = {poseRotationXYZW[3], poseRotationXYZW[0],
-                                poseRotationXYZW[1], poseRotationXYZW[2]};
-  if (invert)
-    {
-    vtkMath::MultiplyQuaternion(poseRotationWXYZ, parentOrientation, parentOrientation);
+    storageNode->SetURI(filename);
+    // reset filename to the local file name
+    localFile = cacheManager->GetFilenameFromURI(filename);
     }
   else
     {
-    vtkMath::MultiplyQuaternion(parentOrientation, poseRotationWXYZ, parentOrientation);
+    storageNode->SetFileName(filename);
+    localFile = filename;
     }
+  const itksys_stl::string fname(localFile);
+  armatureNode->SetName(
+    itksys::SystemTools::GetFilenameWithoutExtension(fname).c_str());
+
+  this->GetMRMLScene()->SaveStateForUndo();
+  this->GetMRMLScene()->AddNode(storageNode);
+
+  // Set the scene so that SetAndObserveStorageNodeID can find the
+  // node in the scene
+  armatureNode->SetScene(this->GetMRMLScene());
+  //armatureNode->SetAndObserveStorageNodeID(storageNode->GetID()); //\todo
+
+  this->GetMRMLScene()->AddNode(armatureNode);
+
+  int success = storageNode->ReadData(armatureNode);
+  if (success != 1)
+    {
+    vtkErrorMacro("AddModel: error reading " << filename);
+    this->GetMRMLScene()->RemoveNode(armatureNode);
+    armatureNode = NULL;
+    }
+
+  return armatureNode;
 }

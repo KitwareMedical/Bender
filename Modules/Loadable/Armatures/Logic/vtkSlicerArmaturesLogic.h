@@ -59,13 +59,6 @@ public:
   /// \sa CreateArmatureFromModel(vtkPolyData*)
   vtkMRMLArmatureNode* AddArmatureFile(const char* fileName);
 
-  /// Create an armature from a model. Returns a the armature
-  ///  node added. Note that the model is not actually loaded
-  /// in slicer.
-  /// \sa ReadArmatureFromModel()
-  vtkMRMLArmatureNode* CreateArmatureFromModel(
-    vtkPolyData* model, const char* baseName = "Armature");
-
   virtual void SetModelsLogic(vtkSlicerModelsLogic* modelsLogic);
   vtkGetObjectMacro(ModelsLogic, vtkSlicerModelsLogic);
 
@@ -124,10 +117,6 @@ protected:
 
   virtual void ProcessMRMLLogicsEvents(vtkObject* caller, unsigned long event,
                                        void* callData);
-
-  void ReadBone(vtkXMLDataElement* boneElement, vtkPolyData* polyData,
-                const double origin[3], const double orientation[4]);
-  void ReadPose(vtkXMLDataElement* poseElement, double orientation[4], bool invert = true);
 
   vtkSlicerModelsLogic* ModelsLogic;
   vtkSlicerAnnotationModuleLogic* AnnotationsLogic;

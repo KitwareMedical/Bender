@@ -103,7 +103,9 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
     return false;
     }
 
-  if (fileName.endsWith(".vtk") || fileName.endsWith(".arm"))
+  if (fileName.endsWith(".vtk")
+    || fileName.endsWith(".arm")
+    || fileName.endsWith(".bvh"))
     {
     vtkMRMLArmatureNode* armatureNode =
       d->ArmaturesLogic->AddArmatureFile(fileName.toLatin1());
