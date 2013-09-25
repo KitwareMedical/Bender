@@ -19,9 +19,9 @@
 #============================================================================
 
 #
-# Slicer
+# Sofa
 #
-set(proj Bender)
+set(proj Sofa)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -36,7 +36,7 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
 endif()
 
 # Set dependency list
-set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3 Sofa)
+set(${proj}_DEPENDENCIES "")
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
@@ -59,39 +59,25 @@ if(NOT DEFINED ${proj}_DIR)
 
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
-    SOURCE_DIR ${Bender_SOURCE_DIR}
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    DOWNLOAD_COMMAND ""
-    CMAKE_GENERATOR ${gen}
+    GIT_REPOSITORY "git@github.com:ricortiz/SOFA.git"
+    GIT_TAG "60bad2f46ecf8a749246fd083278b293f264a22f"
+    UPDATE_COMMAND ""
     INSTALL_COMMAND ""
+    CMAKE_GENERATOR ${gen}
+    LIST_SEPARATOR &&
     CMAKE_ARGS
-      ${ctk_superbuild_boolean_args}
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      -DBender_SUPERBUILD:BOOL=OFF
-      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
-      -DDOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY:PATH=${DOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY}
-      -DBender_INSTALL_BIN_DIR:STRING=${Slicer_INSTALL_BIN_DIR}
-      -DBender_INSTALL_LIB_DIR:STRING=${Slicer_INSTALL_LIB_DIR}
-      -DBender_INSTALL_INCLUDE_DIR:STRING=${Bender_INSTALL_INCLUDE_DIR}
-      #-DBender_INSTALL_DOC_DIR:STRING=${Bender_INSTALL_DOC_DIR}
-      #-DDOXYGEN_EXECUTABLE:FILEPATH=${DOXYGEN_EXECUTABLE}
-      -DBender_BUILD_SHARED_LIBS:BOOL=${Bender_BUILD_SHARED_LIBS}
-      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
-      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
-      -DBender_EXTERNAL_LIBRARY_DIRS:STRING=${Bender_EXTERNAL_LIBRARY_DIRS}
-      #-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-      -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
-      -DVTK_DIR:PATH=${VTK_DIR}
-      -DITK_DIR:PATH=${ITK_DIR}
-      -DEIGEN3_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/Eigen3
-      #${dependency_args}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
+
+   ExternalProject_Add_Step(${proj} ${proj}_Pass2
+    COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}/${proj}
+    COMMENT "Configuring SOFA, second pass."
+    WORKING_DIRECTORY ${${proj}_DIR}
+   )
 
 else()
   # The project is provided using ${proj}_DIR, nevertheless since other project may depend on ${proj},

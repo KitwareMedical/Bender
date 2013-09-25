@@ -61,7 +61,7 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    URL "http://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz"
+    URL "https://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz"
     UPDATE_COMMAND ""
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
