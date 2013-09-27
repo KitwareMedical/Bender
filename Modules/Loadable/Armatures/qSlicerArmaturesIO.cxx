@@ -87,7 +87,7 @@ qSlicerIO::IOFileType qSlicerArmaturesIO::fileType()const
 QStringList qSlicerArmaturesIO::extensions()const
 {
   return QStringList()
-    << "Armature (*.arm *.vtk)";
+    << "Armature (*.arm *.vtk *.bvh)";
 }
 
 //-----------------------------------------------------------------------------

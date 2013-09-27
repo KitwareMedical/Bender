@@ -68,13 +68,13 @@ public:
   // Description:
   // Set the desired frame.
   // Default is 0.
-  vtkGetMacro(Frame, int);
-  void SetFrame(int frame);
+  vtkGetMacro(Frame, unsigned int);
+  void SetFrame(unsigned int frame);
 
   // Description:
   // Once the file is read, returns the number of frames available.
   // Default is 0.
-  vtkGetMacro(NumberOfFrames, int);
+  vtkGetMacro(NumberOfFrames, unsigned int);
 
   // Description:
   // Once the file is read, this returns the number of frames available.
@@ -99,6 +99,19 @@ public:
   // A simple, non-exhaustive check to see if a file is a valid file.
   static int CanReadFile(const char *filename);
 
+  // Description:
+  // Apply the frame to the given armature. The armature must be the
+  // exact same armature than the armature read.
+  // This method is meant for exterior application to be able to drive
+  // which pose the armature has. Return if the operation succeeded.
+  bool ApplyFrameToArmature(vtkArmatureWidget* armature,  unsigned int frame);
+
+  // Description:
+  // Access method to the frame rotation data.
+  // No check is performed on the frame nor the boneId for perfomance reasons.
+  vtkQuaterniond GetParentToBoneRotation(
+    unsigned int frame, unsigned int boneId);
+
 protected:
   vtkBVHReader();
   ~vtkBVHReader();
@@ -107,9 +120,9 @@ protected:
   bool RestArmatureIsValid;
 
   vtkArmatureWidget* Armature;
-  int Frame;
+  unsigned int Frame;
   bool LinkToFirstChild;
-  double NumberOfFrames;
+  unsigned int NumberOfFrames;
   double FrameRate;
 
   virtual int RequestData(
@@ -123,8 +136,6 @@ protected:
     size_t parentId,
     std::vector< std::vector<std::string> >& channels);
   void ParseEndSite(std::ifstream& file, size_t parentId);
-
-  void ApplyCurrentFrameToArmature();
 
   void LinkBonesToFirstChild();
   void UnlinkBonesFromFirstChild();

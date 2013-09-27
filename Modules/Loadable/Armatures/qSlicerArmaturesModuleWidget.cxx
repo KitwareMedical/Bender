@@ -47,6 +47,7 @@
 #include <vtkSlicerAnnotationModuleLogic.h>
 
 // MRML includes
+#include <vtkMRMLArmatureStorageNode.h>
 #include <vtkMRMLBoneDisplayNode.h>
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
@@ -158,6 +159,10 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
+
+  // -- Armature Pose --
+  QObject::connect(this->ArmatureFrameSliderWidget, SIGNAL(valueChanged(double)),
+    this, SLOT(onFrameChanged(double)));
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -580,6 +585,25 @@ void qSlicerArmaturesModuleWidgetPrivate::onLinkedWithParentChanged(int linked)
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::onFrameChanged(double newFrame)
+{
+  if (!this->ArmatureNode)
+    {
+    return;
+    }
+
+  vtkMRMLArmatureStorageNode* armatureStorageNode =
+    this->ArmatureNode->GetArmatureStorageNode();
+  if (!armatureStorageNode)
+    {
+    return;
+    }
+
+  armatureStorageNode->SetFrame(
+    this->ArmatureNode, static_cast<unsigned int>(newFrame));
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int select)
 {
   if (!this->BoneNode)
@@ -878,6 +902,17 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
     && d->ArmatureStateComboBox->currentText() == "Pose");
 
+  vtkMRMLArmatureStorageNode* armatureStorageNode = 0;
+  if (d->ArmatureNode)
+    {
+    armatureStorageNode = d->ArmatureNode->GetArmatureStorageNode();
+    }
+  else
+    {
+    d->ArmatureFrameSliderWidget->setValue(0);
+    }
+  d->ArmatureFrameSliderWidget->setEnabled(armatureStorageNode != 0);
+
   if (!d->ArmatureNode)
     {
     return;
@@ -888,6 +923,12 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   d->ArmatureStateComboBox->setCurrentIndex(
     d->ArmatureNode->GetWidgetState() - 2);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
+
+  if (armatureStorageNode)
+    {
+    d->ArmatureFrameSliderWidget->setMaximum(
+      armatureStorageNode->GetNumberOfFrames() -1);
+    }
 
   d->updateArmatureWidget(d->ArmatureNode);
 }

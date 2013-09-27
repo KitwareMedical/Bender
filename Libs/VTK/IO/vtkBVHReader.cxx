@@ -265,7 +265,7 @@ const char* vtkBVHReader::GetFileName() const
 }
 
 //----------------------------------------------------------------------------
-void vtkBVHReader::SetFrame(int frame)
+void vtkBVHReader::SetFrame(unsigned int frame)
 {
   if (this->Frame == frame)
     {
@@ -275,7 +275,7 @@ void vtkBVHReader::SetFrame(int frame)
   this->Frame = frame;
   if (this->RestArmatureIsValid)
     {
-    this->ApplyCurrentFrameToArmature();
+    this->ApplyFrameToArmature(this->GetArmature(), this->Frame);
     }
   this->Modified();
 }
@@ -343,7 +343,7 @@ int vtkBVHReader::RequestData(vtkInformation *vtkNotUsed(request),
     file.close();
     }
 
-  this->ApplyCurrentFrameToArmature();
+  this->ApplyFrameToArmature(this->GetArmature(), this->Frame);
 
   vtkInformation* polydataInfo = outputVector->GetInformationObject(0);
   polydataInfo->Get(vtkDataObject::DATA_OBJECT())->DeepCopy(
@@ -530,7 +530,7 @@ void vtkBVHReader
     std::string keyword = MoveToNextKeyword(file, line);
     if (keyword == "Frames:")
       {
-      this->NumberOfFrames = GetValue<double>(line, keyword);
+      this->NumberOfFrames = GetValue<unsigned int>(line, keyword);
       }
     else if (keyword == "Frame") // For "Frame time:"
       {
@@ -550,23 +550,56 @@ void vtkBVHReader
 }
 
 //----------------------------------------------------------------------------
-void vtkBVHReader::ApplyCurrentFrameToArmature()
+bool vtkBVHReader
+::ApplyFrameToArmature(vtkArmatureWidget* armature, unsigned int frame)
 {
-  assert(this->Frames.size() >= this->Frame);
+  if (!armature)
+    {
+    return false;
+    }
+
+  unsigned int numberOfFrames = static_cast<unsigned int>(this->Frames.size());
+  if (numberOfFrames <= frame)
+    {
+    std::cerr<<"The input frame exceeds the total number of frames."<<std::endl
+      <<" -> Defaulting to the last frame."<<std::endl;
+    frame = numberOfFrames;
+    }
+
   int oldState = this->Armature->GetWidgetState();
 
   this->Armature->ResetPoseToRest();
   this->Armature->SetWidgetState(vtkArmatureWidget::Pose);
 
   assert(this->Frames[this->Frame].size() == this->Bones.size());
-  for (size_t i = 0; i < this->Bones.size(); ++i)
+  try
     {
-    double axis[3];
-    double angle = this->Frames[this->Frame][i].GetRotationAngleAndAxis(axis);
-    this->Bones[i]->RotateTailWithParentWXYZ(angle, axis);
+    for (size_t i = 0; i < this->Bones.size(); ++i)
+      {
+      double axis[3];
+      double angle =
+        this->Frames.at(this->Frame).at(i).GetRotationAngleAndAxis(axis);
+      this->Bones.at(i)->RotateTailWithParentWXYZ(angle, axis);
+      }
+    }
+  catch(const std::out_of_range& oor)
+    {
+    std::cerr<<"Error while trying to set the pose #"<<frame
+      <<" to the armature."<<std::endl<<"Make sure the armature is the same"
+      <<"than the armature read by this reader."<<std::endl;
+    return false;
     }
 
   this->Armature->SetWidgetState(oldState);
+
+  return true;
+}
+
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBVHReader
+::GetParentToBoneRotation(unsigned int frame, unsigned int boneId)
+{
+  return this->Frames[frame][boneId];
 }
 
 //----------------------------------------------------------------------------

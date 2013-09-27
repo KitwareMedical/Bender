@@ -15,10 +15,10 @@
 #include "vtkMRMLArmatureStorageNode.h"
 
 // Bender includes
+#include <vtkBVHReader.h>
 #include "vtkMRMLArmatureNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
-#include <vtkBVHReader.h>
 
 // VTK includes
 #include <vtkCallbackCommand.h>
@@ -62,12 +62,19 @@ vtkMRMLArmatureStorageNode::vtkMRMLArmatureStorageNode()
     reinterpret_cast<void *>(this));
   this->SceneObserverManager->GetCallbackCommand()->SetCallback(
     vtkMRMLArmatureStorageNode::MRMLSceneCallback);
+
+  this->BVHReader = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureStorageNode::~vtkMRMLArmatureStorageNode()
 {
   this->SceneObserverManager->Delete();
+
+  if (this->BVHReader)
+    {
+    this->BVHReader->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -93,6 +100,60 @@ void vtkMRMLArmatureStorageNode
   assert(caller == self->GetScene());
 
   self->ProcessMRMLSceneEvents(caller, eid, callData);
+}
+
+//----------------------------------------------------------------------------
+unsigned int vtkMRMLArmatureStorageNode::GetNumberOfFrames()
+{
+  if (this->BVHReader)
+    {
+    return this->BVHReader->GetNumberOfFrames();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+double vtkMRMLArmatureStorageNode::GetFrameRate()
+{
+  if (this->BVHReader)
+    {
+    return this->BVHReader->GetFrameRate();
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureStorageNode
+::SetFrame(vtkMRMLArmatureNode* armatureNode, unsigned int frame)
+{
+  if (!armatureNode || !this->BVHReader)
+    {
+    return;
+    }
+  if (frame > this->GetNumberOfFrames())
+    {
+    std::cerr<<"The input frame exceeds the total number of frames."<<std::endl
+      <<" -> Defaulting to the last frame."<<std::endl;
+    frame = this->GetNumberOfFrames();
+    }
+
+  armatureNode->SetWidgetState(vtkMRMLArmatureNode::Pose);
+  armatureNode->ResetPoseMode();
+
+  vtkNew<vtkCollection> bones;
+  armatureNode->GetAllBones(bones.GetPointer());
+  for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+    {
+    vtkMRMLBoneNode* boneNode =
+      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+    assert(boneNode);
+
+    vtkQuaterniond rotation =
+      this->BVHReader->GetParentToBoneRotation(frame, i);
+    double axis[3];
+    double angle = rotation.GetRotationAngleAndAxis(axis);
+    boneNode->RotateTailWithParentWXYZ(angle, axis);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -320,18 +381,23 @@ int vtkMRMLArmatureStorageNode::ReadDataInternal(vtkMRMLNode *refNode)
 
   vtkDebugMacro("ReadDataInternal: extension = " << extension.c_str());
 
+  if (this->BVHReader)
+    {
+    this->BVHReader->Delete();
+    }
+
   int result = 1;
   try
     {
     if (extension == std::string(".bvh"))
       {
-      vtkSmartPointer<vtkBVHReader> reader
-        = vtkSmartPointer<vtkBVHReader>::New(); //\todo keep the reader alive
-      reader->SetFileName(fullName.c_str());
-      reader->Update();
+      this->BVHReader = vtkBVHReader::New();
+      this->BVHReader->SetFileName(fullName.c_str());
+      this->BVHReader->Update();
 
-      // Do Stuff
-
+      result =
+        this->CreateArmatureFromModel(
+          armatureNode, this->BVHReader->GetOutput());
       }
     else if (extension == std::string(".vtk")
       || extension == std::string(".arm"))

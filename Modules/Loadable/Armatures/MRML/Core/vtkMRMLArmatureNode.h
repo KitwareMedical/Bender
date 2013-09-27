@@ -33,6 +33,7 @@ class vtkBoneRepresentation;
 class vtkBoneWidget;
 class vtkCallbackCommand;
 class vtkMRMLArmatureDisplayableManager;
+class vtkMRMLArmatureStorageNode;
 class vtkMRMLBoneNode;
 class vtkMRMLModelNode;
 
@@ -82,6 +83,11 @@ public:
   virtual void ProcessMRMLEvents(vtkObject* caller,
                                  unsigned long event,
                                  void* callData);
+
+  /// Set/Get the armature storage node
+  vtkMRMLNode* GetStorageNode();
+  vtkMRMLArmatureStorageNode* GetArmatureStorageNode();
+  void SetArmatureStorageNode(vtkMRMLArmatureStorageNode* armatureStorageNode);
 
   //--------------------------------------------------------------------------
   // Annotation methods

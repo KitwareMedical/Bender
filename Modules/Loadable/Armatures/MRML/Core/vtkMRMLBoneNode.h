@@ -235,6 +235,13 @@ public:
   vtkSetMacro(HasParent, bool);
   vtkGetMacro(HasParent, bool);
 
+  // Rotate the tail in the parent coordinates system
+  void RotateTailWithParentX(double angle);
+  void RotateTailWithParentY(double angle);
+  void RotateTailWithParentZ(double angle);
+  void RotateTailWithParentWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithParentWXYZ(double angle, double axis[3]);
+
   //--------------------------------------------------------------------------
   // Helper methods
   //--------------------------------------------------------------------------

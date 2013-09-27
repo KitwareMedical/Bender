@@ -97,6 +97,8 @@ protected slots:
   void onParentNodeChanged(vtkMRMLNode* node);
   void onLinkedWithParentChanged(int linked);
 
+  void onFrameChanged(double frame);
+
 protected:
   // Select/Unselect the current bone node.
   void selectCurrentBoneDisplayNode(int select);

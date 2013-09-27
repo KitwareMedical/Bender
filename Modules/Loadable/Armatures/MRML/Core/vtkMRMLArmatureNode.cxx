@@ -20,12 +20,14 @@
 
 // Armatures includes
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLArmatureStorageNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
 #include "vtkMRMLNodeHelper.h"
 
 // MRML includes
 #include <vtkMRMLScene.h>
+#include <vtkMRMLStorageNode.h>
 
 // VTK includes
 #include <vtkArmatureRepresentation.h>
@@ -117,6 +119,12 @@ vtkMRMLArmatureNode::~vtkMRMLArmatureNode()
 {
   this->Callback->Delete();
   this->ArmatureProperties->Delete();
+
+  vtkMRMLArmatureStorageNode* storageNode = this->GetArmatureStorageNode();
+  if (storageNode)
+    {
+    storageNode->Delete();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -207,6 +215,42 @@ void vtkMRMLArmatureNode::ProcessMRMLEvents(vtkObject* caller,
                                         void* callData)
 {
   this->Superclass::ProcessMRMLEvents(caller, event, callData);
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLNode* vtkMRMLArmatureNode::GetStorageNode()
+{
+  vtkMRMLDisplayableNode* displayNode = this->GetDisplayableNode();
+  if (displayNode)
+    {
+    return displayNode->GetStorageNode();
+    }
+  return NULL;
+}
+
+//---------------------------------------------------------------------------
+vtkMRMLArmatureStorageNode* vtkMRMLArmatureNode::GetArmatureStorageNode()
+{
+  return vtkMRMLArmatureStorageNode::SafeDownCast(this->GetStorageNode());
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode
+::SetArmatureStorageNode(vtkMRMLArmatureStorageNode* armatureStorageNode)
+{
+  if (armatureStorageNode == this->GetArmatureStorageNode())
+    {
+    return;
+    }
+
+  vtkMRMLDisplayableNode* displayNode = this->GetDisplayableNode();
+  if (!displayNode)
+    {
+    return;
+    }
+  displayNode->SetAndObserveStorageNodeID(armatureStorageNode ?
+    armatureStorageNode->GetID() : 0);
+  this->Modified();
 }
 
 //----------------------------------------------------------------------------

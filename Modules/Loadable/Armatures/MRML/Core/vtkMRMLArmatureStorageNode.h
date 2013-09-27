@@ -27,6 +27,7 @@
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkMRMLArmatureNode;
 class vtkMRMLBoneNode;
+class vtkBVHReader;
 
 // VTK includes
 class vtkPolyData;
@@ -35,9 +36,15 @@ class vtkObserverManager;
 // Slicer includes
 class vtkSlicerAnnotationModuleLogic;
 
-/// \brief \todo
+/// \brief Loads armature files
 ///
-/// \todo
+/// The vtkArmatureStorageNode handles the loading of armature files.
+/// There is essentialy two possible treatments:
+/// For *.vtk (and *.arm which are *.vtk files with a different extension),
+/// the storage nodes simply loads the armature file, setting the hierarchy
+/// properly.
+/// For *.bvh files, the storage node keeps a reference on the bvh reader
+/// so it can latter change the armature pose at convinience.
 class VTK_BENDER_ARMATURES_MRML_CORE_EXPORT vtkMRMLArmatureStorageNode
   : public vtkMRMLStorageNode
 {
@@ -69,6 +76,17 @@ public:
     vtkObject *caller, unsigned long eid,
     void *clientData, void *callData);
 
+  /// Get the total number of frames from the BVHReader.
+  /// Returns 0 by default and if there's no BVH reader.
+  unsigned int GetNumberOfFrames();
+
+  /// Get the total number of frames from the BVHReader.
+  /// Returns 0 by default and if there's no BVH reader.
+  double GetFrameRate();
+
+  /// Apply the frame to the armature node.
+  void SetFrame(vtkMRMLArmatureNode* armatureNode, unsigned int frame);
+
 protected:
   vtkMRMLArmatureStorageNode();
   ~vtkMRMLArmatureStorageNode();
@@ -95,5 +113,8 @@ protected:
   vtkMRMLBoneNode* CurrentlyAddedBoneNodeParent;
   vtkMRMLArmatureNode* CurrentlyAddedArmatureNode;
   vtkObserverManager* SceneObserverManager;
+
+  // Only valid when reading a *.bvh file.
+  vtkBVHReader* BVHReader;
 };
 #endif

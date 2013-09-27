@@ -432,11 +432,15 @@ vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
   // Set the scene so that SetAndObserveStorageNodeID can find the
   // node in the scene
   armatureNode->SetScene(this->GetMRMLScene());
-  //armatureNode->SetAndObserveStorageNodeID(storageNode->GetID()); //\todo
-
   this->GetMRMLScene()->AddNode(armatureNode);
 
   int success = storageNode->ReadData(armatureNode);
+  if (itksys::SystemTools::GetFilenameExtension(filename) == ".bvh")
+    {
+    storageNode->HideFromEditorsOn();
+    armatureNode->SetArmatureStorageNode(storageNode);
+    }
+
   if (success != 1)
     {
     vtkErrorMacro("AddModel: error reading " << filename);

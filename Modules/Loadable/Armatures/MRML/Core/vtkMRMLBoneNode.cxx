@@ -695,6 +695,41 @@ bool vtkMRMLBoneNode::GetBoneLinkedWithParent()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentX(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentY(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentZ(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::RotateTailWithParentWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
 void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 {
   if (!boneWidget)
