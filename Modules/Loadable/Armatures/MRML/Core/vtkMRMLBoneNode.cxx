@@ -561,15 +561,15 @@ void vtkMRMLBoneNode::SetWorldToParentPoseRotation(const double* rotation)
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToParentRestRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToParentRestRotation()
 {
-  return this->BoneProperties->GetWorldToParentRestRotation().GetData();
+  return this->BoneProperties->GetWorldToParentRestRotation();
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToParentPoseRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToParentPoseRotation()
 {
-  return this->BoneProperties->GetWorldToParentPoseRotation().GetData();
+  return this->BoneProperties->GetWorldToParentPoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -605,15 +605,15 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetParentToBoneRestRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetParentToBoneRestRotation()
 {
-  return this->BoneProperties->GetParentToBoneRestRotation().GetData();
+  return this->BoneProperties->GetParentToBoneRestRotation();
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetParentToBonePoseRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetParentToBonePoseRotation()
 {
-  return this->BoneProperties->GetParentToBonePoseRotation().GetData();
+  return this->BoneProperties->GetParentToBonePoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -629,15 +629,15 @@ double* vtkMRMLBoneNode::GetParentToBonePoseTranslation()
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToBoneRestRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToBoneRestRotation()
 {
-  return this->BoneProperties->GetWorldToBoneRestRotation().GetData();
+  return this->BoneProperties->GetWorldToBoneRestRotation();
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToBonePoseRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToBonePoseRotation()
 {
-  return this->BoneProperties->GetWorldToBonePoseRotation().GetData();
+  return this->BoneProperties->GetWorldToBonePoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -727,6 +727,41 @@ void vtkMRMLBoneNode
 void vtkMRMLBoneNode::RotateTailWithParentWXYZ(double angle, double axis[3])
 {
   this->BoneProperties->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldX(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldY(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldZ(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::RotateTailWithWorldWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateTailWithWorldWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateTailWithWorldWXYZ(angle, axis);
 }
 
 //---------------------------------------------------------------------------

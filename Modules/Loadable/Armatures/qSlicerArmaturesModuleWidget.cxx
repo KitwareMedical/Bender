@@ -39,8 +39,9 @@
 #include <vtkStdString.h>
 
 // QSlicer includes
-#include <qSlicerIOManager.h>
 #include <qSlicerApplication.h>
+#include <qSlicerFileDialog.h>
+#include <qSlicerIOManager.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
@@ -163,6 +164,9 @@ void qSlicerArmaturesModuleWidgetPrivate
   // -- Armature Pose --
   QObject::connect(this->ArmatureFrameSliderWidget, SIGNAL(valueChanged(double)),
     this, SLOT(onFrameChanged(double)));
+
+  QObject::connect(this->ImportAnimationPushButton, SIGNAL(clicked()),
+    this, SLOT(onImportAnimationClicked()));
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -592,15 +596,26 @@ void qSlicerArmaturesModuleWidgetPrivate::onFrameChanged(double newFrame)
     return;
     }
 
-  vtkMRMLArmatureStorageNode* armatureStorageNode =
-    this->ArmatureNode->GetArmatureStorageNode();
-  if (!armatureStorageNode)
+  this->ArmatureNode->SetFrame(static_cast<unsigned int>(newFrame));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::onImportAnimationClicked()
+{
+  if (!this->ArmatureNode)
     {
     return;
     }
 
-  armatureStorageNode->SetFrame(
-    this->ArmatureNode, static_cast<unsigned int>(newFrame));
+  // open dialog with bvh file
+  qSlicerIO::IOProperties ioProperties;
+  ioProperties["targetArmature"] = this->ArmatureNode->GetID();
+  vtkNew<vtkCollection> nodes;
+  qSlicerApplication::application()->ioManager()->openDialog(
+    QString("ArmatureFile"),
+    qSlicerFileDialog::Read,
+    ioProperties,
+    nodes.GetPointer());
 }
 
 //-----------------------------------------------------------------------------
@@ -907,11 +922,8 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
     {
     armatureStorageNode = d->ArmatureNode->GetArmatureStorageNode();
     }
-  else
-    {
-    d->ArmatureFrameSliderWidget->setValue(0);
-    }
   d->ArmatureFrameSliderWidget->setEnabled(armatureStorageNode != 0);
+  d->ImportAnimationPushButton->setEnabled(d->ArmatureNode != 0);
 
   if (!d->ArmatureNode)
     {
@@ -929,6 +941,7 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
     d->ArmatureFrameSliderWidget->setMaximum(
       armatureStorageNode->GetNumberOfFrames() -1);
     }
+  d->ArmatureFrameSliderWidget->setValue(d->ArmatureNode->GetFrame());
 
   d->updateArmatureWidget(d->ArmatureNode);
 }

@@ -25,12 +25,14 @@
 #include <vtkStdString.h>
 
 // Slicer includes
-#include "vtkMRMLAnnotationNode.h"
+#include <vtkMRMLAnnotationNode.h>
+
+// Bender includes
+#include <vtkBoneWidget.h>
+#include <vtkQuaternion.h>
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
-#include "vtkBoneWidget.h"
-
 class vtkBoneRepresentation;
 class vtkCallbackCommand;
 class vtkMRMLBoneDisplayNode;
@@ -180,8 +182,8 @@ public:
   /// \sa GetWorldToParentPoseRotation(), SetWorldToParentPoseTranslation()
   void SetWorldToParentRestRotation(const double* rotation);
   void SetWorldToParentPoseRotation(const double* rotation);
-  double* GetWorldToParentRestRotation();
-  double* GetWorldToParentPoseRotation();
+  vtkQuaterniond GetWorldToParentRestRotation();
+  vtkQuaterniond GetWorldToParentPoseRotation();
 
   /// Set/Get the world to parent translations.
   /// \sa GetWorldToParentRestTranslation(), SetWorldToParentRestRotation()
@@ -193,8 +195,8 @@ public:
 
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
-  double* GetParentToBoneRestRotation();
-  double* GetParentToBonePoseRotation();
+  vtkQuaterniond GetParentToBoneRestRotation();
+  vtkQuaterniond GetParentToBonePoseRotation();
 
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestTranslation(), GetParentToBonePoseTranslation()
@@ -208,8 +210,8 @@ public:
   /// \sa GetWorldToBoneTailPoseTranslation()
   /// \sa GetWorldToBoneRestRotation()
   /// \sa GetWorldToBonePoseRotation()
-  double* GetWorldToBoneRestRotation();
-  double* GetWorldToBonePoseRotation();
+  vtkQuaterniond GetWorldToBoneRestRotation();
+  vtkQuaterniond GetWorldToBonePoseRotation();
 
   /// Get the world to bone rotations.
   /// \sa GetWorldToBoneHeadRestTranslation()
@@ -241,6 +243,13 @@ public:
   void RotateTailWithParentZ(double angle);
   void RotateTailWithParentWXYZ(double angle, double x, double y, double z);
   void RotateTailWithParentWXYZ(double angle, double axis[3]);
+
+  // Rotate the tail in the world coordinates system
+  void RotateTailWithWorldX(double angle);
+  void RotateTailWithWorldY(double angle);
+  void RotateTailWithWorldZ(double angle);
+  void RotateTailWithWorldWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithWorldWXYZ(double angle, double axis[3]);
 
   //--------------------------------------------------------------------------
   // Helper methods

@@ -89,6 +89,9 @@ public:
   vtkMRMLArmatureStorageNode* GetArmatureStorageNode();
   void SetArmatureStorageNode(vtkMRMLArmatureStorageNode* armatureStorageNode);
 
+  void SetFrame(unsigned int frame);
+  vtkGetMacro(Frame, unsigned int);
+
   //--------------------------------------------------------------------------
   // Annotation methods
   //--------------------------------------------------------------------------
@@ -274,6 +277,8 @@ protected:
   int WidgetState;
   int BonesRepresentationType;
   int ShouldResetPoseMode;
+
+  unsigned int Frame;
 };
 
 //----------------------------------------------------------------------------

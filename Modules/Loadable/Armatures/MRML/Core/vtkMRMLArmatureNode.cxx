@@ -112,6 +112,8 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
   this->Callback->SetCallback(MRMLArmatureNodeCallback);
   this->ArmatureProperties->AddObserver(vtkCommand::ModifiedEvent,
     this->Callback);
+
+  this->Frame = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -248,9 +250,28 @@ void vtkMRMLArmatureNode
     {
     return;
     }
+
+  if (!armatureStorageNode) // not a bvh file
+    {
+    this->Frame = 0;
+    }
+
   displayNode->SetAndObserveStorageNodeID(armatureStorageNode ?
     armatureStorageNode->GetID() : 0);
   this->Modified();
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureNode::SetFrame(unsigned int frame)
+{
+  vtkMRMLArmatureStorageNode* storageNode = this->GetArmatureStorageNode();
+  if (!storageNode || frame == this->Frame)
+    {
+    return;
+    }
+
+  this->Frame = frame;
+  storageNode->SetFrame(this, this->Frame);
 }
 
 //----------------------------------------------------------------------------

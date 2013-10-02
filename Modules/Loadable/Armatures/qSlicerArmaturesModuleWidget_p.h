@@ -98,6 +98,7 @@ protected slots:
   void onLinkedWithParentChanged(int linked);
 
   void onFrameChanged(double frame);
+  void onImportAnimationClicked();
 
 protected:
   // Select/Unselect the current bone node.

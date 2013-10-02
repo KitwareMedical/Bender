@@ -47,6 +47,8 @@ set(MODULE_INCLUDE_DIRECTORIES
 set(MODULE_SRCS
   qSlicerArmaturesIO.cxx
   qSlicerArmaturesIO.h
+  qSlicerArmaturesIOOptionsWidget.cxx
+  qSlicerArmaturesIOOptionsWidget.h
   qSlicerArmaturesModule.cxx
   qSlicerArmaturesModule.h
   qSlicerArmaturesModuleWidget.cxx
@@ -56,6 +58,7 @@ set(MODULE_SRCS
 
 set(MODULE_MOC_SRCS
   qSlicerArmaturesIO.h
+  qSlicerArmaturesIOOptionsWidget.h
   qSlicerArmaturesModule.h
   qSlicerArmaturesModuleWidget.h
   qSlicerArmaturesModuleWidget_p.h
@@ -63,6 +66,7 @@ set(MODULE_MOC_SRCS
 
 set(MODULE_UI_SRCS
   Resources/UI/qSlicerArmaturesModule.ui
+  Resources/UI/qSlicerArmaturesIOOptionsWidget.ui
   )
 
 set(MODULE_TARGET_LIBRARIES
