@@ -167,9 +167,6 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::createRendering(QString filename)
     this->RenderWindow->Render();
     this->Reader->GetArmature()->On();
 
-    this->Renderer->ResetCamera(
-      this->Reader->GetArmature()->GetPolyData()->GetBounds());
-
     this->FrameSliderWidget->setMaximum(this->Reader->GetNumberOfFrames() - 1);
     }
 }
@@ -273,6 +270,11 @@ void qSlicerArmaturesIOOptionsWidget::updateToolTip()
     }
 
   d->Reader->SetFrame(d->FrameSliderWidget->value());
+  if (d->Reader->GetArmature())
+    {
+    d->Renderer->ResetCamera(
+      d->Reader->GetArmature()->GetPolyData()->GetBounds());
+    }
 
   d->WindowToImageFilter->Modified(); // See vtkWindowToImageFilter
   d->WindowToImageFilter->Update();

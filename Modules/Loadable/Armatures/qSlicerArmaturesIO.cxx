@@ -173,10 +173,14 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
   reader->SetFrame(properties["frame"].toUInt());
   reader->GetArmature()->SetWidgetState(vtkArmatureWidget::Pose);
 
+  int mode = properties.contains("correspondenceMode") ?
+    properties["correspondenceMode"].toInt() :
+  qSlicerArmaturesIO::NameCorrespondence;
 
   CorrespondenceMap correspondence;
   bool foundCorrespondence =
-    this->getCorrespondenceMap(targetNode, reader->GetArmature(), correspondence);
+    this->getCorrespondenceMap(
+      mode, targetNode, reader->GetArmature(), correspondence);
   if (!foundCorrespondence)
     {
     qCritical()<<"Could find a correspondence between the target armature and"
@@ -188,6 +192,24 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
   int oldState = targetNode->GetWidgetState();
   targetNode->SetWidgetState(vtkMRMLArmatureNode::Pose);
 
+  // Set the animation root transform to whatever is the current rest
+  // to prevent aligning the target with the animation
+  vtkMRMLBoneNode* rootNode = correspondence.begin()->first;
+  vtkBoneWidget* root = correspondence.begin()->second;
+  assert(rootNode);
+  assert(root);
+
+  vtkQuaterniond resetAnimationRoot =
+    rootNode->GetWorldToBonePoseRotation() *
+    root->GetWorldToBonePoseRotation().Inverse();
+
+  double axis[3];
+  double angle = resetAnimationRoot.GetRotationAngleAndAxis(axis);
+  root->RotateTailWithWorldWXYZ(angle, axis);
+  // Bvh files look toward posterior while bender data looks toward anterior
+  // Let's flip it.
+  root->RotateTailWithWorldZ(vtkMath::RadiansFromDegrees(180.0));
+
   int i = 0;
   for (CorrespondenceMap::iterator it = correspondence.begin();
     it != correspondence.end(); ++it)
@@ -197,23 +219,11 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
     assert(boneNode);
     assert(bone);
 
-    // We have the rotation on the animation bone and we need to set it to
-    // the target bone.
-    vtkQuaterniond animation = bone->GetRestToPoseRotation();
+    vtkQuaterniond animateTargetRotation =
+      bone->GetParentToBonePoseRotation() *
+      boneNode->GetParentToBoneRestRotation().Inverse();
 
-    // First, we make the animation in the world basis.
-    vtkQuaterniond animatedWorldToParent = bone->GetWorldToParentRestRotation();
-    vtkQuaterniond worldAnimation =
-      animatedWorldToParent.Inverse() * animation * animatedWorldToParent;
-
-    // Then we change it to target basis
-    vtkQuaterniond targetWorldToParent = boneNode->GetWorldToParentRestRotation();
-    vtkQuaterniond targetAnimation =
-      targetWorldToParent * worldAnimation * targetWorldToParent.Inverse();
-    targetAnimation.Normalize();
-
-    double axis[3];
-    double angle = targetAnimation.GetRotationAngleAndAxis(axis);
+    angle = animateTargetRotation.GetRotationAngleAndAxis(axis);
     boneNode->RotateTailWithParentWXYZ(angle, axis);
     }
 
@@ -233,7 +243,8 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
 
 //-----------------------------------------------------------------------------
 bool qSlicerArmaturesIO
-::getCorrespondenceMap(vtkMRMLArmatureNode* armatureNode,
+::getCorrespondenceMap(int mode,
+                       vtkMRMLArmatureNode* armatureNode,
                        vtkArmatureWidget* armature,
                        CorrespondenceMap& correspondence)
 {
@@ -243,6 +254,28 @@ bool qSlicerArmaturesIO
     return false;
     }
 
+  switch (mode)
+    {
+    case qSlicerArmaturesIO::NameCorrespondence:
+      {
+      return this->getNameCorrespondenceMap(
+        armatureNode, armature, correspondence);
+      break;
+      }
+    default:
+      {
+      return false;
+      break;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerArmaturesIO
+::getNameCorrespondenceMap(vtkMRMLArmatureNode* armatureNode,
+                           vtkArmatureWidget* armature,
+                           CorrespondenceMap& correspondence)
+{
   vtkNew<vtkCollection> bones;
   armatureNode->GetAllBones(bones.GetPointer());
 

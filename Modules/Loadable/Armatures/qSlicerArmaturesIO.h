@@ -66,16 +66,28 @@ public:
   /// options
   virtual qSlicerIOOptions* options() const;
 
+  enum CorrespondenceType
+    {
+    NameCorrespondence = 0, // Assumes bones have the same names
+    // \todo add other correspondence
+    };
+
 protected:
   QScopedPointer<qSlicerArmaturesIOPrivate> d_ptr;
 
   bool importAnimationFromFile(const IOProperties& properties);
+
   typedef QPair<vtkMRMLBoneNode*, vtkBoneWidget*> CorrespondencePair;
   typedef QVector<CorrespondencePair> CorrespondenceMap;
+
   bool getCorrespondenceMap(
+    int mode,
     vtkMRMLArmatureNode* armatureNode, vtkArmatureWidget* armature,
     CorrespondenceMap& correspondence);
 
+  bool getNameCorrespondenceMap(vtkMRMLArmatureNode* armatureNode,
+                                vtkArmatureWidget* armature,
+                                CorrespondenceMap& correspondence);
 private:
   Q_DECLARE_PRIVATE(qSlicerArmaturesIO);
   Q_DISABLE_COPY(qSlicerArmaturesIO);
