@@ -26,6 +26,7 @@ include(BenderMacroSimpleTest)
 
 set(TEST_NAMES_CXX
     vtkBVHReaderTest.cxx
+    vtkBVHReaderTestWithInitialTransform.cxx
     )
 
 set(TEST_EXEC_NAME ${PROJECT_NAME}CxxTests)
@@ -40,3 +41,4 @@ target_link_libraries(${TEST_EXEC_NAME} ${PROJECT_NAME})
 
 set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkBVHReaderTest ${${PROJECT_NAME}_DATA_DIR})
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBVHReaderTestWithInitialTransform ${${PROJECT_NAME}_DATA_DIR})

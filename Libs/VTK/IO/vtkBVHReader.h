@@ -49,6 +49,7 @@
 
 class vtkArmatureWidget;
 class vtkBoneWidget;
+class vtkTransform;
 
 class VTK_BENDER_IO_EXPORT vtkBVHReader : public vtkPolyDataAlgorithm
 {
@@ -112,6 +113,17 @@ public:
   vtkQuaterniond GetParentToBoneRotation(
     unsigned int frame, unsigned int boneId);
 
+  // Description:
+  // Set/Get the initial rotation applied to the armature read.
+  // This will transform the initially obtained data. If the file has already
+  // been read, changing the transform will invalid the reader, causing a new
+  // reading on update. This is useful as the BVH files usually have Y as up.
+  // Only the rotation of the given transform will be used. Any translation
+  // will be ignored.
+  // Default rotation is 90 on X then 180 on Z.
+  void SetInitialRotation(vtkTransform* transform);
+  vtkTransform* GetInitialRotation() const;
+
 protected:
   vtkBVHReader();
   ~vtkBVHReader();
@@ -124,6 +136,7 @@ protected:
   bool LinkToFirstChild;
   unsigned int NumberOfFrames;
   double FrameRate;
+  vtkTransform* InitialRotation;
 
   virtual int RequestData(
     vtkInformation*, vtkInformationVector**, vtkInformationVector*);
@@ -147,6 +160,9 @@ protected:
   FramesList Frames;
 
   void InvalidReader();
+
+  double* TransformPoint(double point[3]) const;
+  void TransformPoint(double point[3], double newPoint[3]) const;
 
 private:
   vtkBVHReader(const vtkBVHReader&);  // Not implemented.

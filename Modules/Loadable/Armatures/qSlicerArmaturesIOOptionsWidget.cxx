@@ -44,6 +44,7 @@
 #include <qSlicerWidget.h>
 
 // VTK includes
+#include <vtkCamera.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
@@ -143,6 +144,8 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::createRendering(QString filename)
 
   this->RenderWindow->AddRenderer(this->Renderer);
   this->RenderWindowInteractor->SetRenderWindow(this->RenderWindow);
+
+  this->Renderer->GetActiveCamera()->SetPosition(0.0, 1.0, 0.0);
 
   this->WindowToImageFilter = vtkWindowToImageFilter::New();
   this->WindowToImageFilter->SetInput(this->RenderWindow);

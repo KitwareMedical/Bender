@@ -29,6 +29,7 @@
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
+#include <vtkTransform.h>
 
 //----------------------------------------------------------------------------
 namespace
@@ -291,6 +292,9 @@ int vtkBVHReaderTest(int argc, char* argv[])
     }
 
   reader->SetFileName(bvhFilename.c_str());
+  vtkNew<vtkTransform> identity;
+  reader->SetInitialRotation(identity.GetPointer());
+
   reader->Update();
   if (!reader->GetOutput())
     {

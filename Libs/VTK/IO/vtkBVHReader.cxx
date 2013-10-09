@@ -164,7 +164,8 @@ GetBoneName(const std::string& line, std::string keyword = "JOINT")
 vtkQuaterniond GetParentToBoneRotation(
   std::vector<double>::const_iterator& valueIterator,
   std::vector<std::string> channel,
-  vtkBoneWidget* bone)
+  vtkBoneWidget* bone,
+  vtkQuaterniond& initialRotation)
 {
   // /!\ Ignore any translation
   // \todo (?) Stop ignoring translations
@@ -196,6 +197,10 @@ vtkQuaterniond GetParentToBoneRotation(
       }
     }
 
+  // First put the rotation in the initial transform world
+  rotation = initialRotation * rotation * initialRotation.Inverse();
+
+  // then in the world's coordinates
   vtkQuaterniond worldToParentRest = bone->GetWorldToParentRestRotation();
   vtkQuaterniond parentToWorldRest = worldToParentRest.Inverse();
   return (parentToWorldRest * rotation * worldToParentRest).Normalized();
@@ -206,14 +211,16 @@ void
 GetParentToBoneRotations(std::vector<double>& values,
                          std::vector< std::vector<std::string> >& channels,
                          std::vector<vtkQuaterniond>& rotations,
-                         std::vector<vtkBoneWidget*>& bones)
+                         std::vector<vtkBoneWidget*>& bones,
+                         vtkQuaterniond& initialRotation)
 {
   std::vector<double>::const_iterator valueIterator = values.begin();
   assert(channels.size() == bones.size());
   for (int i = 0; i < channels.size(); ++i)
     {
     rotations.push_back(
-      GetParentToBoneRotation(valueIterator, channels[i], bones[i]));
+      GetParentToBoneRotation(
+        valueIterator, channels[i], bones[i], initialRotation));
     }
 }
 
@@ -232,6 +239,9 @@ vtkBVHReader::vtkBVHReader()
   this->NumberOfFrames = 0;
   this->FrameRate = 0;
   this->LinkToFirstChild = false;
+  this->InitialRotation = vtkTransform::New();
+  this->InitialRotation->RotateZ(180.0);
+  this->InitialRotation->RotateX(90.0);
 
   this->SetNumberOfInputPorts(0);
 }
@@ -239,6 +249,7 @@ vtkBVHReader::vtkBVHReader()
 //----------------------------------------------------------------------------
 vtkBVHReader::~vtkBVHReader()
 {
+  this->InitialRotation->Delete();
   if (this->Armature)
     {
     this->Armature->Delete();
@@ -314,7 +325,6 @@ int vtkBVHReader::RequestData(vtkInformation *vtkNotUsed(request),
   if (!this->Armature)
     {
     this->Armature = vtkArmatureWidget::New();
-
     if (this->FileName == "")
       {
       vtkErrorMacro("A file name must be specified.");
@@ -397,6 +407,7 @@ void vtkBVHReader::ParseEndSite(std::ifstream& file, size_t parentId)
       // Offset is always set for the previous bone
       double pos[3];
       GetOffset(line, pos);
+      this->TransformPoint(pos, pos);
 
       vtkBoneWidget* bone = this->Bones[parentId];
 
@@ -427,6 +438,7 @@ void vtkBVHReader
       {
       double pos[3];
       GetOffset(line, pos);
+      this->TransformPoint(pos, pos);
       if (parentId == -1) // for root
         {
         this->Bones.front()->SetWorldHeadRest(pos);
@@ -525,6 +537,13 @@ void vtkBVHReader
 
   this->Armature->SetWidgetState(vtkArmatureWidget::Pose);
 
+  double wxyz[4];
+  this->InitialRotation->GetOrientationWXYZ(wxyz);
+
+  vtkQuaterniond InitialRotation;
+  InitialRotation.SetRotationAngleAndAxis(
+    vtkMath::RadiansFromDegrees(wxyz[0]), wxyz[1], wxyz[2], wxyz[3]);
+
   while (std::getline(file, line))
     {
     std::string keyword = MoveToNextKeyword(file, line);
@@ -544,7 +563,7 @@ void vtkBVHReader
 
       this->Frames.push_back(std::vector<vtkQuaterniond>());
       GetParentToBoneRotations(
-        values, channels, this->Frames.back(), this->Bones);
+        values, channels, this->Frames.back(), this->Bones, InitialRotation);
       }
     }
 }
@@ -600,6 +619,30 @@ vtkQuaterniond vtkBVHReader
 ::GetParentToBoneRotation(unsigned int frame, unsigned int boneId)
 {
   return this->Frames[frame][boneId];
+}
+
+//----------------------------------------------------------------------------
+void vtkBVHReader::SetInitialRotation(vtkTransform* transform)
+{
+  if (!transform || transform == this->InitialRotation)
+    {
+    return;
+    }
+
+  double wxyz[4];
+  transform->GetOrientationWXYZ(wxyz);
+
+  this->InitialRotation->Identity();
+  this->InitialRotation->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
+
+  this->RestArmatureIsValid = false;
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
+vtkTransform* vtkBVHReader::GetInitialRotation() const
+{
+  return this->InitialRotation;
 }
 
 //----------------------------------------------------------------------------
@@ -700,11 +743,11 @@ int vtkBVHReader::CanReadFile(const char *filename)
 //----------------------------------------------------------------------------
 void vtkBVHReader::InvalidReader()
 {
-  this->FileName = "";
   this->RestArmatureIsValid = false;
   if (this->Armature)
     {
     this->Armature->Delete();
+    this->Armature = NULL;
     }
 
   this->Frames.clear();
@@ -714,6 +757,22 @@ void vtkBVHReader::InvalidReader()
   this->NumberOfFrames = 0;
   this->FrameRate = 0;
   this->LinkToFirstChild = false;
+}
+
+//----------------------------------------------------------------------------
+double* vtkBVHReader::TransformPoint(double point[3]) const
+{
+  return this->InitialRotation->TransformDoublePoint(point);
+}
+
+//----------------------------------------------------------------------------
+void vtkBVHReader::TransformPoint(double point[3], double newPoint[3]) const
+{
+  double* p = this->TransformPoint(point);
+  for (int i = 0; i < 3; ++i)
+    {
+    newPoint[i] = p[i];
+    }
 }
 
 //----------------------------------------------------------------------------

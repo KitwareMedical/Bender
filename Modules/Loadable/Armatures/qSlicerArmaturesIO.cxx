@@ -192,24 +192,6 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
   int oldState = targetNode->GetWidgetState();
   targetNode->SetWidgetState(vtkMRMLArmatureNode::Pose);
 
-  // Set the animation root transform to whatever is the current rest
-  // to prevent aligning the target with the animation
-  vtkMRMLBoneNode* rootNode = correspondence.begin()->first;
-  vtkBoneWidget* root = correspondence.begin()->second;
-  assert(rootNode);
-  assert(root);
-
-  vtkQuaterniond resetAnimationRoot =
-    rootNode->GetWorldToBonePoseRotation() *
-    root->GetWorldToBonePoseRotation().Inverse();
-
-  double axis[3];
-  double angle = resetAnimationRoot.GetRotationAngleAndAxis(axis);
-  root->RotateTailWithWorldWXYZ(angle, axis);
-  // Bvh files look toward posterior while bender data looks toward anterior
-  // Let's flip it.
-  root->RotateTailWithWorldZ(vtkMath::RadiansFromDegrees(180.0));
-
   int i = 0;
   for (CorrespondenceMap::iterator it = correspondence.begin();
     it != correspondence.end(); ++it)
@@ -223,7 +205,8 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
       bone->GetParentToBonePoseRotation() *
       boneNode->GetParentToBoneRestRotation().Inverse();
 
-    angle = animateTargetRotation.GetRotationAngleAndAxis(axis);
+    double axis[3];
+    double angle = animateTargetRotation.GetRotationAngleAndAxis(axis);
     boneNode->RotateTailWithParentWXYZ(angle, axis);
     }
 
