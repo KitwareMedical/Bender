@@ -452,6 +452,14 @@ public:
   // Note: The representation type (if any) is left unchanged.
   void DeepCopy(vtkBoneWidget* other);
 
+  // Description:
+  // Returns the rotation between the reference axis and
+  // the given axis.
+  static vtkQuaterniond RotationFromReferenceAxis(
+    double referenceAxis[3], double axis[3]);
+  static vtkQuaterniond RotationFromReferenceAxis(
+    double referenceAxis[3], double head[3], double tail[3]);
+
 protected:
   vtkBoneWidget();
   ~vtkBoneWidget();

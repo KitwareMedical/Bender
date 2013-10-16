@@ -1657,7 +1657,25 @@ void vtkBoneWidget::RebuildParentToBoneRestRotation()
 //----------------------------------------------------------------------------
 void vtkBoneWidget::RebuildWorldToBoneRestRotation()
 {
-  this->WorldToBoneRestRotation = this->ComputeRotationFromReferenceAxis(Y);
+  double y[3] = {0.0, 1.0, 0.0};
+  this->WorldToBoneRestRotation =
+    vtkBoneWidget::RotationFromReferenceAxis(
+      y, this->WorldHeadRest, this->WorldTailRest);
+
+  if (this->Roll != 0.0)
+    {
+    double axis[3];
+    this->WorldToBoneRestRotation.GetRotationAngleAndAxis(axis);
+
+    // Get the roll matrix.
+    vtkQuaterniond rollQuad;
+    rollQuad.SetRotationAngleAndAxis(this->Roll, axis);
+    rollQuad.Normalize();
+
+    // Get final matrix.
+    this->WorldToBoneRestRotation = rollQuad * this->WorldToBoneRestRotation;
+    this->WorldToBoneRestRotation.Normalize();
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -1689,96 +1707,77 @@ void vtkBoneWidget::RebuildWorldToBonePoseTranslations()
 
 //----------------------------------------------------------------------------
 vtkQuaterniond vtkBoneWidget
-::ComputeRotationFromReferenceAxis(const double* axis)
+::RotationFromReferenceAxis(double referenceAxis[3], double axis[3])
 {
   vtkQuaterniond newOrientation;
   // Code greatly inspired by: http://www.fastgraph.com/makegames/3drotation/ .
 
-  double viewOut[3]; // The View or "new Z" vector.
-  double viewUp[3]; // The Up or "new Y" vector.
-  double viewRight[3]; // The Right or "new X" vector.
-
-  double upMagnitude; // For normalizing the Up vector.
-  double upProjection; // Magnitude of projection of View Vector on World UP.
-
-  // First: calculate and normalize the view vector.
-  vtkMath::Subtract(this->WorldTailRest, this->WorldHeadRest, viewOut);
-
   // Normalize. This is the unit vector in the "new Z" direction.
-  if (vtkMath::Normalize(viewOut) < 0.0000001)
+  const double epsilon = 1e-6;
+  if (vtkMath::Normalize(referenceAxis) < epsilon
+    || vtkMath::Normalize(axis) < epsilon)
     {
-    vtkErrorMacro("Tail and Head are not enough apart,"
-      " could not rebuild rest Transform");
     return newOrientation;
     }
 
-  // Now the hard part: The ViewUp or "new Y" vector.
-
-  // The dot product of ViewOut vector and World Up vector gives projection of
-  // of ViewOut on WorldUp.
-  upProjection = vtkMath::Dot(viewOut, axis);
+  // The dot product of axis and the referenceAxis gives projection of
+  // of axis on referenceAxis.
+  double projection = vtkMath::Dot(axis, referenceAxis);
 
   // First try at making a View Up vector: use World Up.
-  viewUp[0] = Y[0] - upProjection*viewOut[0];
-  viewUp[1] = Y[1] - upProjection*viewOut[1];
-  viewUp[2] = Y[2] - upProjection*viewOut[2];
+  double viewUp[3];
+  viewUp[0] = referenceAxis[0] - projection*axis[0];
+  viewUp[1] = referenceAxis[1] - projection*axis[1];
+  viewUp[2] = referenceAxis[2] - projection*axis[2];
 
   // Check for validity:
-  upMagnitude = vtkMath::Norm(viewUp);
-
-  if (upMagnitude < 0.0000001)
+  double magnitude = vtkMath::Normalize(viewUp);
+  if (magnitude < epsilon)
     {
-    // Second try at making a View Up vector: Use Y axis default  (0,1,0).
-    viewUp[0] = -viewOut[1]*viewOut[0];
-    viewUp[1] = 1-viewOut[1]*viewOut[1];
-    viewUp[2] = -viewOut[1]*viewOut[2];
+    // Second try: Use Y axis default  (0,1,0).
+    viewUp[0] = -axis[1]*axis[0];
+    viewUp[1] = 1-axis[1]*axis[1];
+    viewUp[2] = -axis[1]*axis[2];
 
     // Check for validity:
-    upMagnitude = vtkMath::Norm(viewUp);
+    magnitude = vtkMath::Normalize(viewUp);
 
-    if (upMagnitude < 0.0000001)
+    if (magnitude < epsilon)
       {
-      // Final try at making a View Up vector: Use Z axis default  (0,0,1).
-      viewUp[0] = -viewOut[2]*viewOut[0];
-      viewUp[1] = -viewOut[2]*viewOut[1];
-      viewUp[2] = 1-viewOut[2]*viewOut[2];
+      // Final try: Use Z axis default  (0,0,1).
+      viewUp[0] = -axis[2]*axis[0];
+      viewUp[1] = -axis[2]*axis[1];
+      viewUp[2] = 1-axis[2]*axis[2];
 
       // Check for validity:
-      upMagnitude = vtkMath::Norm(viewUp);
+      magnitude = vtkMath::Normalize(viewUp);
 
-      if (upMagnitude < 0.0000001)
+      if (magnitude < epsilon)
         {
-        vtkErrorMacro("Could not fin a vector perpendiculare to the bone,"
-          " check the bone values. This should not be happening.");
         return newOrientation;
         }
       }
     }
 
-  // Normalize the Up Vector.
-  upMagnitude = vtkMath::Normalize(viewUp);
-
-  // Calculate the Right Vector. Use cross product of Out and Up.
-  vtkMath::Cross(viewUp, viewOut,  viewRight);
+  // Calculate the Right vector. Use cross product of axis and Up.
+  double viewRight[3];
+  vtkMath::Cross(viewUp, axis, viewRight);
   vtkMath::Normalize(viewRight); //Let's be paranoid about the normalization.
 
   // Get the rest transform matrix.
-  newOrientation.SetRotationAngleAndAxis(acos(upProjection), viewRight);
-  newOrientation.Normalize();
+  newOrientation.SetRotationAngleAndAxis(acos(projection), viewRight);
+  return newOrientation.Normalized();
+}
 
-  if (this->Roll != 0.0)
-    {
-    // Get the roll matrix.
-    vtkQuaterniond rollQuad;
-    rollQuad.SetRotationAngleAndAxis(this->Roll, viewOut);
-    rollQuad.Normalize();
-
-    // Get final matrix.
-    newOrientation = rollQuad * newOrientation;
-    newOrientation.Normalize();
-    }
-
-  return newOrientation;
+//----------------------------------------------------------------------------
+vtkQuaterniond vtkBoneWidget
+::RotationFromReferenceAxis(double referenceAxis[3],
+                            double head[3],
+                            double tail[3])
+{
+  double axis[3];
+  vtkMath::Subtract(tail, head, axis);
+  return RotationFromReferenceAxis(referenceAxis, axis);
 }
 
 //----------------------------------------------------------------------------
