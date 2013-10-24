@@ -17,7 +17,9 @@
 # limitations under the License.
 #
 #============================================================================
-
+#
+# This should be in the order of the dependencies
+#
 add_subdirectory(Common)
 add_subdirectory(Filters/Sources)
 add_subdirectory(Widgets)

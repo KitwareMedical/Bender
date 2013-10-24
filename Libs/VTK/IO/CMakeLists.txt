@@ -46,6 +46,8 @@ include_directories(
   )
 
 set(${KIT}_SRCS
+  vtkArmatureReader.cxx
+  vtkArmatureReader.h
   vtkBVHReader.cxx
   vtkBVHReader.h
   )

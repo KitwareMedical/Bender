@@ -259,7 +259,8 @@ vtkBVHReader::~vtkBVHReader()
 //----------------------------------------------------------------------------
 void vtkBVHReader::SetFileName(const char* filename)
 {
-  if (this->FileName == filename)
+  if (!filename && this->FileName == ""
+    || filename && strcmp(this->FileName.c_str(), filename) == 0)
     {
     return;
     }
