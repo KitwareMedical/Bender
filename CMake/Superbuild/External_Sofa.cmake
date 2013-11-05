@@ -61,8 +61,8 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    GIT_REPOSITORY "git@github.com:ricortiz/SOFA.git"
-    GIT_TAG "60bad2f46ecf8a749246fd083278b293f264a22f"
+    GIT_REPOSITORY "git@github.com:ricortiz/Bender-SOFA.git"
+    GIT_TAG "9ec8cc4fc1cdab28a4791eae57112f40cb19e48c"
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
