@@ -71,10 +71,13 @@ if(NOT DEFINED ${proj}_DIR)
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     DEPENDS
       ${${proj}_DEPENDENCIES}
+    STEP_TARGETS ${proj}_Pass2
     )
 
    ExternalProject_Add_Step(${proj} ${proj}_Pass2
     COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}/${proj}
+    DEPENDEES configure
+    DEPENDERS build
     COMMENT "Configuring SOFA, second pass."
     WORKING_DIRECTORY ${${proj}_DIR}
    )
