@@ -27,6 +27,7 @@ set(modules
   EvalSurfaceWeight
   PoseSurface
   PoseLabelmap
+  SimulatePose
   )
 
 set(Bender_MODULES)

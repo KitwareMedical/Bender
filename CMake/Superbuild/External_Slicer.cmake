@@ -41,7 +41,7 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3&&SOFA")
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -78,8 +78,8 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
-    GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
-    GIT_TAG "dabe11290061a89345e870df0dee6e3fd606d873"
+    GIT_REPOSITORY "git@github.com:ricortiz/Bender-Slicer.git"
+    GIT_TAG "2dda1c2198b7de3db1dbe04882c1b791f2635f8e"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}

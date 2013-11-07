@@ -21,7 +21,7 @@
 #
 # Sofa
 #
-set(proj Sofa)
+set(proj SOFA)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -41,6 +41,17 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
 
+# FindCUDA
+set(SOFA_CUDA_ARGS)
+find_package(CUDA QUIET)
+if(CUDA_FOUND)
+  set(SOFA_CUDA_ARGS 
+    -DSOFA-PLUGIN_SOFACUDA:BOOL=ON
+    -DCUDA_TOOLKIT_ROOT_DIR:PATH=${CUDA_TOOLKIT_ROOT_DIR}
+  )
+endif(CUDA_FOUND)
+
+
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 set(proj ${${proj_filename}_proj})
@@ -56,31 +67,29 @@ if(NOT DEFINED ${proj}_DIR)
       -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
   endif()
-
+  
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "git@github.com:ricortiz/Bender-SOFA.git"
-    GIT_TAG "9ec8cc4fc1cdab28a4791eae57112f40cb19e48c"
-    UPDATE_COMMAND ""
+    GIT_TAG "4fe7e41c16661dfdeed09250e5a8128709a43ca7"
     INSTALL_COMMAND ""
+    UPDATE_COMMAND ""
     CMAKE_GENERATOR ${gen}
     LIST_SEPARATOR &&
     CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DPRECONFIGURE_DONE:BOOL=ON
+      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+      -DSOFA-EXTERNAL_FREEGLUT:BOOL=ON
+      -DSOFA-LIB_SIMULATION_GRAPH_DAG:BOOL=ON
+      ${SOFA_CUDA_ARGS}
     DEPENDS
       ${${proj}_DEPENDENCIES}
-    STEP_TARGETS ${proj}_Pass2
     )
 
-   ExternalProject_Add_Step(${proj} ${proj}_Pass2
-    COMMAND ${CMAKE_COMMAND} ${CMAKE_BINARY_DIR}/${proj}
-    DEPENDEES configure
-    DEPENDERS build
-    COMMENT "Configuring SOFA, second pass."
-    WORKING_DIRECTORY ${${proj}_DIR}
-   )
 
 else()
   # The project is provided using ${proj}_DIR, nevertheless since other project may depend on ${proj},
