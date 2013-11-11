@@ -168,16 +168,16 @@ public:
   //ETX
 
   // Description:
-  // Set/Get the widget state.
+  // Set/Get the widget state. The previous state is returned
   // Rest Mode:  The bone can be moved and rescaled.
   // Pose Mode:  The bone can only be rotated.
   // Start mode and define mode can only be achieved when creating a
   // new bone and interactively placing its points.
   // @sa WidgetStateType()
   vtkGetMacro(WidgetState, int);
-  void SetWidgetState(int state);
-  void SetWidgetStateToRest();
-  void SetWidgetStateToPose();
+  int SetWidgetState(int state);
+  int SetWidgetStateToRest();
+  int SetWidgetStateToPose();
 
   // Description
   // Set/Get the roll angle, in radians (0.0 by default). The roll is
@@ -349,6 +349,14 @@ public:
   // Get the distance between the current head and tail.
   double GetLength();
 
+  // Description:
+  // For Rest mode ONLY.
+  // Set the tail's position along the head-tail axis.
+  // If the widget is in pose mode, the transform is automatically applied to
+  // the bone's rest and the bone is then returned to pose mode. This is a
+  // no-op in any PlaceHead or PlaceTail mode.
+  void SetLength(double size);
+
   // Description
   // Set/get if the debug axes are visible or not.
   // Nothing:  Show nothing
@@ -418,6 +426,50 @@ public:
   void RotateTailWithParentZ(double angle);
   void RotateTailWithParentWXYZ(double angle, double x, double y, double z);
   void RotateTailWithParentWXYZ(double angle, double axis[3]);
+
+  // Description:
+  // For Rest mode ONLY.
+  // Scale the whole bone by the given factor. This will move bone's
+  // head and tail.
+  // If the widget is in pose mode, the transform is automatically applied to
+  // the bone's rest and the bone is then returned to pose mode. This is a
+  // no-op in any PlaceHead or PlaceTail mode.
+  // \sa Translate(), RotateWXYZ(), Transform().
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Description:
+  // Translate the whole bone to the new position. This will move bone's
+  // head and tail.
+  // If the widget is in pose mode, the transform is automatically applied to
+  // the bone's rest and the bone is then returned to pose mode. This is a
+  // no-op in any PlaceHead or PlaceTail mode.
+  // \sa Scale(), RotateWXYZ(), Transform().
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Description:
+  // Rotate the whole bone. This will move bone's head and tail.
+  // Angle is in degrees and XYZ refer to world's XYZ.
+  // If the widget is in pose mode, the transform is automatically applied to
+  // the bone's rest and the bone is then returned to pose mode. This is a
+  // no-op in any PlaceHead or PlaceTail mode.
+  // \sa Translate(), Scale(), Transform().
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Description:
+  // Apply the given transformation to the bone armature.
+  // It does nothing if the given transform is null.
+  // If the widget is in pose mode, the transform is automatically applied to
+  // the bone's rest and the bone is then returned to pose mode. This is a
+  // no-op in any PlaceHead or PlaceTail mode.
+  // \sa Scale(), Translate(), RotateWXYZ(), Transform().
+  void Transform(vtkTransform* t);
 
   // Description
   // Show/Hide the link between a child's head an its parent origin.
@@ -496,7 +548,7 @@ protected:
   int GetSelectedStateFromInteractionState(int interactionState);
   vtkAbstractWidget* GetHandleFromInteractionState(int state);
   vtkWidgetRepresentation* GetSelectedRepresentation();
-  void SetWidgetStateInternal(int state);
+  int SetWidgetStateInternal(int state);
 
   // Warning, the new tail shouldn't change the length of the bone.
   void SetWorldTailPose(double tail[3]);

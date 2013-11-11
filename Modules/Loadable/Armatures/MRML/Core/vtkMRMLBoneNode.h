@@ -251,6 +251,28 @@ public:
   void RotateTailWithWorldWXYZ(double angle, double x, double y, double z);
   void RotateTailWithWorldWXYZ(double angle, double axis[3]);
 
+  // Scale the bone in Rest mode.
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Translate the bone in Rest mode.
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Rotate the bone in Rest mode.
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Transform the bone in Rest mode.
+  void Transform(vtkTransform* t);
+
+  // Set the bone's length in Rest mode.
+  void SetLength(double size);
+
   //--------------------------------------------------------------------------
   // Helper methods
   //--------------------------------------------------------------------------

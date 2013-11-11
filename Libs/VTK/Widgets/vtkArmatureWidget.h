@@ -182,11 +182,12 @@ public:
   bool AreBonesParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
 
   // Description:
-  // Returns the bone's children if the bone has any and it belongs
-  // to the armature.
-  // The user is responsible for deleting the returned collection.
+  // Returns the bone's direct children if the bone has any and it belongs
+  // to the armature. If recursive is true, then this returns all the children
+  // (direct and indirect) of the bone.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
+  void FindBoneChildren(
+    vtkCollection* children, vtkBoneWidget* parent, bool recursive = false);
 
   // Description:
   // Returns whether or not the number of children the bone has.
@@ -242,9 +243,9 @@ public:
   //ETX
 
   // Description:
-  // Set/Get the bones widget state.
+  // Set/Get the bones widget state. The previous state is returned
   // @sa vtkBoneWidget
-  void SetWidgetState(int state);
+  int SetWidgetState(int state);
   vtkGetMacro(WidgetState, int);
 
   // Description:
@@ -317,6 +318,14 @@ public:
   void GetAllBones(vtkCollection* bones, vtkBoneWidget* root = 0);
 
   // Description:
+  // Return the first root found (if any)
+  vtkBoneWidget* GetRoot();
+
+  // Description:
+  // Return the top-level bones.
+  void GetRoots(vtkCollection* roots);
+
+  // Description:
   // Scale the rest armature by the given factor.
   // \sa Translate(), RotateWXYZ(), Transform().
   void Scale(double factor);
@@ -361,7 +370,7 @@ protected:
   // Top level bone tree
   typedef std::vector<vtkBoneWidget*> BoneVectorType;
   typedef BoneVectorType::iterator BoneVectorIterator;
-  std::vector<vtkBoneWidget*> TopLevelBones;
+  BoneVectorType TopLevelBones;
 
   // Bone Properties
   vtkBoneRepresentation* BonesRepresentation;
@@ -425,6 +434,7 @@ protected:
   // Init function to add the necesseray arrays to the armature.
   void AddArmatureArrays();
 
+  // Depth first searched to add the parent's children to the given
   // annotation
   void AddChildrenToCollectionRecursively(
     vtkCollection* collection, vtkBoneWidget* parent);

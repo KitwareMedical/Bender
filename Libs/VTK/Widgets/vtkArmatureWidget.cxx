@@ -648,9 +648,14 @@ bool vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
-vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
+void vtkArmatureWidget::FindBoneChildren(vtkCollection* children,
+                                         vtkBoneWidget* parent,
+                                         bool recursive)
 {
-  vtkCollection* children = vtkCollection::New();
+  if (!children)
+    {
+    return;
+    }
 
   ArmatureTreeNode* node = this->GetNode(parent);
   if (node)
@@ -659,10 +664,12 @@ vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
       it != node->Children.end(); ++it)
       {
       children->AddItem((*it)->Bone);
+      if (recursive)
+        {
+        this->FindBoneChildren(children, (*it)->Bone, recursive);
+        }
       }
     }
-
-  return children;
 }
 
 //----------------------------------------------------------------------------
@@ -899,8 +906,7 @@ void vtkArmatureWidget::ResetPoseToRest()
 {
   this->ShouldResetPoseToRest = true;
 
-  int oldState = this->WidgetState;
-  this->SetWidgetState(vtkArmatureWidget::Rest);
+  int oldState = this->SetWidgetState(vtkArmatureWidget::Rest);
   this->SetWidgetState(vtkArmatureWidget::Pose);
   this->SetWidgetState(oldState);
 }
@@ -1161,7 +1167,7 @@ void vtkArmatureWidget::Translate(double x, double y, double z)
   translation[0] = x;
   translation[1] = y;
   translation[2] = z;
-  this->Translate(factors);
+  this->Translate(translation);
 }
 
 //----------------------------------------------------------------------------
@@ -1216,8 +1222,7 @@ void vtkArmatureWidget::Transform(vtkTransform* transform)
     return;
     }
 
-  int oldState = this->GetWidgetState();
-  this->SetWidgetState(vtkArmatureWidget::Rest);
+  int oldState = this->SetWidgetState(vtkArmatureWidget::Rest);
 
   for (BoneVectorType::iterator topLevel = this->TopLevelBones.begin();
     topLevel != this->TopLevelBones.end(); ++topLevel)
@@ -1339,11 +1344,32 @@ void vtkArmatureWidget::GetAllBones(vtkCollection* bones, vtkBoneWidget* root)
 
   if (!root)
     {
-    root = this->TopLevelBones.front();
+    root = this->GetRoot();
     }
 
   bones->AddItem(root);
   this->AddChildrenToCollectionRecursively(bones, root);
+}
+
+//-----------------------------------------------------------------------------
+vtkBoneWidget* vtkArmatureWidget::GetRoot()
+{
+  return this->TopLevelBones.front();
+}
+
+//-----------------------------------------------------------------------------
+void vtkArmatureWidget::GetRoots(vtkCollection* roots)
+{
+  if (!roots)
+    {
+    return;
+    }
+
+  for (BoneVectorIterator it = this->TopLevelBones.begin();
+      it != this->TopLevelBones.end(); ++it)
+    {
+    roots->AddItem(*it);
+    }
 }
 
 //----------------------------------------------------------------------------

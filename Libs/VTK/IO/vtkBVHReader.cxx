@@ -660,7 +660,8 @@ void vtkBVHReader::UnlinkBonesFromFirstChild()
   for (BonesList::iterator it = this->Bones.begin();
     it != this->Bones.end(); ++it)
     {
-    vtkCollection* children = this->Armature->FindBoneChildren(*it);
+    vtkNew<vtkCollection> children;
+    this->Armature->FindBoneChildren(children.GetPointer(), *it);
     if (children->GetNumberOfItems() > 1)
       {
       double tail[3] = {0.0, 0.0, 0.0};
@@ -682,8 +683,6 @@ void vtkBVHReader::UnlinkBonesFromFirstChild()
       vtkMath::MultiplyScalar(tail, 1.0 / children->GetNumberOfItems());
       (*it)->SetWorldTailRest(tail);
       }
-
-    children->Delete();
     }
 
   this->Armature->SetWidgetState(oldState);
@@ -703,7 +702,8 @@ void vtkBVHReader::LinkBonesToFirstChild()
   for (BonesList::iterator it = this->Bones.begin();
     it != this->Bones.end(); ++it)
     {
-    vtkCollection* children = this->Armature->FindBoneChildren(*it);
+    vtkNew<vtkCollection> children;
+    this->Armature->FindBoneChildren(children.GetPointer(), *it);
     if (children->GetNumberOfItems() > 1)
       {
       vtkBoneWidget* child =
@@ -716,8 +716,6 @@ void vtkBVHReader::LinkBonesToFirstChild()
 
       this->Armature->SetBoneLinkedWithParent(child, true);
       }
-
-    children->Delete();
     }
 
   this->Armature->SetWidgetState(oldState);

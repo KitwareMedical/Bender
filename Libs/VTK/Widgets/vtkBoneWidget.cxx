@@ -35,6 +35,7 @@
 #include <vtkLineWidget2.h>
 #include <vtkMath.h>
 #include <vtkMatrix3x3.h>
+#include <vtkNew.h>
 #include <vtkObjectFactory.h>
 #include <vtkPointHandleRepresentation3D.h>
 #include <vtkProperty.h>
@@ -347,20 +348,20 @@ void vtkBoneWidget::SetProcessEvents(int pe)
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetWidgetState(int state)
+int vtkBoneWidget::SetWidgetState(int state)
 {
-  this->SetWidgetStateInternal(
+  return this->SetWidgetStateInternal(
     std::max(vtkBoneWidget::PlaceHead,
     std::min(static_cast<vtkBoneWidget::WidgetStateType>(state),
     vtkBoneWidget::Pose)));
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetWidgetStateInternal(int state)
+int vtkBoneWidget::SetWidgetStateInternal(int state)
 {
   if (state == this->WidgetState)
     {
-    return;
+    return this->WidgetState;
     }
 
   // Could maybe check a flag to see if anything changed in rest mode.
@@ -370,21 +371,23 @@ void vtkBoneWidget::SetWidgetStateInternal(int state)
     this->UpdatePoseMode();
     }
 
+  int oldState = this->WidgetState;
   this->WidgetState = state;
   this->UpdateDisplay();
   this->Modified();
+  return oldState;
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetWidgetStateToPose()
+int vtkBoneWidget::SetWidgetStateToPose()
 {
-  this->SetWidgetState(vtkBoneWidget::Pose);
+  return this->SetWidgetState(vtkBoneWidget::Pose);
 }
 
 //----------------------------------------------------------------------------
-void vtkBoneWidget::SetWidgetStateToRest()
+int vtkBoneWidget::SetWidgetStateToRest()
 {
-  this->SetWidgetState(vtkBoneWidget::Rest);
+  return this->SetWidgetState(vtkBoneWidget::Rest);
 }
 
 //----------------------------------------------------------------------------
@@ -1027,6 +1030,31 @@ double vtkBoneWidget::GetLength()
 }
 
 //----------------------------------------------------------------------------
+void vtkBoneWidget::SetLength(double size)
+{
+  if (this->WidgetState < vtkBoneWidget::Rest)
+    {
+    return;
+    }
+
+  double lineVect[3];
+  vtkMath::Subtract(
+    this->GetCurrentWorldTail(), this->GetCurrentWorldHead(), lineVect);
+  double length = vtkMath::Normalize(lineVect);
+  if (fabs(size - length) < 1e-6)
+    {
+    return;
+    }
+
+  int oldState =  this->SetWidgetState(vtkBoneWidget::Rest);
+  double newTail[3];
+  vtkMath::MultiplyScalar(lineVect, size);
+  vtkMath::Add(this->WorldHeadRest, lineVect, newTail);
+  this->SetWorldTailRest(newTail);
+  this->SetWidgetState(oldState);
+}
+
+//----------------------------------------------------------------------------
 void vtkBoneWidget::SetShowAxes(int show)
 {
   if (this->ShowAxes == show)
@@ -1164,6 +1192,115 @@ void vtkBoneWidget::RotateTailWithParentWXYZ(double angle, double axis[3])
   double globalAxis[3];
   double globalAngle = rotation.GetRotationAngleAndAxis(globalAxis);
   this->RotateTailWithWorldWXYZ(globalAngle, globalAxis);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Scale(double factor)
+{
+  this->Scale(factor, factor, factor);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Scale(double factorX, double factorY, double factorZ)
+{
+  double factors[3];
+  factors[0] = factorX;
+  factors[1] = factorX;
+  factors[2] = factorX;
+  this->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Scale(double factors[3])
+{
+  if (this->WidgetState < vtkBoneWidget::Rest)
+    {
+    return;
+    }
+
+  vtkNew<vtkTransform> scale;
+  scale->Scale(factors);
+  this->Transform(scale.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Translate(double x, double y, double z)
+{
+  double translation[3];
+  translation[0] = x;
+  translation[1] = y;
+  translation[2] = z;
+  this->Translate(translation);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Translate(double rootHead[3])
+{
+  if (this->WidgetState < vtkBoneWidget::Rest)
+    {
+    return;
+    }
+
+  vtkNew<vtkTransform> translate;
+  translate->Translate(rootHead);
+  this->Transform(translate.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateX(double angle)
+{
+  this->RotateWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateY(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateZ(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::RotateWXYZ(double angle, double axis[3])
+{
+  if (this->WidgetState < vtkBoneWidget::Rest)
+    {
+    return;
+    }
+
+  vtkNew<vtkTransform> rotation;
+  rotation->RotateWXYZ(angle, axis);
+  this->Transform(rotation.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkBoneWidget::Transform(vtkTransform* transform)
+{
+  if (!transform || this->WidgetState < vtkBoneWidget::Rest)
+    {
+    return;
+    }
+
+  int oldState = this->SetWidgetState(vtkBoneWidget::Rest);
+
+  double* newHead = transform->TransformDoublePoint(this->WorldHeadRest);
+  double* newTail = transform->TransformDoublePoint(this->WorldTailRest);
+
+  this->SetWorldHeadAndTailRest(newHead, newTail);
 }
 
 //----------------------------------------------------------------------------
@@ -1555,8 +1692,7 @@ void vtkBoneWidget::RebuildAxes()
   double distance = this->GetLength() * this->AxesSize;
   this->AxesActor->SetTotalLength(distance, distance, distance);
 
-  vtkSmartPointer<vtkTransform> transform =
-    vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> transform;
   transform->Translate(this->GetCurrentWorldTail());
 
   if (this->ShowAxes == vtkBoneWidget::ShowRestTransform)
@@ -1568,7 +1704,7 @@ void vtkBoneWidget::RebuildAxes()
     transform->Concatenate(this->CreateWorldToBonePoseRotation());
     }
 
-  this->AxesActor->SetUserTransform(transform);
+  this->AxesActor->SetUserTransform(transform.GetPointer());
 }
 
 //----------------------------------------------------------------------------
@@ -2111,8 +2247,7 @@ void vtkBoneWidget::RebuildPoseFromRest()
   // Apply Rest -> Pose rotation
   double axis[3];
   double angle = this->RestToPoseRotation.GetRotationAngleAndAxis(axis);
-  vtkSmartPointer<vtkTransform> rotateTail =
-    vtkSmartPointer<vtkTransform>::New();
+  vtkNew<vtkTransform> rotateTail;
   rotateTail->RotateWXYZ(vtkMath::DegreesFromRadians(angle), axis);
   double* newLocalTail = rotateTail->TransformDoubleVector(centeredTail);
 

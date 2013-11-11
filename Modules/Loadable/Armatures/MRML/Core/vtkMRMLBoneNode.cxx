@@ -764,6 +764,90 @@ void vtkMRMLBoneNode::RotateTailWithWorldWXYZ(double angle, double axis[3])
   this->BoneProperties->RotateTailWithWorldWXYZ(angle, axis);
 }
 
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factor)
+{
+  this->Scale(factor, factor, factor);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factorX, double factorY, double factorZ)
+{
+  double factors[3];
+  factors[0] = factorX;
+  factors[1] = factorX;
+  factors[2] = factorX;
+  this->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factors[3])
+{
+  this->BoneProperties->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Translate(double x, double y, double z)
+{
+  double translation[3];
+  translation[0] = x;
+  translation[1] = y;
+  translation[2] = z;
+  this->Translate(translation);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Translate(double rootHead[3])
+{
+  this->BoneProperties->Translate(rootHead);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateX(double angle)
+{
+  this->RotateWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateY(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateZ(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Transform(vtkTransform* transform)
+{
+  this->BoneProperties->Transform(transform);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetLength(double size)
+{
+  this->BoneProperties->SetLength(size);
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLBoneNode::CopyBoneWidgetProperties(vtkBoneWidget* boneWidget)
 {
