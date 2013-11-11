@@ -288,7 +288,7 @@ public:
   // Merge the two bones of the armature together. The bones must
   // be parented and belong to the armature.
   // Returns the merged bone upon succes, NULL otherwise.
-  // @sa AddBone(), RemoveBone(), ArmatureEventType, IsBoneParent()
+  // @sa AddBone(), RemoveBone(), ArmatureEventType, AreBonesParent()
   vtkBoneWidget* MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone);
 
   // Description:
@@ -311,6 +311,38 @@ public:
   vtkIdTypeArray* GetParenthoodArray();
   vtkStringArray* GetNamesArray();
   vtkDoubleArray* GetRestToPoseRotationArray();
+  // Returns the list of the bone children from a root.
+  // This uses a depth first searched.
+  // If no root is specified, the first root bone found is used.
+  void GetAllBones(vtkCollection* bones, vtkBoneWidget* root = 0);
+
+  // Description:
+  // Scale the rest armature by the given factor.
+  // \sa Translate(), RotateWXYZ(), Transform().
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Description:
+  // Translate the whole armature to the new position.
+  // \sa Scale(), RotateWXYZ(), Transform().
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Description:
+  // Rotate the whole rest armature. Angle is in degrees.
+  // \sa Translate(), Scale(), Transform().
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Description:
+  // Apply the given transformation to the rest armature.
+  // It does nothing if the given transform is null.
+  // \sa Scale(), Translate(), RotateWXYZ(), Transform().
+  void Transform(vtkTransform* t);
 
 protected:
   vtkArmatureWidget();
@@ -392,6 +424,10 @@ protected:
 
   // Init function to add the necesseray arrays to the armature.
   void AddArmatureArrays();
+
+  // annotation
+  void AddChildrenToCollectionRecursively(
+    vtkCollection* collection, vtkBoneWidget* parent);
 
 private:
   vtkArmatureWidget(const vtkArmatureWidget&);  //Not implemented
