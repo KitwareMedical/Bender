@@ -65,6 +65,33 @@ class WorkflowWidget:
 
     # Labelmap variables
 
+    # Extract variables
+    # List here the equivalent labels to the structures. For example, an equivalent
+    # label to bone would be mandible.
+    self.equivalentLabelStructures = {
+      'bone' :
+        [
+        'bone',
+        'vertebr',
+        'mandible',
+        'cartilage',
+        ],
+      'bonebestlabelbestlabel' : 'cancellous',
+      'skin' :
+        [
+        'skin',
+        ],
+      'background' :
+        [
+        'none',
+        'air',
+        ],
+      'muscle' :
+        [
+        'muscle',
+        ],
+      }
+
     # Compute Weight variables
     self.volumeSkinningCreateOutputConnected = False
 
@@ -100,8 +127,7 @@ class WorkflowWidget:
     self.get('VisibleNodesComboBox').connect('checkedNodesChanged()', self.setNodesVisibility)
     self.get('VisibleNodesComboBox').connect('nodeAdded(vtkMRMLNode*)', self.onNodeAdded)
     #  c) Volume Render
-    self.get('BoneLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
-    self.get('SkinLabelComboBox').connect('currentColorChanged(int)', self.setupVolumeRenderLabels)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.setupVolumeRenderLabels)
     self.get('VolumeRenderInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupVolumeRender)
     self.get('VolumeRenderLabelsLineEdit').connect('editingFinished()', self.updateVolumeRenderLabels)
     self.get('VolumeRenderCheckBox').connect('toggled(bool)',self.runVolumeRender)
@@ -236,8 +262,7 @@ class WorkflowWidget:
     self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
 
     self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
-    self.get('BoneLabelsLineEdit').connect('textChanged(QString)', self.setupPoseLabelmap)
-    self.get('SkinLabelsLineEdit').connect('textChanged(QString)', self.setupPoseLabelmap)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.setupPoseLabelmap)
 
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
@@ -498,8 +523,12 @@ class WorkflowWidget:
     """ Update the labels of the volume rendering
     """
     labels = []
-    labels.append(self.get('BoneLabelComboBox').currentColor)
-    labels.append(self.get('SkinLabelComboBox').currentColor)
+    table = self.get('LabelsTableWidget')
+    for row in range(table.rowCount):
+      currentStructure = table.verticalHeaderItem(row).text()
+      item = table.item(row, 0)
+      if currentStructure.lower() != 'background' and item:
+        labels.append(item.text())
     self.get('VolumeRenderLabelsLineEdit').setText(', '.join(str(val) for val in labels))
 
   def getVolumeRenderLabels(self):
@@ -758,28 +787,47 @@ class WorkflowWidget:
     labelmapDisplayNode = volumeNode.GetDisplayNode()
     self.removeObservers(self.updateMergeLabels)
     colorNode = labelmapDisplayNode.GetColorNode()
-    if colorNode == None:
-      self.get('BoneLabelComboBox').setMRMLColorNode(None)
-      self.get('SkinLabelComboBox').setMRMLColorNode(None)
-      self.get('BoneLabelsLineEdit').setText('')
-      self.get('BoneLabelComboBox').setCurrentColor(None)
-      self.get('SkinLabelsLineEdit').setText('')
-      self.get('SkinLabelComboBox').setCurrentColor(None)
+
+    table = self.get('LabelsTableWidget')
+    if colorNode == None: # No color node -> empty columns
+      for row in range(table.rowCount):
+        for column in range(table.columnCount()):
+          table.item(row, column).setText('')
 
     else:
-      self.get('BoneLabelComboBox').setMRMLColorNode(colorNode)
-      self.get('SkinLabelComboBox').setMRMLColorNode(colorNode)
-      boneLabels = self.searchLabels(colorNode, 'bone')
-      boneLabels.update(self.searchLabels(colorNode, 'vertebr'))
-      boneLabels.update(self.searchLabels(colorNode, 'mandible'))
-      boneLabels.update(self.searchLabels(colorNode, 'cartilage'))
-      self.get('BoneLabelsLineEdit').setText(', '.join(str( val ) for val in boneLabels.keys()))
-      boneLabel = self.bestLabel(boneLabels, ['bone', 'cancellous'])
-      self.get('BoneLabelComboBox').setCurrentColor(boneLabel)
-      skinLabels = self.searchLabels(colorNode, 'skin')
-      self.get('SkinLabelsLineEdit').setText(', '.join(str(val) for val in skinLabels.keys()))
-      skinLabel = self.bestLabel(skinLabels, ['skin'])
-      self.get('SkinLabelComboBox').setCurrentColor(skinLabel)
+      nonMuscleLabels = []
+      for row in range(table.rowCount):
+        currentStructure = table.verticalHeaderItem(row).text()
+        currentStructure = currentStructure.lower()
+
+        # Get labels
+        labels = {}
+        for equivalentStructure in self.equivalentLabelStructures[currentStructure]:
+          labels.update(self.searchLabels(colorNode, equivalentStructure))
+
+        # Get corresponding best label
+        if currentStructure == 'background':
+          labelNames = ['air']
+        else:
+          labelNames = [currentStructure]
+        try:
+          labelNames.append(self.equivalentLabelStructures[currentStructure + 'bestlabel'])
+        except KeyError:
+          pass # Do nothing
+        label = self.bestLabel(labels, labelNames)
+
+        table.item(row, 0).setText(label)
+        table.item(row, 1).setText(', '.join(str( val ) for val in labels.keys()))
+
+        if currentStructure != 'muscle':
+          nonMuscleLabels.extend(labels.keys())
+
+      # Now the muscle case. Muscle has all the labels but the one already selected
+      muscleLabels = []
+      for l in range(colorNode.GetNumberOfColors()):
+        if l not in nonMuscleLabels:
+          muscleLabels.append(l)
+      table.item(2, 1).setText(', '.join(str( val ) for val in muscleLabels))
 
       self.createMergeLabelsOutput(volumeNode)
       self.addObserver(volumeNode, 'ModifiedEvent', self.updateMergeLabels)
@@ -848,22 +896,25 @@ class WorkflowWidget:
       self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
 
   def mergeLabelsParameters(self):
-    boneLabels = self.get('BoneLabelsLineEdit').text
-    skinLabels = self.get('SkinLabelsLineEdit').text
     parameters = {}
     parameters["InputVolume"] = self.get('MergeLabelsInputNodeComboBox').currentNode()
     parameters["OutputVolume"] = self.get('MergeLabelsOutputNodeComboBox').currentNode()
-    # That's my dream:
-    #parameters["InputLabelNumber"] = len(boneLabels.split(','))
-    #parameters["InputLabelNumber"] = len(skinLabels.split(','))
-    #parameters["InputLabel"] = boneLabels
-    #parameters["InputLabel"] = skinLabels
-    #parameters["OutputLabel"] = self.get('BoneLabelComboBox').currentColor
-    #parameters["OutputLabel"] = self.get('SkinLabelComboBox').currentColor
-    # But that's how it is done for now
-    parameters["InputLabelNumber"] = str(len(boneLabels.split(','))) + ', ' + str(len(skinLabels.split(',')))
-    parameters["InputLabel"] = boneLabels + ', ' + skinLabels
-    parameters["OutputLabel"] = str(self.get('BoneLabelComboBox').currentColor) + ', ' + str(self.get('SkinLabelComboBox').currentColor)
+
+    inputLabels = ''
+    inputLabelNumber = ''
+    outputLabels = ''
+    for row in range(self.get('LabelsTableWidget').rowCount):
+      labelsItem = self.get('LabelsTableWidget').item(row, 1)
+      outputItem = self.get('LabelsTableWidget').item(row, 0)
+      if labelsItem and labelsItem.text() != '' and outputItem and outputItem.text() != '':
+        labels = labelsItem.text()
+        inputLabelNumber = inputLabelNumber + str(len(labels.split(','))) + ','
+        inputLabels = inputLabels + labels + ','
+        outputLabels = outputLabels + outputItem.text() + ','
+
+    parameters["InputLabelNumber"] = inputLabelNumber
+    parameters["InputLabel"] = inputLabels
+    parameters["OutputLabel"] = outputLabels
     return parameters
 
   def runMergeLabels(self, run):
@@ -1601,9 +1652,15 @@ class WorkflowWidget:
   def setupPoseLabelmap(self):
     """ Update the labels of the poselabelmap module
     """
-    self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text = self.get('BoneLabelsLineEdit').text
-    self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text = self.get('SkinLabelsLineEdit').text
-
+    table = self.get('LabelsTableWidget')
+    for row in range(table.rowCount):
+      structure = table.verticalHeaderItem(row).text()
+      structure = structure.lower()
+      item = table.item(row, 1)
+      if structure != 'skin' and item:
+        self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text = item.text()
+      elif structure != 'skin' and item:
+        self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text = item.text()
 
   def poseLabelmapParameters(self):
     parameters = {}
