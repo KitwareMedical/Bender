@@ -161,7 +161,14 @@ class WorkflowWidget:
 
     # 3) Mesh
     # a) Tet-Mesh generator
-    # /todo
+        #    - Icons
+    self.get('CreateMeshOutputToolButton').icon = saveIcon
+    self.get('CreateMeshToolButton').icon = saveIcon
+    #    - Signals/Slots
+    self.get('CreateMeshOutputToolButton').connect('clicked()', self.saveMeshNode)
+    self.get('CreateMeshPushButton').connect('clicked(bool)', self.runCreateMesh)
+    self.get('CreateMeshInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createMeshOutput)
+    self.get('CreateMeshGoToButton').connect('clicked()', self.openCreateMeshModule)
     # b) Bone mesh extractor
     # /todo
     # c) Skin mesh extractor
@@ -393,6 +400,7 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox',
                            'MergeLabelsOutputNodeComboBox',
+                           'CreateMeshOutputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox',
                            'VolumeSkinningOutputVolumeNodeComboBox',
                            'EditSkinnedVolumeNodeComboBox',
@@ -969,34 +977,28 @@ class WorkflowWidget:
   def validateMeshPage(self, validateSections = True):
     if validateSections:
       self.validateCreateTetrahedralMesh()
-    valid = False#Something
+    valid = self.get('CreateMeshCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openMeshPage(self):
     pass
 
   #----------------------------------------------------------------------------
-  #    a) Create Tetahedral mesh
-  def initCreateTetahedralMesh(self):
-    #self.setupMergeLabels(self.get('').currentNode())
-    self.validateCreateTetrahedralMesh()
-
-  def updateCreateTetahedralMesh(self, node, event):
-    pass
-    #self.setupCreateTetahedralMesh(volumeNode)
-
-  def setupCreateTetahedralMesh(self, volumeNode):
-    # \todo
+  #    a) Create  mesh
+  def initCreateMesh(self):
     self.validateCreateTetrahedralMesh()
 
   def validateCreateTetrahedralMesh(self):
-    pass
-    # \todo
-    #cliNode = self.getCLINode(slicer.modules.changelabel)
-    #valid = (cliNode.GetStatusString() == 'Completed')
-    #self.get('BoneModelMakerApplyPushButton').enabled = not self.isWorkflow(0) or valid
+    cliNode = self.getCLINode(slicer.modules.createtetrahedralmesh)
+    valid = (cliNode.GetStatusString() == 'Completed'
+            and self.get('CreateMeshOutputNodeComboBox').currentNode())
 
-  def createCreateTetahedralMesh(self, node):
+    self.get('CreateMeshOutputToolButton').enabled = valid
+    self.get('CreateMeshToolButton').enabled = valid
+    self.get('MergeLabelsCollapsibleGroupBox').setProperty('valid',valid)
+    self.validateMeshPage(validateSections = False)
+
+  def createMeshOutput(self, node):
     if node == None or self.IsSetup:
       return
     # Don't create the node if the name already contains "tetmesh"
@@ -1005,52 +1007,51 @@ class WorkflowWidget:
     nodeName = '%s-tetmesh' % node.GetName()
     # make sure such node does not already exist.
     meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
-    #if mergedNode == None:
-    #  newNode = self.get('MergeLabelsOutputNodeComboBox').addNode()
-    #  newNode.SetName(nodeName)
-    #else:
-    #  self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
+    if meshNode == None:
+      newNode = self.get('CreateMeshOutputNodeComboBox').addNode()
+      newNode.SetName(nodeName)
+    else:
+      self.get('CreateMeshOutputNodeComboBox').setCurrentNode(meshNode)
 
-  def createTetahedralMeshParameters(self):
+  def createMeshParameters(self):
     parameters = {}
-    # \todo
+    parameters["InputVolume"] = self.get('CreateMeshInputNodeComboBox').currentNode()
+    parameters["OutputMesh"] = self.get('CreateMeshOutputNodeComboBox').currentNode()
+    parameters["padding"] = True
+    parameters["verbose"] = False
     return parameters
 
-  def runCreateTetahedralMesh(self, run):
-    pass
-    #if run:
-    #  cliNode = self.getCLINode(slicer.modules.changelabel)
-    #  parameters = self.mergeLabelsParameters()
-    #  self.get('MergeLabelsApplyPushButton').setChecked(True)
-    #  self.observeCLINode(cliNode, self.onMergeLabelsCLIModified)
-    #  cliNode = slicer.cli.run(slicer.modules.changelabel, cliNode, parameters, wait_for_completion = False)
-    #else:
-    #  cliNode = self.observer(self.StatusModifiedEvent, self.onMergeLabelsCLIModified)
-    #  self.get('MergeLabelsApplyPushButton').enabled = False
-    #  cliNode.Cancel()
+  def runCreateMesh(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.createtetrahedralmesh)
+      parameters = self.createMeshParameters()
+      self.get('CreateMeshPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onCreateMeshCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.createtetrahedralmesh, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onCreateMeshCLIModified)
+      self.get('CreateMeshPushButton').enabled = False
+      cliNode.Cancel()
 
-  def onCreateTetahedralMeshCLIModified(self, cliNode, event):
+  def onCreateMeshCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.validateCreateTetrahedralMesh()
 
     if not cliNode.IsBusy():
-      #self.get('MergeLabelsApplyPushButton').setChecked(False)
-      #self.get('MergeLabelsApplyPushButton').enabled = True
-      print 'CreateTetahedralMesh %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onCreateTetahedralMeshCLIModified)
+      self.get('CreateMeshPushButton').setChecked(False)
+      self.get('CreateMeshPushButton').enabled = True
+      print 'CreateMesh %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onCreateMeshCLIModified)
 
-  def saveTetahedralMeshNode(self):
-    pass
-    # \todo
-    #self.saveFile('Tetahedral Mesh', 'ModelFile', '.vtk', self.get('MergeLabelsOutputNodeComboBox'))
+  def saveMeshNode(self):
+    self.saveFile('Tetrahedral Mesh', 'ModelFile', '.vtk', self.get('CreateMeshOutputNodeComboBox'))
 
-  def openCreateTetahedralMesh(self):
-    pass
-    #self.openModule('CreateTetahedralMesh')
+  def openCreateMeshModule(self):
+    self.openModule('CreateTetrahedralMesh')
 
-    #cliNode = self.getCLINode(slicer.modules.createTetahedralMesh)
-    #parameters = self.createTetahedralMeshParameters()
-    #slicer.cli.setNodeParameters(cliNode, parameters)
+    cliNode = self.getCLINode(slicer.modules.createtetrahedralmesh)
+    parameters = self.createMeshParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
 
 
   #----------------------------------------------------------------------------

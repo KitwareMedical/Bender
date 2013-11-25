@@ -91,19 +91,10 @@
       <string/>
      </property>
      <property name="accessibleName">
-      <string>Extract Bones And Skin (surfacing)</string>
+      <string>Merge labels</string>
      </property>
      <property name="accessibleDescription">
-      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The model maker helps to extract the skin and bones label in surfaces grouped&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;under the same hierarchical model.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The toggle skin visibility button will toggle the visibility of any output&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;model with a name that contains &amp;quot;skin&amp;quot;. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In advanced mode, the volume render can be used to make sure the surface&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;extracted with the model maker matches correctly the input volume.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string/>
      </property>
      <property name="currentIndex">
       <number>0</number>
@@ -344,10 +335,9 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Create the bones' and skin's surface models.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;If the input labelmap contains multiple &amp;quot;bone&amp;quot; labels (e.g. &amp;quot;bone marrow&amp;quot;, &amp;quot;bone cancellous&amp;quot;...) or multiple &amp;quot;skin&amp;quot; labels, the labels must be merged into a unique label. This  step is required to create the bone surface model and skin surface models.&lt;br /&gt;In Intermediate mode, you can review the labels and ensure they are correct before merging them.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The bone surface model is created by the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Bone model maker&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; by extracting the &amp;quot;bone&amp;quot; label from the labelmap. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The skin surface model is created by the &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Skin model maker&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; by extracting the &amp;quot;skin&amp;quot; label from the labelmap.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Merge the different labels of the labelmap into different classes of labels, namely background, bone, skin and muscle.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Each of these structure is composed of all the labels that most likely going to belong to them. For example, the label &amp;quot;verterbrae&amp;quot; will belong to the bone structure.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The muscle label is a bit different as it gathers all of the labels that are not bone, skin or background. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout">
        <property name="margin">
@@ -676,6 +666,144 @@ p, li { white-space: pre-wrap; }
                <stringlist>
                 <string>0</string>
                </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="MeshingPage">
+      <property name="accessibleName">
+       <string>Mesh surface</string>
+      </property>
+      <property name="accessibleDescription">
+       <string>Create a tetrahedral mesh from the merged labelmap.</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_9">
+       <item row="0" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="CreateMeshCollapsibleGroupBox">
+         <property name="accessibleName">
+          <string>Mesh surface</string>
+         </property>
+         <property name="accessibleDescription">
+          <string>Create a tetrahedral mesh from the merged labelmap.</string>
+         </property>
+         <property name="title">
+          <string>A) Create mesh</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="CreateMeshInputLabel">
+            <property name="text">
+             <string>Merge labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="CreateMeshInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="CreateMeshOutputLabel">
+            <property name="text">
+             <string>Output mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="CreateMeshOutputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="CreateMeshOutputToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="CreateMeshGoToButton">
+              <property name="text">
+               <string>Go To Create tetrahedral mesh</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="CreateMeshPushButton">
+              <property name="text">
+               <string>Create Mesh</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="CreateMeshToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>0</string>
               </property>
              </widget>
             </item>
@@ -3836,6 +3964,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>469</x>
      <y>560</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>CreateMeshInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>CreateMeshOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>270</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>CreateMeshOutputToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>158</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>CreateMeshInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>272</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>286</x>
+     <y>103</y>
     </hint>
    </hints>
   </connection>
