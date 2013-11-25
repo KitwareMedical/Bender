@@ -50,7 +50,7 @@
 #include <Cleaver/PaddedVolume.h>
 #include <Cleaver/ScalarField.h>
 #include <Cleaver/Volume.h>
-#include <Cleaver/LabelMapField.h>
+#include <LabelMapField.h>
 
 
 // Use an anonymous namespace to keep class types and function names
@@ -147,7 +147,7 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image)
 
   // Assign continuous labels to the connected components, background is
   // considered to be 0 and will be ignored in the relabeling process.
-  typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
+  RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
   relabelFilter->SetInput( image );
   relabelFilter->Update();
 
@@ -155,8 +155,8 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image)
     relabelFilter->GetNumberOfObjects() << std::endl;
 
   // Extract the labels
-  typedef typename RelabelFilterType::LabelType LabelType;
-  typename ThresholdFilterType::Pointer skinThresholdFilter =
+  typedef RelabelFilterType::LabelType LabelType;
+  ThresholdFilterType::Pointer skinThresholdFilter =
     ThresholdFilterType::New();
 
   // Create a list of images corresponding to labels
@@ -174,7 +174,7 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image)
   for (LabelType i = 1, end = relabelFilter->GetNumberOfObjects()+1; i < end;
        ++i)
     {
-    typename ThresholdFilterType::Pointer organThresholdFilter =
+    ThresholdFilterType::Pointer organThresholdFilter =
       ThresholdFilterType::New();
     organThresholdFilter->SetInput(relabelFilter->GetOutput());
     organThresholdFilter->SetLowerThreshold(i);

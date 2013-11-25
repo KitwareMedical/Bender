@@ -42,11 +42,11 @@ int main( int argc, char * argv[] )
     vtkSmartPointer<vtkPolyDataReader>::New();
   reader->SetFileName(InputTetMesh.c_str());
   reader->Update();
-  
+
   vtkNew<vtkThreshold> threshold;
   threshold->SetInput(reader->GetOutput());
-  
-  threshold->ThresholdBetween(double(MaterialLabel),double(MaterialLabel));
+
+  threshold->ThresholdBetween(static_cast<double>(MaterialLabel), static_cast<double>(MaterialLabel));
 
   vtkNew<vtkGeometryFilter> polyMesh;
   polyMesh->SetInput(threshold->GetOutput());
