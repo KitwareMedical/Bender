@@ -29,9 +29,11 @@
 #include <itkImage.h>
 #include <itkLinearInterpolateImageFunction.h>
 
+#include "BenderCleaverExport.h"
+
 namespace Cleaver {
 
-class LabelMapField :  public ScalarField
+class BENDER_CLEAVER_EXPORT LabelMapField : public ScalarField
 {
 public:
   typedef float PixelType;

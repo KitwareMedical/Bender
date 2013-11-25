@@ -36,8 +36,8 @@ include(${VTK_USE_FILE})
 
 #-----------------------------------------------------------------------------
 # Get Cleaver
-# find_package(Cleaver REQUIRED)
-include_directories(${Cleaver_DIR}/include)
+find_package(Cleaver REQUIRED)
+include(${Cleaver_USE_FILE})
 
 #-----------------------------------------------------------------------------
 # Create library
@@ -45,6 +45,7 @@ include_directories(${Cleaver_DIR}/include)
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${Cleaver_INCLUDE_DIRS}
   )
 
 set(${KIT}_SRCS
@@ -53,8 +54,9 @@ set(${KIT}_SRCS
 
 add_library(${PROJECT_NAME} ${${KIT}_SRCS})
 target_link_libraries(${PROJECT_NAME}
-  ${ITK_LIBRARIES} ${VTK_LIBRARIES}
-  ${Cleaver_DIR}/lib/libcleaver.so
+  ${ITK_LIBRARIES}
+  ${VTK_LIBRARIES}
+  ${Cleaver_LIBRARIES}
   )
 bender_export_library()
 

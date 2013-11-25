@@ -61,10 +61,9 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    URL "http://www.sci.utah.edu/releases/cleaver_v1.5.3/cleaver-v1.5.3.tar.gz"
+    #URL "http://www.sci.utah.edu/releases/cleaver_v1.5.3/cleaver-v1.5.3.tar.gz"
+    URL "http://packages.kitware.com/download/item/4621/Cleaver.tar.gz"
     UPDATE_COMMAND ""
-#     CONFIGURE_COMMAND ""
-#     BUILD_COMMAND ""
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
     CMAKE_ARGS

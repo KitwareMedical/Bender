@@ -59,7 +59,7 @@ float LabelMapField::valueAt(float x, float y, float z) const
 {
   if(this->GenerateDataFromLabels)
     {
-    typename ImageType::SizeType size =
+    ImageType::SizeType size =
       this->LabelMap->GetLargestPossibleRegion().GetSize();
     x -= 0.5f;
     y -= 0.5f;
@@ -109,9 +109,9 @@ void LabelMapField::SetGenerateDataFromLabels(bool _generateData)
   if(this->GenerateDataFromLabels && this->LabelMap.IsNotNull() && this->data ==
      NULL)
     {
-    typename ImageType::SizeType size =
+    ImageType::SizeType size =
       this->LabelMap->GetLargestPossibleRegion().GetSize();
-    typename ImageType::SpacingType spacing = this->LabelMap->GetSpacing();
+    ImageType::SpacingType spacing = this->LabelMap->GetSpacing();
     int w = size[0];
     int h = size[1];
     int d = size[2];
@@ -121,7 +121,7 @@ void LabelMapField::SetGenerateDataFromLabels(bool _generateData)
       for(int j = 0; j < h; ++j)
         for(int i = 0; i < w; ++i)
           {
-          typename ImageType::IndexType index;
+          ImageType::IndexType index;
           index[0]                    = i; index[1] = j; index[2] = k;
           this->data[i + j*w + k*w*h] = this->LabelMap->GetPixel(index);
           }

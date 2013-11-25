@@ -23,7 +23,8 @@ set(MODULE_NAME CreateTetrahedralMesh) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
-# find_package(Cleaver REQUIRED)
+find_package(Cleaver REQUIRED)
+include(${Cleaver_USE_FILE})
 
 find_package(VTK REQUIRED)
 find_package(Bender REQUIRED)
@@ -31,14 +32,12 @@ include(${Bender_USE_FILE})
 
 set(MODULE_INCLUDE_DIRECTORIES
   ${Bender_INCLUDE_DIRS}
-  /scratch-ssd/Bender-Build/Slicer-build/Cleaver-build/include
-  /home/rortiz/projects/bender/Libs
+  ${Cleaver_INCLUDE_DIRS}
   )
 
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
-  /scratch-ssd/Bender-Build/Slicer-build/Cleaver-build/lib/libcleaver.so
-  BenderCleaver
+  ${Cleaver_LIBRARIES}
   vtkIO vtkGraphics
   SlicerBaseCLI
   )
