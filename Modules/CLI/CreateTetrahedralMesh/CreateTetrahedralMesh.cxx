@@ -26,6 +26,7 @@
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkCastImageFilter.h"
 #include "itkImageFileWriter.h"
+#include "itkImageRegionConstIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkRelabelComponentImageFilter.h"
 #include "itkConstantPadImageFilter.h"
@@ -236,6 +237,30 @@ int DoIt( int argc, char * argv[] )
   std::vector<LabelImageType::Pointer> labels =
     SplitLabelMaps(castingFilter->GetOutput());
 
+  // Get a map from the original labels to the new labels
+  std::map<InputPixelType, InputPixelType> originalLabels;
+
+  for(size_t i = 0; i < labels.size(); ++i)
+    {
+    itk::ImageRegionConstIterator<InputImageType> imageIterator(
+      reader->GetOutput(), reader->GetOutput()->GetLargestPossibleRegion());
+    itk::ImageRegionConstIterator<LabelImageType> labelsIterator(
+      labels[i], labels[i]->GetLargestPossibleRegion());
+    bool foundCorrespondence = false;
+    while(!imageIterator.IsAtEnd()
+      && !labelsIterator.IsAtEnd()
+      && !foundCorrespondence)
+      {
+      if (labelsIterator.Value() > 0)
+        {
+        originalLabels[labelsIterator.Value()] = imageIterator.Value();
+        }
+
+      ++imageIterator;
+      ++labelsIterator;
+      }
+    }
+
   std::cout << "Total labels found:  " << labels.size() << std::endl;
   for(size_t i = 0; i < labels.size(); ++i)
     {
@@ -280,13 +305,15 @@ int DoIt( int argc, char * argv[] )
     std::cout << "max: " << cleaverMesh->max_angle << std::endl;
     }
 
-  const int            airLabel = 1;
+  const int airLabel = 0;
+  int paddedVolumeLabel = labels.size();
   vtkNew<vtkCellArray> meshTetras;
   vtkNew<vtkIntArray>  cellData;
   for(size_t i = 0, end = cleaverMesh->tets.size(); i < end; ++i)
     {
-    int label = cleaverMesh->tets[i]->mat_label+1;
-    if(label == airLabel)
+    int label = cleaverMesh->tets[i]->mat_label;
+
+    if(label == airLabel || label == paddedVolumeLabel)
       {
       continue;
       }
@@ -300,7 +327,7 @@ int DoIt( int argc, char * argv[] )
     meshTetra->GetPointIds()->SetId(3,
       cleaverMesh->tets[i]->verts[3]->tm_v_index);
     meshTetras->InsertNextCell(meshTetra.GetPointer());
-    cellData->InsertNextValue(label);
+    cellData->InsertNextValue(originalLabels[label]);
     }
 
   vtkNew<vtkPoints> points;
