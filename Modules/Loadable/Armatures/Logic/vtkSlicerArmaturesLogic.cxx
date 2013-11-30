@@ -99,9 +99,9 @@ void vtkSlicerArmaturesLogic::ObserveMRMLScene()
     this->GetMRMLScene()->GetNthNodeByClass(0, "vtkMRMLSelectionNode"));
   if (selectionNode)
     {
-    selectionNode->AddNewAnnotationIDToList(
+    selectionNode->AddNewPlaceNodeClassNameToList(
       "vtkMRMLBoneNode", ":/Icons/BoneWithArrow.png");
-    selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+    selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLBoneNode");
     }
   vtkMRMLInteractionNode* interactionNode =
     vtkMRMLInteractionNode::SafeDownCast(

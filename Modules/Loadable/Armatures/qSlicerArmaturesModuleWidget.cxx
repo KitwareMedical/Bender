@@ -769,7 +769,7 @@ void qSlicerArmaturesModuleWidget::addAndPlaceBone()
     qCritical() << "Invalid scene, no interaction or selection node";
     return;
     }
-  selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+  selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLBoneNode");
   interactionNode->SwitchToSinglePlaceMode();
 }
 

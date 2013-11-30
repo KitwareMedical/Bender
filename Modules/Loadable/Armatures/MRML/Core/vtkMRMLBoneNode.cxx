@@ -257,8 +257,16 @@ void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
 //----------------------------------------------------------------------------
 vtkMRMLBoneDisplayNode* vtkMRMLBoneNode::GetBoneDisplayNode()
 {
-  return vtkMRMLBoneDisplayNode::SafeDownCast(
-    this->GetNthDisplayNodeByClass(0, "vtkMRMLBoneDisplayNode"));
+  for (int i = 0; i < this->GetNumberOfDisplayNodes(); ++i)
+    {
+    vtkMRMLBoneDisplayNode* bdn = vtkMRMLBoneDisplayNode::SafeDownCast(
+      this->GetNthDisplayNode(i));
+    if (bdn)
+      {
+      return bdn;
+      }
+    }
+  return 0;
 }
 
 //---------------------------------------------------------------------------

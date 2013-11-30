@@ -18,18 +18,22 @@
 #
 #============================================================================
 
-#add_subdirectory(Scripts)
-set(modules
-  BenderSampleData
-  SkinModelMaker
-  Workflow
+#-----------------------------------------------------------------------------
+set(MODULE_NAME SkinModelMaker)
+
+#-----------------------------------------------------------------------------
+set(MODULE_PYTHON_SCRIPTS
+  ${MODULE_NAME}.py
   )
 
-set(Bender_MODULES)
+set(MODULE_PYTHON_RESOURCES
+  Resources/UI/${MODULE_NAME}.ui
+  )
 
-foreach(module ${modules})
-  list(APPEND Bender_MODULES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
-endforeach()
-
-set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
+#-----------------------------------------------------------------------------
+slicerMacroBuildScriptedModule(
+  NAME ${MODULE_NAME}
+  SCRIPTS ${MODULE_PYTHON_SCRIPTS}
+  RESOURCES ${MODULE_PYTHON_RESOURCES}
+  WITH_GENERIC_TESTS
+  )
