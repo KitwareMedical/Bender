@@ -79,7 +79,7 @@ if(NOT DEFINED ${proj}_DIR)
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
     GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
-    GIT_TAG "d086dea38a119c192341457ec1f4e419a03b5e78"
+    GIT_TAG "47c1add73f333d515293afb4418c40f58372d04d"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
@@ -112,7 +112,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_USE_QtTesting:BOOL=OFF
       -DSlicer_USE_PYTHONQT:BOOL=ON
       -DSlicer_QTLOADABLEMODULES_DISABLED:STRING=SlicerWelcome
-      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy.py^^SelfTests.py
+      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy^^SelfTests^^SampleData
       -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeExplorer:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeImporter:BOOL=OFF
