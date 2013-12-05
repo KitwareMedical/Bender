@@ -348,6 +348,10 @@ int DoIt( int argc, char * argv[] )
 
   bender::IOUtils::WritePolyData(cleanFilter->GetOutput(), OutputMesh);
 
+  // Clean up
+  delete volume;
+  delete cleaverMesh;
+
   return EXIT_SUCCESS;
 }
 
