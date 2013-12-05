@@ -400,6 +400,7 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox',
                            'MergeLabelsOutputNodeComboBox',
+                           'CreateMeshInputNodeComboBox',
                            'CreateMeshOutputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox',
                            'VolumeSkinningOutputVolumeNodeComboBox',
@@ -898,10 +899,13 @@ class WorkflowWidget:
     # make sure such node does not already exist.
     mergedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
     if mergedNode == None:
+      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = False
       newNode = self.get('MergeLabelsOutputNodeComboBox').addNode()
+      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = True
       newNode.SetName(nodeName)
-    else:
-      self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
+      mergedNode = newNode
+
+    self.get('MergeLabelsOutputNodeComboBox').setCurrentNode(mergedNode)
 
   def mergeLabelsParameters(self):
     parameters = {}
@@ -1008,10 +1012,13 @@ class WorkflowWidget:
     # make sure such node does not already exist.
     meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
     if meshNode == None:
+      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = False
       newNode = self.get('CreateMeshOutputNodeComboBox').addNode()
+      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = True
       newNode.SetName(nodeName)
-    else:
-      self.get('CreateMeshOutputNodeComboBox').setCurrentNode(meshNode)
+      meshNode = newNode
+
+    self.get('CreateMeshOutputNodeComboBox').setCurrentNode(meshNode)
 
   def createMeshParameters(self):
     parameters = {}
