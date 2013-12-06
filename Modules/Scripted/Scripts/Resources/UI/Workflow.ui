@@ -957,6 +957,151 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="ExtractSkinCollapsibleGroupBox">
+         <property name="title">
+          <string>C) Extract skin mesh</string>
+         </property>
+         <property name="collapsed">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="ExtractSkinInputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="ExtractSkinOutputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="ExtractSkinOutputToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="ExtractSkinInputLabel">
+            <property name="text">
+             <string>Mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="ExtractSkinOutputLabel">
+            <property name="text">
+             <string>Skin Mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QSpinBox" name="ExtractSkinMaterialSpinBox">
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ExtractSkinMaterialLabel">
+            <property name="text">
+             <string>Bone material</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractSkinGoToPushButton">
+              <property name="text">
+               <string>Go To Volume material extractor</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractSkinPushButton">
+              <property name="text">
+               <string>Extract skin</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ExtractSkinToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ArmaturesPage">
@@ -4237,6 +4382,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>460</x>
      <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ExtractSkinInputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>252</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ExtractSkinOutputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>265</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExtractSkinToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExtractSkinOutputToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>304</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ExtractSkinInputComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>252</y>
     </hint>
    </hints>
   </connection>

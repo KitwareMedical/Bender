@@ -180,7 +180,15 @@ class WorkflowWidget:
     self.get('ExtractBoneGoToPushButton').connect('clicked()', self.openExtractBoneModule)
     self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onBoneMaterialChanged)
     # c) Skin mesh extractor
-    # /todo
+        #    - Icons
+    self.get('ExtractSkinOutputToolButton').icon = saveIcon
+    self.get('ExtractSkinToolButton').icon = saveIcon
+    #    - Signals/Slots
+    self.get('ExtractSkinOutputToolButton').connect('clicked()', self.saveExtractSkin)
+    self.get('ExtractSkinPushButton').connect('clicked(bool)', self.runExtractSkin)
+    self.get('ExtractSkinInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSkinOutput)
+    self.get('ExtractSkinGoToPushButton').connect('clicked()', self.openExtractSkinModule)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onSkinMaterialChanged)
 
     # 4) Armature
     #    - Icons
@@ -998,7 +1006,8 @@ class WorkflowWidget:
     if validateSections:
       self.validateCreateTetrahedralMesh()
       self.validateExtractBone()
-    valid = self.get('ExtractBoneCollapsibleGroupBox').property('valid')
+      self.validateExtractSkin()
+    valid = self.get('ExtractSkinCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openMeshPage(self):
@@ -1096,6 +1105,10 @@ class WorkflowWidget:
     self.get('ExtractBoneToolButton').enabled = valid
     self.get('ExtractBoneCollapsibleGroupBox').setProperty('valid',valid)
 
+    enableExtractSkin = not self.isWorkflow(0) or valid
+    self.get('ExtractSkinCollapsibleGroupBox').collapsed = not enableExtractSkin
+    self.get('ExtractSkinCollapsibleGroupBox').setEnabled(enableExtractSkin)
+
     self.validateMeshPage(validateSections = False)
 
   def createExtractBoneOutput(self, node):
@@ -1162,6 +1175,88 @@ class WorkflowWidget:
     except ValueError:
       value = 0
     self.get('ExtractBoneMaterialSpinBox').value = value
+
+  #----------------------------------------------------------------------------
+  #    c) Extract skin
+  def initExtractSkin(self):
+    self.validateExtractSkin()
+
+  def validateExtractSkin(self):
+    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+    valid = (cliNode.GetStatusString() == 'Completed'
+            and self.get('ExtractSkinOutputComboBox').currentNode())
+
+    self.get('ExtractSkinOutputToolButton').enabled = valid
+    self.get('ExtractSkinToolButton').enabled = valid
+    self.get('ExtractSkinCollapsibleGroupBox').setProperty('valid',valid)
+
+    self.validateMeshPage(validateSections = False)
+
+  def createExtractSkinOutput(self, node):
+    if node == None or self.IsSetup:
+      return
+    # Don't create the node if the name already contains "skin"
+    if node.GetName().lower().find('skin') != -1:
+      return
+    nodeName = '%s-skin' % node.GetName()
+    # make sure such node does not already exist.
+    meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
+    if meshNode == None:
+      self.get('ExtractSkinOutputComboBox').selectNodeUponCreation = False
+      newNode = self.get('ExtractSkinOutputComboBox').addNode()
+      self.get('ExtractSkinOutputComboBox').selectNodeUponCreation = True
+      newNode.SetName(nodeName)
+      meshNode = newNode
+
+    self.get('ExtractSkinOutputComboBox').setCurrentNode(meshNode)
+
+  def extractSkinParameters(self):
+    parameters = {}
+    parameters["InputTetMesh"] = self.get('ExtractSkinInputComboBox').currentNode()
+    parameters["OutputTetMesh"] = self.get('ExtractSkinOutputComboBox').currentNode()
+    parameters["MaterialLabel"] = self.get('ExtractSkinMaterialSpinBox').value
+
+    return parameters
+
+  def runExtractSkin(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+      parameters = self.extractSkinParameters()
+      self.get('ExtractSkinPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onExtractSkinCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.volumematerialextractor, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onExtractSkinCLIModified)
+      self.get('ExtractSkinPushButton').enabled = False
+      cliNode.Cancel()
+
+  def onExtractSkinCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.validateExtractSkin()
+
+    if not cliNode.IsBusy():
+      self.get('ExtractSkinPushButton').setChecked(False)
+      self.get('ExtractSkinPushButton').enabled = True
+      print 'Extract Skin %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onExtractSkinCLIModified)
+
+  def saveExtractSkin(self):
+    self.saveFile('Bone Skin', 'ModelFile', '.vtk', self.get('ExtractSkinOutputComboBox'))
+
+  def openExtractSkinModule(self):
+    self.openModule('VolumeMaterialExtractor')
+
+    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+    parameters = self.extractSkinParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def onSkinMaterialChanged(self):
+    try:
+      value = int(self.getMergedLabel('skin'))
+    except ValueError:
+      value = 0
+    self.get('ExtractSkinMaterialSpinBox').value = value
+
 
   #----------------------------------------------------------------------------
   # 4) Armature
