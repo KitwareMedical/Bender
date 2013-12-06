@@ -812,6 +812,151 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="ExtractBoneCollapsibleGroupBox">
+         <property name="title">
+          <string>B) Extract bone mesh</string>
+         </property>
+         <property name="collapsed">
+          <bool>true</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="ExtractBoneInputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="ExtractBoneOutputComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="ExtractBoneOutputToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="ExtractBoneInputLabel">
+            <property name="text">
+             <string>Mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="ExtractBoneOutputLabel">
+            <property name="text">
+             <string>Bone Mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QSpinBox" name="ExtractBoneMaterialSpinBox">
+            <property name="maximum">
+             <number>255</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Bone material</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractBoneGoToPushButton">
+              <property name="text">
+               <string>Go To Volume material extractor</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractBonePushButton">
+              <property name="text">
+               <string>Extract bone</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ExtractBoneToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="ArmaturesPage">
@@ -4028,6 +4173,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>286</x>
      <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ExtractBoneInputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ExtractBoneOutputComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>265</x>
+     <y>271</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>ExtractBoneInputComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>281</x>
+     <y>219</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExtractBoneToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExtractBoneOutputToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>300</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>460</x>
+     <y>271</y>
     </hint>
    </hints>
   </connection>

@@ -170,7 +170,15 @@ class WorkflowWidget:
     self.get('CreateMeshInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createMeshOutput)
     self.get('CreateMeshGoToButton').connect('clicked()', self.openCreateMeshModule)
     # b) Bone mesh extractor
-    # /todo
+        #    - Icons
+    self.get('ExtractBoneOutputToolButton').icon = saveIcon
+    self.get('ExtractBoneToolButton').icon = saveIcon
+    #    - Signals/Slots
+    self.get('ExtractBoneOutputToolButton').connect('clicked()', self.saveExtractBone)
+    self.get('ExtractBonePushButton').connect('clicked(bool)', self.runExtractBone)
+    self.get('ExtractBoneInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractBoneOutput)
+    self.get('ExtractBoneGoToPushButton').connect('clicked()', self.openExtractBoneModule)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onBoneMaterialChanged)
     # c) Skin mesh extractor
     # /todo
 
@@ -972,6 +980,14 @@ class WorkflowWidget:
     parameters = self.mergeLabelsParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
+  def getMergedLabel(self, structure):
+    '''Returns the label of the given structure as a string'''
+    table = self.get('LabelsTableWidget')
+    for row in range(table.rowCount):
+      currentStructure = table.verticalHeaderItem(row).text()
+      if currentStructure.lower() == structure:
+        return self.get('LabelsTableWidget').item(row, 0).text()
+
   #----------------------------------------------------------------------------
   # 3) Mesh
   #----------------------------------------------------------------------------
@@ -981,7 +997,8 @@ class WorkflowWidget:
   def validateMeshPage(self, validateSections = True):
     if validateSections:
       self.validateCreateTetrahedralMesh()
-    valid = self.get('CreateMeshCollapsibleGroupBox').property('valid')
+      self.validateExtractBone()
+    valid = self.get('ExtractBoneCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openMeshPage(self):
@@ -999,7 +1016,12 @@ class WorkflowWidget:
 
     self.get('CreateMeshOutputToolButton').enabled = valid
     self.get('CreateMeshToolButton').enabled = valid
-    self.get('MergeLabelsCollapsibleGroupBox').setProperty('valid',valid)
+    self.get('CreateMeshCollapsibleGroupBox').setProperty('valid',valid)
+
+    enableExtractBone = not self.isWorkflow(0) or valid
+    self.get('ExtractBoneCollapsibleGroupBox').collapsed = not enableExtractBone
+    self.get('ExtractBoneCollapsibleGroupBox').setEnabled(enableExtractBone)
+
     self.validateMeshPage(validateSections = False)
 
   def createMeshOutput(self, node):
@@ -1012,9 +1034,9 @@ class WorkflowWidget:
     # make sure such node does not already exist.
     meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
     if meshNode == None:
-      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = False
+      self.get('CreateMeshOutputNodeComboBox').selectNodeUponCreation = False
       newNode = self.get('CreateMeshOutputNodeComboBox').addNode()
-      self.get('MergeLabelsOutputNodeComboBox').selectNodeUponCreation = True
+      self.get('CreateMeshOutputNodeComboBox').selectNodeUponCreation = True
       newNode.SetName(nodeName)
       meshNode = newNode
 
@@ -1060,6 +1082,86 @@ class WorkflowWidget:
     parameters = self.createMeshParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
+  #----------------------------------------------------------------------------
+  #    b) Extract bone
+  def initExtractBone(self):
+    self.validateExtractBone()
+
+  def validateExtractBone(self):
+    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+    valid = (cliNode.GetStatusString() == 'Completed'
+            and self.get('ExtractBoneOutputComboBox').currentNode())
+
+    self.get('ExtractBoneOutputToolButton').enabled = valid
+    self.get('ExtractBoneToolButton').enabled = valid
+    self.get('ExtractBoneCollapsibleGroupBox').setProperty('valid',valid)
+
+    self.validateMeshPage(validateSections = False)
+
+  def createExtractBoneOutput(self, node):
+    if node == None or self.IsSetup:
+      return
+    # Don't create the node if the name already contains "bones"
+    if node.GetName().lower().find('bones') != -1:
+      return
+    nodeName = '%s-bones' % node.GetName()
+    # make sure such node does not already exist.
+    meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
+    if meshNode == None:
+      self.get('ExtractBoneOutputComboBox').selectNodeUponCreation = False
+      newNode = self.get('ExtractBoneOutputComboBox').addNode()
+      self.get('ExtractBoneOutputComboBox').selectNodeUponCreation = True
+      newNode.SetName(nodeName)
+      meshNode = newNode
+
+    self.get('ExtractBoneOutputComboBox').setCurrentNode(meshNode)
+
+  def extractBoneParameters(self):
+    parameters = {}
+    parameters["InputTetMesh"] = self.get('ExtractBoneInputComboBox').currentNode()
+    parameters["OutputTetMesh"] = self.get('ExtractBoneOutputComboBox').currentNode()
+    parameters["MaterialLabel"] = self.get('ExtractBoneMaterialSpinBox').value
+
+    return parameters
+
+  def runExtractBone(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+      parameters = self.extractBoneParameters()
+      self.get('ExtractBonePushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onExtractBoneCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.volumematerialextractor, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onExtractBoneCLIModified)
+      self.get('ExtractBonePushButton').enabled = False
+      cliNode.Cancel()
+
+  def onExtractBoneCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.validateExtractBone()
+
+    if not cliNode.IsBusy():
+      self.get('ExtractBonePushButton').setChecked(False)
+      self.get('ExtractBonePushButton').enabled = True
+      print 'Extract Bone %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onExtractBoneCLIModified)
+
+  def saveExtractBone(self):
+    self.saveFile('Bone Mesh', 'ModelFile', '.vtk', self.get('ExtractBoneOutputComboBox'))
+
+  def openExtractBoneModule(self):
+    self.openModule('VolumeMaterialExtractor')
+
+    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+    parameters = self.extractBoneParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def onBoneMaterialChanged(self):
+    try:
+      value = int(self.getMergedLabel('bone'))
+    except ValueError:
+      value = 0
+    self.get('ExtractBoneMaterialSpinBox').value = value
 
   #----------------------------------------------------------------------------
   # 4) Armature
