@@ -1151,6 +1151,27 @@ class WorkflowWidget:
 
   def onExtractBoneCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # Hide input
+      inputMesh = self.get('ExtractBoneInputComboBox').currentNode()
+      displayNode = inputMesh.GetDisplayNode()
+      if displayNode != None:
+        displayNode.SetVisibility(False)
+
+      # Set color
+      newNode = self.get('ExtractBoneOutputComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      if colorNode:
+        color = [0, 0, 0]
+        lookupTable = colorNode.GetLookupTable().GetColor(self.get('ExtractBoneMaterialSpinBox').value, color)
+        newNodeDisplayNode.SetColor(color)
+
+      # Set Clip intersection ON
+      newNodeDisplayNode.SetSliceIntersectionVisibility(1)
+
+      # Reset camera
+      self.reset3DViews()
+
       self.validateExtractBone()
 
     if not cliNode.IsBusy():
@@ -1232,6 +1253,30 @@ class WorkflowWidget:
 
   def onExtractSkinCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # Hide input
+      inputMesh = self.get('ExtractSkinInputComboBox').currentNode()
+      displayNode = inputMesh.GetDisplayNode()
+      if displayNode != None:
+        displayNode.SetVisibility(False)
+
+      # Set opacity
+      newNode = self.get('ExtractSkinOutputComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      newNodeDisplayNode.SetOpacity(0.2)
+
+      # Set color
+      colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      if colorNode:
+        color = [0, 0, 0]
+        lookupTable = colorNode.GetLookupTable().GetColor(self.get('ExtractSkinMaterialSpinBox').value, color)
+        newNodeDisplayNode.SetColor(color)
+
+      # Set Clip intersection ON
+      newNodeDisplayNode.SetSliceIntersectionVisibility(1)
+
+      # Reset camera
+      self.reset3DViews()
+
       self.validateExtractSkin()
 
     if not cliNode.IsBusy():
