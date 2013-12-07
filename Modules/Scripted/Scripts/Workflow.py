@@ -197,7 +197,7 @@ class WorkflowWidget:
     self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
     self.get('ArmaturesArmatureNodeComboBox').connect('nodeAdded(vtkMRMLNode*)',self.onArmatureNodeAdded)
     self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
-    #self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
     self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
 
@@ -1209,6 +1209,7 @@ class WorkflowWidget:
 
     self.get('ExtractSkinOutputToolButton').enabled = valid
     self.get('ExtractSkinToolButton').enabled = valid
+    self.get('ArmaturesToggleVisiblePushButton').enabled = valid
     self.get('ExtractSkinCollapsibleGroupBox').setProperty('valid',valid)
 
     self.validateMeshPage(validateSections = False)
@@ -1372,6 +1373,13 @@ class WorkflowWidget:
     self.removeObservers(self.onArmatureNodeModified)
     if self.get('ArmaturesArmatureNodeComboBox').currentNode() == armatureNode:
       self.setCurrentArmatureModelNode(armatureNode)
+
+  def updateSkinNodeVisibility(self):
+    skinNode = self.get('ExtractSkinOutputComboBox').currentNode()
+    if skinNode:
+      skinDisplayNode = skinNode.GetModelDisplayNode()
+      if skinDisplayNode:
+        skinDisplayNode.SetVisibility(not skinDisplayNode.GetVisibility())
 
   def loadArmatureNode(self):
     self.loadFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))
