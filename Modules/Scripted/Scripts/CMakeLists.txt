@@ -20,6 +20,7 @@
 
 set(KIT_PYTHON_SCRIPTS
   BenderSampleData.py
+  BenderLabelStatistics.py
   SkinModelMaker.py
   Workflow.py
   )
