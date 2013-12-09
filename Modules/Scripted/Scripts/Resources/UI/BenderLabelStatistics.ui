@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>BenderLabelStatistics</class>
+ <widget class="qMRMLWidget" name="BenderLabelStatistics">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>370</width>
+    <height>207</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Sample Data</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="labelmapLabel">
+     <property name="toolTip">
+      <string>Pick the volume for the statistics calculations.</string>
+     </property>
+     <property name="text">
+      <string>Labelmap</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="qMRMLNodeComboBox" name="labelmapSelector">
+     <property name="toolTip">
+      <string>Pick the volume for the statistics calculations.</string>
+     </property>
+     <property name="nodeTypes">
+      <stringlist>
+       <string>vtkMRMLScalarVolumeNode</string>
+      </stringlist>
+     </property>
+     <property name="noneEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="addEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="removeEnabled">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <widget class="QTableView" name="view">
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QFrame" name="chartFrame">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QPushButton" name="chartButton">
+        <property name="toolTip">
+         <string>View the chart of the currently selected statistic.</string>
+        </property>
+        <property name="text">
+         <string>Create new chart</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="chartOption">
+        <property name="toolTip">
+         <string>Choose the type of statistics displayed.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Count</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Volume (cubic millimeter)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Volume (cubic centimeter)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Minimum</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Maximum</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mean</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Standard deviation</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chartIgnoreZero">
+        <property name="toolTip">
+         <string>Do not include the zero index in the chart to avoid dwarfing other bars.</string>
+        </property>
+        <property name="text">
+         <string>Ignore Zero</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="saveButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Save the current statistic to CSV.</string>
+        </property>
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="grayscaleLabel">
+     <property name="text">
+      <string>Grayscale volume (optionnal)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="qMRMLNodeComboBox" name="grayscaleSelector">
+     <property name="nodeTypes">
+      <stringlist>
+       <string>vtkMRMLScalarVolumeNode</string>
+      </stringlist>
+     </property>
+     <property name="noneEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="addEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="removeEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="selectNodeUponCreation">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Apply</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>BenderLabelStatistics</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>labelmapSelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>205</x>
+     <y>18</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BenderLabelStatistics</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>grayscaleSelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>166</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>258</x>
+     <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

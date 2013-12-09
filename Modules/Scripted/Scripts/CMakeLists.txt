@@ -19,13 +19,14 @@
 #============================================================================
 
 set(KIT_PYTHON_SCRIPTS
-  BenderSampleData.py
   BenderLabelStatistics.py
+  BenderSampleData.py
   SkinModelMaker.py
   Workflow.py
   )
 
 set(KIT_PYTHON_RESOURCES
+  Resources/UI/BenderLabelStatistics.ui
   Resources/UI/BenderSampleData.ui
   Resources/UI/SkinModelMaker.ui
   Resources/UI/Workflow.ui
