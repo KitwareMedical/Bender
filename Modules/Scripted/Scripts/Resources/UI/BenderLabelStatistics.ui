@@ -6,159 +6,241 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>387</width>
-    <height>266</height>
+    <width>396</width>
+    <height>297</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Sample Data</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="labelmapLabel">
-     <property name="toolTip">
-      <string>Pick the volume for the statistics calculations.</string>
-     </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="ctkCollapsibleButton" name="InputsCollapsibleButton">
      <property name="text">
-      <string>Labelmap</string>
+      <string>Inputs</string>
      </property>
-    </widget>
-   </item>
-   <item row="0" column="1">
-    <widget class="qMRMLNodeComboBox" name="labelmapSelector">
-     <property name="toolTip">
-      <string>Pick the volume for the statistics calculations.</string>
+     <property name="contentsFrameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-     <property name="nodeTypes">
-      <stringlist>
-       <string>vtkMRMLScalarVolumeNode</string>
-      </stringlist>
-     </property>
-     <property name="noneEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="addEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="removeEnabled">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0" colspan="2">
-    <widget class="QTableView" name="view">
-     <property name="sortingEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
-    <widget class="QFrame" name="chartFrame">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Raised</enum>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QPushButton" name="chartButton">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelmapLabel">
         <property name="toolTip">
-         <string>View the chart of the currently selected statistic.</string>
+         <string>Pick the volume for the statistics calculations.</string>
         </property>
         <property name="text">
-         <string>Create new chart</string>
+         <string>Labelmap</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QComboBox" name="chartOption">
+      <item row="0" column="1">
+       <widget class="qMRMLNodeComboBox" name="labelmapSelector">
         <property name="toolTip">
-         <string>Choose the type of statistics displayed.</string>
+         <string>Pick the volume for the statistics calculations.</string>
         </property>
-        <item>
-         <property name="text">
-          <string>Count</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Volume (cubic millimeter)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Volume (cubic centimeter)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Minimum</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Maximum</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mean</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Standard deviation</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chartIgnoreZero">
-        <property name="toolTip">
-         <string>Do not include the zero index in the chart to avoid dwarfing other bars.</string>
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLScalarVolumeNode</string>
+         </stringlist>
         </property>
-        <property name="text">
-         <string>Ignore Zero</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QToolButton" name="saveButton">
-        <property name="enabled">
+        <property name="noneEnabled">
          <bool>false</bool>
         </property>
+        <property name="addEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="grayscaleLabel">
+        <property name="text">
+         <string>Grayscale volume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="qMRMLNodeComboBox" name="grayscaleSelector">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLScalarVolumeNode</string>
+         </stringlist>
+        </property>
+        <property name="noneEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="addEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="selectNodeUponCreation">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="ROILabel">
         <property name="toolTip">
-         <string>Save the current statistic to CSV.</string>
+         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
         </property>
         <property name="text">
-         <string>...</string>
+         <string>Region of interest (ROI)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="qMRMLNodeComboBox" name="ROISelector">
+        <property name="toolTip">
+         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
+        </property>
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLAnnotationROINode</string>
+         </stringlist>
+        </property>
+        <property name="baseName">
+         <string>StatisticsROI</string>
+        </property>
+        <property name="noneEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="editEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="renameEnabled">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item>
+    <widget class="ctkCollapsibleButton" name="ViewCollapsibleButton">
+     <property name="text">
+      <string>Results</string>
+     </property>
+     <property name="contentsFrameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QTableView" name="view">
+        <property name="sortingEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QFrame" name="chartFrame">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QComboBox" name="chartOption">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Choose the type of statistics displayed.</string>
+           </property>
+           <item>
+            <property name="text">
+             <string>Count</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Volume (cubic millimeter)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Volume (cubic centimeter)</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Minimum</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Maximum</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mean</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Standard deviation</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chartIgnoreZero">
+           <property name="toolTip">
+            <string>Do not include the zero index in the chart to avoid dwarfing other bars.</string>
+           </property>
+           <property name="text">
+            <string>Ignore Zero</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="chartButton">
+           <property name="toolTip">
+            <string>View the chart of the currently selected statistic.</string>
+           </property>
+           <property name="text">
+            <string>Create new chart</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -171,7 +253,7 @@
      </property>
     </spacer>
    </item>
-   <item row="3" column="1">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
       <spacer name="horizontalSpacer_2">
@@ -202,81 +284,17 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="saveButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Export</string>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="ctkCollapsibleGroupBox" name="OptionnalInputGroupBox">
-     <property name="title">
-      <string>Optionnal</string>
-     </property>
-     <property name="collapsed">
-      <bool>true</bool>
-     </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="grayscaleLabel">
-        <property name="text">
-         <string>Grayscale volume</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="qMRMLNodeComboBox" name="grayscaleSelector">
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLScalarVolumeNode</string>
-         </stringlist>
-        </property>
-        <property name="noneEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="addEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="removeEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="selectNodeUponCreation">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="ROILabel">
-        <property name="toolTip">
-         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
-        </property>
-        <property name="text">
-         <string>Region of interest (ROI)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="qMRMLNodeComboBox" name="ROISelector">
-        <property name="toolTip">
-         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
-        </property>
-        <property name="nodeTypes">
-         <stringlist>
-          <string>vtkMRMLAnnotationROINode</string>
-         </stringlist>
-        </property>
-        <property name="baseName">
-         <string>StatisticsROI</string>
-        </property>
-        <property name="noneEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="editEnabled">
-         <bool>false</bool>
-        </property>
-        <property name="renameEnabled">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
    </item>
   </layout>
  </widget>
@@ -293,9 +311,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>ctkCollapsibleGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>ctkCollapsibleGroupBox.h</header>
+   <class>ctkCollapsibleButton</class>
+   <extends>QWidget</extends>
+   <header>ctkCollapsibleButton.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
