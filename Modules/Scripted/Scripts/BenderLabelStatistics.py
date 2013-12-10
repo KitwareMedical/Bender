@@ -10,6 +10,7 @@ class BenderLabelStatistics:
     parent.title = "Bender Label Statistics"
     parent.categories = ["Quantification"]
     parent.contributors = ["Steve Pieper (Isomics), Johan Andruejol (Kitware)"]
+    parent.dependencies = ["CropVolume"]
     parent.helpText = string.Template("""
 Use this module to calculate counts and volumes for different labels of a label map plus statistics on the grayscale background volume.  Note: volumes must have same dimensions.  See <a href=\"$a/Documentation/$b.$c/Modules/LabelStatistics\">$a/Documentation/$b.$c/Modules/LabelStatistics</a> for more information.
     """).substitute({ 'a':parent.slicerWikiUrl, 'b':slicer.app.majorVersion, 'c':slicer.app.minorVersion })
@@ -33,6 +34,7 @@ class BenderLabelStatisticsWidget:
     self.logic = None
     self.grayscaleNode = None
     self.labelmapNode = None
+    self.roiNode = None
     self.fileName = None
     self.fileDialog = None
 
@@ -77,10 +79,11 @@ class BenderLabelStatisticsWidget:
 
     self.labelmapNode = self.get('labelmapSelector').currentNode()
     self.grayscaleNode = self.get('grayscaleSelector').currentNode()
+    self.roiNode = self.get('ROISelector').currentNode()
 
     self.get('applyButton').setChecked(True)
 
-    self.logic = BenderLabelStatisticsLogic(self.grayscaleNode, self.labelmapNode)
+    self.logic = BenderLabelStatisticsLogic(self.grayscaleNode, self.labelmapNode, self.roiNode)
     self.populateStats()
     self.get('chartFrame').enabled = (self.labelmapNode != None)
     self.get('saveButton').enabled = (self.labelmapNode != None)
@@ -176,7 +179,7 @@ class BenderLabelStatisticsLogic:
   Results are stored as 'statistics' instance variable.
   """
   
-  def __init__(self, grayscaleNode, labelmapNode, fileName=None):
+  def __init__(self, grayscaleNode, labelmapNode, roiNode = None, fileName=None):
     self.keys = ("Index",
                  "Count",
                  "Volume (cubic millimeter)",
@@ -194,9 +197,19 @@ class BenderLabelStatisticsLogic:
     
     self.labelStats = {}
     self.labelStats['Labels'] = []
-   
+
+    labelmapImageData = labelmapNode.GetImageData()
+    croppedImageNode = None
+    if roiNode:
+      # Rely on crop volume logic
+      cropLogic = slicer.modules.cropvolume.logic()
+      croppedImageNode = slicer.vtkMRMLScalarVolumeNode()
+      cropLogic.SnapROIToVoxelGrid(roiNode, labelmapNode)
+      cropLogic.CropVoxelBased(roiNode, labelmapNode, croppedImageNode)
+      labelmapImageData = croppedImageNode.GetImageData()
+
     stataccum = vtk.vtkImageAccumulate()
-    stataccum.SetInput(labelmapNode.GetImageData())
+    stataccum.SetInput(labelmapImageData)
     stataccum.Update()
     lo = int(stataccum.GetMin()[0])
     hi = int(stataccum.GetMax()[0])
@@ -212,7 +225,7 @@ class BenderLabelStatisticsLogic:
       # //logic copied from slicer2 LabelStatistics MaskStat
       # // create the binary volume of the label
       thresholder = vtk.vtkImageThreshold()
-      thresholder.SetInput(labelmapNode.GetImageData())
+      thresholder.SetInput(labelmapImageData)
       thresholder.SetInValue(1)
       thresholder.SetOutValue(0)
       thresholder.ReplaceOutOn()
@@ -220,7 +233,7 @@ class BenderLabelStatisticsLogic:
       if grayscaleNode:
         thresholder.SetOutputScalarType(grayscaleNode.GetImageData().GetScalarType())
       else:
-        thresholder.SetOutputScalarType(labelmapNode.GetImageData().GetScalarType())
+        thresholder.SetOutputScalarType(labelmapImageData.GetScalarType())
       thresholder.Update()
       
       # this.InvokeEvent(vtkLabelStatisticsLogic::LabelStatsInnerLoop, (void*)"0.25");
@@ -236,7 +249,7 @@ class BenderLabelStatisticsLogic:
       if grayscaleNode != None:
         stat1.SetInput(grayscaleNode.GetImageData())
       else:
-        stat1.SetInput(labelmapNode.GetImageData())
+        stat1.SetInput(labelmapImageData)
       stat1.SetStencil(stencil.GetOutput())
       stat1.Update()
 

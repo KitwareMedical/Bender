@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>370</width>
-    <height>207</height>
+    <width>387</width>
+    <height>266</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -158,34 +158,6 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="grayscaleLabel">
-     <property name="text">
-      <string>Grayscale volume (optionnal)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="qMRMLNodeComboBox" name="grayscaleSelector">
-     <property name="nodeTypes">
-      <stringlist>
-       <string>vtkMRMLScalarVolumeNode</string>
-      </stringlist>
-     </property>
-     <property name="noneEnabled">
-      <bool>true</bool>
-     </property>
-     <property name="addEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="removeEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="selectNodeUponCreation">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
    <item row="6" column="0" colspan="2">
     <spacer name="verticalSpacer">
      <property name="orientation">
@@ -232,6 +204,80 @@
      </item>
     </layout>
    </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="ctkCollapsibleGroupBox" name="OptionnalInputGroupBox">
+     <property name="title">
+      <string>Optionnal</string>
+     </property>
+     <property name="collapsed">
+      <bool>true</bool>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="grayscaleLabel">
+        <property name="text">
+         <string>Grayscale volume</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="qMRMLNodeComboBox" name="grayscaleSelector">
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLScalarVolumeNode</string>
+         </stringlist>
+        </property>
+        <property name="noneEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="addEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="removeEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="selectNodeUponCreation">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="ROILabel">
+        <property name="toolTip">
+         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
+        </property>
+        <property name="text">
+         <string>Region of interest (ROI)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="qMRMLNodeComboBox" name="ROISelector">
+        <property name="toolTip">
+         <string>Select the region of interest that in which to run the statistics. If none is specified (by default), the statistics are run over the whole labelmap.</string>
+        </property>
+        <property name="nodeTypes">
+         <stringlist>
+          <string>vtkMRMLAnnotationROINode</string>
+         </stringlist>
+        </property>
+        <property name="baseName">
+         <string>StatisticsROI</string>
+        </property>
+        <property name="noneEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="editEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="renameEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <customwidgets>
@@ -244,6 +290,12 @@
    <class>qMRMLWidget</class>
    <extends>QWidget</extends>
    <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkCollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>ctkCollapsibleGroupBox.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
@@ -278,6 +330,22 @@
     <hint type="destinationlabel">
      <x>258</x>
      <y>44</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>BenderLabelStatistics</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ROISelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>193</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>254</x>
+     <y>59</y>
     </hint>
    </hints>
   </connection>
