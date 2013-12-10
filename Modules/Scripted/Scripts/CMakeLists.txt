@@ -21,12 +21,14 @@
 set(KIT_PYTHON_SCRIPTS
   BenderSampleData.py
   SkinModelMaker.py
+  SimpleWorkflow.py
   Workflow.py
   )
 
 set(KIT_PYTHON_RESOURCES
   Resources/UI/BenderSampleData.ui
   Resources/UI/SkinModelMaker.ui
+  Resources/UI/SimpleWorkflow.ui
   Resources/UI/Workflow.ui
   )
 

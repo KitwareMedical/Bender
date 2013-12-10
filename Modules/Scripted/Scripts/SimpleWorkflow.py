@@ -1,21 +1,18 @@
 # Regular Scripted module import
 from __main__ import vtk, qt, ctk, slicer
 
-# Other scripted modules import
-import SkinModelMaker
-
 #
-# Workflow
+# SimpleWorkflow
 #
 
-class Workflow:
+class SimpleWorkflow:
   def __init__(self, parent):
     import string
-    parent.title = "Bender FEM Workflow"
+    parent.title = "Bender Simple Workflow"
     parent.categories = ["", "Segmentation.Bender"]
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
     parent.helpText = string.Template("""
-Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/Workflow\">$a/Documentation/$b.$c/Modules/Workflow</a> for more information.
+Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/SimpleWorkflow\">$a/Documentation/$b.$c/Modules/SimpleWorkflow</a> for more information.
     """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
@@ -24,10 +21,10 @@ Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$
     self.parent = parent
 
 #
-# Workflow widget
+# SimpleWorkflow widget
 #
 
-class WorkflowWidget:
+class SimpleWorkflowWidget:
   def __init__(self, parent = None):
     if not parent:
       self.setup()
@@ -45,10 +42,10 @@ class WorkflowWidget:
 
     import imp, sys, os, slicer, qt
     loader = qt.QUiLoader()
-    moduleName = 'Workflow'
+    moduleName = 'SimpleWorkflow'
     scriptedModulesPath = eval('slicer.modules.%s.path' % moduleName.lower())
     scriptedModulesPath = os.path.dirname(scriptedModulesPath)
-    path = os.path.join(scriptedModulesPath, 'Resources', 'UI', 'Workflow.ui')
+    path = os.path.join(scriptedModulesPath, 'Resources', 'UI', 'SimpleWorkflow.ui')
 
     qfile = qt.QFile(path)
     qfile.open(qt.QFile.ReadOnly)
@@ -57,7 +54,8 @@ class WorkflowWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
-    self.WorkflowWidget = self.get('WorkflowWidget')
+    self.WorkflowWidget = self.get('SimpleWorkflowWidget')
+    print(self.WorkflowWidget)
     self.TitleLabel = self.get('TitleLabel')
 
     # Global variables
@@ -978,6 +976,8 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   #     c) Skin Model Maker
   def initSkinModelMakerLabels(self):
+    import SkinModelMaker
+
     self.SkinModelMakerLogic = SkinModelMaker.SkinModelMakerLogic()
     self.validateSkinModelMakerLabels()
 
@@ -1880,7 +1880,7 @@ class WorkflowWidget:
         return node
     return None
 
-  def reloadModule(self,moduleName="Workflow"):
+  def reloadModule(self,moduleName="SimpleWorkflow"):
     """Generic reload method for any scripted module.
     ModuleWizard will subsitute correct default moduleName.
     """
@@ -1926,7 +1926,7 @@ class WorkflowWidget:
 
   # =================== END ==============
 
-class WorkflowLogic:
+class SimpleWorkflowLogic:
   """Implement the logic to calculate label statistics.
   Nodes are passed in as arguments.
   Results are stored as 'statistics' instance variable.
@@ -1963,12 +1963,12 @@ class Slicelet(object):
       self.widget.setup()
     self.parent.show()
 
-class WorkflowSlicelet(Slicelet):
+class SimpleWorkflowSlicelet(Slicelet):
   """ Creates the interface when module is run as a stand alone gui app.
   """
 
   def __init__(self):
-    super(WorkflowSlicelet,self).__init__(WorkflowWidget)
+    super(SimpleWorkflowSlicelet,self).__init__(SimpleWorkflowWidget)
 
 
 if __name__ == "__main__":
@@ -1978,4 +1978,4 @@ if __name__ == "__main__":
   import sys
   print( sys.argv )
 
-  slicelet = WorkflowSlicelet()
+  slicelet = SimpleWorkflowSlicelet()
