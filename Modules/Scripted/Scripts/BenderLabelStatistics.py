@@ -213,6 +213,7 @@ class BenderLabelStatisticsLogic:
                        "Maximum" : False,
                        "Mean" : False,
                        "Standard deviation" : False,
+                       "Percentage of volume" : True,
                       }
 
     self.labelStats = {}
@@ -244,6 +245,9 @@ class BenderLabelStatisticsLogic:
     stataccum.Update()
     lo = int(stataccum.GetMin()[0])
     hi = int(stataccum.GetMax()[0])
+
+    totalNumberOfLabel = stataccum.GetVoxelCount()
+    totalVolume = totalNumberOfLabel * cubicMMPerVoxel
 
     for i in xrange(lo,hi+1):
 
@@ -292,6 +296,7 @@ class BenderLabelStatisticsLogic:
         self.labelStats[i,"Index"] = i
         self.labelStats[i,"Count"] = stat1.GetVoxelCount()
         self.labelStats[i,"Volume (cubic millimeter)"] = self.labelStats[i,"Count"] * cubicMMPerVoxel
+        self.labelStats[i,"Percentage of volume"] = self.labelStats[i,"Volume (cubic millimeter)"] / totalVolume
 
         if grayscaleNode != None:
           self.labelStats[i,"Minimum"] = stat1.GetMin()[0]
