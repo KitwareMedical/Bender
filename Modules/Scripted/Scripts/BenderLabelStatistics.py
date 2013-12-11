@@ -31,7 +31,7 @@ class BenderLabelStatisticsWidget:
     else:
       self.parent = parent
 
-    self.logic = None
+    self.logic = BenderLabelStatisticsLogic()
     self.grayscaleNode = None
     self.labelmapNode = None
     self.roiNode = None
@@ -55,6 +55,9 @@ class BenderLabelStatisticsWidget:
     # input filters
     self.get('labelmapSelector').addAttribute( "vtkMRMLScalarVolumeNode", "LabelMap", "1" )
 
+    # Fill options
+    self.populateChartOptions()
+
     # icons
     saveIcon = self.get('BenderLabelStatistics').style().standardIcon(qt.QStyle.SP_DialogSaveButton)
     self.get('saveButton').icon = saveIcon
@@ -66,6 +69,15 @@ class BenderLabelStatisticsWidget:
     self.get('labelmapSelector').connect('currentNodeChanged(vtkMRMLNode*)', self.onLabelSelect)
 
     self.widget.setMRMLScene(slicer.mrmlScene)
+
+  def populateChartOptions(self):
+    grayscaleEnabled = (self.grayscaleNode != None)
+    options = self.get('chartOption')
+    options.clear()
+    for key in self.logic.statistics:
+      if self.logic.statistics[key] or grayscaleEnabled:
+        options.addItem(key)
+    options.setCurrentIndex(0)
 
   def onLabelSelect(self, node):
     self.labelmapNode = node
@@ -83,8 +95,9 @@ class BenderLabelStatisticsWidget:
 
     self.get('applyButton').setChecked(True)
 
-    self.logic = BenderLabelStatisticsLogic(self.grayscaleNode, self.labelmapNode, self.roiNode)
+    self.logic.computeStatistics(self.grayscaleNode, self.labelmapNode, self.roiNode)
     self.populateStats()
+    self.populateChartOptions()
     self.get('chartFrame').enabled = (self.labelmapNode != None)
     self.get('saveButton').enabled = (self.labelmapNode != None)
 
@@ -110,7 +123,7 @@ class BenderLabelStatisticsWidget:
     self.fileDialog.show()
 
   def onFileSelected(self,fileName):
-    self.logic.saveStats(fileName)
+    self.logic.saveStats(fileName, self.grayscaleNode != None)
 
   def populateStats(self):
     if not self.logic:
@@ -122,6 +135,8 @@ class BenderLabelStatisticsWidget:
       lut = colorNode.GetLookupTable()
     except AttributeError:
       return
+
+    grayscaleEnabled = (self.grayscaleNode != None)
 
     self.items = []
     self.model = qt.QStandardItemModel()
@@ -139,22 +154,26 @@ class BenderLabelStatisticsWidget:
       self.model.setItem(row,0,item)
       self.items.append(item)
       col = 1
-      for k in self.logic.keys:
-        item = qt.QStandardItem()
-        item.setText(str(self.logic.labelStats[i,k]))
-        item.setToolTip(colorNode.GetColorName(i))
-        self.model.setItem(row,col,item)
-        self.items.append(item)
-        col += 1
+      for key in self.logic.statistics:
+        if self.logic.statistics[key] or grayscaleEnabled:
+          item = qt.QStandardItem()
+          item.setText(str(self.logic.labelStats[i,key]))
+          item.setToolTip(colorNode.GetColorName(i))
+          self.model.setItem(row,col,item)
+          self.items.append(item)
+          col += 1
       row += 1
 
     self.get('view').setColumnWidth(0,30)
     self.model.setHeaderData(0,1," ")
     col = 1
-    for k in self.logic.keys:
-      self.get('view').setColumnWidth(col,15*len(k))
-      self.model.setHeaderData(col,1,k)
-      col += 1
+    for key in self.logic.statistics:
+      if self.logic.statistics[key] or grayscaleEnabled:
+        self.get('view').setColumnWidth(col,15*len(key))
+        self.model.setHeaderData(col,1,key)
+        col += 1
+
+    self.get('view').resizeColumnsToContents()
 
   ### Widget methods ###
 
@@ -179,22 +198,33 @@ class BenderLabelStatisticsLogic:
   Results are stored as 'statistics' instance variable.
   """
   
-  def __init__(self, grayscaleNode, labelmapNode, roiNode = None, fileName=None):
-    self.keys = ("Index",
-                 "Count",
-                 "Volume (cubic millimeter)",
-                 "Volume (cubic centimeter)",
-                 "Minimum",
-                 "Maximum",
-                 "Mean",
-                 "Standard deviation",
-                 )
+  def __init__(self):
+    '''
+    The statistics dictionnary gathers all the different statistics ran by the
+    logic. For each key, a booelan value is associated to know whether the
+    statistics depends on the presence of a graysacle image. If it does not
+    depend on the grayscale image then it is True, False otherwise.
+    '''
+    self.statistics = {"Index" : True,
+                       "Count" : True,
+                       "Volume (cubic millimeter)" : True,
+                       "Minimum" : False,
+                       "Maximum" : False,
+                       "Mean" : False,
+                       "Standard deviation" : False,
+                      }
+
+    self.labelStats = {}
+
+  def computeStatistics(self, grayscaleNode, labelmapNode, roiNode = None, fileName=None):
+    if not labelmapNode:
+      return
+
     cubicMMPerVoxel = reduce(lambda x,y: x*y, labelmapNode.GetSpacing())
     ccPerCubicMM = 0.001
 
     # TODO: progress and status updates
     # this->InvokeEvent(vtkLabelStatisticsLogic::StartLabelStats, (void*)"start label stats")
-    
     self.labelStats = {}
     self.labelStats['Labels'] = []
 
@@ -261,11 +291,12 @@ class BenderLabelStatisticsLogic:
         self.labelStats[i,"Index"] = i
         self.labelStats[i,"Count"] = stat1.GetVoxelCount()
         self.labelStats[i,"Volume (cubic millimeter)"] = self.labelStats[i,"Count"] * cubicMMPerVoxel
-        self.labelStats[i,"Volume (cubic centimeter)"] = self.labelStats[i,"Volume (cubic millimeter)"] * ccPerCubicMM
-        self.labelStats[i,"Minimum"] = stat1.GetMin()[0]
-        self.labelStats[i,"Maximum"] = stat1.GetMax()[0]
-        self.labelStats[i,"Mean"] = stat1.GetMean()[0]
-        self.labelStats[i,"Standard deviation"] = stat1.GetStandardDeviation()[0]
+
+        if grayscaleNode != None:
+          self.labelStats[i,"Minimum"] = stat1.GetMin()[0]
+          self.labelStats[i,"Maximum"] = stat1.GetMax()[0]
+          self.labelStats[i,"Mean"] = stat1.GetMean()[0]
+          self.labelStats[i,"Standard deviation"] = stat1.GetStandardDeviation()[0]
         
         # this.InvokeEvent(vtkLabelStatisticsLogic::LabelStatsInnerLoop, (void*)"1")
 
@@ -318,28 +349,34 @@ class BenderLabelStatisticsLogic:
       chartNode.SetProperty(valueToPlot, 'lookupTable', labelNode.GetDisplayNode().GetColorNodeID());
 
 
-  def statsAsCSV(self):
+  def statsAsCSV(self, grayscaleStats):
     """
     print comma separated value file with header keys in quotes
     """
     csv = ""
     header = ""
-    for k in self.keys[:-1]:
-      header += "\"%s\"" % k + ","
-    header += "\"%s\"" % self.keys[-1] + "\n"
+    statisticsType = self.statistics.keys()
+    for key in statisticsType:
+      if self.statistics[key] or grayscaleStats:
+        header += "\"%s\"" % key + ","
+    header = header[:-1] + "\n"
     csv = header
     for i in self.labelStats["Labels"]:
       line = ""
-      for k in self.keys[:-1]:
-        line += str(self.labelStats[i,k]) + ","
-      line += str(self.labelStats[i,self.keys[-1]]) + "\n"
+      for key in statisticsType:
+        if self.statistics[key] or grayscaleStats:
+          line += str(self.labelStats[i,key]) + ","
+
+      line = line[:-1] + "\n"
       csv += line
     return csv
 
-  def saveStats(self,fileName):
+  def saveStats(self,fileName, grayscaleStats):
     fp = open(fileName, "w")
-    fp.write(self.statsAsCSV())
-    fp.close()
+    try:
+      fp.write(self.statsAsCSV(grayscaleStats))
+    finally:
+      fp.close()
 
 class Slicelet(object):
   """A slicer slicelet is a module widget that comes up in stand alone mode

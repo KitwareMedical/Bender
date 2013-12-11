@@ -136,6 +136,9 @@
         <property name="sortingEnabled">
          <bool>true</bool>
         </property>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
        </widget>
       </item>
       <item row="1" column="0">
@@ -177,41 +180,6 @@
            <property name="toolTip">
             <string>Choose the type of statistics displayed.</string>
            </property>
-           <item>
-            <property name="text">
-             <string>Count</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Volume (cubic millimeter)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Volume (cubic centimeter)</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Minimum</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Maximum</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Mean</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Standard deviation</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item>
