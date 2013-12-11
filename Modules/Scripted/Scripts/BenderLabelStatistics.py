@@ -150,6 +150,7 @@ class BenderLabelStatisticsWidget:
       item = qt.QStandardItem()
       item.setEditable(False)
       item.setData(color,1)
+      item.setText(colorNode.GetColorName(i))
       item.setToolTip(colorNode.GetColorName(i))
       self.model.setItem(row,0,item)
       self.items.append(item)
@@ -165,7 +166,7 @@ class BenderLabelStatisticsWidget:
       row += 1
 
     self.get('view').setColumnWidth(0,30)
-    self.model.setHeaderData(0,1," ")
+    self.model.setHeaderData(0,1,"Color")
     col = 1
     for key in self.logic.statistics:
       if self.logic.statistics[key] or grayscaleEnabled:
