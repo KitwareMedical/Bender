@@ -26,13 +26,7 @@
       <index>1</index>
       <description><![CDATA[Result tetrahedral mesh]]></description>
     </geometry>
-    
-    <boolean>
-      <name>padding</name>
-      <label>Add padding to input volumes. </label>
-      <longflag>--padding</longflag>
-      <default>false</default>
-    </boolean>
+
     <boolean>
       <name>verbose</name>
       <label>Verbose </label>
