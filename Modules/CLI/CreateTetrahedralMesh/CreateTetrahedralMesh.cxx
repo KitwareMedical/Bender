@@ -139,7 +139,7 @@ int main( int argc, char * argv[] )
 namespace
 {
 std::vector<Cleaver::LabelMapField::ImageType::Pointer >
-SplitLabelMaps(Cleaver::LabelMapField::ImageType *image)
+SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
 {
 
   typedef Cleaver::LabelMapField::ImageType LabelImageType;
@@ -155,8 +155,11 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image)
   relabelFilter->SetInput( image );
   relabelFilter->Update();
 
-  std::cout << "Total Number of Labels: " <<
-    relabelFilter->GetNumberOfObjects() << std::endl;
+  if (verbose)
+    {
+    std::cout << "Total Number of Labels: " <<
+      relabelFilter->GetNumberOfObjects() << std::endl;
+    }
 
   // Extract the labels
   typedef RelabelFilterType::LabelType LabelType;
@@ -218,7 +221,7 @@ int DoIt( int argc, char * argv[] )
   std::vector<Cleaver::ScalarField*> labelMaps;
 
   std::vector<LabelImageType::Pointer> labels =
-    SplitLabelMaps(castingFilter->GetOutput());
+    SplitLabelMaps(castingFilter->GetOutput(), verbose);
 
   // Get a map from the original labels to the new labels
   std::map<InputPixelType, InputPixelType> originalLabels;
@@ -244,7 +247,10 @@ int DoIt( int argc, char * argv[] )
       }
     }
 
-  std::cout << "Total labels found:  " << labels.size() << std::endl;
+  if (verbose)
+    {
+    std::cout << "Total labels found:  " << labels.size() << std::endl;
+    }
   for(size_t i = 0; i < labels.size(); ++i)
     {
     labelMaps.push_back(new Cleaver::LabelMapField(labels[i]));
@@ -265,8 +271,11 @@ int DoIt( int argc, char * argv[] )
   Cleaver::AbstractVolume *volume = new Cleaver::Volume(labelMaps);
   volume = new Cleaver::PaddedVolume(volume);
 
-  std::cout << "Creating Mesh with Volume Size " << volume->size().toString() <<
-    std::endl;
+  if (verbose)
+    {
+    std::cout << "Creating Mesh with Volume Size "
+      << volume->size().toString() << std::endl;
+    }
 
   //--------------------------------
   //  Create Mesher & TetMesh
