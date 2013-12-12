@@ -40,8 +40,11 @@
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkTetra.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 #include <vtkPolyData.h>
 #include <vtkPolyDataWriter.h>
+#include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
@@ -209,28 +212,8 @@ int DoIt( int argc, char * argv[] )
   typename ReaderType::Pointer reader            = ReaderType::New();
   reader->SetFileName( InputVolume );
   reader->Update();
-//   if(padding)
-//     {
-//     typename ConstantPadType::Pointer paddingFilter = ConstantPadType::New();
-//     paddingFilter->SetInput(reader->GetOutput());
-//     typename InputImageType::SizeType lowerExtendRegion;
-//     lowerExtendRegion[0] = 1;
-//     lowerExtendRegion[1] = 1;
-//
-//     typename InputImageType::SizeType upperExtendRegion;
-//     upperExtendRegion[0] = 1;
-//     upperExtendRegion[1] = 1;
-//
-//     paddingFilter->SetPadLowerBound(lowerExtendRegion);
-//     paddingFilter->SetPadUpperBound(upperExtendRegion);
-//     paddingFilter->SetConstant(0);
-//     paddingFilter->Update();
-//     castingFilter->SetInput(paddingFilter->GetOutput());
-//     }
-//   else
-//     {
+
   castingFilter->SetInput(reader->GetOutput());
-//     }
 
   std::vector<Cleaver::ScalarField*> labelMaps;
 
@@ -280,9 +263,7 @@ int DoIt( int argc, char * argv[] )
     }
 
   Cleaver::AbstractVolume *volume = new Cleaver::Volume(labelMaps);
-
-  if(padding)
-    volume = new Cleaver::PaddedVolume(volume);
+  volume = new Cleaver::PaddedVolume(volume);
 
   std::cout << "Creating Mesh with Volume Size " << volume->size().toString() <<
     std::endl;
@@ -335,7 +316,8 @@ int DoIt( int argc, char * argv[] )
   for (size_t i = 0, end = cleaverMesh->verts.size(); i < end; ++i)
     {
     Cleaver::vec3 &pos = cleaverMesh->verts[i]->pos();
-    points->SetPoint(i, pos.x,pos.y,pos.z);
+
+    points->SetPoint(i, pos.x, pos.y, pos.z);
     }
 
   vtkSmartPointer<vtkPolyData> vtkMesh = vtkSmartPointer<vtkPolyData>::New();
@@ -346,7 +328,63 @@ int DoIt( int argc, char * argv[] )
   vtkNew<vtkCleanPolyData> cleanFilter;
   cleanFilter->SetInput(vtkMesh);
 
-  bender::IOUtils::WritePolyData(cleanFilter->GetOutput(), OutputMesh);
+  // Since cleaver does not take into account the image properties such as
+  // sapcing or origin, we need to transform the output points so the mesh can
+  // match the original image.
+  vtkNew<vtkTransform> transform;
+  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
+  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
+  LabelImageType::DirectionType imageDirection =
+    reader->GetOutput()->GetDirection();
+
+  // Transform points to RAS (what is concatenated first is done last !)
+  vtkNew<vtkMatrix4x4> rasMatrix;
+  rasMatrix->Identity();
+  rasMatrix->SetElement(0, 0, -1.0);
+  rasMatrix->SetElement(1, 1, -1.0);
+  transform->Concatenate(rasMatrix.GetPointer());
+
+  // Translation
+  double voxelSize[3];
+  voxelSize[0] = spacing[0]; voxelSize[1] = spacing[1]; voxelSize[2] = spacing[2];
+  double voxelDiagonale = vtkMath::Norm(voxelSize) / 2;
+
+  vtkNew<vtkMatrix4x4> directionMatrix;
+  directionMatrix->Identity();
+  for (int i = 0; i < imageDirection.RowDimensions; ++i)
+    {
+    for (int j = 0; j < imageDirection.ColumnDimensions; ++j)
+      {
+      directionMatrix->SetElement(i, j, imageDirection[i][j]);
+      }
+    }
+
+  vtkNew<vtkTransform> offsetTransform;
+  offsetTransform->Concatenate(directionMatrix.GetPointer());
+  double offset =
+    (Cleaver::PaddedVolume::DefaultThickness + 1) * voxelDiagonale;
+  double* offsets =
+    offsetTransform->TransformDoubleVector(offset, offset, offset);
+  transform->Translate(
+    origin[0] - offsets[0],
+    origin[1] - offsets[1],
+    origin[2] - offsets[2]);
+
+  // Scaling and rotation
+  vtkNew<vtkMatrix4x4> scaleMatrix;
+  scaleMatrix->DeepCopy(directionMatrix.GetPointer());
+  for (int i = 0; i < spacing.GetNumberOfComponents(); ++i)
+    {
+    scaleMatrix->SetElement(i, i, scaleMatrix->GetElement(i, i) * spacing[i]);
+    }
+  transform->Concatenate(scaleMatrix.GetPointer());
+
+  // Actual transformation
+  vtkNew<vtkTransformPolyDataFilter> transformFilter;
+  transformFilter->SetInput(cleanFilter->GetOutput());
+  transformFilter->SetTransform(transform.GetPointer());
+
+  bender::IOUtils::WritePolyData(transformFilter->GetOutput(), OutputMesh);
 
   // Clean up
   delete volume;
