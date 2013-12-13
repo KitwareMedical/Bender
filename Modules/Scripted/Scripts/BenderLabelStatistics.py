@@ -37,6 +37,7 @@ class BenderLabelStatisticsWidget:
     self.roiNode = None
     self.fileName = None
     self.fileDialog = None
+    self.label = None
 
   def setup(self):
     loader = qt.QUiLoader()
@@ -66,7 +67,10 @@ class BenderLabelStatisticsWidget:
     self.get('applyButton').connect('clicked(bool)', self.computeStatistics)
     self.get('chartButton').connect('clicked()', self.onChart)
     self.get('saveButton').connect('clicked()', self.onSave)
-    self.get('labelmapSelector').connect('currentNodeChanged(vtkMRMLNode*)', self.onLabelSelect)
+    self.get('labelmapSelector').connect('currentNodeChanged(vtkMRMLNode*)', self.onLabelMapSelected)
+    self.get('parametersPercentages').connect('stateChanged(int)', self.onComputePercentagesEnabled)
+    self.get('parametersLabel').connect('valueChanged(int)', self.onLabelValueChanged)
+    self.onComputePercentagesEnabled()
 
     self.widget.setMRMLScene(slicer.mrmlScene)
 
@@ -74,14 +78,33 @@ class BenderLabelStatisticsWidget:
     grayscaleEnabled = (self.grayscaleNode != None)
     options = self.get('chartOption')
     options.clear()
+
+    colorNode = None
+    if self.labelmapNode:
+      try:
+        displayNode = self.labelmapNode.GetDisplayNode()
+        colorNode = displayNode.GetColorNode()
+      except AttributeError:
+        return
+
     for key in self.logic.statistics:
-      if self.logic.statistics[key] or grayscaleEnabled:
-        options.addItem(key)
+      if self.logic.isKeyValid(key, grayscaleEnabled, self.label):
+        options.addItem(key, key)
     options.setCurrentIndex(0)
 
-  def onLabelSelect(self, node):
+  def onLabelValueChanged(self):
+    if self.get('parametersLabel').enabled:
+      self.label = self.get('parametersLabel').value
+    else:
+      self.label = None
+
+  def onLabelMapSelected(self, node):
     self.labelmapNode = node
     self.get('applyButton').enabled = (self.labelmapNode != None)
+
+  def onComputePercentagesEnabled(self):
+    self.get('parametersLabel').enabled = self.get('parametersPercentages').isChecked()
+    self.onLabelValueChanged()
 
   def computeStatistics(self, run):
     """Calculate the label statistics
@@ -95,7 +118,7 @@ class BenderLabelStatisticsWidget:
 
     self.get('applyButton').setChecked(True)
 
-    self.logic.computeStatistics(self.grayscaleNode, self.labelmapNode, self.roiNode)
+    self.logic.computeStatistics(self.grayscaleNode, self.labelmapNode, self.roiNode, self.label)
     self.populateStats()
     self.populateChartOptions()
     self.get('chartFrame').enabled = (self.labelmapNode != None)
@@ -106,7 +129,7 @@ class BenderLabelStatisticsWidget:
   def onChart(self):
     """chart the label statistics
     """
-    valueToPlot = self.get('chartOption').currentText
+    valueToPlot = self.get('chartOption').itemData(self.get('chartOption').currentIndex)
     ignoreZero = self.get('chartIgnoreZero').checked
     self.logic.createStatsChart(self.labelmapNode, valueToPlot, ignoreZero)
 
@@ -123,7 +146,7 @@ class BenderLabelStatisticsWidget:
     self.fileDialog.show()
 
   def onFileSelected(self,fileName):
-    self.logic.saveStats(fileName, self.grayscaleNode != None)
+    self.logic.saveStats(fileName, self.grayscaleNode != None, self.label)
 
   def populateStats(self):
     if not self.logic:
@@ -156,7 +179,7 @@ class BenderLabelStatisticsWidget:
       self.items.append(item)
       col = 1
       for key in self.logic.statistics:
-        if self.logic.statistics[key] or grayscaleEnabled:
+        if self.logic.isKeyValid(key, grayscaleEnabled, self.label):
           item = qt.QStandardItem()
           item.setText(str(self.logic.labelStats[i,key]))
           item.setToolTip(colorNode.GetColorName(i))
@@ -169,7 +192,7 @@ class BenderLabelStatisticsWidget:
     self.model.setHeaderData(0,1,"Color")
     col = 1
     for key in self.logic.statistics:
-      if self.logic.statistics[key] or grayscaleEnabled:
+      if self.logic.isKeyValid(key, grayscaleEnabled, self.label):
         self.get('view').setColumnWidth(col,15*len(key))
         self.model.setHeaderData(col,1,key)
         col += 1
@@ -213,12 +236,27 @@ class BenderLabelStatisticsLogic:
                        "Maximum" : False,
                        "Mean" : False,
                        "Standard deviation" : False,
-                       "Percentage of volume" : True,
+                       "Percentage of total volume" : True,
+                       "Percentage of label volume" : True,
+                       "Percentage of total volume except label volume" : True,
                       }
 
     self.labelStats = {}
 
-  def computeStatistics(self, grayscaleNode, labelmapNode, roiNode = None, fileName=None):
+  def isKeyPercentage(self, key):
+    isPercentage = key.split(' ')[0] == 'Percentage'
+    return key.split(' ')[0] == 'Percentage'
+
+  def isKeyPercentageAndValid(self, key, label):
+    return (label != None) if self.isKeyPercentage(key) else True
+
+  def isKeyGrayscaleAndValid(self, key, grayscaleEnabled):
+    return self.statistics[key] or grayscaleEnabled
+
+  def isKeyValid(self, key, grayscaleEnabled, label):
+    return self.isKeyPercentageAndValid(key, label) and self.isKeyGrayscaleAndValid(key, grayscaleEnabled)
+
+  def computeStatistics(self, grayscaleNode, labelmapNode, roiNode = None, label=None):
     if not labelmapNode:
       return
 
@@ -296,7 +334,6 @@ class BenderLabelStatisticsLogic:
         self.labelStats[i,"Index"] = i
         self.labelStats[i,"Count"] = stat1.GetVoxelCount()
         self.labelStats[i,"Volume (cubic millimeter)"] = self.labelStats[i,"Count"] * cubicMMPerVoxel
-        self.labelStats[i,"Percentage of volume"] = self.labelStats[i,"Volume (cubic millimeter)"] / totalVolume
 
         if grayscaleNode != None:
           self.labelStats[i,"Minimum"] = stat1.GetMin()[0]
@@ -305,6 +342,22 @@ class BenderLabelStatisticsLogic:
           self.labelStats[i,"Standard deviation"] = stat1.GetStandardDeviation()[0]
         
         # this.InvokeEvent(vtkLabelStatisticsLogic::LabelStatsInnerLoop, (void*)"1")
+
+    if label != None:
+      dimensions = [0.0, 0.0, 0.0]
+      labelmapNode.GetImageData().GetDimensions(dimensions)
+      totalVolume = reduce(lambda x, y: x*y, dimensions) * cubicMMPerVoxel
+
+      volumeOfLabel = 1
+      totalVolumeWithoutLabel = 1
+      if label in self.labelStats["Labels"]:
+        volumeOfLabel = self.labelStats[label, "Volume (cubic millimeter)"]
+        totalVolumeWithoutLabel = totalVolume - volumeOfLabel
+
+      for i in self.labelStats["Labels"]:
+        self.labelStats[i, "Percentage of total volume"] =  self.labelStats[i,"Volume (cubic millimeter)"] / totalVolume
+        self.labelStats[i, "Percentage of label volume"] =  self.labelStats[i,"Volume (cubic millimeter)"] / volumeOfLabel
+        self.labelStats[i, "Percentage of total volume except label volume"] =  self.labelStats[i,"Volume (cubic millimeter)"] / totalVolumeWithoutLabel
 
     # this.InvokeEvent(vtkLabelStatisticsLogic::EndLabelStats, (void*)"end label stats")
 
@@ -355,7 +408,7 @@ class BenderLabelStatisticsLogic:
       chartNode.SetProperty(valueToPlot, 'lookupTable', labelNode.GetDisplayNode().GetColorNodeID());
 
 
-  def statsAsCSV(self, grayscaleStats):
+  def statsAsCSV(self, grayscaleStats, label):
     """
     print comma separated value file with header keys in quotes
     """
@@ -363,24 +416,24 @@ class BenderLabelStatisticsLogic:
     header = ""
     statisticsType = self.statistics.keys()
     for key in statisticsType:
-      if self.statistics[key] or grayscaleStats:
+      if self.isKeyValid(key, grayscaleStats, self.label):
         header += "\"%s\"" % key + ","
     header = header[:-1] + "\n"
     csv = header
     for i in self.labelStats["Labels"]:
       line = ""
       for key in statisticsType:
-        if self.statistics[key] or grayscaleStats:
+        if self.isKeyValid(key, grayscaleStats, self.label):
           line += str(self.labelStats[i,key]) + ","
 
       line = line[:-1] + "\n"
       csv += line
     return csv
 
-  def saveStats(self,fileName, grayscaleStats):
+  def saveStats(self,fileName, grayscaleStats, label):
     fp = open(fileName, "w")
     try:
-      fp.write(self.statsAsCSV(grayscaleStats))
+      fp.write(self.statsAsCSV(grayscaleStats, label))
     finally:
       fp.close()
 

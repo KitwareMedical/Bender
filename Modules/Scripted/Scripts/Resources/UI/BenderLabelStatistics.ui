@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>396</width>
-    <height>297</height>
+    <height>383</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -115,6 +115,52 @@
          <bool>false</bool>
         </property>
         <property name="renameEnabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkCollapsibleButton" name="parametersCollapsibleButton">
+     <property name="text">
+      <string>Parameters</string>
+     </property>
+     <property name="contentsFrameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="1" column="0">
+       <widget class="QLabel" name="parametersLabelLabel">
+        <property name="toolTip">
+         <string>Check here the statistics displayed in the result table</string>
+        </property>
+        <property name="text">
+         <string>Label</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="parametersLabel">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="parametersPercentagesLabel">
+        <property name="text">
+         <string>Compute percentages</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="parametersPercentages">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checked">
          <bool>true</bool>
         </property>
        </widget>
