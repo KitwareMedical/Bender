@@ -282,6 +282,15 @@ int DoIt( int argc, char * argv[] )
   //--------------------------------
   Cleaver::TetMesh *cleaverMesh =
     Cleaver::createMeshFromVolume(volume, verbose);
+  if (!cleaverMesh)
+    {
+    // Clean up
+    delete volume;
+    delete cleaverMesh;
+
+    std::cerr << "Mesh computation failed !" << std::endl;
+    return EXIT_FAILURE;
+    }
 
   //------------------
   //  Compute Angles
