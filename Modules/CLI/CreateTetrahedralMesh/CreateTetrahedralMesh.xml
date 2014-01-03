@@ -31,7 +31,7 @@
       <name>verbose</name>
       <label>Verbose </label>
       <longflag>--verbose</longflag>
-      <default>true</default>
+      <default>false</default>
     </boolean>
   </parameters>
 </executable>
