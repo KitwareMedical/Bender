@@ -23,6 +23,7 @@ set(MODULE_NAME ModelQuadricClusteringDecimation) # Do not use 'project()'
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
+find_package(ITK REQUIRED)
 find_package(VTK REQUIRED)
 include(${VTK_USE_FILE})
 
@@ -37,6 +38,7 @@ set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
   vtkIO vtkGraphics
   SlicerBaseCLI
+  ${ITK_LIBRARIES}
   )
 
 SEMMacroBuildCLI(
