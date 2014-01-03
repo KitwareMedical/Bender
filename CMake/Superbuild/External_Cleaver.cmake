@@ -19,9 +19,9 @@
 #============================================================================
 
 #
-# Slicer
+# Cleaver
 #
-set(proj Bender)
+set(proj Cleaver)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -36,7 +36,7 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
 endif()
 
 # Set dependency list
-set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3 Cleaver)
+set(${proj}_DEPENDENCIES "")
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
@@ -59,37 +59,17 @@ if(NOT DEFINED ${proj}_DIR)
 
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
-    SOURCE_DIR ${Bender_SOURCE_DIR}
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    DOWNLOAD_COMMAND ""
-    CMAKE_GENERATOR ${gen}
+    GIT_REPOSITORY "git://public.kitware.com/Bender/Cleaver.git"
+    GIT_TAG "4d99b9ebdb202aa89b06f019d608a9a7250f3f6c"
+    UPDATE_COMMAND ""
     INSTALL_COMMAND ""
+    CMAKE_GENERATOR ${gen}
     CMAKE_ARGS
-      ${ctk_superbuild_boolean_args}
-      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
-      -DBender_SUPERBUILD:BOOL=OFF
-      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+      -DBUILD_CLEAVER_APP:BOOL=OFF
+      -DBUILD_SHARED_LIBS:BOOL=OFF
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCTEST_USE_LAUNCHERS:BOOL=${CTEST_USE_LAUNCHERS}
-      -DDOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY:PATH=${DOCUMENTATION_ARCHIVES_OUTPUT_DIRECTORY}
-      -DBender_INSTALL_BIN_DIR:STRING=${Slicer_INSTALL_BIN_DIR}
-      -DBender_INSTALL_LIB_DIR:STRING=${Slicer_INSTALL_LIB_DIR}
-      -DBender_INSTALL_INCLUDE_DIR:STRING=${Bender_INSTALL_INCLUDE_DIR}
-      #-DBender_INSTALL_DOC_DIR:STRING=${Bender_INSTALL_DOC_DIR}
-      #-DDOXYGEN_EXECUTABLE:FILEPATH=${DOXYGEN_EXECUTABLE}
-      -DBender_BUILD_SHARED_LIBS:BOOL=${Bender_BUILD_SHARED_LIBS}
-      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
-      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
-      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
-      -DBender_EXTERNAL_LIBRARY_DIRS:STRING=${Bender_EXTERNAL_LIBRARY_DIRS}
-      #-DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
-      -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
-      -DVTK_DIR:PATH=${VTK_DIR}
-      -DITK_DIR:PATH=${ITK_DIR}
-      -DEIGEN3_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/Eigen3
-      -DCleaver_DIR:PATH=${Cleaver_DIR}
-      #${dependency_args}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
@@ -100,5 +80,5 @@ else()
   SlicerMacroEmptyExternalProject(${proj} "${${proj}_DEPENDENCIES}")
 endif()
 
-#list(APPEND Bender_SUPERBUILD_EP_ARGS -D${proj}_DIR:PATH=${${proj}_DIR})
+# list(APPEND Bender_SUPERBUILD_EP_ARGS -D${proj}_DIR:PATH=${${proj}_DIR})
 

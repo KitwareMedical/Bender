@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>;Dynamics</category>
+  <index>2</index>
+  <title>Volume Material Extractor</title>
+  <description><![CDATA[This modules extract a specified material from a tetrahedral mesh.</p>]]>
+  </description>
+  <version>1.1.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/VolumeSkinning</documentation-url>
+  <license/>
+  <contributor>Ricardo Ortiz (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+
+    <geometry fileExtensions=".vtk">
+      <name>InputTetMesh</name>
+      <label>Input Mesh</label>
+      <description><![CDATA[Input multimaterial tetrahedral mesh.]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </geometry>
+    
+    <geometry fileExtensions=".vtk">
+      <name>OutputTetMesh</name>
+      <label>Output Mesh</label>
+      <description><![CDATA[Specified material mesh.]]></description>
+      <channel>output</channel>
+      <index>1</index>
+    </geometry>
+
+  </parameters>
+
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+
+    <integer>
+      <name>MaterialLabel</name>
+      <label>Material Label</label>
+      <description><![CDATA[Index corresponding to the specific material label.]]></description>
+      <longflag>--materialLabel</longflag>
+      <default>0</default>
+    </integer>
+
+  </parameters>
+
+</executable>
