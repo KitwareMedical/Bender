@@ -30,7 +30,7 @@
 
 typedef Eigen::SparseMatrix<float> SpMat;
 
-//Solve a sparse matrix.  Just wrap around Eignen
+//Solve a sparse linear system.  Just wrap around Eignen
 Eigen::VectorXf BENDER_EIGENWRAPPER_EXPORT Solve(SpMat& A,  Eigen::VectorXf& b);
 
 #endif
