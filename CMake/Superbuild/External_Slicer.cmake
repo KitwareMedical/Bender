@@ -41,7 +41,7 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3&&SOFA")
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -49,7 +49,14 @@ set(proj ${${proj_filename}_proj})
 
 if(NOT DEFINED ${proj}_DIR)
   message(STATUS "${__indent}Adding project ${proj}")
+
   find_package(Qt4 REQUIRED)
+  set(Bender_MINIMUM_QT_VERSION "4.8.3")
+  if("${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "${Bender_MINIMUM_QT_VERSION}")
+    message(FATAL_ERROR "error: Bender needs with version greater than Qt"
+      "${Bender_MINIMUM_QT_VERSION} -- (Qt ${QT_VERSION_MAJOR}."
+      "${QT_VERSION_MINOR}.${QT_VERSION_PATCH}. was found ${extra_error_message}")
+  endif()
 
   # Set CMake OSX variable to pass down the external project
   set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)

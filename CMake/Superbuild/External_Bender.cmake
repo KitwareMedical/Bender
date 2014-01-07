@@ -36,7 +36,7 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
 endif()
 
 # Set dependency list
-set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3 Sofa)
+set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3)
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
