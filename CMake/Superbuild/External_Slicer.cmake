@@ -41,7 +41,7 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3&&Cleaver")
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
