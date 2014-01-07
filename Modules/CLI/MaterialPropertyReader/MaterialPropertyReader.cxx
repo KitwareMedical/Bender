@@ -18,6 +18,7 @@
 
    =========================================================================*/
 
+// Bender includes
 #include "benderIOUtils.h"
 
 // ITK includes
@@ -49,8 +50,6 @@
 //
 namespace
 {
-template <class T> int DoIt( int argc, char * argv[] );
-
 template<typename MaterialMapType>
 void ReadFile(const std::string &fileName, MaterialMapType &map);
 } // end of anonymous namespace
@@ -66,10 +65,22 @@ int main( int argc, char * argv[] )
 
   // Read material properties file
   ReadFile(MaterialFile,materialMap);
+  if (materialMap.size() <= 0)
+    {
+    std::cerr << "Error while reading the material file. "
+      << " Make sure the material file exists." <<std::endl;
+    return EXIT_FAILURE;
+    }
 
   // Read mesh and extract active cell data
-  vtkPolyData * tetraMesh = bender::IOUtils::ReadPolyData(
-    MeshPoly.c_str());
+  vtkSmartPointer<vtkPolyData> tetraMesh;
+  tetraMesh.TakeReference(bender::IOUtils::ReadPolyData(MeshPoly.c_str()));
+  if (!tetraMesh)
+    {
+    std::cerr<<"Could not read input mesh file"<<std::endl;
+    return EXIT_FAILURE;
+    }
+
   vtkIntArray * materialIdArray = vtkIntArray::SafeDownCast(
     tetraMesh->GetCellData()->GetScalars());
 
@@ -118,11 +129,6 @@ int main( int argc, char * argv[] )
   return EXIT_SUCCESS;
 }
 
-// Use an anonymous namespace to keep class types and function names
-// from colliding when module is used as shared object module.  Every
-// thing should be in an anonymous namespace except for the module
-// entry point, e.g. main()
-//
 namespace
 {
 
@@ -130,10 +136,13 @@ template<typename MaterialMapType>
 void ReadFile(const std::string& fileName, MaterialMapType &parameterMap)
 {
   std::ifstream     fileStream(fileName.c_str());
+  if (!fileStream.is_open())
+    {
+    return;
+    }
+
   std::stringstream lineStream;
-
   size_t size;
-
   std::string line;
   std::getline(fileStream,line);
 

@@ -28,7 +28,7 @@
     </file>
     <geometry fileExtensions=".vtk">
       <name>OutputMesh</name>
-      <label>Input Material File</label>
+      <label>Output Mesh</label>
       <description><![CDATA[Resultant mesh with materials assigned.]]></description>
       <channel>output</channel>
       <index>2</index>
