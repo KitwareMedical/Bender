@@ -19,9 +19,9 @@
 #============================================================================
 
 #
-# Eigen
+# Sofa
 #
-set(proj Eigen3)
+set(proj SOFA)
 
 # Make sure this file is included only once
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -57,19 +57,49 @@ if(NOT DEFINED ${proj}_DIR)
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
   endif()
 
+  set(step_targets)
+  if (WIN32)
+    set(step_targets ${step_targets} ${proj}_PatchWindows)
+  endif()
+
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    URL "https://bitbucket.org/eigen/eigen/get/3.1.2.tar.gz"
-    UPDATE_COMMAND ""
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
+    GIT_REPOSITORY "git://public.kitware.com/Bender/SOFA.git"
+    GIT_TAG "d0c41b249ae6537f27c8d8d2230b643139aaee4e"
     INSTALL_COMMAND ""
+    UPDATE_COMMAND ""
     CMAKE_GENERATOR ${gen}
+    LIST_SEPARATOR &&
+    CMAKE_ARGS
+      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      ${CMAKE_OSX_EXTERNAL_PROJECT_ARGS}
+      -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+      -DCMAKE_INSTALL_PREFIX:PATH=${ep_install_dir}
+      -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
+      -DCMAKE_CXX_FLAGS:STRING=${ep_common_cxx_flags}
+      -DCMAKE_C_FLAGS:STRING=${ep_common_c_flags}
+      -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+      #-DSOFA-EXTERNAL_INCLUDE_DIR:FILEPATH=${${proj}_DIR}/include
+      #-DSOFA-EXTERNAL_LIBRARY_DIR:FILEPATH=${${proj}_DIR}/lib
+      -DPRECONFIGURE_DONE:BOOL=ON
     DEPENDS
       ${${proj}_DEPENDENCIES}
+    STEP_TARGETS ${step_targets}
     )
+
+  if (WIN32)
+    # On windows Sofa needs a dependency package in the build dir
+    ExternalProject_Add_Step(${proj} ${proj}_PatchWindows
+      COMMAND ${CMAKE_COMMAND} -P ${Bender_SOURCE_DIR}/CMake/SofaWindowsPatch.cmake
+      DEPENDEES download
+      DEPENDERS configure
+      COMMENT "Patch SOFA with its windows dependencies"
+      WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/${proj}
+    )
+  endif()
 
 else()
   # The project is provided using ${proj}_DIR, nevertheless since other project may depend on ${proj},

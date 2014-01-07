@@ -27,6 +27,8 @@ endif()
 find_package(Bender REQUIRED)
 include(${Bender_USE_FILE})
 
+find_package(SOFA REQUIRED)
+
 set(BenderApp_VERSION_MAJOR ${Bender_VERSION_MAJOR})
 set(BenderApp_VERSION_MINOR ${Bender_VERSION_MINOR})
 set(BenderApp_VERSION_PATCH ${Bender_VERSION_PATCH})
@@ -307,8 +309,13 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
     set(splash_image_path ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/${SlicerApp_APPLICATION_NAME}SplashScreen.png)
 
     set(BenderApp_LIBRARY_PATHS_BUILD ${SLICER_LIBRARY_PATHS_BUILD})
+    # Add all the bender necessary paths to the launcher, i.e. all the bender
+    # specific libraries here
     foreach(Bender_LIBRARY_DIR ${Bender_LIBRARY_DIRS})
       list(APPEND BenderApp_LIBRARY_PATHS_BUILD ${Bender_LIBRARY_DIR}/<CMAKE_CFG_INTDIR>)
+    endforeach()
+    foreach(sofa_library_path ${SOFA_BIN_DIR})
+      list(APPEND BenderApp_LIBRARY_PATHS_BUILD ${sofa_library_path})
     endforeach()
 
     ctkAppLauncherConfigure(
