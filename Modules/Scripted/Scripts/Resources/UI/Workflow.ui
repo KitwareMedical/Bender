@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>492</width>
-    <height>746</height>
+    <height>782</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -1648,13 +1648,17 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Compute Weights&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt; font-weight:600;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; computes the bone weights(influence) &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;at each input labelmap voxel. &lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Weights are used to combine transforms when repositioning labelmaps or surface models.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; assigns the weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt; computes the bone weights(influence) at each input labelmap voxel. Weights are used to combine transforms when repositioning labelmaps or surface models.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt; assigns the weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Material Propertiss&lt;/span&gt; assigns material properties defined in the material file to each point of an input surface model. This process is also necessary to reposition the surface models in the next step.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_4">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+       </property>
        <property name="margin">
         <number>0</number>
        </property>
@@ -2228,6 +2232,240 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="toolTip">
              <string>Save to file the pre-posed surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="MaterialReaderCollapsibleGroupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>C) Material Propeties</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_20">
+          <item row="0" column="0">
+           <widget class="QLabel" name="MaterialReaderInputMeshLabel">
+            <property name="text">
+             <string>Tetrahedral mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="MaterialReaderInputMeshNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Select the input mesh to apply the material properties on</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="MaterialReaderFileLabel">
+            <property name="text">
+             <string>Material file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="MaterialReaderOutputMeshLabel">
+            <property name="text">
+             <string>Output mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="MaterialReaderOutputMeshNodeComboBox">
+            <property name="toolTip">
+             <string>Select the output tetrahedral mesh with material properties</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="3">
+           <layout class="QHBoxLayout" name="horizontalLayout_19">
+            <item>
+             <spacer name="horizontalSpacer_22">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MaterialReaderGoToPushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Material Property Reader&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go to Material Property Reader module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MaterialReaderApplyPushButton">
+              <property name="toolTip">
+               <string>Apply material properties to each vertice of the input mesh according to the input material property file.</string>
+              </property>
+              <property name="text">
+               <string>Apply Material Properties</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="MaterialReaderSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Save to file the mesh with material properties volume.</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="MaterialReaderInputMeshNodeToolButton">
+            <property name="toolTip">
+             <string>Load the tetrahedral mesh.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="ctkPathLineEdit" name="MaterialReaderFileLineEdit">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the file describing the material properties</string>
+            </property>
+            <property name="label">
+             <string/>
+            </property>
+            <property name="nameFilters">
+             <stringlist>
+              <string>*.txt</string>
+              <string>*</string>
+             </stringlist>
+            </property>
+            <property name="filters">
+             <set>ctkPathLineEdit::AllEntries|ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Files|ctkPathLineEdit::NoDotAndDotDot|ctkPathLineEdit::NoSymLinks|ctkPathLineEdit::Readable|ctkPathLineEdit::TypeMask</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="MaterialReaderOutputMeshNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the mesh with material properties volume.</string>
             </property>
             <property name="text">
              <string>...</string>
@@ -4162,22 +4400,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PoseSurfaceInputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>210</x>
-     <y>220</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>166</x>
-     <y>324</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>PoseLabelmapSaveToolButton</sender>
    <signal>clicked()</signal>
    <receiver>PoseLabelmapOutputNodeToolButton</receiver>
@@ -4446,6 +4668,134 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>281</x>
      <y>252</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EvalSurfaceWeightOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>MaterialReaderInputMeshNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>283</x>
+     <y>418</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>274</x>
+     <y>508</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MaterialReaderInputMeshNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>MaterialReaderOutputMeshNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>390</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>MaterialReaderInputMeshNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>EvalSurfaceWeightInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>SimulatePoseInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>270</x>
+     <y>129</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>283</x>
+     <y>210</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>SimulatePoseArmatureInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>245</x>
+     <y>372</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>285</x>
+     <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MaterialReaderInputMeshNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>MaterialReaderOutputMeshNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>49</x>
+     <y>76</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>76</y>
     </hint>
    </hints>
   </connection>

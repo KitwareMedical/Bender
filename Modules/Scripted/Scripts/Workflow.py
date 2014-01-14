@@ -222,26 +222,34 @@ class WorkflowWidget:
     self.get('EditSkinnedVolumeNodeSaveToolButton').connect('clicked()', self.saveEditSkinnedVolumeNode)
     self.get('EditSkinnedVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.editSkinnedVolumeParameterChanged)
     self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
-
     # 6) Weights
     # a) Armatures Weight
     self.get('ComputeArmatureWeightInputVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setDefaultPath)
     self.get('ComputeArmatureWeightScaleFactorSpinBox').connect('valueChanged(double)', self.setDefaultPath)
     self.get('ComputeArmatureWeightApplyPushButton').connect('clicked(bool)',self.runComputeArmatureWeight)
     self.get('ComputeArmatureWeightGoToPushButton').connect('clicked()', self.openComputeArmatureWeightModule)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
     # b) Eval Weight
     #    - Icons
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
     #    - Signals/Slots
-    self.get('EvalSurfaceWeightInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
-    self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.evalSurfaceWeightParameterChanged)
-    self.get('EvalSurfaceWeightOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.evalSurfaceWeightParameterChanged)
     self.get('EvalSurfaceWeightInputNodeToolButton').connect('clicked()', self.loadEvalSurfaceWeightInputNode)
     self.get('EvalSurfaceWeightOutputNodeToolButton').connect('clicked()', self.saveEvalSurfaceWeightOutputNode)
     self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
     self.get('EvalSurfaceWeightWeightPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
+    # c) Material properties
+    #    - Icons
+    self.get('MaterialReaderInputMeshNodeToolButton').icon = loadIcon
+    self.get('MaterialReaderOutputMeshNodeToolButton').icon = saveIcon
+    self.get('MaterialReaderSaveToolButton').icon = saveIcon
+     #    - Signals/Slots
+    self.get('MaterialReaderInputMeshNodeToolButton').connect('clicked()', self.loadMaterialReaderInputMeshNode)
+    self.get('MaterialReaderOutputMeshNodeToolButton').connect('clicked()', self.saveMaterialReaderMeshNode)
+    self.get('MaterialReaderApplyPushButton').connect('clicked(bool)',self.runMaterialReader)
+    self.get('MaterialReaderGoToPushButton').connect('clicked()', self.openMaterialReaderModule)
+    self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setMaterialReaderDefaultPath)
 
     # 7) (Pose) Armature And Pose Body
     # a) Pose Armature
@@ -1537,6 +1545,7 @@ class WorkflowWidget:
   def initWeightsPage(self):
     self.initComputeArmatureWeight()
     self.initEvalSurfaceWeight()
+    self.initMaterialReader()
 
   def setDefaultPath(self, *args):
     defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
@@ -1553,13 +1562,15 @@ class WorkflowWidget:
     if validateSections:
       self.validateComputeArmatureWeight()
       self.validateEvalSurfaceWeight()
-    valid = self.get('EvalSurfaceWeightCollapsibleGroupBox').property('valid')
+      self.validateMaterialReader()
+    valid = self.get('MaterialReaderCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openWeightsPage(self):
     pass
+
   #----------------------------------------------------------------------------
-  #    a) Compute Armature Weight
+  # a) Compute Armature Weight
   def initComputeArmatureWeight(self):
     self.validateComputeArmatureWeight()
 
@@ -1567,7 +1578,12 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.computearmatureweight)
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('ComputeArmatureWeightCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('EvalSurfaceWeightApplyPushButton').enabled = not self.isWorkflow(0) or valid
+
+    enableEvalWeight = not self.isWorkflow(0) or valid
+    self.get('EvalSurfaceWeightCollapsibleGroupBox').collapsed = not enableEvalWeight
+    self.get('EvalSurfaceWeightCollapsibleGroupBox').setEnabled(enableEvalWeight)
+
+    self.validateWeightsPage(validateSections = False)
 
   def computeArmatureWeightParameters(self):
     parameters = {}
@@ -1630,7 +1646,7 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   #----------------------------------------------------------------------------
-  # c) Eval Weight
+  # b) Eval Weight
   def initEvalSurfaceWeight(self):
     self.validateEvalSurfaceWeight()
 
@@ -1639,10 +1655,12 @@ class WorkflowWidget:
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('EvalSurfaceWeightCollapsibleGroupBox').setProperty('valid', valid)
     self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = valid
-    self.validateWeightsPage(validateSections = False)
 
-  def evalSurfaceWeightParameterChanged(self):
-    self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = False
+    enableMaterialReader = not self.isWorkflow(0) or valid
+    self.get('MaterialReaderCollapsibleGroupBox').collapsed = not enableMaterialReader
+    self.get('MaterialReaderCollapsibleGroupBox').setEnabled(enableMaterialReader)
+
+    self.validateWeightsPage(validateSections = False)
 
   def evalSurfaceWeightParameters(self):
     parameters = {}
@@ -1668,9 +1686,6 @@ class WorkflowWidget:
   def onEvalSurfaceWeightCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       self.validateEvalSurfaceWeight()
-      if self.get('PoseSurfaceApplyPushButton').checkState != qt.Qt.Unchecked:
-        # Pose the surface as soon as the weights are computed.
-        self.runPoseSurface(True)
 
     if not cliNode.IsBusy():
       self.get('EvalSurfaceWeightApplyPushButton').setChecked(False)
@@ -1690,6 +1705,74 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.evalweight)
     parameters = self.evalWeightParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
+
+  #----------------------------------------------------------------------------
+  # c) Material Reader
+  def initMaterialReader(self):
+    self.validateMaterialReader()
+
+  def validateMaterialReader(self):
+    cliNode = self.getCLINode(slicer.modules.materialpropertyreader)
+    valid = cliNode.GetStatusString() == 'Completed'
+    self.get('MaterialReaderOutputMeshNodeToolButton').enabled = valid
+    self.get('MaterialReaderSaveToolButton').enabled = valid
+    self.get('MaterialReaderCollapsibleGroupBox').setProperty('valid', valid)
+
+    self.validateWeightsPage(validateSections = False)
+
+  def materialReaderParameters(self):
+    parameters = {}
+    parameters["MeshPoly"] = self.get('MaterialReaderInputMeshNodeComboBox').currentNode()
+    parameters["MaterialFile"] = self.get('MaterialReaderFileLineEdit').currentPath
+    parameters["OutputMesh"] = self.get('MaterialReaderOutputMeshNodeComboBox').currentNode()
+    return parameters
+
+  def runMaterialReader(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.materialpropertyreader)
+      parameters = self.materialReaderParameters()
+      self.get('MaterialReaderApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onMaterialPropertyCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.materialpropertyreader, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onMaterialPropertyCLIModified)
+      self.get('MaterialReaderApplyPushButton').enabled = False
+      cliNode.Cancel()
+
+  def onMaterialPropertyCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # Hide result
+      outputMesh = self.get('MaterialReaderOutputMeshNodeComboBox').currentNode()
+      displayNode = outputMesh.GetDisplayNode()
+      if displayNode != None:
+        displayNode.SetVisibility(False)
+
+      self.validateMaterialReader()
+    if not cliNode.IsBusy():
+      self.get('MaterialReaderApplyPushButton').setChecked(False)
+      self.get('MaterialReaderApplyPushButton').enabled = True
+      print 'Material Property Reader %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onMaterialPropertyCLIModified)
+
+  def loadMaterialReaderInputMeshNode(self):
+    self.loadLabelmapFile('Input tetrahedral mesh', 'ModelFile', self.get('MaterialReaderInputMeshNodeComboBox'))
+
+  def saveMaterialReaderMeshNode(self):
+    self.saveFile('Tetrahedral mesh with material properties', 'ModelFile', '.vtk', self.get('MaterialReaderOutputMeshNodeComboBox'))
+
+  def openMaterialReaderModule(self):
+    self.openModule('MaterialPropertyReader')
+
+    cliNode = self.getCLINode(slicer.modules.materialpropertyreader)
+    parameters = self.materialReaderParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def setMaterialReaderDefaultPath(self):
+    weightPath = self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath
+    weightDir = qt.QDir(weightPath)
+    weightDir.cdUp()
+    defaultPath = weightDir.absoluteFilePath('materials.txt')
+    self.get('MaterialReaderFileLineEdit').setCurrentPath(defaultPath)
 
   #----------------------------------------------------------------------------
   # 7) Pose Armature & Pose surface
