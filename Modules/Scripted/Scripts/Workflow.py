@@ -96,7 +96,7 @@ class WorkflowWidget:
     self.volumeSkinningCreateOutputConnected = False
 
     # Pose surface variables
-    self.poseSurfaceCreateOutputConnected = False
+    self.simulatePoseCreateOutputConnected = False
 
     # Pose surface variables
     self.poseLabelmapCreateOutputConnected = False
@@ -251,6 +251,8 @@ class WorkflowWidget:
     self.get('MaterialReaderGoToPushButton').connect('clicked()', self.openMaterialReaderModule)
     self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setMaterialReaderDefaultPath)
 
+    self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
+
     # 7) (Pose) Armature And Pose Body
     # a) Pose Armature
     #    - Icons
@@ -262,22 +264,20 @@ class WorkflowWidget:
     self.get('PoseArmatureArmatureNodeToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('PoseArmatureArmatureNodeSaveToolButton').connect('clicked()', self.savePoseArmatureArmatureNode)
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
-    # b) Pose Surface
+    # b) Simulate Pose
     #    - Icons
-    self.get('PoseSurfaceInputNodeToolButton').icon = loadIcon
-    self.get('PoseSurfaceOutputNodeToolButton').icon = saveIcon
+    self.get('SimulatePoseInputNodeToolButton').icon = loadIcon
+    self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
     #    - Signals/Slots
-    self.get('PoseSurfaceInputNodeToolButton').connect('clicked()', self.loadPoseSurfaceInputNode)
-    self.get('PoseSurfaceOutputNodeToolButton').connect('clicked()', self.savePoseSurfaceOutputNode)
-    self.get('PoseSurfaceOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceWeightInputPathLineEdit').connect('currentPathChanged(QString)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceInputNodeChanged)
-    self.get('PoseSurfaceArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseSurfaceParameterChanged)
-    self.get('PoseSurfaceApplyPushButton').connect('clicked(bool)', self.runPoseSurface)
-    self.get('PoseSurfaceApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunPoseSurface)
+    self.get('SimulatePoseOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
+    self.get('SimulatePoseInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
+    self.get('SimulatePoseArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
+    self.get('SimulatePoseApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunSimulatePose)
+    self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
 
-    self.get('PoseSurfaceGoToPushButton').connect('clicked()', self.openPoseSurfaceModule)
-    self.get('ComputeArmatureWeightOutputPathLineEdit').connect('currentPathChanged(QString)', self.setWeightDirectory)
+    self.get('SimulatePoseInputNodeToolButton').connect('clicked()', self.loadSimulatePoseInputNode)
+    self.get('SimulatePoseOutputNodeToolButton').connect('clicked()', self.saveSimulatePoseOutputNode)
+    self.get('SimulatePoseGoToPushButton').connect('clicked()', self.openSimulatePoseModule)
 
     # 8) Resample
     #    - Icons
@@ -1779,29 +1779,28 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   def initPoseArmaturePage(self):
     self.initPoseArmature()
-    self.initPoseSurface()
+    self.initSimulatePose()
 
   def validatePoseArmaturePage(self, validateSections = True):
     if validateSections:
       self.validatePoseArmature()
-      self.validatePoseSurface()
-    valid = self.get('PoseSurfaceCollapsibleGroupBox').property('valid')
+      self.validateSimulatePose()
+    valid = self.get('SimulatePoseCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openPoseArmaturePage(self):
     # Create output if necessary
-    if not self.poseSurfaceCreateOutputConnected:
-      self.get('PoseSurfaceInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseSurface)
-      self.poseSurfaceCreateOutputConnected = True
-    self.createOutputPoseSurface(self.get('PoseSurfaceInputNodeComboBox').currentNode())
-
-    self.autoRunPoseSurface(self.get('PoseSurfaceApplyPushButton').checkState != qt.Qt.Unchecked)
+    if not self.simulatePoseCreateOutputConnected:
+      self.get('SimulatePoseInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSimulatePose)
+      self.simulatePoseCreateOutputConnected = True
+    self.createOutputSimulatePose(self.get('SimulatePoseInputNodeComboBox').currentNode())
+    self.autoRunSimulatePose(self.get('SimulatePoseApplyPushButton').checkState != qt.Qt.Unchecked)
 
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None:
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
 
-    self.poseSurfaceInputNodeChanged()
+    self.simulatePoseParameterChanged()
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
 
   #----------------------------------------------------------------------------
@@ -1812,17 +1811,29 @@ class WorkflowWidget:
   def validatePoseArmature(self):
     valid = self.get('PoseArmatureArmatureNodeComboBox').currentNode() != None
     self.get('PoseArmaturesCollapsibleGroupBox').setProperty('valid', valid)
-    self.get('PoseSurfaceApplyPushButton').enabled = not self.isWorkflow(0) or valid
+    self.get('SimulatePoseApplyPushButton').enabled = not self.isWorkflow(0) or valid
 
   def setPoseArmatureModelNode(self, armatureNode):
     if armatureNode == None:
       return
-    modelNode = armatureNode.GetAssociatedNode()
-    self.get('PoseSurfaceArmatureInputNodeComboBox').setCurrentNode(modelNode)
+    #Delayed event if the model isn't set yet
+    self.addObserver(armatureNode, 'ModifiedEvent', self.onArmatureHierarchyModified)
+    self.onArmatureHierarchyModified(armatureNode)
+
+  def onArmatureHierarchyModified(self, node, event = None):
+    if not node:
+      return
+
+    modelNode = node.GetAssociatedNode()
+    if not modelNode:
+      return
+
+    self.get('SimulatePoseArmatureInputNodeComboBox').setCurrentNode(modelNode)
+    self.removeObservers(self.onArmatureHierarchyModified)
 
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None and self.WorkflowWidget.currentIndex == 4:
-      armatureLogic.SetActiveArmature(armatureNode)
+      armatureLogic.SetActiveArmature(node)
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
     self.validatePoseArmature()
 
@@ -1835,119 +1846,101 @@ class WorkflowWidget:
     self.openModule('Armatures')
 
   #----------------------------------------------------------------------------
-  # b) Pose Surface
-  def initPoseSurface(self):
-    self.validatePoseSurface()
+  # b) Simulate Pose
+  def initSimulatePose(self):
+    self.validateSimulatePose()
 
-  def validatePoseSurface(self):
-    cliNode = self.getCLINode(slicer.modules.posesurface)
+  def validateSimulatePose(self):
+    cliNode = self.getCLINode(slicer.modules.simulatepose)
     valid = cliNode.GetStatusString() == 'Completed'
-    self.get('PoseSurfaceOutputNodeToolButton').enabled = True
-    self.get('PoseSurfaceCollapsibleGroupBox').setProperty('valid', valid)
+    self.get('SimulatePoseOutputNodeToolButton').enabled = True
+    self.get('SimulatePoseCollapsibleGroupBox').setProperty('valid', valid)
     self.validatePoseArmaturePage(validateSections = False)
 
-  def poseSurfaceParameterChanged(self):
-    self.get('PoseSurfaceOutputNodeToolButton').enabled = False
+  def simulatePoseParameterChanged(self):
+    self.get('SimulatePoseOutputNodeToolButton').enabled = False
 
-    cliNode = self.getCLINode(slicer.modules.posesurface)
-    parameters = self.poseSurfaceParameters()
+    cliNode = self.getCLINode(slicer.modules.simulatepose)
+    parameters = self.simulatePoseParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
-  def poseSurfaceInputNodeChanged(self):
-    """Makes sure the weights are computed for the new input surface."""
-    surfaceNode = self.get('PoseSurfaceInputNodeComboBox').currentNode()
-    armatureModelNode = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
-    if surfaceNode != None and surfaceNode.GetPolyData() != None and armatureModelNode != None:
-      pointData = surfaceNode.GetPolyData().GetPointData()
-      transforms = armatureModelNode.GetPolyData().GetCellData().GetArray('Transforms')
-      if transforms:
-        if pointData.GetNumberOfArrays() < transforms.GetNumberOfTuples():
-          self.runEvalSurfaceWeight(True)
-    self.poseSurfaceParameterChanged()
-
-  def poseSurfaceParameters(self):
+  def simulatePoseParameters(self):
     # Setup CLI node on input changed or apply changed
     parameters = {}
-    parameters["ArmaturePoly"] = self.get('PoseSurfaceArmatureInputNodeComboBox').currentNode()
-    parameters["SurfaceInput"] = self.get('PoseSurfaceInputNodeComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('PoseSurfaceWeightInputPathLineEdit').currentPath)
-    parameters["OutputSurface"] = self.get('PoseSurfaceOutputNodeComboBox').currentNode()
-    parameters["MaximumParenthoodDistance"] = '4'
-    #parameters["IsSurfaceInRAS"] = False
-    #parameters["IsArmatureInRAS"] = False
-    parameters["LinearBlend"] = True # much faster
+    parameters["ArmatureFileName"] = self.get('SimulatePoseArmatureInputNodeComboBox').currentNode()
+    parameters["VolumeInput"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
+    parameters["OutputSurface"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
     return parameters
 
-  def autoRunPoseSurface(self, autoRun):
-    cliNode = self.getCLINode(slicer.modules.posesurface)
+  def autoRunSimulatePose(self, autoRun):
+    cliNode = self.getCLINode(slicer.modules.simulatepose)
     if autoRun:
-      parameters = self.poseSurfaceParameters()
+      parameters = self.simulatePoseParameters()
       slicer.cli.setNodeParameters(cliNode, parameters)
       cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
       cliNode.SetAutoRun(autoRun)
-      self.observeCLINode(cliNode, self.onPoseSurfaceCLIModified)
+      self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
     else:
       cliNode.SetAutoRun(autoRun)
 
-  def runPoseSurface(self, run):
+  def runSimulatePose(self, run):
     if run:
-      cliNode = self.getCLINode(slicer.modules.posesurface)
-      parameters = self.poseSurfaceParameters()
+      cliNode = self.getCLINode(slicer.modules.simulatepose)
+      parameters = self.simulatePoseParameters()
       slicer.cli.setNodeParameters(cliNode, parameters)
-      self.get('PoseSurfaceApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onPoseSurfaceCLIModified)
+      self.get('SimulatePoseApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
       cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
     else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onPoseSurfaceCLIModified)
-      self.get('PoseSurfaceApplyPushButton').enabled = False
+      cliNode = self.observer(self.StatusModifiedEvent, self.onSimulatePoseCLIModified)
+      self.get('SimulatePoseApplyPushButton').enabled = False
       if cliNode != None:
         cliNode.Cancel()
 
-  def onPoseSurfaceCLIModified(self, cliNode, event):
+  def onSimulatePoseCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
-      if self.get('PoseSurfaceInputNodeComboBox').currentNode() != self.get('PoseSurfaceOutputNodeComboBox').currentNode():
-        self.get('PoseSurfaceInputNodeComboBox').currentNode().GetDisplayNode().SetVisibility(0)
-        self.get('PoseSurfaceOutputNodeComboBox').currentNode().GetDisplayNode().SetOpacity(
-          self.get('PoseSurfaceInputNodeComboBox').currentNode().GetDisplayNode().GetOpacity())
-        self.get('PoseSurfaceOutputNodeComboBox').currentNode().GetDisplayNode().SetColor(
-          self.get('PoseSurfaceInputNodeComboBox').currentNode().GetDisplayNode().GetColor())
+      if self.get('SimulatePoseInputNodeComboBox').currentNode() != self.get('SimulatePoseOutputNodeComboBox').currentNode():
+        self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().SetVisibility(0)
+        self.get('SimulatePoseOutputNodeComboBox').currentNode().GetDisplayNode().SetOpacity(
+          self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().GetOpacity())
+        self.get('SimulatePoseOutputNodeComboBox').currentNode().GetDisplayNode().SetColor(
+          self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().GetColor())
           
-      self.validatePoseSurface()
+      self.validateSimulatePose()
     if not cliNode.IsBusy():
-      self.get('PoseSurfaceApplyPushButton').setChecked(False)
-      self.get('PoseSurfaceApplyPushButton').enabled = True
-      print 'PoseSurface %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onPoseSurfaceCLIModified)
+      self.get('SimulatePoseApplyPushButton').setChecked(False)
+      self.get('SimulatePoseApplyPushButton').enabled = True
+      print 'Simulate Pose %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onSimulatePoseCLIModified)
 
-  def loadPoseSurfaceInputNode(self):
-    self.loadFile('Model to pose', 'ModelFile', self.get('PoseSurfaceInputNodeComboBox'))
+  def loadSimulatePoseInputNode(self):
+    self.loadFile('Model to pose', 'ModelFile', self.get('SimulatePoseInputNodeComboBox'))
 
-  def savePoseSurfaceOutputNode(self):
-    self.saveFile('Posed model', 'ModelFile', '.vtk', self.get('PoseSurfaceOutputNodeComboBox'))
+  def saveSimulatePoseOutputNode(self):
+    self.saveFile('Posed model', 'ModelFile', '.vtk', self.get('SimulatePoseOutputNodeComboBox'))
 
-  def openPoseSurfaceModule(self):
-    self.openModule('PoseSurface')
+  def openSimulatePoseModule(self):
+    self.openModule('SimulatePose')
 
-    cliNode = self.getCLINode(slicer.modules.posesurface)
-    parameters = self.poseSurfaceParameterss()
+    cliNode = self.getCLINode(slicer.modules.simulatepose)
+    parameters = self.SimulatePoseParameterss()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def setWeightDirectory(self, dir):
     self.get('EvalSurfaceWeightWeightPathLineEdit').currentPath = dir
-    self.get('PoseSurfaceWeightInputPathLineEdit').currentPath = dir
     self.get('PoseLabelmapWeightPathLineEdit').currentPath = dir
 
-  def createOutputPoseSurface(self, node):
+  def createOutputSimulatePose(self, node):
     if node == None:
       return
 
     nodeName = '%s-posed' % node.GetName()
     posedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
     if posedNode == None:
-      newNode = self.get('PoseSurfaceOutputNodeComboBox').addNode()
+      newNode = self.get('SimulatePoseOutputNodeComboBox').addNode()
       newNode.SetName(nodeName)
     else:
-      self.get('PoseSurfaceOutputNodeComboBox').setCurrentNode(posedNode)
+      self.get('SimulatePoseOutputNodeComboBox').setCurrentNode(posedNode)
 
   #----------------------------------------------------------------------------
   # 8) Resample

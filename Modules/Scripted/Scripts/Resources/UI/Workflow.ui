@@ -2494,13 +2494,13 @@ p, li { white-space: pre-wrap; }
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Pose the armature&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Click and drag bones in the 3D view to reposition the armature. The surface models and the labelmaps will be transformed with the same bone rotations.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:8pt;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Pose surface&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; repositions interactively a surface model.&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The interactive mode is controlled by the &amp;quot;Pose Surface&amp;quot; push button checkbox. When checked, the input surface model is transformed anytime the armature is modified.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Click and drag bones in the 3D view to reposition the armature. The surface models and the labelmaps will be transformed with the same bone rotations.&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Simulate Pose&lt;/span&gt; repositions interactively a surface model.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The interactive mode is controlled by the &amp;quot;Simulate Pose&amp;quot; push button checkbox. When checked, the input surface model is transformed anytime the armature is modified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_12">
        <property name="fieldGrowthPolicy">
@@ -2639,7 +2639,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="PoseSurfaceCollapsibleGroupBox">
+        <widget class="ctkCollapsibleGroupBox" name="SimulatePoseCollapsibleGroupBox">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
            <horstretch>0</horstretch>
@@ -2653,8 +2653,8 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_13">
-          <item row="0" column="0">
-           <widget class="QLabel" name="PoseSurfaceArmaturesLabel">
+          <item row="1" column="0">
+           <widget class="QLabel" name="SimulatePoseInputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -2662,7 +2662,7 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Armature</string>
+             <string>Input surface</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -2672,7 +2672,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="1" colspan="2">
-           <widget class="qMRMLNodeComboBox" name="PoseSurfaceArmatureInputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="SimulatePoseArmatureInputNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
             </property>
@@ -2697,8 +2697,8 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="PoseSurfaceInputLabel">
+          <item row="0" column="0">
+           <widget class="QLabel" name="SimulatePoseArmaturesLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -2706,12 +2706,17 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Input surface</string>
+             <string>Armature</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
             </property>
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseSurfaceInputNodeComboBox">
+           <widget class="qMRMLNodeComboBox" name="SimulatePoseInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -2738,10 +2743,15 @@ p, li { white-space: pre-wrap; }
             <property name="removeEnabled">
              <bool>true</bool>
             </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QToolButton" name="PoseSurfaceInputNodeToolButton">
+           <widget class="QToolButton" name="SimulatePoseInputNodeToolButton">
             <property name="toolTip">
              <string>Load the surface model to pose.</string>
             </property>
@@ -2750,50 +2760,13 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
-              <string>1</string>
               <string>2</string>
              </stringlist>
             </property>
            </widget>
           </item>
           <item row="2" column="0">
-           <widget class="QLabel" name="PoseSurfaceWeightInputFolderLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Weight images folder</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="ctkPathLineEdit" name="PoseSurfaceWeightInputPathLineEdit">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="filters">
-             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="PoseSurfaceOutputLabel">
+           <widget class="QLabel" name="SimulatePoseOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -2811,8 +2784,8 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
-           <widget class="qMRMLNodeComboBox" name="PoseSurfaceOutputNodeComboBox">
+          <item row="2" column="1">
+           <widget class="qMRMLNodeComboBox" name="SimulatePoseOutputNodeComboBox">
             <property name="toolTip">
              <string>Select the output posed surface</string>
             </property>
@@ -2841,8 +2814,8 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QToolButton" name="PoseSurfaceOutputNodeToolButton">
+          <item row="2" column="2">
+           <widget class="QToolButton" name="SimulatePoseOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
             </property>
@@ -2860,7 +2833,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="3">
+          <item row="3" column="0" colspan="3">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -2876,12 +2849,12 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="PoseSurfaceGoToPushButton">
+             <widget class="QPushButton" name="SimulatePoseGoToPushButton">
               <property name="toolTip">
-               <string>Open the &quot;Pose Surface&quot; module</string>
+               <string>Open the &quot;Simulate Pose&quot; module</string>
               </property>
               <property name="text">
-               <string>Go to Pose Surface module</string>
+               <string>Go to Simulate Pose module</string>
               </property>
               <property name="workflow" stdset="0">
                <stringlist>
@@ -2891,7 +2864,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="ctkCheckablePushButton" name="PoseSurfaceApplyPushButton">
+             <widget class="ctkCheckablePushButton" name="SimulatePoseApplyPushButton">
               <property name="toolTip">
                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -2900,7 +2873,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Pose the surface using the posed armature. If the checkox is checked, the module will run in background and update the output surface everytime the armature is changed&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Pose Surface</string>
+               <string>Simulate Pose</string>
               </property>
               <property name="checkState">
                <enum>Qt::Checked</enum>
@@ -4002,23 +3975,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseSurfaceArmatureInputNodeComboBox</receiver>
-   <slot>setMRMLScene(vtkMRMLScene*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>319</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>250</x>
-     <y>194</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>Workflow</sender>
-   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseSurfaceOutputNodeComboBox</receiver>
+   <receiver>SimulatePoseOutputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4034,7 +3991,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>Workflow</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-   <receiver>PoseSurfaceInputNodeComboBox</receiver>
+   <receiver>SimulatePoseInputNodeComboBox</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -4112,38 +4069,6 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>EvalSurfaceWeightOutputNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseSurfaceInputNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>216</x>
-     <y>376</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>260</x>
-     <y>220</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>ComputeArmatureWeightAmartureNodeComboBox</sender>
-   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PoseSurfaceArmatureInputNodeComboBox</receiver>
-   <slot>setCurrentNode(vtkMRMLNode*)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>270</x>
-     <y>130</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>260</x>
-     <y>194</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>ExpandAdvancedPropertiesButton</sender>
    <signal>toggled(bool)</signal>
    <receiver>AdvancedPropertiesWidget</receiver>
@@ -4208,7 +4133,7 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PoseSurfaceArmatureInputNodeComboBox</sender>
+   <sender>SimulatePoseArmatureInputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>PoseLabelmapArmatureNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
@@ -4401,22 +4326,6 @@ p, li { white-space: pre-wrap; }
   </connection>
   <connection>
    <sender>PoseLabelmapSaveToolButton</sender>
-   <signal>clicked()</signal>
-   <receiver>PoseLabelmapOutputNodeToolButton</receiver>
-   <slot>click()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>465</x>
-     <y>195</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>466</x>
-     <y>177</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>VolumeSkinningSaveToolButton</sender>
    <signal>clicked()</signal>
    <receiver>VolumeSkinningOutputVolumeNodeToolButton</receiver>
    <slot>click()</slot>
