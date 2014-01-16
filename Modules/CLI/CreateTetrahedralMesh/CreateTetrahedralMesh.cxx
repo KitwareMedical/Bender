@@ -344,6 +344,7 @@ int DoIt( int argc, char * argv[] )
   vtkMesh->GetCellData()->SetScalars(cellData.GetPointer());
 
   vtkNew<vtkCleanPolyData> cleanFilter;
+  cleanFilter->PointMergingOff(); // Prevent from creating triangles or lines
   cleanFilter->SetInput(vtkMesh);
 
   // Since cleaver does not take into account the image properties such as
