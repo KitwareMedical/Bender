@@ -179,16 +179,19 @@ class WorkflowWidget:
     self.get('ExtractBoneInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractBoneOutput)
     self.get('ExtractBoneGoToPushButton').connect('clicked()', self.openExtractBoneModule)
     self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onBoneMaterialChanged)
-    # c) Skin mesh extractor
+    # c) Skin Model Maker
         #    - Icons
-    self.get('ExtractSkinOutputToolButton').icon = saveIcon
-    self.get('ExtractSkinToolButton').icon = saveIcon
+    self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
+    self.get('SkinModelMakerSaveToolButton').icon = saveIcon
     #    - Signals/Slots
-    self.get('ExtractSkinOutputToolButton').connect('clicked()', self.saveExtractSkin)
-    self.get('ExtractSkinPushButton').connect('clicked(bool)', self.runExtractSkin)
-    self.get('ExtractSkinInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSkinOutput)
-    self.get('ExtractSkinGoToPushButton').connect('clicked()', self.openExtractSkinModule)
+    self.get('SkinModelMakerOutputNodeToolButton').connect('clicked()', self.saveExtractSkin)
+    self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runExtractSkin)
+    self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSkinOutput)
+    self.get('SkinModelMakerGoToModelsModulePushButton').connect('clicked()', self.openModelsModule)
+    self.get('SkinModelMakerGoToModulePushButton').connect('clicked()', self.openExtractSkinModule)
     self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onSkinMaterialChanged)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onBackgroundMaterialChanged)
+    self.get('SkinModelMakerToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
 
     # 4) Armature
     #    - Icons
@@ -421,6 +424,7 @@ class WorkflowWidget:
                            'MergeLabelsOutputNodeComboBox',
                            'CreateMeshInputNodeComboBox',
                            'CreateMeshOutputNodeComboBox',
+                           'SkinModelMakerInputNodeComboBox',
                            'VolumeSkinningInputVolumeNodeComboBox',
                            'VolumeSkinningOutputVolumeNodeComboBox',
                            'EditSkinnedVolumeNodeComboBox',
@@ -1003,14 +1007,16 @@ class WorkflowWidget:
   # 3) Mesh
   #----------------------------------------------------------------------------
   def initMeshPage(self):
-    self.initMergeLabels()
+    self.initCreateMesh()
+    self.initExtractBone()
+    self.initExtractSkin()
 
   def validateMeshPage(self, validateSections = True):
     if validateSections:
       self.validateCreateTetrahedralMesh()
       self.validateExtractBone()
       self.validateExtractSkin()
-    valid = self.get('ExtractSkinCollapsibleGroupBox').property('valid')
+    valid = self.get('SkinModelMakerCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openMeshPage(self):
@@ -1109,8 +1115,8 @@ class WorkflowWidget:
     self.get('ExtractBoneCollapsibleGroupBox').setProperty('valid',valid)
 
     enableExtractSkin = not self.isWorkflow(0) or valid
-    self.get('ExtractSkinCollapsibleGroupBox').collapsed = not enableExtractSkin
-    self.get('ExtractSkinCollapsibleGroupBox').setEnabled(enableExtractSkin)
+    self.get('SkinModelMakerCollapsibleGroupBox').collapsed = not enableExtractSkin
+    self.get('SkinModelMakerCollapsibleGroupBox').setEnabled(enableExtractSkin)
 
     self.validateMeshPage(validateSections = False)
 
@@ -1203,17 +1209,20 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   #    c) Extract skin
   def initExtractSkin(self):
+    import SkinModelMaker
+
+    self.SkinModelMakerLogic = SkinModelMaker.SkinModelMakerLogic()
     self.validateExtractSkin()
 
   def validateExtractSkin(self):
-    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
-    valid = (cliNode.GetStatusString() == 'Completed'
-            and self.get('ExtractSkinOutputComboBox').currentNode())
-
-    self.get('ExtractSkinOutputToolButton').enabled = valid
-    self.get('ExtractSkinToolButton').enabled = valid
+    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    valid = cliNode.GetStatusString() == 'Completed'
+    self.get('SkinModelMakerOutputNodeToolButton').enabled = valid
+    self.get('SkinModelMakerSaveToolButton').enabled = valid
+    self.get('SkinModelMakerToggleVisiblePushButton').enabled = valid
     self.get('ArmaturesToggleVisiblePushButton').enabled = valid
-    self.get('ExtractSkinCollapsibleGroupBox').setProperty('valid',valid)
+    self.get('SkinModelMakerCollapsibleGroupBox').setProperty('valid',valid)
+    self.validateExtractPage(validateSections = False)
 
     self.validateMeshPage(validateSections = False)
 
@@ -1227,44 +1236,45 @@ class WorkflowWidget:
     # make sure such node does not already exist.
     meshNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLModelNode')
     if meshNode == None:
-      self.get('ExtractSkinOutputComboBox').selectNodeUponCreation = False
-      newNode = self.get('ExtractSkinOutputComboBox').addNode()
-      self.get('ExtractSkinOutputComboBox').selectNodeUponCreation = True
+      self.get('SkinModelMakerOutputNodeComboBox').selectNodeUponCreation = False
+      newNode = self.get('SkinModelMakerOutputNodeComboBox').addNode()
+      self.get('SkinModelMakerOutputNodeComboBox').selectNodeUponCreation = True
       newNode.SetName(nodeName)
       meshNode = newNode
 
-    self.get('ExtractSkinOutputComboBox').setCurrentNode(meshNode)
+    self.get('SkinModelMakerOutputNodeComboBox').setCurrentNode(meshNode)
 
   def extractSkinParameters(self):
     parameters = {}
-    parameters["InputTetMesh"] = self.get('ExtractSkinInputComboBox').currentNode()
-    parameters["OutputTetMesh"] = self.get('ExtractSkinOutputComboBox').currentNode()
-    parameters["MaterialLabel"] = self.get('ExtractSkinMaterialSpinBox').value
+    parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode()
+    parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+    parameters["BackgroundLabel"] = self.get('SkinModelMakerBackgroundLabelSpinBox').value
+    parameters["SkinLabel"] = str(self.get('SkinModelMakerSkinLabelSpinBox').value)
+    parameters["Decimate"] = True
+    parameters["Spacing"] = '6,6,6'
 
     return parameters
 
   def runExtractSkin(self, run):
     if run:
-      cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
       parameters = self.extractSkinParameters()
-      self.get('ExtractSkinPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onExtractSkinCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.volumematerialextractor, cliNode, parameters, wait_for_completion = False)
+      self.get('SkinModelMakerApplyPushButton').setChecked(True)
+      self.observeCLINode(self.SkinModelMakerLogic.GetCLINode(), self.onExtractSkinCLIModified)
+      self.SkinModelMakerLogic.CreateSkinModel(parameters, wait_for_completion = False)
     else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onExtractSkinCLIModified)
-      self.get('ExtractSkinPushButton').enabled = False
-      cliNode.Cancel()
+      self.get('SkinModelMakerApplyPushButton').enabled = False
+      self.SkinModelMakerLogic.Cancel()
 
   def onExtractSkinCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
       # Hide input
-      inputMesh = self.get('ExtractSkinInputComboBox').currentNode()
-      displayNode = inputMesh.GetDisplayNode()
+      input = self.get('SkinModelMakerInputNodeComboBox').currentNode()
+      displayNode = input.GetDisplayNode()
       if displayNode != None:
         displayNode.SetVisibility(False)
 
       # Set opacity
-      newNode = self.get('ExtractSkinOutputComboBox').currentNode()
+      newNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
       newNodeDisplayNode = newNode.GetModelDisplayNode()
       newNodeDisplayNode.SetOpacity(0.2)
 
@@ -1272,7 +1282,7 @@ class WorkflowWidget:
       colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
       if colorNode:
         color = [0, 0, 0]
-        lookupTable = colorNode.GetLookupTable().GetColor(self.get('ExtractSkinMaterialSpinBox').value, color)
+        lookupTable = colorNode.GetLookupTable().GetColor(self.get('SkinModelMakerSkinLabelSpinBox').value, color)
         newNodeDisplayNode.SetColor(color)
 
       # Set Clip intersection ON
@@ -1284,18 +1294,21 @@ class WorkflowWidget:
       self.validateExtractSkin()
 
     if not cliNode.IsBusy():
-      self.get('ExtractSkinPushButton').setChecked(False)
-      self.get('ExtractSkinPushButton').enabled = True
+      self.get('SkinModelMakerApplyPushButton').setChecked(False)
+      self.get('SkinModelMakerApplyPushButton').enabled = True
       print 'Extract Skin %s' % cliNode.GetStatusString()
       self.removeObservers(self.onExtractSkinCLIModified)
 
   def saveExtractSkin(self):
-    self.saveFile('Bone Skin', 'ModelFile', '.vtk', self.get('ExtractSkinOutputComboBox'))
+    self.saveFile('Bone Skin', 'ModelFile', '.vtk', self.get('SkinModelMakerOutputNodeComboBox'))
+
+  def openModelsModule(self):
+    self.openModule('Models')
 
   def openExtractSkinModule(self):
-    self.openModule('VolumeMaterialExtractor')
+    self.openModule('SkinModelMaker')
 
-    cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+    cliNode = self.getCLINode(slicer.modules.skinmodelmaker)
     parameters = self.extractSkinParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
@@ -1304,8 +1317,14 @@ class WorkflowWidget:
       value = int(self.getMergedLabel('skin'))
     except ValueError:
       value = 0
-    self.get('ExtractSkinMaterialSpinBox').value = value
+    self.get('SkinModelMakerSkinLabelSpinBox').value = value
 
+  def onBackgroundMaterialChanged(self):
+    try:
+      value = int(self.getMergedLabel('background'))
+    except ValueError:
+      value = 0
+    self.get('SkinModelMakerBackgroundLabelSpinBox').value = value
 
   #----------------------------------------------------------------------------
   # 4) Armature
@@ -1378,7 +1397,7 @@ class WorkflowWidget:
       self.setCurrentArmatureModelNode(armatureNode)
 
   def updateSkinNodeVisibility(self):
-    skinNode = self.get('ExtractSkinOutputComboBox').currentNode()
+    skinNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
     if skinNode:
       skinDisplayNode = skinNode.GetModelDisplayNode()
       if skinDisplayNode:
