@@ -1875,6 +1875,7 @@ class WorkflowWidget:
     parameters["ArmatureFileName"] = self.get('SimulatePoseArmatureInputNodeComboBox').currentNode()
     parameters["VolumeInput"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
     parameters["OutputSurface"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
+    parameters["SurfaceInput"] = self.get('SimulatePoseSkinComboBox').currentNode()
     return parameters
 
   def runSimulatePose(self, run):
