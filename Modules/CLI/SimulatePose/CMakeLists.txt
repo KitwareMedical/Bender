@@ -42,10 +42,6 @@ set(MODULE_TARGET_LIBRARIES
   ${SOFA_EXTERNAL_LIBRARIES}
   )
 
-foreach(lib ${MODULE_TARGET_LIBRARIES})
-  message(${lib})
-endforeach()
-
 SEMMacroBuildCLI(
   NAME ${MODULE_NAME}
   LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h

@@ -33,5 +33,14 @@
       <channel>output</channel>
       <index>2</index>
     </geometry>
+
+    <geometry>
+      <name>SurfaceInput</name>
+      <label>SurfaceMesh</label>
+      <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
+      <channel>input</channel>
+      <index>3</index>
+    </geometry>
+
   </parameters>
 </executable>
