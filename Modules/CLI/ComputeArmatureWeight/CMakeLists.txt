@@ -34,7 +34,7 @@ include(${Bender_USE_FILE})
 
 set(MODULE_INCLUDE_DIRECTORIES
   ${Bender_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS}
   )
 
 set(MODULE_ADDITIONAL_SRCS
