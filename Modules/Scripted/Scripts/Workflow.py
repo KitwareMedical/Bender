@@ -98,9 +98,6 @@ class WorkflowWidget:
     # Pose surface variables
     self.simulatePoseCreateOutputConnected = False
 
-    # Pose surface variables
-    self.poseLabelmapCreateOutputConnected = False
-
     self.pages = { 0 : 'Adjust',
                    1 : 'Extract',
                    2 : 'Mesh',
@@ -108,7 +105,6 @@ class WorkflowWidget:
                    4 : 'Skinning',
                    5 : 'Weights',
                    6 : 'PoseArmature',
-                   7 : 'PoseLabelmap'
                    }
 
     # Load/Save icons
@@ -277,22 +273,6 @@ class WorkflowWidget:
     self.get('SimulatePoseOutputNodeToolButton').connect('clicked()', self.saveSimulatePoseOutputNode)
     self.get('SimulatePoseGoToPushButton').connect('clicked()', self.openSimulatePoseModule)
 
-    # 8) Resample
-    #    - Icons
-    self.get('PoseLabelmapOutputNodeToolButton').icon = saveIcon
-    self.get('PoseLabelmapSaveToolButton').icon = saveIcon
-    #    - Signals/Slots
-    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
-    self.get('PoseLabelmapArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
-    self.get('PoseLabelmapWeightPathLineEdit').connect('currentPathChanged(QString)', self.poseLabelmapParameterChanged)
-    self.get('PoseLabelmapOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.poseLabelmapParameterChanged)
-    self.get('PoseLabelmapOutputNodeToolButton').connect('clicked()', self.savePoseLabelmapOutputNode)
-    self.get('PoseLabelmapApplyPushButton').connect('clicked(bool)', self.runPoseLabelmap)
-    self.get('PoseLabelmapGoToPushButton').connect('clicked()', self.openPoseLabelmap)
-
-    self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
-    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.setupPoseLabelmap)
-
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
     # Lots of setup methods are called from this line
@@ -430,8 +410,7 @@ class WorkflowWidget:
                            'EditSkinnedVolumeNodeComboBox',
                            'ComputeArmatureWeightInputVolumeNodeComboBox',
                            'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
-                           'PoseLabelmapInputNodeComboBox',
-                           'PoseLabelmapOutputNodeComboBox']
+                           ]
 
     for combobox in labeldMapComboBoxes:
       self.get(combobox).addAttribute('vtkMRMLScalarVolumeNode','LabelMap','1')
@@ -731,7 +710,6 @@ class WorkflowWidget:
     # not show up in the combobox.
     self.get('MergeLabelsInputNodeComboBox').setCurrentNode(volumeNode)
     self.setupMergeLabels(volumeNode)
-    self.get('PoseLabelmapInputNodeComboBox').setCurrentNode(volumeNode)
 
     self.validateLabelmap()
 
@@ -1885,7 +1863,7 @@ class WorkflowWidget:
       slicer.cli.setNodeParameters(cliNode, parameters)
       self.get('SimulatePoseApplyPushButton').setChecked(True)
       self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
+      cliNode = slicer.cli.run(slicer.modules.simulatepose, cliNode, parameters, wait_for_completion = False)
     else:
       cliNode = self.observer(self.StatusModifiedEvent, self.onSimulatePoseCLIModified)
       self.get('SimulatePoseApplyPushButton').enabled = False
@@ -1923,7 +1901,6 @@ class WorkflowWidget:
 
   def setWeightDirectory(self, dir):
     self.get('EvalSurfaceWeightWeightPathLineEdit').currentPath = dir
-    self.get('PoseLabelmapWeightPathLineEdit').currentPath = dir
 
   def createOutputSimulatePose(self, node):
     if node == None:
@@ -1936,141 +1913,6 @@ class WorkflowWidget:
       newNode.SetName(nodeName)
     else:
       self.get('SimulatePoseOutputNodeComboBox').setCurrentNode(posedNode)
-
-  #----------------------------------------------------------------------------
-  # 8) Resample
-  #----------------------------------------------------------------------------
-  def initPoseLabelmapPage(self):
-    self.initPoseLabelmap()
-  def validatePoseLabelmapPage(self, validateSections = True):
-    if validateSections:
-      self.validatePoseLabelmap()
-    valid = self.get('ResampleCollapsibleGroupBox').property('valid')
-    self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
-
-  def openPoseLabelmapPage(self):
-    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutFourUpView)
-    # Create output if necessary
-    if not self.poseLabelmapCreateOutputConnected:
-      self.get('PoseLabelmapInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputPoseLabelmap)
-      self.poseLabelmapCreateOutputConnected = True
-    self.createOutputPoseLabelmap(self.get('PoseLabelmapInputNodeComboBox').currentNode())
-
-  #----------------------------------------------------------------------------
-  # a) Pose Labelmap
-  def initPoseLabelmap(self):
-    self.validatePoseLabelmap()
-
-  def validatePoseLabelmap(self):
-    cliNode = self.getCLINode(slicer.modules.poselabelmap)
-    valid = cliNode.GetStatusString() == 'Completed'
-    self.get('PoseLabelmapOutputNodeToolButton').enabled = valid
-    self.get('PoseLabelmapSaveToolButton').enabled = valid
-    self.get('ResampleCollapsibleGroupBox').setProperty('valid', valid)
-    if valid:
-      self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
-        self.get('PoseLabelmapOutputNodeComboBox').currentNode())
-      self.get('VolumeRenderLabelsLineEdit').text = ''
-    self.validatePoseLabelmapPage(validateSections = False)
-
-  def poseLabelmapParameterChanged(self):
-    self.get('PoseLabelmapOutputNodeToolButton').enabled = False
-    self.get('PoseLabelmapSaveToolButton').enabled = False
-
-  #
-  def setupPoseLabelmap(self):
-    """ Update the labels of the poselabelmap module
-    """
-    table = self.get('LabelsTableWidget')
-    for row in range(table.rowCount):
-      structure = table.verticalHeaderItem(row).text()
-      structure = structure.lower()
-      item = table.item(row, 1)
-      if structure != 'skin' and item:
-        self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text = item.text()
-      elif structure != 'skin' and item:
-        self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text = item.text()
-
-  def poseLabelmapParameters(self):
-    parameters = {}
-    parameters["RestLabelmap"] = self.get('PoseLabelmapInputNodeComboBox').currentNode()
-    parameters["ArmaturePoly"] = self.get('PoseLabelmapArmatureNodeComboBox').currentNode()
-    parameters["WeightDirectory"] = str(self.get('PoseLabelmapWeightPathLineEdit').currentPath)
-    parameters["PosedLabelmap"] = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
-    parameters["LinearBlend"] = False
-    parameters["Padding"] = self.get('PoseLabelmapPaddingSpinBox').value
-    parameters["MaximumParenthoodDistance"] = '4'
-    #parameters["MaximumRadius"] = '64'
-    #parameters["Debug"] = False
-    #parameters["IsArmatureInRAS"] = False
-    parameters["HighPrecedenceLabels"] = self.get('PoseLabelmapHighPrecedenceLabelsLineEdit').text
-    parameters["LowPrecedenceLabels"] = self.get('PoseLabelmapLowPrecedenceLabelsLineEdit').text
-    return parameters
-
-  def runPoseLabelmap(self, run):
-    if run:
-      cliNode = self.getCLINode(slicer.modules.poselabelmap)
-      parameters = self.poseLabelmapParameters()
-      self.get('PoseLabelmapApplyPushButton').setChecked(True)
-      self.observeCLINode(cliNode, self.onPoseLabelmapCLIModified)
-      cliNode = slicer.cli.run(slicer.modules.poselabelmap, cliNode, parameters, wait_for_completion = False)
-    else:
-      cliNode = self.observer(self.StatusModifiedEvent, self.onPoseLabelmapCLIModified())
-      self.get('PoseLabelmapApplyPushButton').enabled = False
-      cliNode.Cancel()
-
-  def onPoseLabelmapCLIModified(self, cliNode, event):
-    if cliNode.GetStatusString() == 'Completed':
-      # apply color table to generated volume
-      newNode = self.get('PoseLabelmapOutputNodeComboBox').currentNode()
-      displayNode = newNode.GetDisplayNode()
-      if displayNode == None:
-        volumesLogic = slicer.modules.volumes.logic()
-        volumesLogic.SetVolumeAsLabelMap(newNode, 1)
-        displayNode = newNode.GetDisplayNode()
-      inputColorNode = self.get('PoseLabelmapInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
-      if displayNode != None and inputColorNode != None:
-        displayNode.SetAndObserveColorNodeID(inputColorNode.GetID())
-      # hide the models that would hide the volume rendering
-      displayNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLModelDisplayNode')
-      displayNodes.UnRegister(displayNodes)
-      for i in range(0, displayNodes.GetNumberOfItems()):
-        displayNode = displayNodes.GetItemAsObject(i)
-        if (not displayNode.IsA('vtkMRMLAnnotationDisplayNode')):
-          displayNode.SetVisibility(0)
-      self.validatePoseLabelmap()
-      #enable volume rendering
-      self.get('ExpandAdvancedPropertiesButton').setChecked(True)
-      self.get('AdvancedTabWidget').setCurrentWidget(self.get('VolumeRenderingTab'))
-      self.get('VolumeRenderCollapsibleGroupBox').checked = True
-      self.get('VolumeRenderCheckBox').setChecked(True)
-    if not cliNode.IsBusy():
-      self.get('PoseLabelmapApplyPushButton').setChecked(False)
-      self.get('PoseLabelmapApplyPushButton').enabled = True
-      print 'PoseLabelmap %s' % cliNode.GetStatusString()
-      self.removeObservers(self.onPoseLabelmapCLIModified)
-
-  def savePoseLabelmapOutputNode(self):
-    self.saveFile('Posed labelmap', 'VolumeFile', '.mha', self.get('PoseLabelmapOutputNodeComboBox'))
-
-  def openPoseLabelmap(self):
-    self.openModule('PoseLabelmap')
-
-    cliNode = self.getCLINode(slicer.modules.poselabelmap)
-    parameters = self.poseLabelmapParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
-  def createOutputPoseLabelmap(self, node):
-    if node == None:
-      return
-
-    nodeName = '%s-posed' % node.GetName()
-    posedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
-    if posedNode == None:
-      newNode = self.get('PoseLabelmapOutputNodeComboBox').addNode()
-      newNode.SetName(nodeName)
-    else:
-      self.get('PoseLabelmapOutputNodeComboBox').setCurrentNode(posedNode)
 
   # =================== END ==============
   def get(self, objectName):
