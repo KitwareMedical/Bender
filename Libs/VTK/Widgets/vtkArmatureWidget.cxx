@@ -423,19 +423,20 @@ ArmatureTreeNode* vtkArmatureWidget::CreateNewMapElement(vtkBoneWidget* parent)
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetWidgetState(int state)
+int vtkArmatureWidget::SetWidgetState(int state)
 {
   if (state == this->WidgetState)
     {
-    return;
+    return this->WidgetState;
     }
 
+  int oldState = this->WidgetState;
   this->WidgetState = state;
   if (this->TopLevelBones.empty())
     {
     vtkErrorMacro("Could not find any root element !"
       " Cannot set armature state.");
-    return;
+    return oldState;
     }
 
   switch (this->WidgetState)
@@ -472,12 +473,13 @@ void vtkArmatureWidget::SetWidgetState(int state)
     default:
       {
       vtkErrorMacro("Unknown state: "
-        <<this->WidgetState<<"/n  ->State unchanged");
+        <<this->WidgetState<<"  ->State unchanged");
       break;
       }
     }
 
   this->Modified();
+  return oldState;
 }
 
 //----------------------------------------------------------------------------

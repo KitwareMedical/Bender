@@ -35,6 +35,7 @@
 
 // MRML includes
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLArmatureNodeHelper.h"
 #include "vtkMRMLArmatureStorageNode.h"
 #include "vtkMRMLBoneNode.h"
 #include "vtkMRMLModelNode.h"
@@ -151,11 +152,11 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
   QString fileName = properties["fileName"].toString();
   QString currentArmatureID = properties["targetArmature"].toString();
 
-  vtkMRMLArmatureNode* targetNode =
+  vtkMRMLArmatureNode* targetArmature =
     vtkMRMLArmatureNode::SafeDownCast(
       d->ArmaturesLogic->GetMRMLScene()->GetNodeByID(
         currentArmatureID.toLatin1()));
-  if (!targetNode)
+  if (!targetArmature)
     {
     qCritical()<<"Could not find target node. Animation import failed.";
     return false;
@@ -173,112 +174,22 @@ bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
   reader->SetFrame(properties["frame"].toUInt());
   reader->GetArmature()->SetWidgetState(vtkArmatureWidget::Pose);
 
-  int mode = properties.contains("correspondenceMode") ?
-    properties["correspondenceMode"].toInt() :
-  qSlicerArmaturesIO::NameCorrespondence;
-
-  CorrespondenceMap correspondence;
-  bool foundCorrespondence =
-    this->getCorrespondenceMap(
-      mode, targetNode, reader->GetArmature(), correspondence);
-  if (!foundCorrespondence)
+  if (!vtkMRMLArmatureNodeHelper::AnimateArmature(
+    targetArmature, reader->GetArmature()))
     {
-    qCritical()<<"Could find a correspondence between the target armature and"
-      <<" the animated armature. Animation import failed.";
+    qCritical()<<"Animation import failed.";
     return false;
     }
-
-  targetNode->ResetPoseMode();
-  int oldState = targetNode->GetWidgetState();
-  targetNode->SetWidgetState(vtkMRMLArmatureNode::Pose);
-
-  int i = 0;
-  for (CorrespondenceMap::iterator it = correspondence.begin();
-    it != correspondence.end(); ++it)
-    {
-    vtkMRMLBoneNode* boneNode = it->first;
-    vtkBoneWidget* bone = it->second;
-    assert(boneNode);
-    assert(bone);
-
-    vtkQuaterniond animateTargetRotation =
-      bone->GetParentToBonePoseRotation() *
-      boneNode->GetParentToBoneRestRotation().Inverse();
-
-    double axis[3];
-    double angle = animateTargetRotation.GetRotationAngleAndAxis(axis);
-    boneNode->RotateTailWithParentWXYZ(angle, axis);
-    }
-
-  targetNode->SetWidgetState(oldState);
 
   // Kill any potential animation if the armature was a bvh
   vtkMRMLArmatureStorageNode* storageNode =
-    targetNode->GetArmatureStorageNode();
+    targetArmature->GetArmatureStorageNode();
   if (storageNode)
     {
-    targetNode->SetArmatureStorageNode(0);
+    targetArmature->SetArmatureStorageNode(0);
     d->ArmaturesLogic->GetMRMLScene()->RemoveNode(storageNode);
     }
 
-  return true;
-}
-
-//-----------------------------------------------------------------------------
-bool qSlicerArmaturesIO
-::getCorrespondenceMap(int mode,
-                       vtkMRMLArmatureNode* armatureNode,
-                       vtkArmatureWidget* armature,
-                       CorrespondenceMap& correspondence)
-{
-  // As for now, use simple name correspondence
-  if (!armature || !armatureNode)
-    {
-    return false;
-    }
-
-  switch (mode)
-    {
-    case qSlicerArmaturesIO::NameCorrespondence:
-      {
-      return this->getNameCorrespondenceMap(
-        armatureNode, armature, correspondence);
-      break;
-      }
-    default:
-      {
-      return false;
-      break;
-      }
-    }
-}
-
-//-----------------------------------------------------------------------------
-bool qSlicerArmaturesIO
-::getNameCorrespondenceMap(vtkMRMLArmatureNode* armatureNode,
-                           vtkArmatureWidget* armature,
-                           CorrespondenceMap& correspondence)
-{
-  vtkNew<vtkCollection> bones;
-  armatureNode->GetAllBones(bones.GetPointer());
-
- for (int i = 0; i < bones->GetNumberOfItems(); ++i)
-    {
-    vtkMRMLBoneNode* boneNode =
-      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
-    assert(boneNode);
-
-    vtkBoneWidget* bone =
-      armature->GetBoneByName(boneNode->GetName());
-
-    if (!bone)
-      {
-      qWarning()<<"Could not find the bone name: "<<boneNode->GetName();
-      return false;
-      }
-
-    correspondence.push_back(CorrespondencePair(boneNode, bone));
-    }
   return true;
 }
 

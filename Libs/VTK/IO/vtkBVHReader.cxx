@@ -530,7 +530,7 @@ void vtkBVHReader
     {
     if(!std::getline(file, line))
       {
-      std::cout<<"There was an error during the processing."<< std::endl;
+      std::cerr<<"There was an error during the processing."<< std::endl;
       this->InvalidReader();
       return;
       }
@@ -586,10 +586,8 @@ bool vtkBVHReader
     frame = numberOfFrames;
     }
 
-  int oldState = this->Armature->GetWidgetState();
-
   this->Armature->ResetPoseToRest();
-  this->Armature->SetWidgetState(vtkArmatureWidget::Pose);
+  int oldState = this->Armature->SetWidgetState(vtkArmatureWidget::Pose);
 
   assert(this->Frames[this->Frame].size() == this->Bones.size());
   try
@@ -654,8 +652,7 @@ void vtkBVHReader::UnlinkBonesFromFirstChild()
     return;
     }
 
-  int oldState = this->Armature->GetWidgetState();
-  this->Armature->SetWidgetState(vtkArmatureWidget::Rest);
+  int oldState = this->Armature->SetWidgetState(vtkArmatureWidget::Rest);
 
   for (BonesList::iterator it = this->Bones.begin();
     it != this->Bones.end(); ++it)

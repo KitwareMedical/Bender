@@ -192,6 +192,8 @@ public:
   void SetWorldToParentPoseTranslation(const double* translation);
   double* GetWorldToParentRestTranslation();
   double* GetWorldToParentPoseTranslation();
+  void GetWorldToParentRestTranslation(double pos[3]);
+  void GetWorldToParentPoseTranslation(double pos[3]);
 
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()

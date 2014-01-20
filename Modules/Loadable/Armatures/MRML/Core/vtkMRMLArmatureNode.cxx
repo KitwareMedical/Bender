@@ -40,7 +40,9 @@
 #include <vtkMathUtilities.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkPoints.h>
 #include <vtkProperty.h>
+#include <vtkTransform.h>
 #include <vtkWidgetRepresentation.h>
 
 //----------------------------------------------------------------------------
@@ -114,6 +116,7 @@ vtkMRMLArmatureNode::vtkMRMLArmatureNode()
     this->Callback);
 
   this->Frame = 0;
+  this->WidgetState = vtkMRMLArmatureNode::Rest;
 }
 
 //----------------------------------------------------------------------------
@@ -365,15 +368,17 @@ void vtkMRMLArmatureNode::SetBonesRepresentationType(int type)
 }
 
 //---------------------------------------------------------------------------
-void vtkMRMLArmatureNode::SetWidgetState(int state)
+int vtkMRMLArmatureNode::SetWidgetState(int state)
 {
   if (state == this->WidgetState)
     {
-    return;
+    return this->WidgetState;
     }
 
+  int oldState = this->WidgetState;
   this->WidgetState = state;
   this->Modified();
+  return oldState;
 }
 
 //---------------------------------------------------------------------------
@@ -474,6 +479,135 @@ void vtkMRMLArmatureNode::ResetPoseMode()
   this->Modified();
 }
 
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Scale(double factor)
+{
+  this->Scale(factor, factor, factor);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Scale(double factorX, double factorY, double factorZ)
+{
+  double factors[3];
+  factors[0] = factorX;
+  factors[1] = factorX;
+  factors[2] = factorX;
+  this->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Scale(double factors[3])
+{
+  vtkNew<vtkTransform> scale;
+  scale->Scale(factors);
+  this->Transform(scale.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Translate(double x, double y, double z)
+{
+  double translation[3];
+  translation[0] = x;
+  translation[1] = y;
+  translation[2] = z;
+  this->Translate(translation);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Translate(double rootHead[3])
+{
+  vtkNew<vtkTransform> translate;
+  translate->Translate(rootHead);
+  this->Transform(translate.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::RotateX(double angle)
+{
+  this->RotateWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::RotateY(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::RotateZ(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode
+::RotateWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::RotateWXYZ(double angle, double axis[3])
+{
+  vtkNew<vtkTransform> rotate;
+  rotate->RotateWXYZ(angle, axis);
+  this->Transform(rotate.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureNode::Transform(vtkTransform* transform)
+{
+ if (!transform)
+    {
+    return;
+    }
+
+  int oldState = this->SetWidgetState(vtkMRMLArmatureNode::Rest);
+
+  vtkNew<vtkCollection> bones;
+  this->GetAllBones(bones.GetPointer());
+
+  vtkNew<vtkPoints> positions;
+  for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+    {
+    vtkMRMLBoneNode* bone =
+      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+    assert(bone);
+
+    double pos[3];
+    bone->GetWorldHeadRest(pos);
+    positions->InsertNextPoint(pos);
+
+    bone->GetWorldTailRest(pos);
+    positions->InsertNextPoint(pos);
+    }
+
+  vtkNew<vtkPoints> newPositions;
+  transform->TransformPoints(
+    positions.GetPointer(), newPositions.GetPointer());
+
+  for (vtkIdType i = 0; i < newPositions->GetNumberOfPoints() / 2; ++i)
+    {
+    vtkMRMLBoneNode* bone =
+      vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+    assert(bone);
+
+    double pos[3];
+    newPositions->GetPoint(2*i, pos);
+    bone->SetWorldHeadRest(pos);
+
+    newPositions->GetPoint(2*i + 1, pos);
+    bone->SetWorldTailRest(pos);
+    }
+
+  this->SetWidgetState(oldState);
+  this->Modified();
+}
+
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureNode
 ::CopyArmatureWidgetProperties(vtkArmatureWidget* armatureWidget)
@@ -486,6 +620,7 @@ void vtkMRMLArmatureNode
   //int wasModifying = this->StartModify(); // ? Probably not
   this->SetBonesRepresentation(armatureWidget->GetBonesRepresentation());
   this->WidgetState = armatureWidget->GetWidgetState();
+
   this->ArmatureProperties->SetShowAxes(
     armatureWidget->GetShowAxes());
   this->ArmatureProperties->SetShowParenthood(

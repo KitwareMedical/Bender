@@ -1023,9 +1023,10 @@ void vtkBoneWidget::SetWorldTailPose(double tail[3])
 //----------------------------------------------------------------------------
 double vtkBoneWidget::GetLength()
 {
-  double lineVect[3];
-  vtkMath::Subtract(this->GetCurrentWorldTail(),
-    this->GetCurrentWorldHead(), lineVect);
+  double lineVect[3], head[3], tail[3];
+  this->GetCurrentWorldTail(head);
+  this->GetCurrentWorldHead(tail);
+  vtkMath::Subtract(tail, head , lineVect);
   return vtkMath::Norm(lineVect);
 }
 
@@ -1037,9 +1038,10 @@ void vtkBoneWidget::SetLength(double size)
     return;
     }
 
-  double lineVect[3];
-  vtkMath::Subtract(
-    this->GetCurrentWorldTail(), this->GetCurrentWorldHead(), lineVect);
+  double lineVect[3], head[3], tail[3];
+  this->GetCurrentWorldHead(head);
+  this->GetCurrentWorldTail(tail);
+  vtkMath::Subtract(tail, head , lineVect);
   double length = vtkMath::Normalize(lineVect);
   if (fabs(size - length) < 1e-6)
     {
@@ -1297,10 +1299,12 @@ void vtkBoneWidget::Transform(vtkTransform* transform)
 
   int oldState = this->SetWidgetState(vtkBoneWidget::Rest);
 
-  double* newHead = transform->TransformDoublePoint(this->WorldHeadRest);
-  double* newTail = transform->TransformDoublePoint(this->WorldTailRest);
+  double newHead[3], newTail[3];
+  CopyVector3(transform->TransformDoublePoint(this->WorldHeadRest), newHead);
+  CopyVector3(transform->TransformDoublePoint(this->WorldTailRest), newTail);
 
   this->SetWorldHeadAndTailRest(newHead, newTail);
+  this->SetWidgetState(oldState);
 }
 
 //----------------------------------------------------------------------------

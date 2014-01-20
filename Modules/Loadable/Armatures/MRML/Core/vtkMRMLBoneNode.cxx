@@ -605,6 +605,18 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
 }
 
 //---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldToParentRestTranslation(double pos[3])
+{
+  this->BoneProperties->GetWorldToParentRestTranslation(pos);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::GetWorldToParentPoseTranslation(double pos[3])
+{
+  this->BoneProperties->GetWorldToParentPoseTranslation(pos);
+}
+
+//---------------------------------------------------------------------------
 vtkQuaterniond vtkMRMLBoneNode::GetParentToBoneRestRotation()
 {
   return this->BoneProperties->GetParentToBoneRestRotation();
