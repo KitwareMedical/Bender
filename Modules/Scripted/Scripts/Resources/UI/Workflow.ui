@@ -2864,7 +2864,7 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="ctkCheckablePushButton" name="SimulatePoseApplyPushButton">
+             <widget class="QPushButton" name="SimulatePoseApplyPushButton">
               <property name="toolTip">
                <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -2875,11 +2875,8 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Simulate Pose</string>
               </property>
-              <property name="checkState">
-               <enum>Qt::Checked</enum>
-              </property>
-              <property name="checkBoxControlsButton">
-               <bool>false</bool>
+              <property name="checkable">
+               <bool>true</bool>
               </property>
              </widget>
             </item>

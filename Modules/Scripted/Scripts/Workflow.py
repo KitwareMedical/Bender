@@ -269,12 +269,7 @@ class WorkflowWidget:
     self.get('SimulatePoseInputNodeToolButton').icon = loadIcon
     self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
     #    - Signals/Slots
-    self.get('SimulatePoseOutputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
-    self.get('SimulatePoseInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
-    self.get('SimulatePoseArmatureInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.simulatePoseParameterChanged)
-    self.get('SimulatePoseApplyPushButton').connect('checkBoxToggled(bool)', self.autoRunSimulatePose)
     self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
-
     self.get('SimulatePoseInputNodeToolButton').connect('clicked()', self.loadSimulatePoseInputNode)
     self.get('SimulatePoseOutputNodeToolButton').connect('clicked()', self.saveSimulatePoseOutputNode)
     self.get('SimulatePoseGoToPushButton').connect('clicked()', self.openSimulatePoseModule)
@@ -1794,13 +1789,11 @@ class WorkflowWidget:
       self.get('SimulatePoseInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createOutputSimulatePose)
       self.simulatePoseCreateOutputConnected = True
     self.createOutputSimulatePose(self.get('SimulatePoseInputNodeComboBox').currentNode())
-    self.autoRunSimulatePose(self.get('SimulatePoseApplyPushButton').checkState != qt.Qt.Unchecked)
 
     armatureLogic = slicer.modules.armatures.logic()
     if armatureLogic != None:
       armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
 
-    self.simulatePoseParameterChanged()
     slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
 
   #----------------------------------------------------------------------------
@@ -1857,13 +1850,6 @@ class WorkflowWidget:
     self.get('SimulatePoseCollapsibleGroupBox').setProperty('valid', valid)
     self.validatePoseArmaturePage(validateSections = False)
 
-  def simulatePoseParameterChanged(self):
-    self.get('SimulatePoseOutputNodeToolButton').enabled = False
-
-    cliNode = self.getCLINode(slicer.modules.simulatepose)
-    parameters = self.simulatePoseParameters()
-    slicer.cli.setNodeParameters(cliNode, parameters)
-
   def simulatePoseParameters(self):
     # Setup CLI node on input changed or apply changed
     parameters = {}
@@ -1871,17 +1857,6 @@ class WorkflowWidget:
     parameters["VolumeInput"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
     parameters["OutputSurface"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
     return parameters
-
-  def autoRunSimulatePose(self, autoRun):
-    cliNode = self.getCLINode(slicer.modules.simulatepose)
-    if autoRun:
-      parameters = self.simulatePoseParameters()
-      slicer.cli.setNodeParameters(cliNode, parameters)
-      cliNode.SetAutoRunMode(cliNode.AutoRunOnAnyInputEvent)
-      cliNode.SetAutoRun(autoRun)
-      self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
-    else:
-      cliNode.SetAutoRun(autoRun)
 
   def runSimulatePose(self, run):
     if run:
