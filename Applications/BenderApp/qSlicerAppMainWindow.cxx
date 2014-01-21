@@ -431,6 +431,7 @@ void qSlicerAppMainWindowPrivate::readSettings()
                         << "Volumes" << "VolumeRendering" << "Models";
   this->DefaultModule = "Workflow";
   this->ModuleIcons["Workflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
+  this->ModuleIcons["SimpleWorkflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
   this->ModuleIcons["VolumeSkinning"] = QIcon(":VolumeSkinning.png");
   this->ModuleIcons["ComputeArmatureWeight"] = QIcon(":ComputeArmatureWeight.png");
   this->ModuleIcons["EvalSurfaceWeight"] = QIcon(":EvalSurfaceWeight.png");

@@ -432,8 +432,6 @@ void vtkArmatureWidget::SetWidgetState(int state)
   this->WidgetState = state;
   if (this->TopLevelBones.empty())
     {
-    vtkErrorMacro("Could not find any root element !"
-      " Cannot set armature state.");
     return;
     }
 

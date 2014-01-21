@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering</category>
+  <title>Read Materials</title>
+  <description><![CDATA[Read material parameters from file and assign to mesh elements.</p>]]>
+  </description>
+  <version>1.1.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/MaterialPropertiesReader</documentation-url>
+  <license/>
+  <contributor>Ricardo Ortiz (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <geometry fileExtensions=".vtk">
+      <name>MeshPoly</name>
+      <label>Input Mesh</label>
+      <description><![CDATA[Input Tetrahedral Mesh.]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </geometry>
+    <file fileExtensions=".txt">
+      <name>MaterialFile</name>
+      <label>Input Material File</label>
+      <description><![CDATA[Material file containing parameters for each label.]]></description>
+      <channel>input</channel>
+      <index>1</index>
+    </file>
+    <geometry fileExtensions=".vtk">
+      <name>OutputMesh</name>
+      <label>Output Mesh</label>
+      <description><![CDATA[Resultant mesh with materials assigned.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+    </geometry>
+  </parameters>
+</executable>

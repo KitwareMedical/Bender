@@ -23,6 +23,7 @@ set(modules
   BenderSampleData
   SkinModelMaker
   Workflow
+  SimpleWorkflow
   )
 
 set(Bender_MODULES)

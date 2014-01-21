@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>;Dynamics</category>
+  <index>5</index>
+  <title>Simulate Pose</title>
+  <description><![CDATA[Pose a <b>Mesh</b> SOFA's finite element library.]]></description>
+  <version>1.1.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/SimulatePose</documentation-url>
+  <license/>
+  <contributor>Ricardo Ortiz (Kitware)</contributor>
+  <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <geometry>
+      <name>VolumeInput</name>
+      <label>VolumeMesh</label>
+      <description><![CDATA[Input volumetric mesh to be posed.]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </geometry>
+    <geometry >
+      <name>ArmatureFileName</name>
+      <label>Armature</label>
+      <description><![CDATA[Armature.]]></description>
+      <channel>input</channel>
+      <index>1</index>
+    </geometry>
+    <geometry fileExtensions=".vtk">
+      <name>OutputSurface</name>
+      <label>Output posed surface</label>
+      <description><![CDATA[Output surface posed by the <b>Armature</b> transforms.]]></description>
+      <channel>output</channel>
+      <index>2</index>
+    </geometry>
+
+    <geometry>
+      <name>SurfaceInput</name>
+      <label>SurfaceMesh</label>
+      <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
+      <channel>input</channel>
+      <index>3</index>
+    </geometry>
+
+  </parameters>
+</executable>
