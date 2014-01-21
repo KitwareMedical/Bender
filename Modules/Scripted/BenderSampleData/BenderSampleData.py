@@ -166,7 +166,8 @@ class BenderSampleDataWidget:
 class BenderSampleDataLogic( SampleDataLogic ):
   """Download the selected items. Use the logic of the sample data module."""
   def __init__(self, logMessage=None):
-    SampleDataLogic.__init__(self, logMessage)
+    if logMessage:
+      self.logMessage = logMessage
 
     self.downloadData = (
       { 'Man 2mm Arm' :

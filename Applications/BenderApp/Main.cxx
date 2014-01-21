@@ -248,6 +248,9 @@ int SlicerAppMain(int argc, char* argv[])
   moduleFactoryManager->addSearchPaths(app.commandOptions()->additonalModulePaths());
   qSlicerApplicationHelper::setupModuleFactoryManager(moduleFactoryManager);
 
+  // Add modules to ignore (for Bender) here:
+  moduleFactoryManager->addModuleToIgnore("SampleData");
+
   // Register and instantiate modules
   splashMessage(splashScreen, "Registering modules...");
   moduleFactoryManager->registerModules();
