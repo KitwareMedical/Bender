@@ -39,14 +39,16 @@
 #include <vtkStdString.h>
 
 // QSlicer includes
-#include <qSlicerIOManager.h>
 #include <qSlicerApplication.h>
+#include <qSlicerFileDialog.h>
+#include <qSlicerIOManager.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
 #include <vtkSlicerAnnotationModuleLogic.h>
 
 // MRML includes
+#include <vtkMRMLArmatureStorageNode.h>
 #include <vtkMRMLBoneDisplayNode.h>
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
@@ -158,6 +160,13 @@ void qSlicerArmaturesModuleWidgetPrivate
     SIGNAL(stateChanged(int)), q, SLOT(updateCurrentMRMLArmatureNode()));
   QObject::connect(this->ArmatureResetPoseModeButton,
     SIGNAL(clicked()), this, SLOT(onResetPoseClicked()));
+
+  // -- Armature Pose --
+  QObject::connect(this->ArmatureFrameSliderWidget, SIGNAL(valueChanged(double)),
+    this, SLOT(onFrameChanged(double)));
+
+  QObject::connect(this->ImportAnimationPushButton, SIGNAL(clicked()),
+    this, SLOT(onImportAnimationClicked()));
 
   // -- Armature Hierarchy --
   QObject::connect(this->ParentBoneNodeComboBox,
@@ -580,6 +589,36 @@ void qSlicerArmaturesModuleWidgetPrivate::onLinkedWithParentChanged(int linked)
 }
 
 //-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::onFrameChanged(double newFrame)
+{
+  if (!this->ArmatureNode)
+    {
+    return;
+    }
+
+  this->ArmatureNode->SetFrame(static_cast<unsigned int>(newFrame));
+}
+
+//-----------------------------------------------------------------------------
+void qSlicerArmaturesModuleWidgetPrivate::onImportAnimationClicked()
+{
+  if (!this->ArmatureNode)
+    {
+    return;
+    }
+
+  // open dialog with bvh file
+  qSlicerIO::IOProperties ioProperties;
+  ioProperties["targetArmature"] = this->ArmatureNode->GetID();
+  vtkNew<vtkCollection> nodes;
+  qSlicerApplication::application()->ioManager()->openDialog(
+    QString("ArmatureFile"),
+    qSlicerFileDialog::Read,
+    ioProperties,
+    nodes.GetPointer());
+}
+
+//-----------------------------------------------------------------------------
 void qSlicerArmaturesModuleWidgetPrivate::selectCurrentBoneDisplayNode(int select)
 {
   if (!this->BoneNode)
@@ -826,7 +865,7 @@ void qSlicerArmaturesModuleWidget::loadArmatureFromModel(int index)
     }
   else
     {
-    d->logic()->ReadArmatureFromModel(path.toLatin1());
+    d->logic()->AddArmatureFile(path.toLatin1());
     }
 
   d->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
@@ -860,19 +899,37 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode != 0
                                             && d->ArmatureNode->GetVisibility());
   d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
+    && d->ArmatureStateComboBox->currentText() == "Pose");
+
+  vtkMRMLArmatureStorageNode* armatureStorageNode = 0;
+  if (d->ArmatureNode)
+    {
+    armatureStorageNode = d->ArmatureNode->GetArmatureStorageNode();
+    }
+  d->ArmatureFrameSliderWidget->setEnabled(armatureStorageNode != 0);
+  d->ImportAnimationPushButton->setEnabled(d->ArmatureNode != 0);
+
+  if (!d->ArmatureNode)
+    {
+    return;
+    }
+
+  d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
   d->ArmatureStateComboBox->setCurrentIndex(
     (d->ArmatureNode != 0
      && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose) ? 1 : 0);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
 
-  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
-    && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose);
-
-  if (d->ArmatureNode)
+  if (armatureStorageNode)
     {
-    d->updateArmatureWidget(d->ArmatureNode);
+    d->ArmatureFrameSliderWidget->setMaximum(
+      armatureStorageNode->GetNumberOfFrames() -1);
     }
+  d->ArmatureFrameSliderWidget->setValue(d->ArmatureNode->GetFrame());
+
+  d->updateArmatureWidget(d->ArmatureNode);
 }
 
 //-----------------------------------------------------------------------------

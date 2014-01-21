@@ -25,12 +25,14 @@
 #include <vtkStdString.h>
 
 // Slicer includes
-#include "vtkMRMLAnnotationNode.h"
+#include <vtkMRMLAnnotationNode.h>
+
+// Bender includes
+#include <vtkBoneWidget.h>
+#include <vtkQuaternion.h>
 
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
-#include "vtkBoneWidget.h"
-
 class vtkBoneRepresentation;
 class vtkCallbackCommand;
 class vtkMRMLBoneDisplayNode;
@@ -180,8 +182,8 @@ public:
   /// \sa GetWorldToParentPoseRotation(), SetWorldToParentPoseTranslation()
   void SetWorldToParentRestRotation(const double* rotation);
   void SetWorldToParentPoseRotation(const double* rotation);
-  double* GetWorldToParentRestRotation();
-  double* GetWorldToParentPoseRotation();
+  vtkQuaterniond GetWorldToParentRestRotation();
+  vtkQuaterniond GetWorldToParentPoseRotation();
 
   /// Set/Get the world to parent translations.
   /// \sa GetWorldToParentRestTranslation(), SetWorldToParentRestRotation()
@@ -190,11 +192,13 @@ public:
   void SetWorldToParentPoseTranslation(const double* translation);
   double* GetWorldToParentRestTranslation();
   double* GetWorldToParentPoseTranslation();
+  void GetWorldToParentRestTranslation(double pos[3]);
+  void GetWorldToParentPoseTranslation(double pos[3]);
 
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestRotation(), GetParentToBonePoseRotation()
-  double* GetParentToBoneRestRotation();
-  double* GetParentToBonePoseRotation();
+  vtkQuaterniond GetParentToBoneRestRotation();
+  vtkQuaterniond GetParentToBonePoseRotation();
 
   /// Get the parent to bone rotations.
   /// \sa GetParentToBoneRestTranslation(), GetParentToBonePoseTranslation()
@@ -208,8 +212,8 @@ public:
   /// \sa GetWorldToBoneTailPoseTranslation()
   /// \sa GetWorldToBoneRestRotation()
   /// \sa GetWorldToBonePoseRotation()
-  double* GetWorldToBoneRestRotation();
-  double* GetWorldToBonePoseRotation();
+  vtkQuaterniond GetWorldToBoneRestRotation();
+  vtkQuaterniond GetWorldToBonePoseRotation();
 
   /// Get the world to bone rotations.
   /// \sa GetWorldToBoneHeadRestTranslation()
@@ -234,6 +238,42 @@ public:
   /// Set/Get if the bone has parent or not.
   vtkSetMacro(HasParent, bool);
   vtkGetMacro(HasParent, bool);
+
+  // Rotate the tail in the parent coordinates system
+  void RotateTailWithParentX(double angle);
+  void RotateTailWithParentY(double angle);
+  void RotateTailWithParentZ(double angle);
+  void RotateTailWithParentWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithParentWXYZ(double angle, double axis[3]);
+
+  // Rotate the tail in the world coordinates system
+  void RotateTailWithWorldX(double angle);
+  void RotateTailWithWorldY(double angle);
+  void RotateTailWithWorldZ(double angle);
+  void RotateTailWithWorldWXYZ(double angle, double x, double y, double z);
+  void RotateTailWithWorldWXYZ(double angle, double axis[3]);
+
+  // Scale the bone in Rest mode.
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Translate the bone in Rest mode.
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Rotate the bone in Rest mode.
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Transform the bone in Rest mode.
+  void Transform(vtkTransform* t);
+
+  // Set the bone's length in Rest mode.
+  void SetLength(double size);
 
   //--------------------------------------------------------------------------
   // Helper methods

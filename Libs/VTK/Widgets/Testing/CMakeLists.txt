@@ -27,6 +27,7 @@ include(BenderMacroSimpleTest)
 set(TEST_NAMES_CXX
     vtkArmatureWidgetArmTest.cxx
     vtkArmatureWidgetTest.cxx
+    vtkArmatureWidgetTestRotations.cxx
     vtkBoneWidgetTest_Basics.cxx
     vtkBoneWidgetTest_RestMode.cxx
     vtkBoneWidgetTest_PoseMode.cxx
@@ -47,6 +48,7 @@ set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
 
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkArmatureWidgetArmTest)
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkArmatureWidgetTest)
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkArmatureWidgetTestRotations)
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_Basics)
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_RestMode)
 SIMPLE_TEST(${TEST_EXEC_NAME} vtkBoneWidgetTest_PoseMode)

@@ -24,16 +24,24 @@
 
 // SlicerQt includes
 #include "qSlicerArmaturesIO.h"
+#include "qSlicerArmaturesIOOptionsWidget.h"
 
 // Logic includes
 #include "vtkSlicerArmaturesLogic.h"
 #include "vtkSlicerModelsLogic.h"
 
+// Bender includes
+#include "vtkBVHReader.h"
+
 // MRML includes
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLArmatureNodeHelper.h"
+#include "vtkMRMLArmatureStorageNode.h"
+#include "vtkMRMLBoneNode.h"
 #include "vtkMRMLModelNode.h"
 
 // VTK includes
+#include <vtkNew.h>
 #include <vtkSmartPointer.h>
 
 //-----------------------------------------------------------------------------
@@ -87,7 +95,7 @@ qSlicerIO::IOFileType qSlicerArmaturesIO::fileType()const
 QStringList qSlicerArmaturesIO::extensions()const
 {
   return QStringList()
-    << "Armature (*.arm *.vtk)";
+    << "Armature (*.arm *.vtk *.bvh)";
 }
 
 //-----------------------------------------------------------------------------
@@ -103,27 +111,16 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
     return false;
     }
 
-  if (fileName.endsWith(".arm"))
+  if (properties.contains("targetArmature") && fileName.endsWith(".bvh"))
     {
-    vtkMRMLModelNode* node = d->ArmaturesLogic->AddArmatureFile(
-      fileName.toLatin1());
-    if (!node)
-      {
-      return false;
-      }
-    this->setLoadedNodes( QStringList(QString(node->GetID())) );
-    if (properties.contains("name"))
-      {
-      std::string uname = this->mrmlScene()->GetUniqueNameByString(
-        properties["name"].toString().toLatin1());
-      node->SetName(uname.c_str());
-      }
-    return true;
+    return this->importAnimationFromFile(properties);
     }
-  else if (fileName.endsWith(".vtk"))
+  else if (fileName.endsWith(".vtk")
+    || fileName.endsWith(".arm")
+    || fileName.endsWith(".bvh"))
     {
     vtkMRMLArmatureNode* armatureNode =
-      d->ArmaturesLogic->ReadArmatureFromModel(fileName.toLatin1());
+      d->ArmaturesLogic->AddArmatureFile(fileName.toLatin1());
     if (!armatureNode)
       {
       return false;
@@ -136,9 +133,68 @@ bool qSlicerArmaturesIO::load(const IOProperties& properties)
       armatureNode->SetName(uname.c_str());
       }
 
+    if (properties.contains("frame"))
+      {
+      armatureNode->SetFrame(properties["frame"].toUInt());
+      }
+
     this->setLoadedNodes(QStringList(armatureNode->GetID()));
     return true;
     }
 
   return false;
+}
+
+//-----------------------------------------------------------------------------
+bool qSlicerArmaturesIO::importAnimationFromFile(const IOProperties& properties)
+{
+  Q_D(qSlicerArmaturesIO);
+  QString fileName = properties["fileName"].toString();
+  QString currentArmatureID = properties["targetArmature"].toString();
+
+  vtkMRMLArmatureNode* targetArmature =
+    vtkMRMLArmatureNode::SafeDownCast(
+      d->ArmaturesLogic->GetMRMLScene()->GetNodeByID(
+        currentArmatureID.toLatin1()));
+  if (!targetArmature)
+    {
+    qCritical()<<"Could not find target node. Animation import failed.";
+    return false;
+    }
+
+  vtkNew<vtkBVHReader> reader;
+  reader->SetFileName(fileName.toLatin1());
+  reader->Update();
+  if (!reader->GetArmature())
+    {
+    qCritical()<<"Could not read in animation file: "<<fileName
+      <<". Make sure the file is valid. Animation import failed.";
+    return false;
+    };
+  reader->SetFrame(properties["frame"].toUInt());
+  reader->GetArmature()->SetWidgetState(vtkArmatureWidget::Pose);
+
+  if (!vtkMRMLArmatureNodeHelper::AnimateArmature(
+    targetArmature, reader->GetArmature()))
+    {
+    qCritical()<<"Animation import failed.";
+    return false;
+    }
+
+  // Kill any potential animation if the armature was a bvh
+  vtkMRMLArmatureStorageNode* storageNode =
+    targetArmature->GetArmatureStorageNode();
+  if (storageNode)
+    {
+    targetArmature->SetArmatureStorageNode(0);
+    d->ArmaturesLogic->GetMRMLScene()->RemoveNode(storageNode);
+    }
+
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+qSlicerIOOptions* qSlicerArmaturesIO::options()const
+{
+  return new qSlicerArmaturesIOOptionsWidget;
 }

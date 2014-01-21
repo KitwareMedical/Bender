@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>qSlicerArmaturesIOOptionsWidget</class>
+ <widget class="qSlicerWidget" name="qSlicerArmaturesIOOptionsWidget">
+  <property name="enabled">
+   <bool>false</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>552</width>
+    <height>20</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Volume Options</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QCheckBox" name="FrameSelectionEnabledCheckBox">
+     <property name="text">
+      <string>Frame selection</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="ctkSliderWidget" name="FrameSliderWidget">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="decimals">
+      <number>0</number>
+     </property>
+     <property name="pageStep">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>0.000000000000000</double>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>qSlicerWidget</class>
+   <extends>QWidget</extends>
+   <header>qSlicerWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ctkSliderWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkSliderWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

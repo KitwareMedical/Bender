@@ -24,29 +24,28 @@
 
 // Armatures includes
 #include "vtkMRMLArmatureNode.h"
+#include "vtkMRMLArmatureStorageNode.h"
 #include "vtkMRMLBoneDisplayNode.h"
 #include "vtkMRMLBoneNode.h"
 #include "vtkMRMLSelectionNode.h"
 #include "vtkSlicerArmaturesLogic.h"
 
-// MRML includes
+// Slicer includes
+#include <vtkCacheManager.h>
 #include <vtkEventBroker.h>
 #include <vtkMRMLInteractionNode.h>
 #include <vtkMRMLSelectionNode.h>
 
 // VTK includes
-#include <vtkCellData.h>
-#include <vtkDoubleArray.h>
-#include <vtkIdTypeArray.h>
-#include <vtkMath.h>
+#include <vtkCallbackCommand.h>
 #include <vtkNew.h>
-#include <vtkPoints.h>
-#include <vtkPolyData.h>
-#include <vtkPolyDataReader.h>
-#include <vtkStringArray.h>
 #include <vtksys/SystemTools.hxx>
 #include <vtkXMLDataElement.h>
 #include <vtkXMLDataParser.h>
+
+/// ITK includes
+#include <itksys/Directory.hxx>
+#include <itksys/SystemTools.hxx>
 
 // STD includes
 #include <cassert>
@@ -435,310 +434,65 @@ vtkMRMLModelNode* vtkSlicerArmaturesLogic
 }
 
 //----------------------------------------------------------------------------
-vtkMRMLModelNode* vtkSlicerArmaturesLogic::AddArmatureFile(const char* fileName)
+vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
+::AddArmatureFile(const char* filename)
 {
-  vtkNew<vtkXMLDataParser> armatureParser;
-  armatureParser->SetFileName(fileName);
-  int res = armatureParser->Parse();
-  if (res == 0)
+  if (this->GetMRMLScene() == 0 || filename == 0)
     {
-    vtkErrorMacro(<<"Fail to read" << fileName << ". Not a valid armature file");
     return 0;
     }
-  vtkNew<vtkPolyData> armature;
-  vtkNew<vtkPoints> points;
-  points->SetDataTypeToDouble();
-  armature->SetPoints(points.GetPointer());
-  armature->Allocate(100);
-  vtkXMLDataElement* armatureElement = armatureParser->GetRootElement();
-  double orientationXYZW[4];
-  armatureElement->GetVectorAttribute("orientation", 4, orientationXYZW);
-  double orientationWXYZ[4] = {orientationXYZW[3], orientationXYZW[0],
-                               orientationXYZW[1], orientationXYZW[2]};
+  vtkSmartPointer<vtkMRMLArmatureStorageNode> storageNode =
+    vtkSmartPointer<vtkMRMLArmatureStorageNode>::New();
+  vtkSmartPointer<vtkMRMLArmatureNode> armatureNode =
+    vtkSmartPointer<vtkMRMLArmatureNode>::New();
 
-  double origin[3] = {0., 0., 0.};
-  for (int child = 0; child < armatureElement->GetNumberOfNestedElements(); ++child)
+  // check for local or remote files
+  int useURI = 0;
+  vtkCacheManager* cacheManager = this->GetMRMLScene()->GetCacheManager();
+  if (cacheManager)
     {
-    this->ReadBone(armatureElement->GetNestedElement(child), armature.GetPointer(), origin, orientationWXYZ);
-    }
-  return this->ModelsLogic->AddModel(armature.GetPointer());
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::ReadArmatureFromModel(const char* fileName)
-{
-  vtkNew<vtkPolyDataReader> reader;
-  reader->SetFileName(fileName);
-  reader->Update();
-  vtkStdString baseName =
-    vtksys::SystemTools::GetFilenameWithoutExtension(fileName);
-  return this->CreateArmatureFromModel(reader->GetOutput(), baseName.c_str());
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLArmatureNode* vtkSlicerArmaturesLogic
-::CreateArmatureFromModel(vtkPolyData* model, const char* baseName)
-{
-  if (!model)
-    {
-    std::cerr<<"Cannot create armature from model, model is null"<<std::endl;
-    return NULL;
+    useURI =
+      this->GetMRMLScene()->GetCacheManager()->IsRemoteReference(filename);
+    vtkDebugMacro("AddArmature: file name is remote: " << filename);
     }
 
-  // First, create an armature node
-  vtkMRMLArmatureNode* armatureNode = vtkMRMLArmatureNode::New();
-  armatureNode->SetName(baseName);
-  this->GetMRMLScene()->AddNode(armatureNode);
-  armatureNode->Delete();
-
-  vtkPoints* points = model->GetPoints();
-  if (!points)
+  const char* localFile;
+  if (useURI)
     {
-    std::cerr<<"Cannot create armature from model,"
-      <<" No points !"<<std::endl;
-    return NULL;
-    }
-
-  vtkCellData* cellData = model->GetCellData();
-  if (!cellData)
-    {
-    std::cerr<<"Cannot create armature from model, No cell data"<<std::endl;
-    return NULL;
-    }
-
-  vtkIdTypeArray* parenthood =
-    vtkIdTypeArray::SafeDownCast(cellData->GetArray("Parenthood"));
-  if (!parenthood
-    || parenthood->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cerr<<"Cannot create armature from model,"
-      <<" parenthood array invalid"<<std::endl;
-    return NULL;
-    }
-
-  vtkStringArray* names =
-    vtkStringArray::SafeDownCast(cellData->GetAbstractArray("Names"));
-  if (!names
-    || names->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cout<<"Warning: No names found in the armature file. \n"
-      << "-> Using default naming !" <<std::endl;
-    }
-
-  vtkDoubleArray* restToPose=
-    vtkDoubleArray::SafeDownCast(cellData->GetArray("RestToPoseRotation"));
-  // 1 quaternion per bone
-  if (!restToPose
-    || restToPose->GetNumberOfTuples()*2 != points->GetNumberOfPoints())
-    {
-    std::cout<<"Warning: No Pose found in the armature file. \n"
-      << "-> No pose imported !" <<std::endl;
-    }
-
-  vtkNew<vtkCollection> addedBones;
-  for (vtkIdType id = 0, pointId = 0;
-    id < parenthood->GetNumberOfTuples(); ++id, pointId += 2)
-    {
-    vtkIdType parentId = parenthood->GetValue(id);
-    if (parentId > id)
-      {
-      std::cerr<<"There most likely were reparenting."
-        << " Not supported yet."<<std::endl;
-      return armatureNode;
-      }
-
-    vtkMRMLBoneNode* boneParentNode = 0;
-    if (parentId > -1)
-      {
-      boneParentNode =
-        vtkMRMLBoneNode::SafeDownCast(addedBones->GetItemAsObject(parentId));
-      if (! boneParentNode)
-        {
-        std::cerr<<"Could not find bone parent ! Stopping"<<std::endl;
-        return armatureNode;
-        }
-
-      vtkMRMLAnnotationHierarchyNode* hierarchyNode =
-        vtkMRMLAnnotationHierarchyNode::SafeDownCast(
-          vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
-            boneParentNode->GetScene(), boneParentNode->GetID()));
-      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
-        hierarchyNode != 0 ? hierarchyNode->GetID() : 0);
-      }
-    else // Root
-      {
-      this->GetAnnotationsLogic()->SetActiveHierarchyNodeID(
-        armatureNode->GetID());
-      }
-
-    vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::New();
-
-    if (names)
-      {
-      boneNode->SetName(names->GetValue(id));
-      }
-
-    double p[3];
-    points->GetPoint(pointId, p);
-    boneNode->SetWorldHeadRest(p);
-
-    points->GetPoint(pointId + 1, p);
-    boneNode->SetWorldTailRest(p);
-
-    if (restToPose)
-      {
-      double quad[4];
-      restToPose->GetTupleValue(id, quad);
-      boneNode->SetRestToPoseRotation(quad);
-      }
-
-    if (boneParentNode)
-      {
-      double diff[3];
-      vtkMath::Subtract(
-        boneParentNode->GetWorldTailRest(),
-        boneNode->GetWorldHeadRest(),
-        diff);
-      if (vtkMath::Dot(diff, diff) > 1e-6)
-        {
-        boneNode->SetBoneLinkedWithParent(false);
-        }
-      }
-
-    boneNode->Initialize(this->GetMRMLScene());
-    addedBones->AddItem(boneNode);
-    boneNode->Delete();
-    }
-
-  return armatureNode;
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerArmaturesLogic::ReadBone(vtkXMLDataElement* boneElement,
-                                       vtkPolyData* polyData,
-                                       const double origin[3],
-                                       const double parentOrientation[4])
-{
-  double parentMatrix[3][3];
-  vtkMath::QuaternionToMatrix3x3(parentOrientation, parentMatrix);
-
-  double localHead[3] = {0., 0., 0.};
-  boneElement->GetVectorAttribute("head", 3, localHead);
-  double head[3] = {0., 0., 0.};
-  vtkMath::Multiply3x3(parentMatrix, localHead, head);
-
-  double parentPosedOrientation[4] =
-    {parentOrientation[0], parentOrientation[1],
-     parentOrientation[2], parentOrientation[3]};
-  bool applyPose = true;
-  if (applyPose)
-    {
-    vtkXMLDataElement * poseElement =
-      boneElement->FindNestedElementWithName("pose");
-    if (poseElement)
-      {
-      this->ReadPose(poseElement, parentPosedOrientation, true);
-      }
-    }
-
-#ifndef BEFORE
-  double parentPosedMatrix[3][3];
-  vtkMath::QuaternionToMatrix3x3(parentPosedOrientation, parentPosedMatrix);
-
-  double localTail[3] = {0., 0. ,0};
-  boneElement->GetVectorAttribute("tail", 3, localTail);
-  double tail[3] = {0., 0. ,0};
-  vtkMath::Subtract(localTail, localHead, tail);
-  vtkMath::Multiply3x3(parentPosedMatrix, tail, tail);
-  vtkMath::Add(localHead, tail, tail);
-
-  vtkMath::Add(origin, head, head);
-  vtkMath::Add(origin, tail, tail);
-
-  vtkIdType indexes[2];
-  indexes[0] = polyData->GetPoints()->InsertNextPoint(head);
-  indexes[1] = polyData->GetPoints()->InsertNextPoint(tail);
-
-  polyData->InsertNextCell(VTK_LINE, 2, indexes);
-#endif
-
-  double localOrientationXYZW[4] = {0., 0., 0., 1.};
-  boneElement->GetVectorAttribute("orientation", 4, localOrientationXYZW);
-  double localOrientationWXYZ[4] = {localOrientationXYZW[3], localOrientationXYZW[0],
-                                    localOrientationXYZW[1], localOrientationXYZW[2]};
-  double worldOrientation[4];
-  //vtkMath::MultiplyQuaternion(parentOrientation, localOrientationWXYZ, worldOrientation);
-  vtkMath::MultiplyQuaternion(parentPosedOrientation, localOrientationWXYZ, worldOrientation);
-  //vtkMath::MultiplyQuaternion(localOrientationWXYZ, parentOrientation, worldOrientation);
-  //vtkMath::MultiplyQuaternion(localOrientationWXYZ, parentPosedOrientation, worldOrientation);
-/*
-  vtkXMLDataElement * poseElement =
-    boneElement->FindNestedElementWithName("pose");
-  if (applyPose)
-    {
-    if (poseElement)
-      {
-      this->ReadPose(poseElement, worldOrientation, false);
-      }
-    }
-*/
-#ifdef BEFORE
-  double parentPosedMatrix[3][3];
-  vtkMath::QuaternionToMatrix3x3(worldOrientation, parentPosedMatrix);
-
-  double localTail[3] = {0., 0. ,0};
-  boneElement->GetVectorAttribute("tail", 3, localTail);
-  double tail[3] = {0., 0. ,0};
-  vtkMath::Subtract(localTail, localHead, tail);
-  vtkMath::Multiply3x3(parentPosedMatrix, tail, tail);
-  vtkMath::Add(localHead, tail, tail);
-
-  vtkMath::Add(origin, head, head);
-  vtkMath::Add(origin, tail, tail);
-
-  vtkIdType indexes[2];
-  indexes[0] = polyData->GetPoints()->InsertNextPoint(head);
-  indexes[1] = polyData->GetPoints()->InsertNextPoint(tail);
-
-  polyData->InsertNextCell(VTK_LINE, 2, indexes);
-#endif
-
-  //std::cout << "local quat: w=" << localOrientationWXYZ[0] << " x=" << localOrientationWXYZ[1] << " y=" << localOrientationWXYZ[2] << " z=" << localOrientationWXYZ[3] << std::endl;
-  //std::cout << "New quat: w=" << worldOrientation[0] << " x=" << worldOrientation[1] << " y=" << worldOrientation[2] << " z=" << worldOrientation[3] << std::endl;
-  for (int child = 0; child < boneElement->GetNumberOfNestedElements(); ++child)
-    {
-    vtkXMLDataElement* childElement = boneElement->GetNestedElement(child);
-    if (strcmp(childElement->GetName(),"bone") == 0)
-      {
-      this->ReadBone(childElement, polyData, tail, worldOrientation);
-      }
-    else if (strcmp(childElement->GetName(),"pose") == 0)
-      {
-      // already parsed
-      }
-    else
-      {
-      vtkWarningMacro( << "XML element " << childElement->GetName()
-                       << "is not supported");
-      }
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkSlicerArmaturesLogic::ReadPose(vtkXMLDataElement* poseElement,
-                                       double parentOrientation[4], bool invert)
-{
-  double poseRotationXYZW[4] = {0., 0., 0., 0.};
-  poseElement->GetVectorAttribute("rotation", 4, poseRotationXYZW);
-  double poseRotationWXYZ[4] = {poseRotationXYZW[3], poseRotationXYZW[0],
-                                poseRotationXYZW[1], poseRotationXYZW[2]};
-  if (invert)
-    {
-    vtkMath::MultiplyQuaternion(poseRotationWXYZ, parentOrientation, parentOrientation);
+    storageNode->SetURI(filename);
+    // reset filename to the local file name
+    localFile = cacheManager->GetFilenameFromURI(filename);
     }
   else
     {
-    vtkMath::MultiplyQuaternion(parentOrientation, poseRotationWXYZ, parentOrientation);
+    storageNode->SetFileName(filename);
+    localFile = filename;
     }
+  const itksys_stl::string fname(localFile);
+  armatureNode->SetName(
+    itksys::SystemTools::GetFilenameWithoutExtension(fname).c_str());
+
+  this->GetMRMLScene()->SaveStateForUndo();
+  this->GetMRMLScene()->AddNode(storageNode);
+
+  // Set the scene so that SetAndObserveStorageNodeID can find the
+  // node in the scene
+  armatureNode->SetScene(this->GetMRMLScene());
+  this->GetMRMLScene()->AddNode(armatureNode);
+
+  int success = storageNode->ReadData(armatureNode);
+  if (itksys::SystemTools::GetFilenameExtension(filename) == ".bvh")
+    {
+    storageNode->HideFromEditorsOn();
+    armatureNode->SetArmatureStorageNode(storageNode);
+    }
+
+  if (success != 1)
+    {
+    vtkErrorMacro("AddModel: error reading " << filename);
+    this->GetMRMLScene()->RemoveNode(armatureNode);
+    armatureNode = NULL;
+    }
+
+  return armatureNode;
 }

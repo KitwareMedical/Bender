@@ -17,10 +17,28 @@
 # limitations under the License.
 #
 #============================================================================
+
 #
-# This should be in the order of the dependencies
+# VTK IO Testing
 #
-add_subdirectory(Common)
-add_subdirectory(Filters/Sources)
-add_subdirectory(Widgets)
-add_subdirectory(IO)
+
+include(BenderMacroSimpleTest)
+
+set(TEST_NAMES_CXX
+    vtkBVHReaderTest.cxx
+    vtkBVHReaderTestWithInitialTransform.cxx
+    )
+
+set(TEST_EXEC_NAME ${PROJECT_NAME}CxxTests)
+
+create_test_sourcelist(TESTS
+  ${TEST_EXEC_NAME}.cxx
+  ${TEST_NAMES_CXX}
+  )
+
+add_executable(${TEST_EXEC_NAME} ${TESTS})
+target_link_libraries(${TEST_EXEC_NAME} ${PROJECT_NAME})
+
+set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBVHReaderTest ${${PROJECT_NAME}_DATA_DIR})
+SIMPLE_TEST(${TEST_EXEC_NAME} vtkBVHReaderTestWithInitialTransform ${${PROJECT_NAME}_DATA_DIR})

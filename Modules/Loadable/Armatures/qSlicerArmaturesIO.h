@@ -21,11 +21,23 @@
 #ifndef __qSlicerArmaturesIO_h
 #define __qSlicerArmaturesIO_h
 
+//Qt includes
+#include <QHash>
+
 // SlicerQt includes
 #include "qSlicerFileReader.h"
 class qSlicerArmaturesIOPrivate;
 
 // Slicer includes
+class qSlicerIOOptions;
+
+// Bender includes
+class vtkArmatureWidget;
+class vtkBoneWidget;
+
+// Armatures includes
+class vtkMRMLArmatureNode;
+class vtkMRMLBoneNode;
 class vtkSlicerArmaturesLogic;
 
 //-----------------------------------------------------------------------------
@@ -48,8 +60,16 @@ public:
 
   virtual bool load(const IOProperties& properties);
 
+  /// Returns a list of options for the reader. qSlicerIOOptions can be
+  /// derived and have a UI associated to it (i.e. qSlicerIOOptionsWidget).
+  /// Warning: you are responsible for freeing the memory of the returned
+  /// options
+  virtual qSlicerIOOptions* options() const;
+
 protected:
   QScopedPointer<qSlicerArmaturesIOPrivate> d_ptr;
+
+  bool importAnimationFromFile(const IOProperties& properties);
 
 private:
   Q_DECLARE_PRIVATE(qSlicerArmaturesIO);

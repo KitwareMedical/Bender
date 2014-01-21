@@ -88,8 +88,8 @@ int vtkArmatureWidgetTest(int, char *[])
   sectionErrors += arm->GetBoneParent(child) != root;
   sectionErrors += arm->GetBoneByName("first Child") != child;
   sectionErrors += arm->GetBoneLinkedWithParent(child) != true;
-  sectionErrors += arm->IsBoneDirectParent(child, root) != true;
-  sectionErrors += arm->IsBoneParent(child, root) != true;
+  sectionErrors += arm->AreBonesDirectParent(child, root) != true;
+  sectionErrors += arm->AreBonesParent(child, root) != true;
   sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneAdded;
   sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
   sectionErrors += spy->CalledEvents.size() != 2;
@@ -134,8 +134,8 @@ int vtkArmatureWidgetTest(int, char *[])
   sectionErrors += arm->GetBoneParent(secondChild) != child;
   sectionErrors += arm->GetBoneByName("Second child") != secondChild;
   sectionErrors += arm->GetBoneLinkedWithParent(secondChild) != true;
-  sectionErrors += arm->IsBoneDirectParent(secondChild, root) != false;
-  sectionErrors += arm->IsBoneParent(secondChild, root) != true;
+  sectionErrors += arm->AreBonesDirectParent(secondChild, root) != false;
+  sectionErrors += arm->AreBonesParent(secondChild, root) != true;
   sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneAdded;
   sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
   sectionErrors += spy->CalledEvents.size() != 2;
@@ -171,8 +171,8 @@ int vtkArmatureWidgetTest(int, char *[])
   sectionErrors += arm->GetBoneParent(toBeRemovedParent) != NULL;
   sectionErrors += arm->GetBoneByName("toBeRemovedParent") != NULL;
   sectionErrors += arm->GetBoneLinkedWithParent(toBeRemovedParent) != false;
-  sectionErrors += arm->IsBoneDirectParent(toBeRemovedParent, root) != false;
-  sectionErrors += arm->IsBoneParent(toBeRemovedParent, root) != false;
+  sectionErrors += arm->AreBonesDirectParent(toBeRemovedParent, root) != false;
+  sectionErrors += arm->AreBonesParent(toBeRemovedParent, root) != false;
   sectionErrors += spy->CalledEvents[0] != vtkArmatureWidget::BoneRemoved;
   sectionErrors += spy->CalledEvents[1] != vtkCommand::ModifiedEvent;
   sectionErrors += spy->CalledEvents.size() != 2;
