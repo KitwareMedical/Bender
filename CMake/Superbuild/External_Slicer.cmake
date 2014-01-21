@@ -119,7 +119,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_USE_QtTesting:BOOL=OFF
       -DSlicer_USE_PYTHONQT:BOOL=ON
       -DSlicer_QTLOADABLEMODULES_DISABLED:STRING=SlicerWelcome
-      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy^^SelfTests^^SampleData
+      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy^^SelfTests^^SampleData^^LabelStatistics.py
       -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeExplorer:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeImporter:BOOL=OFF
