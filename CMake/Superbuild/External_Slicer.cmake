@@ -43,6 +43,11 @@ bender_check_external_project_dependency(${proj})
 
 set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3&&Cleaver&&SOFA")
 
+if (APPLE)
+  find_package(GLEW REQUIRED)
+endif()
+
+
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 set(proj ${${proj_filename}_proj})
@@ -131,6 +136,8 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
       -DSlicer_BUILD_Extensions:BOOL=OFF
       -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${Bender_MODULES_LIST}
+      -DGLEW_INCLUDE_DIR:PATH=${GLEW_INCLUDE_DIR}
+      -DGLEW_LIBRARY:FILEPATH=${GLEW_LIBRARY}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )
