@@ -51,7 +51,6 @@ if(CUDA_FOUND)
   )
 endif(CUDA_FOUND)
 
-
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
 set(proj ${${proj_filename}_proj})
@@ -103,6 +102,9 @@ if(NOT DEFINED ${proj}_DIR)
       -DPRECONFIGURE_DONE:BOOL=ON
       -DSOFA-LIB_SIMULATION_GRAPH_DAG:BOOL=ON
       ${SOFA_CUDA_ARGS}
+      -DGLEW_INCLUDE_DIR:PATH=${GLEW_INCLUDE_DIR}
+      -DGLEW_LIBRARY:FILEPATH=${GLEW_LIBRARY}
+      -DGLEW_LIBRARIES:FILEPATH=${GLEW_LIBRARY}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     STEP_TARGETS ${step_targets}
