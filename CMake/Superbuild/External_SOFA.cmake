@@ -66,6 +66,11 @@ if(NOT DEFINED ${proj}_DIR)
       -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
       -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
       -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET})
+    # GCC segmentation faults when compiling with -O2(default).
+    if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+      list(APPEND CMAKE_CXX_FLAGS_RELEASE
+        -DCXX_OPTIMIZATION_FLAGS:STRING="-O0")
+    endif()
   endif()
 
   set(step_targets)
@@ -78,7 +83,7 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "git://public.kitware.com/Bender/SOFA.git"
-    GIT_TAG "d0c41b249ae6537f27c8d8d2230b643139aaee4e"
+    GIT_TAG "8560467085378949f84f2a84c4d0d7bb4c359497"
     INSTALL_COMMAND ""
     UPDATE_COMMAND ""
     CMAKE_GENERATOR ${gen}
