@@ -21,20 +21,21 @@
 #ifndef __vtkMRMLArmatureStorageNode_h
 #define __vtkMRMLArmatureStorageNode_h
 
-#include "vtkMRMLStorageNode.h"
-
 // Armatures includes
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkMRMLArmatureNode;
 class vtkMRMLBoneNode;
 class vtkBVHReader;
 
+// MRML includes
+#include "vtkMRMLStorageNode.h"
+class vtkSlicerAnnotationModuleLogic;
+class vtkMRMLHierarchyNode;
+
 // VTK includes
 class vtkPolyData;
 class vtkObserverManager;
 
-// Slicer includes
-class vtkSlicerAnnotationModuleLogic;
 
 /// \brief Loads armature files
 ///
@@ -107,6 +108,13 @@ protected:
 
   virtual void ProcessMRMLSceneEvents(
     vtkObject *caller, unsigned long eid, void *callData);
+
+  void AddBoneParent(vtkMRMLBoneNode* boneNode,
+                     vtkMRMLHierarchyNode* parentNode);
+  /// Return the parent of the bone being added into the scene.
+  /// \sa CurrentlyAddedBoneNodeParent, CurrentlyAddedArmatureNode
+  vtkMRMLHierarchyNode* GetCurrentBoneParent();
+
 
   // Scene callback variables
   vtkMRMLBoneNode* CurrentlyAddedBoneNode;
