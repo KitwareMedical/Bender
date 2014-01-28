@@ -161,18 +161,38 @@ void vtkMRMLArmatureStorageNode
 ::ProcessMRMLSceneEvents(vtkObject *caller, unsigned long eid, void *callData)
 {
   vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
-  vtkMRMLBoneNode* boneNode = vtkMRMLBoneNode::SafeDownCast(node);
-  if (!boneNode || boneNode != this->CurrentlyAddedBoneNode)
+  if (eid == vtkMRMLScene::NodeAddedEvent &&
+      node == this->CurrentlyAddedBoneNode)
+    {
+    this->AddBoneParent(vtkMRMLBoneNode::SafeDownCast(node),
+                        this->GetCurrentBoneParent());
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLArmatureStorageNode::AddBoneParent(vtkMRMLBoneNode* boneNode,
+                                               vtkMRMLHierarchyNode* parentNode)
+{
+  if (!boneNode || !parentNode)
     {
     return;
     }
-
   vtkNew<vtkMRMLAnnotationHierarchyNode> hierarchyNode;
   hierarchyNode->AllowMultipleChildrenOff();
   hierarchyNode->SetName(
     this->GetScene()->GetUniqueNameByString("AnnotationHierarchy"));
 
-  vtkMRMLHierarchyNode* parentHierarchyNode;
+  hierarchyNode->SetParentNodeID(parentNode->GetID());
+
+  this->GetScene()->AddNode(hierarchyNode.GetPointer());
+
+  hierarchyNode->SetDisplayableNodeID(boneNode->GetID());
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLHierarchyNode* vtkMRMLArmatureStorageNode::GetCurrentBoneParent()
+{
+  vtkMRMLHierarchyNode* parentHierarchyNode = 0;
   if (this->CurrentlyAddedBoneNodeParent)
     {
     parentHierarchyNode =
@@ -183,13 +203,7 @@ void vtkMRMLArmatureStorageNode
     {
     parentHierarchyNode = this->CurrentlyAddedArmatureNode;
     }
-  hierarchyNode->SetParentNodeID(parentHierarchyNode->GetID());
-
-  this->GetScene()->AddNode(hierarchyNode.GetPointer());
-
-  boneNode->SetDisableModifiedEvent(1);
-  hierarchyNode->SetDisplayableNodeID(boneNode->GetID());
-  boneNode->SetDisableModifiedEvent(0);
+  return parentHierarchyNode;
 }
 
 //----------------------------------------------------------------------------
@@ -257,7 +271,7 @@ int vtkMRMLArmatureStorageNode::CreateArmatureFromModel(
   // HACK:
   // The vtkSlicerAnnotationModuleLogic adds the hierarchy nodes with no
   // respect for the bone parent. To make this right, we add
-  // an observer that needs to be call before the annotation logic to
+  // an observer that needs to be called before the annotation logic to
   // make sure that the hierarchy node is added properly.
   // The CurrentlyAdded*Node are used to know what is the current armature
   // and the current bones.
@@ -266,7 +280,9 @@ int vtkMRMLArmatureStorageNode::CreateArmatureFromModel(
   vtkNew<vtkIntArray> events;
   events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
   vtkNew<vtkFloatArray> priorities;
-  priorities->InsertNextValue(1.0);
+  // HACK: it should even be done before the scene models think the bones
+  // have no parent.
+  priorities->InsertNextValue(10000.0);
   this->SceneObserverManager->AddObjectEvents(
     this->GetScene(), events.GetPointer(), priorities.GetPointer());
 
