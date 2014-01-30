@@ -75,7 +75,10 @@ if(NOT DEFINED ${proj}_DIR)
   set(step_targets)
   if (WIN32)
     set(step_targets ${step_targets} ${proj}_PatchWindows)
+  else()
+    find_package(GLEW REQUIRED)
   endif()
+
 
   set(${proj}_DIR ${CMAKE_BINARY_DIR}/${proj}-build)
   ExternalProject_Add(${proj}
