@@ -16,7 +16,7 @@ class BenderSampleData:
     import string
     parent.title = "Bender Sample Data"
     parent.categories = ["Informatics"]
-    #parent.dependencies = ["SampleData"]
+    parent.dependencies = ["SampleData"]
     parent.contributors = ["Johan Andruejol (Kitware), Julien Finet (Kitware)"]
     parent.helpText = string.Template("""
       This module can be used to download data for working with in Bender. The data is downloaded into the application
@@ -33,9 +33,15 @@ class BenderSampleData:
     self.triggerReplaceMenu()
 
   def addMenu(self):
+    try:
+      slicer.modules.sampledata.hidden = True
+      slicer.modules.sampledata.action().visible = False
+    except:
+      pass
+
     actionIcon = self.parent.icon
     a = qt.QAction(actionIcon, 'Download Sample Data', slicer.util.mainWindow())
-    a.setToolTip('Go to the BenderSampleData module to download data from the network')
+    a.setToolTip('Go to the Bender SampleData module to download data from the network')
     a.connect('triggered()', self.select)
 
     menuFile = slicer.util.lookupTopLevelWidget('menuFile')
