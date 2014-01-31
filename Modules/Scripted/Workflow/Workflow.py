@@ -522,7 +522,8 @@ class WorkflowWidget:
     self.removeObservers(self.updateVolumeRender)
     if volumeNode == None:
       return
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     visible = False
     if displayNode != None:
       visible = displayNode.GetVisibility()
@@ -553,7 +554,8 @@ class WorkflowWidget:
     if not self.get('VolumeRenderCheckBox').isChecked():
       return
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     volumePropertyNode = displayNode.GetVolumePropertyNode()
     opacities = volumePropertyNode.GetScalarOpacity()
     labels = self.getVolumeRenderLabels()
@@ -572,7 +574,8 @@ class WorkflowWidget:
   def runVolumeRender(self, show):
     """Start/stop to volume render a volume"""
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     if not show:
       if displayNode == None:
         return
@@ -598,7 +601,8 @@ class WorkflowWidget:
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
     if volumeNode == None:
       return
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     if displayNode == None:
       return
     roiNode = displayNode.GetROINode()
@@ -1042,7 +1046,6 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputVolume"] = self.get('CreateMeshInputNodeComboBox').currentNode()
     parameters["OutputMesh"] = self.get('CreateMeshOutputNodeComboBox').currentNode()
-    parameters["padding"] = True
     parameters["verbose"] = False
     return parameters
 
@@ -1060,6 +1063,20 @@ class WorkflowWidget:
 
   def onCreateMeshCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # Set color
+      newNode = self.get('CreateMeshOutputNodeComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      if newNodeDisplayNode and colorNode:
+        newNodeDisplayNode.SetActiveScalarName('Labels')
+        newNodeDisplayNode.SetActiveAttributeLocation(1) # Labels is a cell data array
+        newNodeDisplayNode.SetScalarVisibility(True)
+        newNodeDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
+        newNodeDisplayNode.UpdatePolyDataPipeline()
+
+      # Reset camera
+      self.reset3DViews()
+
       self.validateCreateTetrahedralMesh()
 
     if not cliNode.IsBusy():
