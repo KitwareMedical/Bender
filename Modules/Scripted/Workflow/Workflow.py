@@ -522,7 +522,8 @@ class WorkflowWidget:
     self.removeObservers(self.updateVolumeRender)
     if volumeNode == None:
       return
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     visible = False
     if displayNode != None:
       visible = displayNode.GetVisibility()
@@ -553,7 +554,8 @@ class WorkflowWidget:
     if not self.get('VolumeRenderCheckBox').isChecked():
       return
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     volumePropertyNode = displayNode.GetVolumePropertyNode()
     opacities = volumePropertyNode.GetScalarOpacity()
     labels = self.getVolumeRenderLabels()
@@ -572,7 +574,8 @@ class WorkflowWidget:
   def runVolumeRender(self, show):
     """Start/stop to volume render a volume"""
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     if not show:
       if displayNode == None:
         return
@@ -598,7 +601,8 @@ class WorkflowWidget:
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
     if volumeNode == None:
       return
-    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
+    logic = slicer.modules.volumerendering.logic()
+    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
     if displayNode == None:
       return
     roiNode = displayNode.GetROINode()
