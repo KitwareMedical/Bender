@@ -1,0 +1,149 @@
+import os
+from __main__ import slicer
+import qt, ctk
+
+#
+# BenderWelcome
+#
+
+class BenderWelcome:
+  def __init__(self, parent):
+    import string
+    parent.title = "Bender Welcome"
+    parent.categories = [""]
+    parent.contributors = ["Johan Andruejol (Kitware)"]
+    parent.helpText = """
+      Welcome module for the Bender application.
+      For more help, take a look at the <a href=http://public.kitware.com/Wiki/Bender>Bender wiki</a>.
+    """
+    parent.acknowledgementText = """
+    This work is supported by Air Force Research Laboratory (AFRL)
+    """
+    self.parent = parent
+
+#
+# Welcome widget
+#
+
+class BenderWelcomeWidget:
+
+  def __init__(self, parent=None):
+    if not parent:
+      self.parent = slicer.qMRMLWidget()
+      self.parent.setLayout(qt.QVBoxLayout())
+      self.parent.setMRMLScene(slicer.mrmlScene)
+      self.layout = self.parent.layout()
+      self.setup()
+      self.parent.show()
+    else:
+      self.parent = parent
+      self.layout = parent.layout()
+
+  def setup(self):
+
+    # UI setup
+    loader = qt.QUiLoader()
+    moduleName = 'BenderWelcome'
+    scriptedModulesPath = eval('slicer.modules.%s.path' % moduleName.lower())
+    scriptedModulesPath = os.path.dirname(scriptedModulesPath)
+    path = os.path.join(scriptedModulesPath, 'Resources', 'UI', '%s.ui' %moduleName)
+
+    qfile = qt.QFile(path)
+    qfile.open(qt.QFile.ReadOnly)
+    widget = loader.load(qfile, self.parent)
+    self.layout = self.parent.layout()
+    self.widget = widget;
+    self.layout.addWidget(widget)
+
+    # Label image setup
+    label = self.get('BenderMarchOfProgressLabel')
+    path = os.path.join(scriptedModulesPath, 'Resources', 'Images', '%s.png' %moduleName)
+    image = qt.QPixmap(path)
+
+    # Scale image to current size
+    self.filter = BenderWelcomeEventFilter(label, image, self.widget)
+    label.setPixmap(self.filter.scaleImage(image, label.size))
+
+    # Install event filter on the image so it resizes properly
+    label.installEventFilter(self.filter)
+
+    # Make the background transparent for the ctkFittedTextBrowser
+    textBrowsers = [
+      self.get('WhatBenderFittedTextBrowser'),
+      self.get('AcknowledgementsFittedTextBrowser')
+      ]
+    for w in textBrowsers:
+      p = w.palette
+      p.setColor(p.Base, qt.QColor(0,0,0,0));
+      w.setPalette(p);
+
+    # Connections
+    # NOTE: we could do something based on the sender's name but that would probably
+    # be an overkill
+    self.get('GoToSampleDataButton').connect('clicked()', self.goToSampleDataModule)
+    self.get('GoToSimpleWorkflowButton').connect('clicked()', self.goToSimpleWorkflowModule)
+    self.get('GoToFEMWorkflowButton').connect('clicked()', self.goToFEMWorkflowModule)
+
+  def goToSampleDataModule(self):
+    slicer.util.selectModule('BenderSampleData')
+
+  def goToSimpleWorkflowModule(self):
+    slicer.util.selectModule('SimpleWorkflow')
+
+  def goToFEMWorkflowModule(self):
+    slicer.util.selectModule('Workflow')
+
+
+  ### === Convenience python widget methods === ###
+  def get(self, objectName):
+    return self.findWidget(self.widget, objectName)
+
+  def getChildren(self, object):
+    '''Return the list of the children and grand children of a Qt object'''
+    children = object.children()
+    allChildren = list(children)
+    for child in children:
+      allChildren.extend( self.getChildren(child) )
+    return allChildren
+
+  def findWidget(self, widget, objectName):
+    if widget.objectName == objectName:
+        return widget
+    else:
+        children = []
+        for w in widget.children():
+            resulting_widget = self.findWidget(w, objectName)
+            if resulting_widget:
+                return resulting_widget
+        return None
+
+  def modelMatch(self, view, startItem, role, value, hits):
+    res = []
+    column = 0
+    if startItem.data(column, role) == value:
+      res.append(startItem)
+      hits = hits - 1
+    if hits == 0:
+      return res
+    for childRow in range(0, startItem.childCount()):
+      childItem = startItem.child(childRow)
+      childRes = self.modelMatch(view, childItem, role, value, hits)
+      res.extend(childRes)
+    return res
+
+class BenderWelcomeEventFilter(qt.QObject):
+  '''Filters resize events to make sure the image resizes properly.'''
+  def __init__(self, label, image, parent):
+    super(BenderWelcomeEventFilter, self).__init__(parent)
+    self.label = label
+    self.originalImage = image
+
+  def eventFilter(self, obj, event):
+    if event.type() == qt.QEvent.Resize:
+      scaledPixmap = self.scaleImage(self.originalImage, event.size())
+      self.label.setPixmap(scaledPixmap)
+      return True
+    return False
+
+  def scaleImage(self, image, size):
+    return image.scaled(size.width(), size.height(), 1) #1 is Qt.KeepAspectRatio
