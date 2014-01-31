@@ -308,6 +308,7 @@ int DoIt( int argc, char * argv[] )
   int paddedVolumeLabel = labels.size();
   vtkNew<vtkCellArray> meshTetras;
   vtkNew<vtkIntArray>  cellData;
+  cellData->SetName("Labels");
   for(size_t i = 0, end = cleaverMesh->tets.size(); i < end; ++i)
     {
     int label = cleaverMesh->tets[i]->mat_label;

@@ -1042,7 +1042,6 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputVolume"] = self.get('CreateMeshInputNodeComboBox').currentNode()
     parameters["OutputMesh"] = self.get('CreateMeshOutputNodeComboBox').currentNode()
-    parameters["padding"] = True
     parameters["verbose"] = False
     return parameters
 
@@ -1060,6 +1059,20 @@ class WorkflowWidget:
 
   def onCreateMeshCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
+      # Set color
+      newNode = self.get('CreateMeshOutputNodeComboBox').currentNode()
+      newNodeDisplayNode = newNode.GetModelDisplayNode()
+      colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      if newNodeDisplayNode and colorNode:
+        newNodeDisplayNode.SetActiveScalarName('Labels')
+        newNodeDisplayNode.SetActiveAttributeLocation(1) # Labels is a cell data array
+        newNodeDisplayNode.SetScalarVisibility(True)
+        newNodeDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
+        newNodeDisplayNode.UpdatePolyDataPipeline()
+
+      # Reset camera
+      self.reset3DViews()
+
       self.validateCreateTetrahedralMesh()
 
     if not cliNode.IsBusy():
