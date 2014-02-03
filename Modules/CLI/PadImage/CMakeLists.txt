@@ -18,27 +18,31 @@
 #
 #============================================================================
 
-# List all the modules (ordered by dependencies) to build by Slicer
-set(modules
-  ChangeLabel
-  CreateTetrahedralMesh
-  MaterialPropertyReader
-  ModelQuadricClusteringDecimation
-  VolumeSkinning
-  ComputeArmatureWeight
-  EvalSurfaceWeight
-  PadImage
-  PoseSurface
-  PoseLabelmap
-  SimulatePose
-  VolumeMaterialExtractor
+#-----------------------------------------------------------------------------
+set(MODULE_NAME PadImage) # Do not use 'project()'
+
+set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
+
+find_package(ITK REQUIRED)
+include(${ITK_USE_FILE})
+
+find_package(Bender REQUIRED)
+include(${Bender_USE_FILE})
+
+set(MODULE_INCLUDE_DIRECTORIES
   )
 
-set(Bender_MODULES)
+set(MODULE_TARGET_LIBRARIES
+  )
 
-foreach(module ${modules})
-  list(APPEND Bender_MODULES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
-endforeach()
+SEMMacroBuildCLI(
+  NAME ${MODULE_NAME}
+  LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
+  INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
+  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES}
+  )
 
-set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
+#-----------------------------------------------------------------------------
+if(BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()
