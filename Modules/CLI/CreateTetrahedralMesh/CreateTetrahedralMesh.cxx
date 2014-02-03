@@ -211,17 +211,17 @@ int DoIt( int argc, char * argv[] )
   typedef itk::ConstantPadImageFilter<InputImageType,
                                       InputImageType> ConstantPadType;
 
-  typename CastFilterType::Pointer castingFilter = CastFilterType::New();
   typename ReaderType::Pointer reader            = ReaderType::New();
   reader->SetFileName( InputVolume );
   reader->Update();
 
+  typename CastFilterType::Pointer castingFilter = CastFilterType::New();
   castingFilter->SetInput(reader->GetOutput());
 
   std::vector<Cleaver::ScalarField*> labelMaps;
 
   std::vector<LabelImageType::Pointer> labels =
-    SplitLabelMaps(castingFilter->GetOutput(), verbose);
+    SplitLabelMaps(castingFilter->GetOutput(), Verbose);
 
   // Get a map from the original labels to the new labels
   std::map<InputPixelType, InputPixelType> originalLabels;
@@ -247,7 +247,7 @@ int DoIt( int argc, char * argv[] )
       }
     }
 
-  if (verbose)
+  if (Verbose)
     {
     std::cout << "Total labels found:  " << labels.size() << std::endl;
     }
@@ -269,9 +269,12 @@ int DoIt( int argc, char * argv[] )
     }
 
   Cleaver::AbstractVolume *volume = new Cleaver::Volume(labelMaps);
-  volume = new Cleaver::PaddedVolume(volume);
+  if (Padding)
+    {
+    volume = new Cleaver::PaddedVolume(volume);
+    }
 
-  if (verbose)
+  if (Verbose)
     {
     std::cout << "Creating Mesh with Volume Size "
       << volume->size().toString() << std::endl;
@@ -281,7 +284,7 @@ int DoIt( int argc, char * argv[] )
   //  Create Mesher & TetMesh
   //--------------------------------
   Cleaver::TetMesh *cleaverMesh =
-    Cleaver::createMeshFromVolume(volume, verbose);
+    Cleaver::createMeshFromVolume(volume, Verbose);
   if (!cleaverMesh)
     {
     // Clean up
@@ -295,7 +298,7 @@ int DoIt( int argc, char * argv[] )
   //------------------
   //  Compute Angles
   //------------------
-  if(verbose)
+  if(Verbose)
     {
     cleaverMesh->computeAngles();
     std::cout.precision(12);
@@ -381,7 +384,7 @@ int DoIt( int argc, char * argv[] )
   vtkNew<vtkTransform> offsetTransform;
   offsetTransform->Concatenate(directionMatrix.GetPointer());
   double offset =
-    (Cleaver::PaddedVolume::DefaultThickness + 1) * voxelDiagonale;
+    Padding ? (Cleaver::PaddedVolume::DefaultThickness + 1) * voxelDiagonale : 0.;
   double* offsets =
     offsetTransform->TransformDoubleVector(offset, offset, offset);
   transform->Translate(
