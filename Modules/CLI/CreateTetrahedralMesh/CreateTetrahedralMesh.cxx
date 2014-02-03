@@ -307,12 +307,21 @@ int DoIt( int argc, char * argv[] )
     std::cout << "max: " << cleaverMesh->max_angle << std::endl;
     }
 
+  //------------------
+  //  Fill polydata
+  //------------------
+  // Constants for undesired material
   const int airLabel = 0;
   int paddedVolumeLabel = labels.size();
+
+  // Points and cell arrays
   vtkNew<vtkCellArray> meshTetras;
-  vtkNew<vtkIntArray>  cellData;
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(cleaverMesh->tets.size() * 4);
+
+  vtkNew<vtkIntArray> cellData;
   cellData->SetName("Labels");
-  for(size_t i = 0, end = cleaverMesh->tets.size(); i < end; ++i)
+  for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
     {
     int label = cleaverMesh->tets[i]->mat_label;
 
@@ -320,26 +329,18 @@ int DoIt( int argc, char * argv[] )
       {
       continue;
       }
+
     vtkNew<vtkTetra> meshTetra;
-    meshTetra->GetPointIds()->SetId(0,
-      cleaverMesh->tets[i]->verts[0]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(1,
-      cleaverMesh->tets[i]->verts[1]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(2,
-      cleaverMesh->tets[i]->verts[2]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(3,
-      cleaverMesh->tets[i]->verts[3]->tm_v_index);
+    for (int j = 0; j < 4; ++j)
+      {
+      Cleaver::vec3 &pos = cleaverMesh->tets[i]->verts[j]->pos();
+      int vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
+      points->SetPoint(vertexIndex, pos.x, pos.y, pos.z);
+      meshTetra->GetPointIds()->SetId(j, vertexIndex);
+      }
+
     meshTetras->InsertNextCell(meshTetra.GetPointer());
     cellData->InsertNextValue(originalLabels[label]);
-    }
-
-  vtkNew<vtkPoints> points;
-  points->SetNumberOfPoints(cleaverMesh->verts.size());
-  for (size_t i = 0, end = cleaverMesh->verts.size(); i < end; ++i)
-    {
-    Cleaver::vec3 &pos = cleaverMesh->verts[i]->pos();
-
-    points->SetPoint(i, pos.x, pos.y, pos.z);
     }
 
   vtkSmartPointer<vtkPolyData> vtkMesh = vtkSmartPointer<vtkPolyData>::New();
