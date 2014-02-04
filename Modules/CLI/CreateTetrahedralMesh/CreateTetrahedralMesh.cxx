@@ -21,6 +21,7 @@
 // Bender includes
 #include "CreateTetrahedralMeshCLP.h"
 #include "benderIOUtils.h"
+#include "vtkBrokenCells.h"
 
 // ITK includes
 #include "itkBinaryThresholdImageFilter.h"
@@ -33,7 +34,6 @@
 
 // Slicer includes
 #include "itkPluginUtilities.h"
-
 
 // VTK includes
 #include <vtkCleanPolyData.h>
@@ -138,6 +138,9 @@ int main( int argc, char * argv[] )
 //
 namespace
 {
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
 std::vector<Cleaver::LabelMapField::ImageType::Pointer >
 SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
 {
@@ -196,6 +199,15 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
   return labels;
 }
 
+//----------------------------------------------------------------------------
+bool IsPointInvalid(Cleaver::vec3 pos)
+{
+  return vtkBrokenCells::IsPointValid(pos.x, pos.y, pos.z);
+}
+
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
 template <class T>
 int DoIt( int argc, char * argv[] )
 {
@@ -307,9 +319,9 @@ int DoIt( int argc, char * argv[] )
     std::cout << "max: " << cleaverMesh->max_angle << std::endl;
     }
 
-  //------------------
-  //  Fill polydata
-  //------------------
+  //-----------------------
+  //  Fill polydata arrays
+  //-----------------------
   // Constants for undesired material
   const int airLabel = 0;
   int paddedVolumeLabel = labels.size();
@@ -321,6 +333,10 @@ int DoIt( int argc, char * argv[] )
 
   vtkNew<vtkIntArray> cellData;
   cellData->SetName("Labels");
+
+  vtkNew<vtkBrokenCells> brokenCells;
+  brokenCells->SetPoints(points.GetPointer());
+  brokenCells->SetVerbose(Verbose);
   for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
     {
     int label = cleaverMesh->tets[i]->mat_label;
@@ -335,13 +351,35 @@ int DoIt( int argc, char * argv[] )
       {
       Cleaver::vec3 &pos = cleaverMesh->tets[i]->verts[j]->pos();
       int vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
+
       points->SetPoint(vertexIndex, pos.x, pos.y, pos.z);
       meshTetra->GetPointIds()->SetId(j, vertexIndex);
+
+      // If invalid, flag the cell so it can be rebuild later
+      if (! IsPointInvalid(pos))
+        {
+        std::cerr << "Invalid point for cell " << i
+          << ", this point will be patched up but something went wrong with"
+          << " Cleaver !" << std::endl;
+        brokenCells->AddCell(vertexIndex, meshTetra.GetPointer());
+        }
       }
 
     meshTetras->InsertNextCell(meshTetra.GetPointer());
     cellData->InsertNextValue(originalLabels[label]);
     }
+
+  //  Repair broken cells
+  if (! brokenCells->RepairAllCells())
+    {
+    delete volume;
+    delete cleaverMesh;
+    return EXIT_FAILURE;
+    }
+
+  //-----------------------------
+  //  Create and clean polydata
+  //-----------------------------
 
   vtkSmartPointer<vtkPolyData> vtkMesh = vtkSmartPointer<vtkPolyData>::New();
   vtkMesh->SetPoints(points.GetPointer());
@@ -352,8 +390,11 @@ int DoIt( int argc, char * argv[] )
   cleanFilter->PointMergingOff(); // Prevent from creating triangles or lines
   cleanFilter->SetInput(vtkMesh);
 
+  //---------------------------------------
+  //  Transform polydata to fit the image
+  //---------------------------------------
   // Since cleaver does not take into account the image properties such as
-  // sapcing or origin, we need to transform the output points so the mesh can
+  // spacing or origin, we need to transform the output points so the mesh can
   // match the original image.
   vtkNew<vtkTransform> transform;
   LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
