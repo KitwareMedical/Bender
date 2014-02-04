@@ -33,7 +33,7 @@
       <name>Padding</name>
       <label>Padding</label>
       <longflag>--padding</longflag>
-      <default>true</default>
+      <default>false</default>
     </boolean>
     <boolean>
       <name>Verbose</name>
