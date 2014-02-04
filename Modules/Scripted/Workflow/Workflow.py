@@ -154,6 +154,15 @@ class WorkflowWidget:
     self.get('MergeLabelsOutputNodeToolButton').connect('clicked()', self.saveMergeLabelsVolumeNode)
     self.get('MergeLabelsApplyPushButton').connect('clicked(bool)', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
+    #  b) Pad Image
+    #    - Icons
+    self.get('PadImageOutputNodeToolButton').icon = saveIcon
+    self.get('PadImageSaveToolButton').icon = saveIcon
+    #    - Signals/Slots
+    self.get('PadImageInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPadImage)
+    self.get('PadImageOutputNodeToolButton').connect('clicked()', self.savePadImageVolumeNode)
+    self.get('PadImageApplyPushButton').connect('clicked(bool)', self.runPadImage)
+    self.get('PadImageGoToModulePushButton').connect('clicked()', self.openPadImageModule)
 
     # 3) Mesh
     # a) Tet-Mesh generator
@@ -402,6 +411,8 @@ class WorkflowWidget:
     # Add here the combo box that should only see labelmaps
     labeldMapComboBoxes = ['MergeLabelsInputNodeComboBox',
                            'MergeLabelsOutputNodeComboBox',
+                           'PadImageInputNodeComboBox',
+                           'PadImageOutputNodeComboBox',
                            'CreateMeshInputNodeComboBox',
                            'CreateMeshOutputNodeComboBox',
                            'SkinModelMakerInputNodeComboBox',
@@ -522,8 +533,7 @@ class WorkflowWidget:
     self.removeObservers(self.updateVolumeRender)
     if volumeNode == None:
       return
-    logic = slicer.modules.volumerendering.logic()
-    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     visible = False
     if displayNode != None:
       visible = displayNode.GetVisibility()
@@ -554,8 +564,7 @@ class WorkflowWidget:
     if not self.get('VolumeRenderCheckBox').isChecked():
       return
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    logic = slicer.modules.volumerendering.logic()
-    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     volumePropertyNode = displayNode.GetVolumePropertyNode()
     opacities = volumePropertyNode.GetScalarOpacity()
     labels = self.getVolumeRenderLabels()
@@ -574,8 +583,7 @@ class WorkflowWidget:
   def runVolumeRender(self, show):
     """Start/stop to volume render a volume"""
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
-    logic = slicer.modules.volumerendering.logic()
-    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     if not show:
       if displayNode == None:
         return
@@ -601,8 +609,7 @@ class WorkflowWidget:
     volumeNode = self.get('VolumeRenderInputNodeComboBox').currentNode()
     if volumeNode == None:
       return
-    logic = slicer.modules.volumerendering.logic()
-    displayNode = logic.GetFirstVolumeRenderingDisplayNode(volumeNode)
+    displayNode = volumeNode.GetNthDisplayNodeByClass(0, 'vtkMRMLVolumeRenderingDisplayNode')
     if displayNode == None:
       return
     roiNode = displayNode.GetROINode()
@@ -770,11 +777,13 @@ class WorkflowWidget:
   #----------------------------------------------------------------------------
   def initExtractPage(self):
     self.initMergeLabels()
+    self.initPadImage()
 
   def validateExtractPage(self, validateSections = True):
     if validateSections:
       self.validateMergeLabels()
-    valid = self.get('MergeLabelsCollapsibleGroupBox').property('valid')
+      self.validatePadImage()
+    valid = self.get('PadImageCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
 
   def openExtractPage(self):
@@ -857,7 +866,10 @@ class WorkflowWidget:
     if valid:
       self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
         self.get('MergeLabelsOutputNodeComboBox').currentNode())
-    self.validateExtractPage(validateSections = False)
+
+    enablePadImage = not self.isWorkflow(0) or valid
+    self.get('PadImageCollapsibleGroupBox').collapsed = not enablePadImage
+    self.get('PadImageCollapsibleGroupBox').setEnabled(enablePadImage)
 
   def searchLabels(self, colorNode, label):
     """ Search the color node for all the labels that contain the word 'label'
@@ -986,6 +998,113 @@ class WorkflowWidget:
         return self.get('LabelsTableWidget').item(row, 0).text()
 
   #----------------------------------------------------------------------------
+  #    b) Pad Image
+  def initPadImage(self):
+    self.setupPadImage(self.get('PadImageInputNodeComboBox').currentNode())
+    self.validatePadImage()
+
+  def updatePadImage(self, node, event):
+    volumeNode = self.get('PadImageInputNodeComboBox').currentNode()
+    if volumeNode == None or (node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode):
+      return
+    elif node.IsA('vtkMRMLVolumeDisplayNode'):
+      if node != volumeNode.GetDisplayNode():
+        return
+    self.setupPadImage(volumeNode)
+
+  def setupPadImage(self, volumeNode):
+    if volumeNode == None or not volumeNode.GetLabelMap():
+      return
+    self.removeObservers(self.updatePadImage)
+
+    self.createPadImageOutput(volumeNode)
+    self.addObserver(volumeNode, 'ModifiedEvent', self.updatePadImage)
+    self.validatePadImage()
+
+  def validatePadImage(self):
+    cliNode = self.getCLINode(slicer.modules.padimage)
+    valid = (cliNode.GetStatusString() == 'Completed')
+    self.get('PadImageOutputNodeToolButton').enabled = valid
+    self.get('PadImageSaveToolButton').enabled = valid
+    self.get('PadImageCollapsibleGroupBox').setProperty('valid',valid)
+
+    self.validateExtractPage(validateSections = False)
+
+  def createPadImageOutput(self, node):
+    """ Make sure the output scalar volume node is a node with a -padded suffix.
+        Note that the padded volume is used only by the merge labels module. This
+        should not be used by the PoseLabelmap filter.
+    """
+    if node == None or self.IsSetup:
+      return
+    # Don't create the node if the name already contains "padded"
+    if node.GetName().lower().find('padded') != -1:
+      return
+    nodeName = '%s-padded' % node.GetName()
+    # make sure such node does not already exist.
+    paddedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if paddedNode == None:
+      self.get('PadImageOutputNodeComboBox').selectNodeUponCreation = False
+      newNode = self.get('PadImageOutputNodeComboBox').addNode()
+      self.get('PadImageOutputNodeComboBox').selectNodeUponCreation = True
+      newNode.SetName(nodeName)
+      paddedNode = newNode
+
+    self.get('PadImageOutputNodeComboBox').setCurrentNode(paddedNode)
+
+  def padImageParameters(self):
+    parameters = {}
+    parameters["InputVolume"] = self.get('PadImageInputNodeComboBox').currentNode()
+    parameters["OutputVolume"] = self.get('PadImageOutputNodeComboBox').currentNode()
+
+    parameters["PadValue"] = self.get('PadImageValueSpinBox').value
+    parameters["PadThickness"] = self.get('PadImageThicknessSpinBox').value
+    return parameters
+
+  def runPadImage(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.padimage)
+      parameters = self.padImageParameters()
+      self.get('PadImageApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onPadImageCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.padimage, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onPadImageCLIModified)
+      self.get('PadImageApplyPushButton').enabled = False
+      cliNode.Cancel()
+
+  def onPadImageCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # apply label map
+      newNode = self.get('PadImageOutputNodeComboBox').currentNode()
+      if newNode != None:
+        displayNode = newNode.GetDisplayNode()
+        if displayNode == None:
+          volumesLogic = slicer.modules.volumes.logic()
+          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
+          displayNode = newNode.GetDisplayNode()
+        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+        if displayNode != None and colorNode != None:
+          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      self.validatePadImage()
+
+    if not cliNode.IsBusy():
+      self.get('PadImageApplyPushButton').setChecked(False)
+      self.get('PadImageApplyPushButton').enabled = True
+      print 'PadImage %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onPadImageCLIModified)
+
+  def savePadImageVolumeNode(self):
+    self.saveFile('Padded volume', 'VolumeFile', '.mha', self.get('PadImageOutputNodeComboBox'))
+
+  def openPadImageModule(self):
+    self.openModule('PadImage')
+
+    cliNode = self.getCLINode(slicer.modules.padimage)
+    parameters = self.padImageParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  #----------------------------------------------------------------------------
   # 3) Mesh
   #----------------------------------------------------------------------------
   def initMeshPage(self):
@@ -1046,6 +1165,7 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputVolume"] = self.get('CreateMeshInputNodeComboBox').currentNode()
     parameters["OutputMesh"] = self.get('CreateMeshOutputNodeComboBox').currentNode()
+    parameters["padding"] = self.get('CreateMeshPadImageCheckBox').isChecked()
     parameters["verbose"] = False
     return parameters
 

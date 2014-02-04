@@ -26,9 +26,17 @@
       <index>1</index>
       <description><![CDATA[Result tetrahedral mesh]]></description>
     </geometry>
-
+  </parameters>
+  <parameters>
+    <label>Filter Settings</label>
     <boolean>
-      <name>verbose</name>
+      <name>Padding</name>
+      <label>Padding</label>
+      <longflag>--padding</longflag>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>Verbose</name>
       <label>Verbose </label>
       <longflag>--verbose</longflag>
       <default>false</default>
