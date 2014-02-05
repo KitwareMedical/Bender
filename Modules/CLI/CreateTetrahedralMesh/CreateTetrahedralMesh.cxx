@@ -410,10 +410,6 @@ int DoIt( int argc, char * argv[] )
   transform->Concatenate(rasMatrix.GetPointer());
 
   // Translation
-  double voxelSize[3];
-  voxelSize[0] = spacing[0]; voxelSize[1] = spacing[1]; voxelSize[2] = spacing[2];
-  double voxelDiagonale = vtkMath::Norm(voxelSize) / 2;
-
   vtkNew<vtkMatrix4x4> directionMatrix;
   directionMatrix->Identity();
   for (int i = 0; i < imageDirection.RowDimensions; ++i)
@@ -426,14 +422,27 @@ int DoIt( int argc, char * argv[] )
 
   vtkNew<vtkTransform> offsetTransform;
   offsetTransform->Concatenate(directionMatrix.GetPointer());
-  double offset =
-    Padding ? (Cleaver::PaddedVolume::DefaultThickness + 1) * voxelDiagonale : 0.;
-  double* offsets =
-    offsetTransform->TransformDoubleVector(offset, offset, offset);
+  double offsets[3];
+  if (Padding)
+    {
+    for (int i = 0; i < 3; ++i)
+      {
+      offsets[i] =
+        spacing[i]*Cleaver::PaddedVolume::DefaultThickness + spacing[i]/2.0;
+      }
+    }
+  else
+    {
+    for (int i = 0; i < 3; ++i)
+      {
+      offsets[i] = spacing[i] / 2.0;
+      }
+    }
+  double* transformedOffsets = offsetTransform->TransformDoubleVector(offsets);
   transform->Translate(
-    origin[0] - offsets[0],
-    origin[1] - offsets[1],
-    origin[2] - offsets[2]);
+    origin[0] - transformedOffsets[0],
+    origin[1] - transformedOffsets[1],
+    origin[2] - transformedOffsets[2]);
 
   // Scaling and rotation
   vtkNew<vtkMatrix4x4> scaleMatrix;
