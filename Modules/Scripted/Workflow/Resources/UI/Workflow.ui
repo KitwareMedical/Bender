@@ -4784,5 +4784,21 @@ p, li { white-space: pre-wrap; }
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>MaterialReaderSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaterialReaderOutputMeshNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>537</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
