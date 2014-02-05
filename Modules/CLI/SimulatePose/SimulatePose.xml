@@ -12,14 +12,14 @@
   <parameters>
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
-    <geometry>
+    <geometry fileExtensions=".vtk">
       <name>VolumeInput</name>
       <label>VolumeMesh</label>
       <description><![CDATA[Input volumetric mesh to be posed.]]></description>
       <channel>input</channel>
       <index>0</index>
     </geometry>
-    <geometry >
+    <geometry fileExtensions=".vtk">
       <name>ArmatureFileName</name>
       <label>Armature</label>
       <description><![CDATA[Armature.]]></description>
@@ -27,20 +27,18 @@
       <index>1</index>
     </geometry>
     <geometry fileExtensions=".vtk">
-      <name>OutputSurface</name>
-      <label>Output posed surface</label>
-      <description><![CDATA[Output surface posed by the <b>Armature</b> transforms.]]></description>
-      <channel>output</channel>
-      <index>2</index>
-    </geometry>
-
-    <geometry>
       <name>SurfaceInput</name>
       <label>SurfaceMesh</label>
       <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
       <channel>input</channel>
+      <index>2</index>
+    </geometry>
+    <geometry fileExtensions=".vtk">
+      <name>OutputSurface</name>
+      <label>Output posed surface</label>
+      <description><![CDATA[Output surface posed by the <b>Armature</b> transforms.]]></description>
+      <channel>output</channel>
       <index>3</index>
     </geometry>
-
   </parameters>
 </executable>
