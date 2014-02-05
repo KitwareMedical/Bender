@@ -48,6 +48,7 @@ vtkBrokenCells::~vtkBrokenCells()
     {
     it->second->UnRegister(this);
     }
+  this->SetPoints(NULL);
 }
 
 //----------------------------------------------------------------------------
