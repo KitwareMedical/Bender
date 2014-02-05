@@ -1165,8 +1165,8 @@ class WorkflowWidget:
     parameters = {}
     parameters["InputVolume"] = self.get('CreateMeshInputNodeComboBox').currentNode()
     parameters["OutputMesh"] = self.get('CreateMeshOutputNodeComboBox').currentNode()
-    parameters["padding"] = self.get('CreateMeshPadImageCheckBox').isChecked()
-    parameters["verbose"] = False
+    parameters["Padding"] = self.get('CreateMeshPadImageCheckBox').isChecked()
+    parameters["Verbose"] = False
     return parameters
 
   def runCreateMesh(self, run):

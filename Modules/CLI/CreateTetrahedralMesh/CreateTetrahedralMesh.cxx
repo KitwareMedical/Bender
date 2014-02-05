@@ -21,6 +21,7 @@
 // Bender includes
 #include "CreateTetrahedralMeshCLP.h"
 #include "benderIOUtils.h"
+#include "vtkBrokenCells.h"
 
 // ITK includes
 #include "itkBinaryThresholdImageFilter.h"
@@ -33,7 +34,6 @@
 
 // Slicer includes
 #include "itkPluginUtilities.h"
-
 
 // VTK includes
 #include <vtkCleanPolyData.h>
@@ -138,6 +138,9 @@ int main( int argc, char * argv[] )
 //
 namespace
 {
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
 std::vector<Cleaver::LabelMapField::ImageType::Pointer >
 SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
 {
@@ -196,6 +199,15 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
   return labels;
 }
 
+//----------------------------------------------------------------------------
+bool IsPointInvalid(Cleaver::vec3 pos)
+{
+  return vtkBrokenCells::IsPointValid(pos.x, pos.y, pos.z);
+}
+
+//----------------------------------------------------------------------------
+//
+//----------------------------------------------------------------------------
 template <class T>
 int DoIt( int argc, char * argv[] )
 {
@@ -307,12 +319,25 @@ int DoIt( int argc, char * argv[] )
     std::cout << "max: " << cleaverMesh->max_angle << std::endl;
     }
 
+  //-----------------------
+  //  Fill polydata arrays
+  //-----------------------
+  // Constants for undesired material
   const int airLabel = 0;
   int paddedVolumeLabel = labels.size();
+
+  // Points and cell arrays
   vtkNew<vtkCellArray> meshTetras;
-  vtkNew<vtkIntArray>  cellData;
+  vtkNew<vtkPoints> points;
+  points->SetNumberOfPoints(cleaverMesh->tets.size() * 4);
+
+  vtkNew<vtkIntArray> cellData;
   cellData->SetName("Labels");
-  for(size_t i = 0, end = cleaverMesh->tets.size(); i < end; ++i)
+
+  vtkNew<vtkBrokenCells> brokenCells;
+  brokenCells->SetPoints(points.GetPointer());
+  brokenCells->SetVerbose(Verbose);
+  for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
     {
     int label = cleaverMesh->tets[i]->mat_label;
 
@@ -320,27 +345,41 @@ int DoIt( int argc, char * argv[] )
       {
       continue;
       }
+
     vtkNew<vtkTetra> meshTetra;
-    meshTetra->GetPointIds()->SetId(0,
-      cleaverMesh->tets[i]->verts[0]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(1,
-      cleaverMesh->tets[i]->verts[1]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(2,
-      cleaverMesh->tets[i]->verts[2]->tm_v_index);
-    meshTetra->GetPointIds()->SetId(3,
-      cleaverMesh->tets[i]->verts[3]->tm_v_index);
+    for (int j = 0; j < 4; ++j)
+      {
+      Cleaver::vec3 &pos = cleaverMesh->tets[i]->verts[j]->pos();
+      int vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
+
+      points->SetPoint(vertexIndex, pos.x, pos.y, pos.z);
+      meshTetra->GetPointIds()->SetId(j, vertexIndex);
+
+      // If invalid, flag the cell so it can be rebuild later
+      if (! IsPointInvalid(pos))
+        {
+        std::cerr << "Invalid point for cell " << i
+          << ", this point will be patched up but something went wrong with"
+          << " Cleaver !" << std::endl;
+        brokenCells->AddCell(vertexIndex, meshTetra.GetPointer());
+        }
+      }
+
     meshTetras->InsertNextCell(meshTetra.GetPointer());
     cellData->InsertNextValue(originalLabels[label]);
     }
 
-  vtkNew<vtkPoints> points;
-  points->SetNumberOfPoints(cleaverMesh->verts.size());
-  for (size_t i = 0, end = cleaverMesh->verts.size(); i < end; ++i)
+  //  Repair broken cells
+  if (! brokenCells->RepairAllCells())
     {
-    Cleaver::vec3 &pos = cleaverMesh->verts[i]->pos();
-
-    points->SetPoint(i, pos.x, pos.y, pos.z);
+    delete volume;
+    delete cleaverMesh;
+    return EXIT_FAILURE;
     }
+
+  //-----------------------------
+  //  Create and clean polydata
+  //-----------------------------
 
   vtkSmartPointer<vtkPolyData> vtkMesh = vtkSmartPointer<vtkPolyData>::New();
   vtkMesh->SetPoints(points.GetPointer());
@@ -351,8 +390,11 @@ int DoIt( int argc, char * argv[] )
   cleanFilter->PointMergingOff(); // Prevent from creating triangles or lines
   cleanFilter->SetInput(vtkMesh);
 
+  //---------------------------------------
+  //  Transform polydata to fit the image
+  //---------------------------------------
   // Since cleaver does not take into account the image properties such as
-  // sapcing or origin, we need to transform the output points so the mesh can
+  // spacing or origin, we need to transform the output points so the mesh can
   // match the original image.
   vtkNew<vtkTransform> transform;
   LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
@@ -368,10 +410,6 @@ int DoIt( int argc, char * argv[] )
   transform->Concatenate(rasMatrix.GetPointer());
 
   // Translation
-  double voxelSize[3];
-  voxelSize[0] = spacing[0]; voxelSize[1] = spacing[1]; voxelSize[2] = spacing[2];
-  double voxelDiagonale = vtkMath::Norm(voxelSize) / 2;
-
   vtkNew<vtkMatrix4x4> directionMatrix;
   directionMatrix->Identity();
   for (int i = 0; i < imageDirection.RowDimensions; ++i)
@@ -384,14 +422,27 @@ int DoIt( int argc, char * argv[] )
 
   vtkNew<vtkTransform> offsetTransform;
   offsetTransform->Concatenate(directionMatrix.GetPointer());
-  double offset =
-    Padding ? (Cleaver::PaddedVolume::DefaultThickness + 1) * voxelDiagonale : 0.;
-  double* offsets =
-    offsetTransform->TransformDoubleVector(offset, offset, offset);
+  double offsets[3];
+  if (Padding)
+    {
+    for (int i = 0; i < 3; ++i)
+      {
+      offsets[i] =
+        spacing[i]*Cleaver::PaddedVolume::DefaultThickness + spacing[i]/2.0;
+      }
+    }
+  else
+    {
+    for (int i = 0; i < 3; ++i)
+      {
+      offsets[i] = spacing[i] / 2.0;
+      }
+    }
+  double* transformedOffsets = offsetTransform->TransformDoubleVector(offsets);
   transform->Translate(
-    origin[0] - offsets[0],
-    origin[1] - offsets[1],
-    origin[2] - offsets[2]);
+    origin[0] - transformedOffsets[0],
+    origin[1] - transformedOffsets[1],
+    origin[2] - transformedOffsets[2]);
 
   // Scaling and rotation
   vtkNew<vtkMatrix4x4> scaleMatrix;
