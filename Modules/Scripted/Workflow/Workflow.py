@@ -241,6 +241,7 @@ class WorkflowWidget:
     #    - Icons
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
+    self.get('EvalSurfaceWeightSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('EvalSurfaceWeightInputNodeToolButton').connect('clicked()', self.loadEvalSurfaceWeightInputNode)
     self.get('EvalSurfaceWeightOutputNodeToolButton').connect('clicked()', self.saveEvalSurfaceWeightOutputNode)
@@ -1786,6 +1787,7 @@ class WorkflowWidget:
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('EvalSurfaceWeightCollapsibleGroupBox').setProperty('valid', valid)
     self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = valid
+    self.get('EvalSurfaceWeightSaveToolButton').enabled = valid
 
     enableMaterialReader = not self.isWorkflow(0) or valid
     self.get('MaterialReaderCollapsibleGroupBox').collapsed = not enableMaterialReader
