@@ -1320,6 +1320,7 @@ class WorkflowWidget:
     except ValueError:
       value = 0
     self.get('ExtractBoneMaterialSpinBox').value = value
+    self.get('ComputeArmatureWeightBoneSpinBox').value = value
 
   #----------------------------------------------------------------------------
   #    c) Extract skin
@@ -1440,6 +1441,7 @@ class WorkflowWidget:
     except ValueError:
       value = 0
     self.get('SkinModelMakerBackgroundLabelSpinBox').value = value
+    self.get('ComputeArmatureWeightBackgroundSpinBox').value = value
 
   #----------------------------------------------------------------------------
   # 4) Armature
