@@ -68,7 +68,7 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "git://public.kitware.com/Bender/Cleaver.git"
-    GIT_TAG "fdd780995cf9b3b250572648f7faad37dea71e95"
+    GIT_TAG "09af87b1c9c07e8241c524572d2b38381bf6ce6f"
     UPDATE_COMMAND ""
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
