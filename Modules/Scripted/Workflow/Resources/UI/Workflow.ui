@@ -2801,7 +2801,7 @@ p, li { white-space: pre-wrap; }
                <string>Apply material properties to each vertice of the input mesh according to the input material property file.</string>
               </property>
               <property name="text">
-               <string>Apply Material Properties</string>
+               <string>Apply material properties</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -3059,7 +3059,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Pose surface</string>
+          <string>B) Simulate Pose</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
