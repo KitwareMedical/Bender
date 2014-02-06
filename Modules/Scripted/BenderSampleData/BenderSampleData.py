@@ -176,16 +176,31 @@ class BenderSampleDataLogic( SampleDataLogic ):
       self.logMessage = logMessage
 
     self.downloadData = (
-      { 'Man 2mm Arm' :
+      {
+      'Common' :
         {
         'Volume' : ['man-arm-2mm', 'LabelmapFile', 'http://packages.kitware.com/download/item/3614/man-arm-2mm.mha', 'man-arm-2mm.mha'],
-        'Color table' : ['Tissues-v1.1.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/3615/Tissues-v1.1.0.txt', 'Tissues-v1.1.0.txt'],
-        'Armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/3616/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
-        'Bones' : ['man-arm-2mm-Bones', 'ModelFile', 'http://packages.kitware.com/download/item/3959/man-arm-2mm-Bones.vtk', 'man-arm-2mm-Bones.vtk'],
-        'Skin' : ['man-arm-2mm-Skin', 'ModelFile', 'http://packages.kitware.com/download/item/3960/man-arm-2mm-Skin.vtk', 'man-arm-2mm-Skin.vtk'],
-        'Merged volume' : ['man-arm-2mm-merged', 'LabelmapFile', 'http://packages.kitware.com/download/item/3961/man-arm-2mm-merged.nrrd', 'man-arm-2mm-merged.nrrd'],
-        'Skinned volume' : ['man-arm-2mm-merged-skinned', 'LabelmapFile', 'http://packages.kitware.com/download/item/3618/man-arm-2mm-merged-skinned.mha', 'man-arm-2mm-merged-skinned.mha'],
-        'Posed volume' : ['man-arm-2mm-posed', 'LabelmapFile', 'http://packages.kitware.com/download/item/3619/man-arm-2mm-posed.mha', 'man-arm-2mm-posed.mha'],
+        'Tissues' : ['Tissues-v1.1.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/3615/Tissues-v1.1.0.txt', 'Tissues-v1.1.0.txt'],
+        'Armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/4986/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
+        'Materials' : ['Materials-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/4964/Materials-v2.0.0.txt', 'Materials-v2.0.0.txt'],
+        },
+      'Simple Workflow' :
+        {
+        'Merged volume' : ['man-arm-2mm-merged', 'LabelmapFile', 'http://packages.kitware.com/download/item/4970/man-arm-2mm-merged.nrrd', 'man-arm-2mm-merged.nrrd'],
+        'Bones' : ['man-arm-2mm-Bones', 'ModelFile', 'http://packages.kitware.com/download/item/4969/man-arm-2mm-Bones.vtk', 'man-arm-2mm-Bones.vtk'],
+        'Skin' : ['man-arm-2mm-Skin', 'ModelFile', 'http://packages.kitware.com/download/item/4966/man-arm-2mm-Skin.vtk', 'man-arm-2mm-Skin.vtk'],
+        'Skinned volume' : ['man-arm-2mm-merged-skinned', 'LabelmapFile', 'http://packages.kitware.com/download/item/4971/man-arm-2mm-merged-skinned.mha', 'man-arm-2mm-merged-skinned.mha'],
+        'Posed volume' : ['man-arm-2mm-posed', 'LabelmapFile', 'http://packages.kitware.com/download/item/4965/man-arm-2mm-posed.mha', 'man-arm-2mm-posed.mha'],
+        },
+      'FEM Workflow' :
+        {
+        'Merged volume' : ['man-arm-2mm-merged', 'LabelmapFile', 'http://packages.kitware.com/download/item/4987/man-arm-2mm-merged.mha', 'man-arm-2mm-merged.mha'],
+        'Padded volume' : ['man-arm-2mm-merged-padded', 'LabelmapFile', 'http://packages.kitware.com/download/item/4976/man-arm-2mm-merged-padded.nrrd', 'man-arm-2mm-merged-padded.nrrd'],
+        'Tetrahedral mesh' : ['man-arm-2mm-padded-tetmesh', 'ModelFile', 'http://packages.kitware.com/download/item/4983/man-arm-2mm-merged-padded-tetmesh.vtk', 'man-arm-2mm-padded-tetmesh.vtk'],
+        'Bones' : ['man-arm-2mm-merged-padded-tetmesh-bones', 'ModelFile', 'http://packages.kitware.com/download/item/4978/man-arm-2mm-merged-padded-tetmesh-bones.vtk', 'man-arm-2mm-merged-padded-tetmesh-bones.vtk'],
+        'Skin' : ['man-arm-2mm-merged-padded-skin', 'ModelFile', 'http://packages.kitware.com/download/item/4977/man-arm-2mm-merged-padded-skin.vtk', 'man-arm-2mm-merged-padded-skin.vtk'],
+        'Skinned volume' : ['man-arm-2mm-merged-padded-skinned', 'LabelmapFile', 'http://packages.kitware.com/download/item/4984/man-arm-2mm-merged-padded-skinned.nrrd', 'man-arm-2mm-merged-padded-skinned.nrrd'],
+        'Posed mesh' : ['man-arm-2mm-padded-tetmesh-posed.vtk', 'ModelFile', '', 'man-arm-2mm-padded-tetmesh-posed.vtk'],
         },
       # Add the tree item's download data here
       })

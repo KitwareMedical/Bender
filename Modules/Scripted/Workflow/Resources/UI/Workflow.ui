@@ -2592,6 +2592,21 @@ p, li { white-space: pre-wrap; }
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QToolButton" name="EvalSurfaceWeightSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item row="1" column="1" colspan="2">
@@ -2786,7 +2801,7 @@ p, li { white-space: pre-wrap; }
                <string>Apply material properties to each vertice of the input mesh according to the input material property file.</string>
               </property>
               <property name="text">
-               <string>Apply Material Properties</string>
+               <string>Apply material properties</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -3044,7 +3059,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Pose surface</string>
+          <string>B) Simulate Pose</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -4781,6 +4796,70 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>418</x>
      <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MaterialReaderSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaterialReaderOutputMeshNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>537</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinModelMakerSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SkinModelMakerOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>378</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>349</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeSkinningSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VolumeSkinningOutputVolumeNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>175</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EvalSurfaceWeightSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>EvalSurfaceWeightOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>468</x>
+     <y>447</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>469</x>
+     <y>418</y>
     </hint>
    </hints>
   </connection>

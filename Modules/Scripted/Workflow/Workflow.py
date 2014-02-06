@@ -241,6 +241,7 @@ class WorkflowWidget:
     #    - Icons
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
+    self.get('EvalSurfaceWeightSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('EvalSurfaceWeightInputNodeToolButton').connect('clicked()', self.loadEvalSurfaceWeightInputNode)
     self.get('EvalSurfaceWeightOutputNodeToolButton').connect('clicked()', self.saveEvalSurfaceWeightOutputNode)
@@ -1320,6 +1321,7 @@ class WorkflowWidget:
     except ValueError:
       value = 0
     self.get('ExtractBoneMaterialSpinBox').value = value
+    self.get('ComputeArmatureWeightBoneSpinBox').value = value
 
   #----------------------------------------------------------------------------
   #    c) Extract skin
@@ -1440,6 +1442,7 @@ class WorkflowWidget:
     except ValueError:
       value = 0
     self.get('SkinModelMakerBackgroundLabelSpinBox').value = value
+    self.get('ComputeArmatureWeightBackgroundSpinBox').value = value
 
   #----------------------------------------------------------------------------
   # 4) Armature
@@ -1784,6 +1787,7 @@ class WorkflowWidget:
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('EvalSurfaceWeightCollapsibleGroupBox').setProperty('valid', valid)
     self.get('EvalSurfaceWeightOutputNodeToolButton').enabled = valid
+    self.get('EvalSurfaceWeightSaveToolButton').enabled = valid
 
     enableMaterialReader = not self.isWorkflow(0) or valid
     self.get('MaterialReaderCollapsibleGroupBox').collapsed = not enableMaterialReader

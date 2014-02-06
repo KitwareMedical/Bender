@@ -54,114 +54,202 @@ p, li { white-space: pre-wrap; }
         </column>
         <item>
          <property name="text">
-          <string>Man 2mm Arm</string>
+          <string>Common</string>
          </property>
          <property name="flags">
           <set>ItemIsEnabled</set>
          </property>
          <item>
           <property name="text">
-           <string>Inputs</string>
+           <string>Volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
           </property>
           <property name="flags">
-           <set>ItemIsEnabled</set>
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
           </property>
-          <item>
-           <property name="text">
-            <string>Volume</string>
-           </property>
-           <property name="checkState">
-            <enum>Checked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Color table</string>
-           </property>
-           <property name="checkState">
-            <enum>Checked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Armature</string>
-           </property>
-           <property name="checkState">
-            <enum>Checked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
          </item>
          <item>
           <property name="text">
-           <string>Outputs</string>
+           <string>Tissues</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
           </property>
           <property name="flags">
-           <set>ItemIsEnabled</set>
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
           </property>
-          <item>
-           <property name="text">
-            <string>Merged volume</string>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Bones</string>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Skin</string>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Skinned volume</string>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
-          <item>
-           <property name="text">
-            <string>Posed volume</string>
-           </property>
-           <property name="checkState">
-            <enum>Unchecked</enum>
-           </property>
-           <property name="flags">
-            <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
-           </property>
-          </item>
+         </item>
+         <item>
+          <property name="text">
+           <string>Armature</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Materials</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+        </item>
+        <item>
+         <property name="text">
+          <string>FEM Workflow</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsUserCheckable|ItemIsEnabled</set>
+         </property>
+         <item>
+          <property name="text">
+           <string>Merged volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Padded volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Tetrahedral mesh</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Bones</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Skin</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Skinned volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Posed mesh</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+        </item>
+        <item>
+         <property name="text">
+          <string>Simple Workflow</string>
+         </property>
+         <property name="flags">
+          <set>ItemIsEnabled</set>
+         </property>
+         <item>
+          <property name="text">
+           <string>Merged volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Bones</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Skin</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Skinned volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Posed volume</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
          </item>
         </item>
        </widget>
@@ -224,8 +312,8 @@ p, li { white-space: pre-wrap; }
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Lucida Grande'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Lucida Grande'; font-size:13pt;&quot;&gt;&lt;br /&gt;&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
@@ -235,10 +323,7 @@ p, li { white-space: pre-wrap; }
    <item row="1" column="1">
     <widget class="ctkPathLineEdit" name="DownloadDirectoryPathLineEdit">
      <property name="filters">
-      <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Hidden|ctkPathLineEdit::NoDotAndDotDot|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
-     </property>
-     <property name="options">
-      <set>ctkPathLineEdit::ShowDirsOnly</set>
+      <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::NoDotAndDotDot|ctkPathLineEdit::Readable</set>
      </property>
      <property name="showHistoryButton">
       <bool>false</bool>
