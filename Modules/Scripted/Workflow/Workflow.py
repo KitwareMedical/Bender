@@ -149,8 +149,11 @@ class WorkflowWidget:
     #    - Icons
     self.get('MergeLabelsOutputNodeToolButton').icon = saveIcon
     self.get('MergeLabelsSaveToolButton').icon = saveIcon
+    self.get('MergeLabelsOutputNodeLoadToolButton').icon = loadIcon
+    self.get('MergeLabelsLoadToolButton').icon = loadIcon
     #    - Signals/Slots
     self.get('MergeLabelsInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupMergeLabels)
+    self.get('MergeLabelsOutputNodeLoadToolButton').connect('clicked()', self.loadMergeLabelsVolumeNode)
     self.get('MergeLabelsOutputNodeToolButton').connect('clicked()', self.saveMergeLabelsVolumeNode)
     self.get('MergeLabelsApplyPushButton').connect('clicked(bool)', self.runMergeLabels)
     self.get('MergeLabelsGoToModulePushButton').connect('clicked()', self.openMergeLabelsModule)
@@ -158,8 +161,11 @@ class WorkflowWidget:
     #    - Icons
     self.get('PadImageOutputNodeToolButton').icon = saveIcon
     self.get('PadImageSaveToolButton').icon = saveIcon
+    self.get('PadImageOutputNodeLoadToolButton').icon = loadIcon
+    self.get('PadImageLoadToolButton').icon = loadIcon
     #    - Signals/Slots
     self.get('PadImageInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupPadImage)
+    self.get('PadImageOutputNodeLoadToolButton').connect('clicked()', self.loadPadImageVolumeNode)
     self.get('PadImageOutputNodeToolButton').connect('clicked()', self.savePadImageVolumeNode)
     self.get('PadImageApplyPushButton').connect('clicked(bool)', self.runPadImage)
     self.get('PadImageGoToModulePushButton').connect('clicked()', self.openPadImageModule)
@@ -169,16 +175,22 @@ class WorkflowWidget:
         #    - Icons
     self.get('CreateMeshOutputToolButton').icon = saveIcon
     self.get('CreateMeshToolButton').icon = saveIcon
+    self.get('CreateMeshOutputLoadToolButton').icon = loadIcon
+    self.get('CreateMeshLoadToolButton').icon = loadIcon
     #    - Signals/Slots
+    self.get('CreateMeshOutputLoadToolButton').connect('clicked()', self.loadMeshNode)
     self.get('CreateMeshOutputToolButton').connect('clicked()', self.saveMeshNode)
     self.get('CreateMeshPushButton').connect('clicked(bool)', self.runCreateMesh)
     self.get('CreateMeshInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createMeshOutput)
     self.get('CreateMeshGoToButton').connect('clicked()', self.openCreateMeshModule)
     # b) Bone mesh extractor
         #    - Icons
+    self.get('ExtractBoneOutputLoadToolButton').icon = loadIcon
+    self.get('ExtractBoneLoadToolButton').icon = loadIcon
     self.get('ExtractBoneOutputToolButton').icon = saveIcon
     self.get('ExtractBoneToolButton').icon = saveIcon
     #    - Signals/Slots
+    self.get('ExtractBoneOutputLoadToolButton').connect('clicked()', self.loadExtractBone)
     self.get('ExtractBoneOutputToolButton').connect('clicked()', self.saveExtractBone)
     self.get('ExtractBonePushButton').connect('clicked(bool)', self.runExtractBone)
     self.get('ExtractBoneInputComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractBoneOutput)
@@ -188,7 +200,10 @@ class WorkflowWidget:
         #    - Icons
     self.get('SkinModelMakerOutputNodeToolButton').icon = saveIcon
     self.get('SkinModelMakerSaveToolButton').icon = saveIcon
+    self.get('SkinModelMakerOutputNodeLoadToolButton').icon = loadIcon
+    self.get('SkinModelMakerLoadToolButton').icon = loadIcon
     #    - Signals/Slots
+    self.get('SkinModelMakerOutputNodeLoadToolButton').connect('clicked()', self.loadExtractSkin)
     self.get('SkinModelMakerOutputNodeToolButton').connect('clicked()', self.saveExtractSkin)
     self.get('SkinModelMakerApplyPushButton').connect('clicked(bool)', self.runExtractSkin)
     self.get('SkinModelMakerInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.createExtractSkinOutput)
@@ -200,12 +215,14 @@ class WorkflowWidget:
 
     # 4) Armature
     #    - Icons
+    self.get('ArmaturesArmatureLoadToolButton').icon = loadIcon
     self.get('ArmaturesArmatureSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('ArmaturesPresetComboBox').connect('activated(int)', self.loadArmaturePreset)
     self.get('ArmaturesArmatureNodeComboBox').connect('nodeAdded(vtkMRMLNode*)',self.onArmatureNodeAdded)
     self.get('ArmaturesArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setCurrentArmatureModelNode)
     self.get('ArmaturesToggleVisiblePushButton').connect('clicked()', self.updateSkinNodeVisibility)
+    self.get('ArmaturesArmatureLoadToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('ArmaturesArmatureSaveToolButton').connect('clicked()', self.saveArmatureNode)
     self.get('ArmaturesGoToPushButton').connect('clicked()', self.openArmaturesModule)
 
@@ -213,20 +230,24 @@ class WorkflowWidget:
     # a) Volume Skinning
     #    - Icons
     self.get('VolumeSkinningInputVolumeNodeToolButton').icon = loadIcon
+    self.get('VolumeSkinningOutputVolumeNodeLoadToolButton').icon = loadIcon
     self.get('VolumeSkinningOutputVolumeNodeToolButton').icon = saveIcon
+    self.get('VolumeSkinningLoadToolButton').icon = loadIcon
     self.get('VolumeSkinningSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('VolumeSkinningInputVolumeNodeToolButton').connect('clicked()', self.loadSkinningInputVolumeNode)
+    self.get('VolumeSkinningOutputVolumeNodeLoadToolButton').connect('clicked()', self.loadSkinningVolumeNode)
     self.get('VolumeSkinningOutputVolumeNodeToolButton').connect('clicked()', self.saveSkinningVolumeNode)
     self.get('VolumeSkinningApplyPushButton').connect('clicked(bool)',self.runVolumeSkinning)
     self.get('VolumeSkinningGoToPushButton').connect('clicked()', self.openVolumeSkinningModule)
     # b) Edit skinned volume
     #    - Icons
-    self.get('EditSkinnedVolumeNodeToolButton').icon = loadIcon
+    self.get('EditSkinnedVolumeNodeLoadToolButton').icon = loadIcon
     self.get('EditSkinnedVolumeNodeSaveToolButton').icon = saveIcon
+    self.get('EditSkinnedVolumeLoadToolButton').icon = loadIcon
     self.get('EditSkinnedVolumeSaveToolButton').icon = saveIcon
     #    - Signals/Slots
-    self.get('EditSkinnedVolumeNodeToolButton').connect('clicked()', self.loadEditSkinnedVolumeNode)
+    self.get('EditSkinnedVolumeNodeLoadToolButton').connect('clicked()', self.loadEditSkinnedVolumeNode)
     self.get('EditSkinnedVolumeNodeSaveToolButton').connect('clicked()', self.saveEditSkinnedVolumeNode)
     self.get('EditSkinnedVolumeNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.editSkinnedVolumeParameterChanged)
     self.get('EditSkinnedVolumeGoToEditorPushButton').connect('clicked()', self.openEditorModule)
@@ -240,10 +261,13 @@ class WorkflowWidget:
     # b) Eval Weight
     #    - Icons
     self.get('EvalSurfaceWeightInputNodeToolButton').icon = loadIcon
+    self.get('EvalSurfaceWeightOutputNodeLoadToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightOutputNodeToolButton').icon = saveIcon
+    self.get('EvalSurfaceWeightLoadToolButton').icon = loadIcon
     self.get('EvalSurfaceWeightSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('EvalSurfaceWeightInputNodeToolButton').connect('clicked()', self.loadEvalSurfaceWeightInputNode)
+    self.get('EvalSurfaceWeightOutputNodeLoadToolButton').connect('clicked()', self.loadEvalSurfaceWeightOutputNode)
     self.get('EvalSurfaceWeightOutputNodeToolButton').connect('clicked()', self.saveEvalSurfaceWeightOutputNode)
     self.get('EvalSurfaceWeightApplyPushButton').connect('clicked(bool)', self.runEvalSurfaceWeight)
     self.get('EvalSurfaceWeightGoToPushButton').connect('clicked()', self.openEvalSurfaceWeight)
@@ -251,10 +275,13 @@ class WorkflowWidget:
     # c) Material properties
     #    - Icons
     self.get('MaterialReaderInputMeshNodeToolButton').icon = loadIcon
+    self.get('MaterialReaderOutputMeshNodeLoadToolButton').icon = loadIcon
     self.get('MaterialReaderOutputMeshNodeToolButton').icon = saveIcon
+    self.get('MaterialReaderLoadToolButton').icon = loadIcon
     self.get('MaterialReaderSaveToolButton').icon = saveIcon
      #    - Signals/Slots
     self.get('MaterialReaderInputMeshNodeToolButton').connect('clicked()', self.loadMaterialReaderInputMeshNode)
+    self.get('MaterialReaderOutputMeshNodeLoadToolButton').connect('clicked()', self.loadMaterialReaderMeshNode)
     self.get('MaterialReaderOutputMeshNodeToolButton').connect('clicked()', self.saveMaterialReaderMeshNode)
     self.get('MaterialReaderApplyPushButton').connect('clicked(bool)',self.runMaterialReader)
     self.get('MaterialReaderGoToPushButton').connect('clicked()', self.openMaterialReaderModule)
@@ -265,21 +292,23 @@ class WorkflowWidget:
     # 7) (Pose) Armature And Pose Body
     # a) Pose Armature
     #    - Icons
-    self.get('PoseArmatureArmatureNodeToolButton').icon = loadIcon
+    self.get('PoseArmatureArmatureNodeLoadToolButton').icon = loadIcon
     self.get('PoseArmatureArmatureNodeSaveToolButton').icon = saveIcon
     self.get('PoseArmatureSaveToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('PoseArmatureArmatureNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setPoseArmatureModelNode)
-    self.get('PoseArmatureArmatureNodeToolButton').connect('clicked()', self.loadArmatureNode)
+    self.get('PoseArmatureArmatureNodeLoadToolButton').connect('clicked()', self.loadArmatureNode)
     self.get('PoseArmatureArmatureNodeSaveToolButton').connect('clicked()', self.savePoseArmatureArmatureNode)
     self.get('PoseArmaturesGoToPushButton').connect('clicked()', self.openPosedArmatureModule)
     # b) Simulate Pose
     #    - Icons
     self.get('SimulatePoseInputNodeToolButton').icon = loadIcon
+    self.get('SimulatePoseOutputNodeLoadToolButton').icon = loadIcon
     self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
     self.get('SimulatePoseInputNodeToolButton').connect('clicked()', self.loadSimulatePoseInputNode)
+    self.get('SimulatePoseOutputNodeLoadToolButton').connect('clicked()', self.loadSimulatePoseOutputNode)
     self.get('SimulatePoseOutputNodeToolButton').connect('clicked()', self.saveSimulatePoseOutputNode)
     self.get('SimulatePoseGoToPushButton').connect('clicked()', self.openSimulatePoseModule)
 
@@ -963,15 +992,7 @@ class WorkflowWidget:
     if cliNode.GetStatusString() == 'Completed':
       # apply label map
       newNode = self.get('MergeLabelsOutputNodeComboBox').currentNode()
-      if newNode != None:
-        displayNode = newNode.GetDisplayNode()
-        if displayNode == None:
-          volumesLogic = slicer.modules.volumes.logic()
-          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
-          displayNode = newNode.GetDisplayNode()
-        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
-        if displayNode != None and colorNode != None:
-          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      self.applyLabelmap(newNode)
       self.validateMergeLabels()
 
     if not cliNode.IsBusy():
@@ -979,6 +1000,25 @@ class WorkflowWidget:
       self.get('MergeLabelsApplyPushButton').enabled = True
       print 'MergeLabels %s' % cliNode.GetStatusString()
       self.removeObservers(self.onMergeLabelsCLIModified)
+
+  def applyLabelmap(self, volumeNode):
+    if volumeNode == None:
+      return
+    displayNode = volumeNode.GetDisplayNode()
+    if displayNode == None:
+      volumesLogic = slicer.modules.volumes.logic()
+      volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
+      displayNode = volumeNode.GetDisplayNode()
+    colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+    if displayNode != None and colorNode != None:
+      displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+
+  def loadMergeLabelsVolumeNode(self):
+    loadedNode = self.loadLabelmapFile('Merged label volume', 'VolumeFile', self.get('MergeLabelsOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.changelabel)
+      self.observeCLINode(cliNode, self.onMergeLabelsCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
 
   def saveMergeLabelsVolumeNode(self):
     self.saveFile('Merged label volume', 'VolumeFile', '.mha', self.get('MergeLabelsOutputNodeComboBox'))
@@ -1095,6 +1135,13 @@ class WorkflowWidget:
       print 'PadImage %s' % cliNode.GetStatusString()
       self.removeObservers(self.onPadImageCLIModified)
 
+  def loadPadImageVolumeNode(self):
+    loadedNode = self.loadLabelmap('Padded volume', self.get('PadImageOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.padimage)
+      self.observeCLINode(cliNode, self.onPadImageCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
   def savePadImageVolumeNode(self):
     self.saveFile('Padded volume', 'VolumeFile', '.mha', self.get('PadImageOutputNodeComboBox'))
 
@@ -1206,6 +1253,14 @@ class WorkflowWidget:
       print 'CreateMesh %s' % cliNode.GetStatusString()
       self.removeObservers(self.onCreateMeshCLIModified)
 
+  def loadMeshNode(self):
+    loadedNode = self.loadFile('Tetrahedral Mesh', 'ModelFile',
+                               self.get('CreateMeshOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.createtetrahedralmesh)
+      self.observeCLINode(cliNode, self.onCreateMeshCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
   def saveMeshNode(self):
     self.saveFile('Tetrahedral Mesh', 'ModelFile', '.vtk', self.get('CreateMeshOutputNodeComboBox'))
 
@@ -1305,6 +1360,15 @@ class WorkflowWidget:
       print 'Extract Bone %s' % cliNode.GetStatusString()
       self.removeObservers(self.onExtractBoneCLIModified)
 
+  def loadExtractBone(self):
+    loadedNode = self.loadFile('Bone Mesh', 'ModelFile',
+                               self.get('ExtractBoneOutputComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
+      self.observeCLINode(cliNode, self.onExtractBoneCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
+
   def saveExtractBone(self):
     self.saveFile('Bone Mesh', 'ModelFile', '.vtk', self.get('ExtractBoneOutputComboBox'))
 
@@ -1332,7 +1396,7 @@ class WorkflowWidget:
     self.validateExtractSkin()
 
   def validateExtractSkin(self):
-    cliNode = self.getCLINode(slicer.modules.grayscalemodelmaker)
+    cliNode = self.SkinModelMakerLogic.GetCLINode()
     valid = cliNode.GetStatusString() == 'Completed'
     self.get('SkinModelMakerOutputNodeToolButton').enabled = valid
     self.get('SkinModelMakerSaveToolButton').enabled = valid
@@ -1415,6 +1479,14 @@ class WorkflowWidget:
       self.get('SkinModelMakerApplyPushButton').enabled = True
       print 'Extract Skin %s' % cliNode.GetStatusString()
       self.removeObservers(self.onExtractSkinCLIModified)
+
+  def loadExtractSkin(self):
+    loadedNode = self.loadFile('Bone Skin', 'ModelFile',
+                               self.get('SkinModelMakerOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.SkinModelMakerLogic.GetCLINode()
+      self.observeCLINode(cliNode, self.onExtractSkinCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
 
   def saveExtractSkin(self):
     self.saveFile('Bone Skin', 'ModelFile', '.vtk', self.get('SkinModelMakerOutputNodeComboBox'))
@@ -1602,7 +1674,15 @@ class WorkflowWidget:
       self.removeObservers(self.onVolumeSkinningCLIModified)
 
   def loadSkinningInputVolumeNode(self):
-    self.loadLabelmapFile('Input volume', 'VolumeFile', self.get('VolumeSkinningInputVolumeNodeComboBox'))
+    self.loadLabelmap('Input volume', self.get('VolumeSkinningInputVolumeNodeComboBox'))
+
+  def loadSkinningVolumeNode(self):
+    loadedNode = self.loadLabelmapFile('Skinned volume', 'VolumeFile',
+                                       self.get('VolumeSkinningOutputVolumeNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.volumeskinning)
+      self.observeCLINode(cliNode, self.onVolumeSkinningCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
 
   def saveSkinningVolumeNode(self):
     self.saveFile('Skinned volume', 'VolumeFile', '.mha', self.get('VolumeSkinningOutputVolumeNodeComboBox'))
@@ -1656,7 +1736,9 @@ class WorkflowWidget:
     self.validateEditSkinnedVolume()
 
   def loadEditSkinnedVolumeNode(self):
-    self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('EditSkinnedVolumeNodeComboBox'))
+    loadedNode = self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('EditSkinnedVolumeNodeComboBox'))
+    if loadedNode != None:
+      self.validateEditSkinnedVolume()
 
   def saveEditSkinnedVolumeNode(self):
     self.saveFile('Skinned volume', 'VolumeFile', '.mha', self.get('EditSkinnedVolumeNodeComboBox'))
@@ -1829,6 +1911,13 @@ class WorkflowWidget:
   def loadEvalSurfaceWeightInputNode(self):
     self.loadFile('Model to eval', 'ModelFile', self.get('EvalSurfaceWeightInputNodeComboBox'))
 
+  def loadEvalSurfaceWeightOutputNode(self):
+    loadedNode = self.loadFile('Evaluated Model', 'ModelFile', self.get('EvalSurfaceWeightOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
+      self.observeCLINode(cliNode, self.onEvalSurfaceWeightCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
   def saveEvalSurfaceWeightOutputNode(self):
     self.saveFile('Evaluated Model', 'ModelFile', '.vtk', self.get('EvalSurfaceWeightOutputNodeComboBox'))
 
@@ -1888,7 +1977,15 @@ class WorkflowWidget:
       self.removeObservers(self.onMaterialPropertyCLIModified)
 
   def loadMaterialReaderInputMeshNode(self):
-    self.loadLabelmapFile('Input tetrahedral mesh', 'ModelFile', self.get('MaterialReaderInputMeshNodeComboBox'))
+    self.loadFile('Input tetrahedral mesh', 'ModelFile', self.get('MaterialReaderInputMeshNodeComboBox'))
+
+  def loadMaterialReaderMeshNode(self):
+    loadedNode = self.loadFile('Tetrahedral mesh with material properties', 'ModelFile', self.get('MaterialReaderOutputMeshNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.materialpropertyreader)
+      self.observeCLINode(cliNode, self.onMaterialPropertyCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
 
   def saveMaterialReaderMeshNode(self):
     self.saveFile('Tetrahedral mesh with material properties', 'ModelFile', '.vtk', self.get('MaterialReaderOutputMeshNodeComboBox'))
@@ -2030,6 +2127,14 @@ class WorkflowWidget:
   def loadSimulatePoseInputNode(self):
     self.loadFile('Model to pose', 'ModelFile', self.get('SimulatePoseInputNodeComboBox'))
 
+  def loadSimulatePoseOutputNode(self):
+    loadedNode = self.loadFile('Posed model', 'ModelFile', self.get('SimulatePoseOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.simulatepose)
+      self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
+
   def saveSimulatePoseOutputNode(self):
     self.saveFile('Posed model', 'ModelFile', '.vtk', self.get('SimulatePoseOutputNodeComboBox'))
 
@@ -2122,6 +2227,12 @@ class WorkflowWidget:
       volumesLogic = slicer.modules.volumes.logic()
       volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
       nodeComboBox.setCurrentNode(volumeNode)
+    return volumeNode
+
+  def loadLabelmap(self, title, nodeComboBox):
+    volumeNode = self.loadLabelmapFile(title, 'VolumeFile', nodeComboBox)
+    self.applyLabelmap(volumeNode)
+    return volumeNode
 
   def loadFile(self, title, fileType, nodeComboBox):
     manager = slicer.app.ioManager()
