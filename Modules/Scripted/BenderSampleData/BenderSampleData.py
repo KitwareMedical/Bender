@@ -187,15 +187,15 @@ class BenderSampleDataLogic( SampleDataLogic ):
         },
       'Outputs' :
         {
-        'Posed armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/4986/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
+        'Posed armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/3616/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
         },
       'Simple Workflow' :
         {
         'Merged volume' : ['man-arm-2mm-merged', 'LabelmapFile', 'http://packages.kitware.com/download/item/4970/man-arm-2mm-merged.nrrd', 'man-arm-2mm-merged.nrrd'],
         'Bones' : ['man-arm-2mm-Bones', 'ModelFile', 'http://packages.kitware.com/download/item/4969/man-arm-2mm-Bones.vtk', 'man-arm-2mm-Bones.vtk'],
         'Skin' : ['man-arm-2mm-Skin', 'ModelFile', 'http://packages.kitware.com/download/item/4966/man-arm-2mm-Skin.vtk', 'man-arm-2mm-Skin.vtk'],
-        'Skinned volume' : ['man-arm-2mm-merged-skinned', 'LabelmapFile', 'http://packages.kitware.com/download/item/4971/man-arm-2mm-merged-skinned.mha', 'man-arm-2mm-merged-skinned.mha'],
-        'Posed volume' : ['man-arm-2mm-posed', 'LabelmapFile', 'http://packages.kitware.com/download/item/4965/man-arm-2mm-posed.mha', 'man-arm-2mm-posed.mha'],
+        'Skinned volume' : ['man-arm-2mm-merged-skinned', 'LabelmapFile', 'http://packages.kitware.com/download/item/3618/man-arm-2mm-merged-skinned.mha', 'man-arm-2mm-merged-skinned.mha'],
+        'Posed volume' : ['man-arm-2mm-posed', 'LabelmapFile', 'http://packages.kitware.com/download/item/3619/man-arm-2mm-posed.mha', 'man-arm-2mm-posed.mha'],
         },
       'FEM Workflow' :
         {
