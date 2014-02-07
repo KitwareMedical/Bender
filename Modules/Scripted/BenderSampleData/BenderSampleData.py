@@ -100,7 +100,7 @@ class BenderSampleDataWidget:
     self.dataTree = self.get('BenderSampleDataTree')
     self.dataTree.expandAll()
     self.downloadDirectoryPathLineEdit = self.get('DownloadDirectoryPathLineEdit')
-    self.downloadDirectoryPathLineEdit.currentPath = qt.QDir.homePath()
+    self.downloadDirectoryPathLineEdit.currentPath = qt.QDir.home().absoluteFilePath('bender')
     self.get('BenderSampleDataDownloadPushButton').connect('clicked()', self.downloadCheckedItems)
 
   def downloadCheckedItems(self):
