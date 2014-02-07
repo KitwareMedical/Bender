@@ -19,7 +19,7 @@ class BenderSampleData:
     parent.dependencies = ["SampleData"]
     parent.contributors = ["Johan Andruejol (Kitware), Julien Finet (Kitware)"]
     parent.helpText = string.Template("""
-      This module can be used to download data for working with in Bender. The data is downloaded into the application
+      This module downloads data for working with in Bender. The data is downloaded into the application
       cache so it will be available directly next time.
       Use of this module requires an active network connection.
       See <a href=\"$a/Documentation/$b.$c/Modules/SampleData\">$a/Documentation/$b.$c/Modules/SampleData</a> for more information.
@@ -111,7 +111,7 @@ class BenderSampleDataWidget:
     qt.QDir().mkpath( self.downloadDirectoryPathLineEdit.currentPath )
 
     for item in items:
-      parent = self.getTopLevelItem(item)
+      parent = item.parent()
       if parent and item:
         self.logic.download(parent.text(0),
                             item.text(0),
@@ -177,12 +177,15 @@ class BenderSampleDataLogic( SampleDataLogic ):
 
     self.downloadData = (
       {
-      'Common' :
+      'Inputs' :
         {
         'Volume' : ['man-arm-2mm', 'LabelmapFile', 'http://packages.kitware.com/download/item/3614/man-arm-2mm.mha', 'man-arm-2mm.mha'],
         'Tissues' : ['Tissues-v1.1.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/3615/Tissues-v1.1.0.txt', 'Tissues-v1.1.0.txt'],
-        'Armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/4986/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
         'Materials' : ['Materials-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/4964/Materials-v2.0.0.txt', 'Materials-v2.0.0.txt'],
+        },
+      'Outputs' :
+        {
+        'Posed armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/4986/man-arm-2mm-armature.vtk', 'man-arm-2mm-armature.vtk'],
         },
       'Simple Workflow' :
         {
