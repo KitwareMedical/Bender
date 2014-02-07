@@ -109,6 +109,8 @@ class BenderSampleDataWidget:
     if len(items) < 1:
       return
     qt.QDir().mkpath( self.downloadDirectoryPathLineEdit.currentPath )
+    qt.QDir.setCurrent( self.downloadDirectoryPathLineEdit.currentPath )
+    qt.QFileDialog().setDirectory( self.downloadDirectoryPathLineEdit.currentPath )
 
     for item in items:
       parent = item.parent()
