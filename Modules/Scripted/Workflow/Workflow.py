@@ -2092,6 +2092,7 @@ class WorkflowWidget:
     parameters["VolumeInput"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
     parameters["OutputSurface"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
     parameters["SurfaceInput"] = self.get('SimulatePoseSkinComboBox').currentNode()
+    parameters["EnableCollision"] = self.get('SimulatePoseCollisionCheckBox').isChecked()
     return parameters
 
   def runSimulatePose(self, run):

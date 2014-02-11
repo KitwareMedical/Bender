@@ -588,8 +588,6 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
     data   = polyMesh->GetCellData();
     }
 
-  double materialParameters[2] = {0};
-
   std::stringstream meshName;
   meshName << "Mesh" << label;
 
@@ -610,10 +608,17 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
   tetrahedra.reserve(tetras->GetNumberOfCells());
   youngModulus.reserve(tetras->GetNumberOfCells());
 
-  std::cout << "Total # of tetrahedra: " << tetras->GetNumberOfCells() <<
-    std::endl;
+  std::cout << "Total # of tetrahedra: " << tetras->GetNumberOfCells()
+            << std::endl;
 
   tetras->InitTraversal();
+
+  vtkDataArray* materialParameters = data->GetArray("MaterialParameters");
+  if (!materialParameters)
+    {
+    std::cerr << "Error: No material parameters data array in mesh" << std::endl;
+    }
+
   vtkNew<vtkIdList> element;
   vtkIdType         cellId = 0;
   while(tetras->GetNextCell(element.GetPointer()))
@@ -627,8 +632,12 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
     tetrahedra.push_back(MeshTopology::Tetra(element->GetId(0),
         element->GetId(1),element->GetId(2),element->GetId(3)));
 
-    data->GetArray("MaterialParameters")->GetTuple(cellId, materialParameters);
-    youngModulus.push_back(materialParameters[0]);
+    if (materialParameters)
+      {
+      double parameters[2] = {0};
+      materialParameters->GetTuple(cellId, parameters);
+      youngModulus.push_back(parameters[0]);
+      }
     }
   meshTopology->seqTetrahedra.endEdit();
   return mechanicalMesh;
@@ -713,13 +722,20 @@ void skinMesh(Node *                              parentNode,
 
   // Make sure each vertex has at least one valid associated weight
   // TODO: Normalize weights -> weights[i][*]/weightSum[i]
+  int weightErrorCount = 0;
   for(size_t i = 0; i < weightSum.size(); ++i)
     {
-    if(weightSum[i] == 0)
+    if(weightSum[i] == 0.)
       {
-      std::cerr << "Error: Vertex with zero weight encountered." << std::endl;
-      return;
+      if (++weightErrorCount < 100)
+        {
+        std::cerr << "Error: Vertex " << i << " has no weight." << std::endl;
+        }
       }
+    }
+  if (weightErrorCount)
+    {
+    std::cerr << "-> " << weightErrorCount << " voxels with no weight. " << std::endl;
     }
   boneSkinningMapping->setWeights(weights,indices,nbIds);
 
@@ -903,6 +919,11 @@ int main(int argc, char** argv)
   cudaPlugin->pluginName.setValue("SofaCUDA");
 #endif
 
+  if (Verbose)
+    {
+    std::cout << "Read data..." << std::endl;
+    }
+
   // Read vtk data
   vtkSmartPointer<vtkPolyDataReader> armatureReader =
     vtkPolyDataReader::New();
@@ -915,8 +936,11 @@ int main(int argc, char** argv)
 
   vtkSmartPointer<vtkPolyDataReader> surfaceMeshReader =
     vtkPolyDataReader::New();
-  surfaceMeshReader->SetFileName(SurfaceInput.c_str());
-  surfaceMeshReader->Update();
+  if (EnableCollision)
+    {
+    surfaceMeshReader->SetFileName(SurfaceInput.c_str());
+    surfaceMeshReader->Update();
+    }
 
   // Create a scene node
   Node::SPtr sceneNode = root->createChild("BenderSimulation");
@@ -942,38 +966,90 @@ int main(int argc, char** argv)
   exporter->writeTetras.setValue(true);
   exporter->writeEdges.setValue(false);
 
+  if (Verbose)
+    {
+    std::cout << "Create finite element model..." << std::endl;
+    }
   // Finite element method
   createFiniteElementModel(anatomicalMesh.get(),youngModulus);
 
   // Collision node
-  createCollisionNode(anatomicalMesh.get(),
-    surfaceMeshReader->GetOutput(),posedMesh.get());
+  if (EnableCollision)
+    {
+    if (Verbose)
+      {
+      std::cout << "************************************************************"
+                << std::endl;
+      std::cout << "Create collision node..." << std::endl;
+      }
+    createCollisionNode(anatomicalMesh.get(),
+                        surfaceMeshReader->GetOutput(),posedMesh.get());
+    }
+
+  if (Verbose)
+    {
+      std::cout << "************************************************************"
+                << std::endl;
+    std::cout << "Create anatomical map..." << std::endl;
+    }
 
   // Create a constrained articulated frame
   Node::SPtr anatomicalMap = anatomicalMesh->createChild("AnatomicalMap");
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Create articulated frame..." << std::endl;
+    }
   MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
     createArticulatedFrame(anatomicalMap.get(),
       armatureReader->GetOutput(),true);
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Skin mesh..." << std::endl;
+    }
   skinMesh(anatomicalMap.get(),articulatedFrame,posedMesh,
     armatureReader->GetOutput(),meshReader->GetOutput());
 //   mapArticulatedFrameToMesh(anatomicalMap.get(),articulatedFrame,posedMesh);
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Init..." << std::endl;
+    }
   // Run simulation time steps
   sofa::simulation::getSimulation()->exportXML(root.get(),"scene.scn");
   sofa::simulation::getSimulation()->init(root.get());
   root->setAnimate(true);
 
+  if (Verbose)
+    {
+    std::cout << "Animate..." << std::endl;
+    }
   // --- Sofa time-stepping loop
   sofa::simulation::getSimulation()->animate(root.get());
 
   const int nbsteps = 3; //int(1/dt);
-  std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
+  if (Verbose)
+    {
+    std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
+    }
   for (unsigned int i=0; i<nbsteps; i++)
     {
     sofa::simulation::getSimulation()->animate(root.get());
-    std::cout << "Iteration: " << i+1 << std::endl;
+    if (Verbose)
+      {
+      std::cout << "Iteration: " << i+1 << std::endl;
+      }
+    }
+  if (Verbose)
+    {
+    std::cout << "Unload..." << std::endl;
     }
   sofa::simulation::getSimulation()->unload(root);
 

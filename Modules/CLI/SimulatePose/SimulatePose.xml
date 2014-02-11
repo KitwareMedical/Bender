@@ -14,7 +14,7 @@
     <description><![CDATA[Input/output parameters]]></description>
     <geometry fileExtensions=".vtk">
       <name>VolumeInput</name>
-      <label>VolumeMesh</label>
+      <label>Volume mesh</label>
       <description><![CDATA[Input volumetric mesh to be posed.]]></description>
       <channel>input</channel>
       <index>0</index>
@@ -28,7 +28,7 @@
     </geometry>
     <geometry fileExtensions=".vtk">
       <name>SurfaceInput</name>
-      <label>SurfaceMesh</label>
+      <label>Surface mesh</label>
       <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
       <channel>input</channel>
       <index>2</index>
@@ -40,5 +40,23 @@
       <channel>output</channel>
       <index>3</index>
     </geometry>
+  </parameters>
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    <boolean>
+      <name>EnableCollision</name>
+      <label>Collision</label>
+      <longflag>--collision</longflag>
+      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>Verbose</name>
+      <label>Verbose</label>
+      <longflag>--verbose</longflag>
+      <description><![CDATA[Print verbose outputs.]]></description>
+      <default>false</default>
+    </boolean>
   </parameters>
 </executable>

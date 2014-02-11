@@ -2093,10 +2093,10 @@ p, li { white-space: pre-wrap; }
           <string>B) Edit skinned volume</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="collapsed">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
@@ -3583,6 +3583,32 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="SimulatePoseCollisionLabel">
+            <property name="text">
+             <string>Enable Collision</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QCheckBox" name="SimulatePoseCollisionCheckBox">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
               <string>2</string>
              </stringlist>
             </property>
