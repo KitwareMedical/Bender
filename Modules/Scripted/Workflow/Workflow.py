@@ -2088,10 +2088,10 @@ class WorkflowWidget:
   def simulatePoseParameters(self):
     # Setup CLI node on input changed or apply changed
     parameters = {}
-    parameters["ArmatureFileName"] = self.get('SimulatePoseArmatureInputNodeComboBox').currentNode()
-    parameters["VolumeInput"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
-    parameters["OutputSurface"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
-    parameters["SurfaceInput"] = self.get('SimulatePoseSkinComboBox').currentNode()
+    parameters["ArmaturePoly"] = self.get('SimulatePoseArmatureInputNodeComboBox').currentNode()
+    parameters["InputTetMesh"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
+    parameters["OutputTetMesh"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
+    parameters["InputSurface"] = self.get('SimulatePoseSkinComboBox').currentNode()
     parameters["EnableCollision"] = self.get('SimulatePoseCollisionCheckBox').isChecked()
     return parameters
 

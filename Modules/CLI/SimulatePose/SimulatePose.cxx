@@ -919,27 +919,34 @@ int main(int argc, char** argv)
   cudaPlugin->pluginName.setValue("SofaCUDA");
 #endif
 
+  if (!IsMeshInRAS)
+    {
+    std::cout<<"Mesh x,y coordinates will be inverted" << std::endl;
+    }
+  if (!IsArmatureInRAS)
+    {
+    std::cout<<"Armature x,y coordinates will be inverted" << std::endl;
+    }
+
   if (Verbose)
     {
     std::cout << "Read data..." << std::endl;
     }
 
   // Read vtk data
-  vtkSmartPointer<vtkPolyDataReader> armatureReader =
-    vtkPolyDataReader::New();
-  armatureReader->SetFileName(ArmatureFileName.c_str());
-  armatureReader->Update();
+  vtkSmartPointer<vtkPolyData> armature;
+  armature.TakeReference(
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
 
-  vtkSmartPointer<vtkPolyDataReader> meshReader = vtkPolyDataReader::New();
-  meshReader->SetFileName(VolumeInput.c_str());
-  meshReader->Update();
+  vtkSmartPointer<vtkPolyData> tetMesh;
+  tetMesh.TakeReference(
+    bender::IOUtils::ReadPolyData(InputTetMesh.c_str(),!IsMeshInRAS));
 
-  vtkSmartPointer<vtkPolyDataReader> surfaceMeshReader =
-    vtkPolyDataReader::New();
+  vtkSmartPointer<vtkPolyData> surfaceMesh;
   if (EnableCollision)
     {
-    surfaceMeshReader->SetFileName(SurfaceInput.c_str());
-    surfaceMeshReader->Update();
+    surfaceMesh.TakeReference(
+      bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsMeshInRAS));
     }
 
   // Create a scene node
@@ -954,7 +961,7 @@ int main(int argc, char** argv)
   // Create mesh dof
   Vec3Types::VecReal                youngModulus;
   MechanicalObject<Vec3Types>::SPtr posedMesh = loadMesh(
-    anatomicalMesh.get(),meshReader->GetOutput(),youngModulus);
+    anatomicalMesh.get(), tetMesh, youngModulus);
   UniformMass3::SPtr mass = addNew<UniformMass3>(anatomicalMesh.get(),"Mass");
   mass->setTotalMass(100);
 
@@ -962,7 +969,7 @@ int main(int argc, char** argv)
   sofa::component::misc::VTKExporter::SPtr exporter =
     addNew<sofa::component::misc::VTKExporter>(anatomicalMesh, "vtkExporter");
   exporter->exportAtEnd.setValue(true);
-  exporter->vtkFilename.setValue(OutputSurface);
+  exporter->vtkFilename.setValue(OutputTetMesh);
   exporter->writeTetras.setValue(true);
   exporter->writeEdges.setValue(false);
 
@@ -983,13 +990,13 @@ int main(int argc, char** argv)
       std::cout << "Create collision node..." << std::endl;
       }
     createCollisionNode(anatomicalMesh.get(),
-                        surfaceMeshReader->GetOutput(),posedMesh.get());
+                        surfaceMesh,posedMesh.get());
     }
 
   if (Verbose)
     {
-      std::cout << "************************************************************"
-                << std::endl;
+    std::cout << "************************************************************"
+              << std::endl;
     std::cout << "Create anatomical map..." << std::endl;
     }
 
@@ -1002,9 +1009,10 @@ int main(int argc, char** argv)
               << std::endl;
     std::cout << "Create articulated frame..." << std::endl;
     }
+
   MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
     createArticulatedFrame(anatomicalMap.get(),
-      armatureReader->GetOutput(),true);
+      armature,true);
 
   if (Verbose)
     {
@@ -1013,7 +1021,7 @@ int main(int argc, char** argv)
     std::cout << "Skin mesh..." << std::endl;
     }
   skinMesh(anatomicalMap.get(),articulatedFrame,posedMesh,
-    armatureReader->GetOutput(),meshReader->GetOutput());
+    armature,tetMesh);
 //   mapArticulatedFrameToMesh(anatomicalMap.get(),articulatedFrame,posedMesh);
 
   if (Verbose)

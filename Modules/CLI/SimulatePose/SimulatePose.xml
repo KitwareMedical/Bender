@@ -13,30 +13,32 @@
     <label>IO</label>
     <description><![CDATA[Input/output parameters]]></description>
     <geometry fileExtensions=".vtk">
-      <name>VolumeInput</name>
-      <label>Volume mesh</label>
+      <name>InputTetMesh</name>
+      <label>Volumetric mesh</label>
       <description><![CDATA[Input volumetric mesh to be posed.]]></description>
       <channel>input</channel>
       <index>0</index>
     </geometry>
     <geometry fileExtensions=".vtk">
-      <name>ArmatureFileName</name>
+      <name>ArmaturePoly</name>
       <label>Armature</label>
-      <description><![CDATA[Armature.]]></description>
+      <description><![CDATA[Armature model containing the bone poses. The armature must 'fit' inside <b>Surface</b>.]]></description>
       <channel>input</channel>
       <index>1</index>
     </geometry>
+
     <geometry fileExtensions=".vtk">
-      <name>SurfaceInput</name>
+      <name>InputSurface</name>
       <label>Surface mesh</label>
       <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
       <channel>input</channel>
       <index>2</index>
     </geometry>
+
     <geometry fileExtensions=".vtk">
-      <name>OutputSurface</name>
-      <label>Output posed surface</label>
-      <description><![CDATA[Output surface posed by the <b>Armature</b> transforms.]]></description>
+      <name>OutputTetMesh</name>
+      <label>Output posed mesh</label>
+      <description><![CDATA[Output volumetric mesh posed by the <b>Armature</b> transforms.]]></description>
       <channel>output</channel>
       <index>3</index>
     </geometry>
@@ -51,6 +53,27 @@
       <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
       <default>false</default>
     </boolean>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsMeshInRAS</name>
+      <label>Meshes in RAS</label>
+      <description><![CDATA[Whether the input meshes are already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--meshInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
     <boolean>
       <name>Verbose</name>
       <label>Verbose</label>
