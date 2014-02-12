@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>;Segmentation.Bender</category>
+  <category>Segmentation.Bender</category>
   <index>6</index>
   <title>Pose Labelmap</title>
   <description><![CDATA[Transform a labelmap according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
