@@ -900,6 +900,47 @@ void createEulerSolverNode(Node::SPtr         parentNode,
     }
 }
 
+//------------------------------------------------------------------------------
+void initMesh(vtkPolyData* outputPolyData, vtkPolyData* inputPolyData,
+              Node::SPtr anatomicalMesh)
+{
+  MeshTopology *topology = anatomicalMesh->getNodeObject<MeshTopology>();
+  vtkNew<vtkPoints> points;
+  const vtkIdType numberOfPoints = topology->getNbPoints();
+  std::cout << "Number of Points: " << numberOfPoints << std::endl;
+  points->SetNumberOfPoints(numberOfPoints);
+  for (vtkIdType pointId = 0; pointId < numberOfPoints; ++pointId)
+    {
+    points->InsertPoint(pointId, topology->getPX(pointId),
+                        topology->getPY(pointId),
+                        topology->getPZ(pointId));
+    }
+  outputPolyData->SetPoints(points.GetPointer());
+  // Cells
+  vtkNew<vtkCellArray> cells;
+  for (vtkIdType cellId = 0; cellId < topology->getNbTetras(); ++cellId)
+    {
+    const Tetra& t = topology->getTetra(cellId);
+    vtkIdType cell[4];
+    cell[0] = t[0];
+    cell[1] = t[1];
+    cell[2] = t[2];
+    cell[3] = t[3];
+    cells->InsertNextCell(4, cell);
+    }
+  outputPolyData->SetPolys(cells.GetPointer());
+
+  for (int i = 0; i < inputPolyData->GetPointData()->GetNumberOfArrays(); ++i)
+    {
+    outputPolyData->GetPointData()->AddArray(inputPolyData->GetPointData()->GetArray(i));
+    }
+  for (int i = 0; i < inputPolyData->GetCellData()->GetNumberOfArrays(); ++i)
+    {
+    outputPolyData->GetCellData()->AddArray(inputPolyData->GetCellData()->GetArray(i));
+    }
+
+}
+
 int main(int argc, char** argv)
 {
   PARSE_ARGS;
@@ -1055,6 +1096,10 @@ int main(int argc, char** argv)
       std::cout << "Iteration: " << i+1 << std::endl;
       }
     }
+  vtkNew<vtkPolyData> posedSurface;
+  initMesh(posedSurface.GetPointer(), tetMesh, anatomicalMesh);
+  bender::IOUtils::WritePolyData(posedSurface.GetPointer(), OutputTetMesh);
+
   if (Verbose)
     {
     std::cout << "Unload..." << std::endl;
