@@ -427,11 +427,6 @@ void qSlicerAppMainWindowPrivate::readSettings()
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
   this->FavoriteModules << "Workflow"
                         << "Armatures"
-                        << "VolumeSkinning"
-                        << "ComputeArmatureWeight"
-                        << "EvalSurfaceWeight"
-                        << "PoseBody"
-                        << "PoseLabelmap"
                         << "Volumes"
                         << "VolumeRendering"
                         << "Models";
