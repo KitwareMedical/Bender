@@ -588,8 +588,6 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
     data   = polyMesh->GetCellData();
     }
 
-  double materialParameters[2] = {0};
-
   std::stringstream meshName;
   meshName << "Mesh" << label;
 
@@ -610,10 +608,17 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
   tetrahedra.reserve(tetras->GetNumberOfCells());
   youngModulus.reserve(tetras->GetNumberOfCells());
 
-  std::cout << "Total # of tetrahedra: " << tetras->GetNumberOfCells() <<
-    std::endl;
+  std::cout << "Total # of tetrahedra: " << tetras->GetNumberOfCells()
+            << std::endl;
 
   tetras->InitTraversal();
+
+  vtkDataArray* materialParameters = data->GetArray("MaterialParameters");
+  if (!materialParameters)
+    {
+    std::cerr << "Error: No material parameters data array in mesh" << std::endl;
+    }
+
   vtkNew<vtkIdList> element;
   vtkIdType         cellId = 0;
   while(tetras->GetNextCell(element.GetPointer()))
@@ -627,8 +632,12 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
     tetrahedra.push_back(MeshTopology::Tetra(element->GetId(0),
         element->GetId(1),element->GetId(2),element->GetId(3)));
 
-    data->GetArray("MaterialParameters")->GetTuple(cellId, materialParameters);
-    youngModulus.push_back(materialParameters[0]);
+    if (materialParameters)
+      {
+      double parameters[2] = {0};
+      materialParameters->GetTuple(cellId, parameters);
+      youngModulus.push_back(parameters[0]);
+      }
     }
   meshTopology->seqTetrahedra.endEdit();
   return mechanicalMesh;
@@ -713,13 +722,20 @@ void skinMesh(Node *                              parentNode,
 
   // Make sure each vertex has at least one valid associated weight
   // TODO: Normalize weights -> weights[i][*]/weightSum[i]
+  int weightErrorCount = 0;
   for(size_t i = 0; i < weightSum.size(); ++i)
     {
-    if(weightSum[i] == 0)
+    if(weightSum[i] == 0.)
       {
-      std::cerr << "Error: Vertex with zero weight encountered." << std::endl;
-      return;
+      if (++weightErrorCount < 100)
+        {
+        std::cerr << "Error: Vertex " << i << " has no weight." << std::endl;
+        }
       }
+    }
+  if (weightErrorCount)
+    {
+    std::cerr << "-> " << weightErrorCount << " voxels with no weight. " << std::endl;
     }
   boneSkinningMapping->setWeights(weights,indices,nbIds);
 
@@ -884,6 +900,47 @@ void createEulerSolverNode(Node::SPtr         parentNode,
     }
 }
 
+//------------------------------------------------------------------------------
+void initMesh(vtkPolyData* outputPolyData, vtkPolyData* inputPolyData,
+              Node::SPtr anatomicalMesh)
+{
+  MeshTopology *topology = anatomicalMesh->getNodeObject<MeshTopology>();
+  vtkNew<vtkPoints> points;
+  const vtkIdType numberOfPoints = topology->getNbPoints();
+  std::cout << "Number of Points: " << numberOfPoints << std::endl;
+  points->SetNumberOfPoints(numberOfPoints);
+  for (vtkIdType pointId = 0; pointId < numberOfPoints; ++pointId)
+    {
+    points->InsertPoint(pointId, topology->getPX(pointId),
+                        topology->getPY(pointId),
+                        topology->getPZ(pointId));
+    }
+  outputPolyData->SetPoints(points.GetPointer());
+  // Cells
+  vtkNew<vtkCellArray> cells;
+  for (vtkIdType cellId = 0; cellId < topology->getNbTetras(); ++cellId)
+    {
+    const Tetra& t = topology->getTetra(cellId);
+    vtkIdType cell[4];
+    cell[0] = t[0];
+    cell[1] = t[1];
+    cell[2] = t[2];
+    cell[3] = t[3];
+    cells->InsertNextCell(4, cell);
+    }
+  outputPolyData->SetPolys(cells.GetPointer());
+
+  for (int i = 0; i < inputPolyData->GetPointData()->GetNumberOfArrays(); ++i)
+    {
+    outputPolyData->GetPointData()->AddArray(inputPolyData->GetPointData()->GetArray(i));
+    }
+  for (int i = 0; i < inputPolyData->GetCellData()->GetNumberOfArrays(); ++i)
+    {
+    outputPolyData->GetCellData()->AddArray(inputPolyData->GetCellData()->GetArray(i));
+    }
+
+}
+
 int main(int argc, char** argv)
 {
   PARSE_ARGS;
@@ -903,20 +960,35 @@ int main(int argc, char** argv)
   cudaPlugin->pluginName.setValue("SofaCUDA");
 #endif
 
+  if (!IsMeshInRAS)
+    {
+    std::cout<<"Mesh x,y coordinates will be inverted" << std::endl;
+    }
+  if (!IsArmatureInRAS)
+    {
+    std::cout<<"Armature x,y coordinates will be inverted" << std::endl;
+    }
+
+  if (Verbose)
+    {
+    std::cout << "Read data..." << std::endl;
+    }
+
   // Read vtk data
-  vtkSmartPointer<vtkPolyDataReader> armatureReader =
-    vtkPolyDataReader::New();
-  armatureReader->SetFileName(ArmatureFileName.c_str());
-  armatureReader->Update();
+  vtkSmartPointer<vtkPolyData> armature;
+  armature.TakeReference(
+    bender::IOUtils::ReadPolyData(ArmaturePoly.c_str(),!IsArmatureInRAS));
 
-  vtkSmartPointer<vtkPolyDataReader> meshReader = vtkPolyDataReader::New();
-  meshReader->SetFileName(VolumeInput.c_str());
-  meshReader->Update();
+  vtkSmartPointer<vtkPolyData> tetMesh;
+  tetMesh.TakeReference(
+    bender::IOUtils::ReadPolyData(InputTetMesh.c_str(),!IsMeshInRAS));
 
-  vtkSmartPointer<vtkPolyDataReader> surfaceMeshReader =
-    vtkPolyDataReader::New();
-  surfaceMeshReader->SetFileName(SurfaceInput.c_str());
-  surfaceMeshReader->Update();
+  vtkSmartPointer<vtkPolyData> surfaceMesh;
+  if (EnableCollision)
+    {
+    surfaceMesh.TakeReference(
+      bender::IOUtils::ReadPolyData(InputSurface.c_str(),!IsMeshInRAS));
+    }
 
   // Create a scene node
   Node::SPtr sceneNode = root->createChild("BenderSimulation");
@@ -930,7 +1002,7 @@ int main(int argc, char** argv)
   // Create mesh dof
   Vec3Types::VecReal                youngModulus;
   MechanicalObject<Vec3Types>::SPtr posedMesh = loadMesh(
-    anatomicalMesh.get(),meshReader->GetOutput(),youngModulus);
+    anatomicalMesh.get(), tetMesh, youngModulus);
   UniformMass3::SPtr mass = addNew<UniformMass3>(anatomicalMesh.get(),"Mass");
   mass->setTotalMass(100);
 
@@ -938,42 +1010,99 @@ int main(int argc, char** argv)
   sofa::component::misc::VTKExporter::SPtr exporter =
     addNew<sofa::component::misc::VTKExporter>(anatomicalMesh, "vtkExporter");
   exporter->exportAtEnd.setValue(true);
-  exporter->vtkFilename.setValue(OutputSurface);
+  exporter->vtkFilename.setValue(OutputTetMesh);
   exporter->writeTetras.setValue(true);
   exporter->writeEdges.setValue(false);
 
+  if (Verbose)
+    {
+    std::cout << "Create finite element model..." << std::endl;
+    }
   // Finite element method
   createFiniteElementModel(anatomicalMesh.get(),youngModulus);
 
   // Collision node
-  createCollisionNode(anatomicalMesh.get(),
-    surfaceMeshReader->GetOutput(),posedMesh.get());
+  if (EnableCollision)
+    {
+    if (Verbose)
+      {
+      std::cout << "************************************************************"
+                << std::endl;
+      std::cout << "Create collision node..." << std::endl;
+      }
+    createCollisionNode(anatomicalMesh.get(),
+                        surfaceMesh,posedMesh.get());
+    }
+
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Create anatomical map..." << std::endl;
+    }
 
   // Create a constrained articulated frame
   Node::SPtr anatomicalMap = anatomicalMesh->createChild("AnatomicalMap");
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Create articulated frame..." << std::endl;
+    }
+
   MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
     createArticulatedFrame(anatomicalMap.get(),
-      armatureReader->GetOutput(),true);
+      armature,true);
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Skin mesh..." << std::endl;
+    }
   skinMesh(anatomicalMap.get(),articulatedFrame,posedMesh,
-    armatureReader->GetOutput(),meshReader->GetOutput());
+    armature,tetMesh);
 //   mapArticulatedFrameToMesh(anatomicalMap.get(),articulatedFrame,posedMesh);
 
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Init..." << std::endl;
+    }
   // Run simulation time steps
   sofa::simulation::getSimulation()->exportXML(root.get(),"scene.scn");
   sofa::simulation::getSimulation()->init(root.get());
   root->setAnimate(true);
 
+  if (Verbose)
+    {
+    std::cout << "Animate..." << std::endl;
+    }
   // --- Sofa time-stepping loop
   sofa::simulation::getSimulation()->animate(root.get());
 
   const int nbsteps = 3; //int(1/dt);
-  std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
+  if (Verbose)
+    {
+    std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
+    }
   for (unsigned int i=0; i<nbsteps; i++)
     {
     sofa::simulation::getSimulation()->animate(root.get());
-    std::cout << "Iteration: " << i+1 << std::endl;
+    if (Verbose)
+      {
+      std::cout << "Iteration: " << i+1 << std::endl;
+      }
+    }
+  vtkNew<vtkPolyData> posedSurface;
+  initMesh(posedSurface.GetPointer(), tetMesh, anatomicalMesh);
+  bender::IOUtils::WritePolyData(posedSurface.GetPointer(), OutputTetMesh);
+
+  if (Verbose)
+    {
+    std::cout << "Unload..." << std::endl;
     }
   sofa::simulation::getSimulation()->unload(root);
 

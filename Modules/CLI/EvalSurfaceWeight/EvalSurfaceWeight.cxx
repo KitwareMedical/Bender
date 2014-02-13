@@ -101,7 +101,7 @@ public:
   VoxelOffset Offsets[8];
 };
 
-// This function provides a more robust was of getting the voxel coordinates
+// This function provides a more robust way of getting the voxel coordinates
 // by returning the nearest neighbor coordinates if the given point is outside
 // the weight map (Note outside the image itself, not the weight region).
 // This is useful beacause surface sometimes lay outside of the weight images
@@ -355,7 +355,7 @@ int main( int argc, char * argv[] )
     bool res = weightMap.Lerp(coord, w_pi);
     if(!res)
       {
-      std::cout<<"WARNING: Lerp failed for "<< pi
+      std::cerr<<"WARNING: Lerp failed for "<< pi
           << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
           << " w:" << coord<<std::endl;
       }

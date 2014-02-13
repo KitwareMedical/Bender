@@ -12,10 +12,7 @@ class BenderWelcome:
     parent.title = "Bender Welcome"
     parent.categories = [""]
     parent.contributors = ["Johan Andruejol (Kitware)"]
-    parent.helpText = """
-      Welcome module for the Bender application.
-      For more help, take a look at the <a href=http://public.kitware.com/Wiki/Bender>Bender wiki</a>.
-    """
+    parent.helpText = """"""
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
@@ -55,6 +52,20 @@ class BenderWelcomeWidget:
     self.widget = widget;
     self.layout.addWidget(widget)
 
+    # GoTo buttons
+    self.get('GoToSampleDataButton').icon = self.get('GoToSampleDataButton').style().standardIcon(qt.QStyle.SP_ArrowDown)
+    self.get('GoToSampleDataButton').setIconSize(qt.QSize(45,45))
+    self.get('GoToWorkflowMenuButton').icon = self.get('GoToWorkflowMenuButton').style().standardIcon(qt.QStyle.SP_ArrowRight)
+    self.get('GoToWorkflowMenuButton').setIconSize(qt.QSize(45,45))
+
+    self.get('GoToSampleDataButton').connect('clicked()', self.goToSampleDataModule)
+    self.get('GoToWorkflowMenuButton').connect('clicked()', self.goToFEMWorkflowModule)
+
+    workflowMenu = qt.QMenu(self.get('GoToWorkflowMenuButton'))
+    workflowMenu.addAction('Simple Workflow').connect('triggered()', self.goToSimpleWorkflowModule)
+    workflowMenu.addAction('FEM Workflow').connect('triggered()', self.goToFEMWorkflowModule)
+    self.get('GoToWorkflowMenuButton').setMenu(workflowMenu)
+
     # Label image setup
     label = self.get('BenderMarchOfProgressLabel')
     path = os.path.join(scriptedModulesPath, 'Resources', 'Images', '%s.png' %moduleName)
@@ -68,21 +79,16 @@ class BenderWelcomeWidget:
     label.installEventFilter(self.filter)
 
     # Make the background transparent for the ctkFittedTextBrowser
-    textBrowsers = [
-      self.get('WhatBenderFittedTextBrowser'),
-      self.get('AcknowledgementsFittedTextBrowser')
-      ]
-    for w in textBrowsers:
-      p = w.palette
-      p.setColor(p.Base, qt.QColor(0,0,0,0));
-      w.setPalette(p);
+    #textBrowsers = [
+    #  self.get('WhatBenderFittedTextBrowser'),
+    #  self.get('AcknowledgementsFittedTextBrowser')
+    #  ]
+    #for w in textBrowsers:
+    #  p = w.palette
+    #  p.setColor(p.Base, qt.QColor(0,0,0,0));
+    #  w.setPalette(p);
 
     # Connections
-    # NOTE: we could do something based on the sender's name but that would probably
-    # be an overkill
-    self.get('GoToSampleDataButton').connect('clicked()', self.goToSampleDataModule)
-    self.get('GoToSimpleWorkflowButton').connect('clicked()', self.goToSimpleWorkflowModule)
-    self.get('GoToFEMWorkflowButton').connect('clicked()', self.goToFEMWorkflowModule)
 
   def goToSampleDataModule(self):
     slicer.util.selectModule('BenderSampleData')

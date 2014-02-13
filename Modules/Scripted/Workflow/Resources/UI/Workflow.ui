@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>492</width>
-    <height>782</height>
+    <width>869</width>
+    <height>1030</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -249,7 +249,7 @@ p, li { white-space: pre-wrap; }
                <string>Open the &quot;Volumes&quot; module</string>
               </property>
               <property name="text">
-               <string>Go To Volumes</string>
+               <string>Go to Volumes module</string>
               </property>
               <property name="workflow" stdset="0">
                <stringlist>
@@ -358,25 +358,7 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QLabel" name="MergeLabelsInputLabel">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Input labelmap</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
+          <item row="0" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="MergeLabelsInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -397,6 +379,106 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="addEnabled">
              <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <spacer name="horizontalSpacer_6">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
+              <property name="toolTip">
+               <string>Open the &quot;Change Label&quot; module</string>
+              </property>
+              <property name="text">
+               <string>Go to Change Label module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="MergeLabelsApplyPushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="toolTip">
+               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Unify the bone(s) and skin(s) labels of the labelmap into respectively a single bone and skin label.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              </property>
+              <property name="text">
+               <string>Merge labels</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="MergeLabelsLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="MergeLabelsSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="MergeLabelsInputLabel">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Input labelmap</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -457,7 +539,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="1" column="3">
            <widget class="QToolButton" name="MergeLabelsOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -476,7 +558,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="3">
+          <item row="2" column="0" colspan="4">
            <widget class="QTableWidget" name="LabelsTableWidget">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -521,13 +603,13 @@ p, li { white-space: pre-wrap; }
              <string>2</string>
             </property>
             <attribute name="horizontalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <attribute name="horizontalHeaderStretchLastSection">
              <bool>true</bool>
             </attribute>
             <attribute name="verticalHeaderVisible">
-             <bool>true</bool>
+             <bool>false</bool>
             </attribute>
             <row>
              <property name="text">
@@ -601,10 +683,71 @@ p, li { white-space: pre-wrap; }
             </item>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item row="1" column="2">
+           <widget class="QToolButton" name="MergeLabelsOutputNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="PadImageCollapsibleGroupBox">
+         <property name="title">
+          <string>B) Pad image</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_14">
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="PadImageOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>PaddedLabelMap</string>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QSpinBox" name="PadImageThicknessSpinBox">
+            <property name="suffix">
+             <string>px</string>
+            </property>
+            <property name="value">
+             <number>2</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_15">
             <item>
-             <spacer name="horizontalSpacer_6">
+             <spacer name="horizontalSpacer_10">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -617,12 +760,9 @@ p, li { white-space: pre-wrap; }
              </spacer>
             </item>
             <item>
-             <widget class="QPushButton" name="MergeLabelsGoToModulePushButton">
-              <property name="toolTip">
-               <string>Open the &quot;Change Label&quot; module</string>
-              </property>
+             <widget class="QPushButton" name="PadImageGoToModulePushButton">
               <property name="text">
-               <string>Go To Change Label</string>
+               <string>Go to Pad Image module</string>
               </property>
               <property name="workflow" stdset="0">
                <stringlist>
@@ -632,22 +772,9 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="MergeLabelsApplyPushButton">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="toolTip">
-               <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Unify the bone(s) and skin(s) labels of the labelmap into respectively a single bone and skin label.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-              </property>
+             <widget class="QPushButton" name="PadImageApplyPushButton">
               <property name="text">
-               <string>Merge labels</string>
+               <string>Pad Image</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -655,7 +782,19 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="MergeLabelsSaveToolButton">
+             <widget class="QToolButton" name="PadImageLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="PadImageSaveToolButton">
               <property name="enabled">
                <bool>false</bool>
               </property>
@@ -671,18 +810,35 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="0" colspan="2">
-        <widget class="ctkCollapsibleGroupBox" name="PadImageCollapsibleGroupBox">
-         <property name="title">
-          <string>B) Pad image</string>
-         </property>
-         <property name="collapsed">
-          <bool>true</bool>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_14">
+          <item row="3" column="1" colspan="3">
+           <widget class="QSpinBox" name="PadImageValueSpinBox">
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="qMRMLNodeComboBox" name="PadImageInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>InputLabelMap</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="PadImageOutputLabel">
             <property name="text">
@@ -720,27 +876,6 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="PadImageOutputNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="baseName">
-             <string>PaddedLabelMap</string>
-            </property>
-            <property name="renameEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>1</string>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="PadImageInputLabel">
             <property name="text">
@@ -753,7 +888,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="1" column="3">
            <widget class="QToolButton" name="PadImageOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -769,103 +904,18 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="qMRMLNodeComboBox" name="PadImageInputNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="baseName">
-             <string>InputLabelMap</string>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="PadImageOutputNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
+              <string>1</string>
               <string>2</string>
              </stringlist>
             </property>
            </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QSpinBox" name="PadImageValueSpinBox">
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1" colspan="2">
-           <widget class="QSpinBox" name="PadImageThicknessSpinBox">
-            <property name="suffix">
-             <string>px</string>
-            </property>
-            <property name="value">
-             <number>2</number>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0" colspan="3">
-           <layout class="QHBoxLayout" name="horizontalLayout_15">
-            <item>
-             <spacer name="horizontalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="PadImageGoToModulePushButton">
-              <property name="text">
-               <string>Go To Pad Image</string>
-              </property>
-              <property name="workflow" stdset="0">
-               <stringlist>
-                <string>2</string>
-               </stringlist>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="PadImageApplyPushButton">
-              <property name="text">
-               <string>Pad Image</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="PadImageSaveToolButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="workflow" stdset="0">
-               <stringlist>
-                <string>0</string>
-               </stringlist>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </item>
          </layout>
         </widget>
@@ -901,28 +951,6 @@ p, li { white-space: pre-wrap; }
           <string>A) Create mesh</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="CreateMeshInputLabel">
-            <property name="text">
-             <string>Merge labelmap</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <string>2</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="qMRMLNodeComboBox" name="CreateMeshInputNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="workflow" stdset="0">
-             <string>2</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="CreateMeshOutputLabel">
             <property name="text">
@@ -930,6 +958,16 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="workflow" stdset="0">
              <string>1;2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="CreateMeshInputLabel">
+            <property name="text">
+             <string>Merge labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
             </property>
            </widget>
           </item>
@@ -951,7 +989,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="2">
+          <item row="1" column="3">
            <widget class="QToolButton" name="CreateMeshOutputToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -964,7 +1002,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item row="3" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <spacer name="horizontalSpacer">
@@ -982,7 +1020,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="CreateMeshGoToButton">
               <property name="text">
-               <string>Go To Create tetrahedral mesh</string>
+               <string>Go to Create Tetrahedral Mesh module</string>
               </property>
               <property name="workflow" stdset="0">
                <string>2</string>
@@ -992,7 +1030,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="CreateMeshPushButton">
               <property name="text">
-               <string>Create Mesh</string>
+               <string>Generate mesh</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -1000,9 +1038,27 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="CreateMeshLoadToolButton">
+              <property name="toolTip">
+               <string>Load the generated mesh from file.</string>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="CreateMeshToolButton">
               <property name="enabled">
                <bool>false</bool>
+              </property>
+              <property name="toolTip">
+               <string>Save the generated mesh</string>
               </property>
               <property name="text">
                <string>...</string>
@@ -1026,13 +1082,38 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
+          <item row="2" column="1" colspan="3">
            <widget class="QCheckBox" name="CreateMeshPadImageCheckBox">
             <property name="text">
              <string/>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="qMRMLNodeComboBox" name="CreateMeshInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="workflow" stdset="0">
+             <string>2</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="CreateMeshOutputLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
               <string>2</string>
              </stringlist>
             </property>
@@ -1047,10 +1128,72 @@ p, li { white-space: pre-wrap; }
           <string>B) Extract bone mesh</string>
          </property>
          <property name="collapsed">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="1" colspan="2">
+          <item row="3" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractBoneGoToPushButton">
+              <property name="text">
+               <string>Go to Volume Material Extractor module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>2</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ExtractBonePushButton">
+              <property name="text">
+               <string>Extract bone model</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ExtractBoneLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ExtractBoneToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="ExtractBoneInputComboBox">
             <property name="nodeTypes">
              <stringlist>
@@ -1080,7 +1223,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="2" column="3">
            <widget class="QToolButton" name="ExtractBoneOutputToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -1113,7 +1256,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="1" column="1" colspan="3">
            <widget class="QSpinBox" name="ExtractBoneMaterialSpinBox">
             <property name="maximum">
              <number>255</number>
@@ -1133,55 +1276,18 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
-           <layout class="QHBoxLayout" name="horizontalLayout_3">
-            <item>
-             <spacer name="horizontalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="ExtractBoneGoToPushButton">
-              <property name="text">
-               <string>Go To Volume material extractor</string>
-              </property>
-              <property name="workflow" stdset="0">
-               <string>2</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="ExtractBonePushButton">
-              <property name="text">
-               <string>Extract bone</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="ExtractBoneToolButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>...</string>
-              </property>
-              <property name="workflow" stdset="0">
-               <string>0</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="ExtractBoneOutputLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -1198,10 +1304,10 @@ p, li { white-space: pre-wrap; }
           <string>C) Skin model maker</string>
          </property>
          <property name="collapsed">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_17">
-          <item row="3" column="2">
+          <item row="3" column="3">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -1220,7 +1326,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0" colspan="3">
+          <item row="4" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
              <spacer name="horizontalSpacer_19">
@@ -1241,7 +1347,7 @@ p, li { white-space: pre-wrap; }
                <string>Open the &quot;Models&quot; module</string>
               </property>
               <property name="text">
-               <string>Go To Models</string>
+               <string>Go to Models module</string>
               </property>
               <property name="workflow" stdset="0">
                <stringlist>
@@ -1256,7 +1362,7 @@ p, li { white-space: pre-wrap; }
                <string>Open the &quot;Skin Model Maker&quot; module</string>
               </property>
               <property name="text">
-               <string>Go To Skin Model Maker</string>
+               <string>Go to Skin Model Maker module</string>
               </property>
               <property name="workflow" stdset="0">
                <stringlist>
@@ -1298,10 +1404,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Create the skin surface model using skin label and the input labelmap&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Generate skin model</string>
+               <string>Extract skin model</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="SkinModelMakerLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -1322,7 +1440,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="1" column="1" colspan="3">
            <widget class="QSpinBox" name="SkinModelMakerBackgroundLabelSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1338,7 +1456,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
+          <item row="2" column="1" colspan="3">
            <widget class="QSpinBox" name="SkinModelMakerSkinLabelSpinBox">
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1378,7 +1496,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
+          <item row="0" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="SkinModelMakerInputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1496,6 +1614,19 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="SkinModelMakerOutputNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
@@ -1568,7 +1699,51 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="4">
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="ArmaturesArmatureNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLArmatureNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>Armature</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QToolButton" name="ArmaturesArmatureSaveToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save  to file the current armature.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="ctkComboBox" name="ArmaturesPresetComboBox">
+            <property name="sizeAdjustPolicy">
+             <enum>QComboBox::AdjustToContents</enum>
+            </property>
+            <property name="duplicatesEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="defaultText">
+             <string>Select a Preset</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" colspan="5">
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
              <spacer name="horizontalSpacer_4">
@@ -1614,47 +1789,10 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="ArmaturesArmatureNodeComboBox">
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLArmatureNode</string>
-             </stringlist>
-            </property>
-            <property name="baseName">
-             <string>Armature</string>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="renameEnabled">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="3">
-           <widget class="QToolButton" name="ArmaturesArmatureSaveToolButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Save  to file the current armature.</string>
-            </property>
+           <widget class="QToolButton" name="ArmaturesArmatureLoadToolButton">
             <property name="text">
              <string>...</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="ctkComboBox" name="ArmaturesPresetComboBox">
-            <property name="sizeAdjustPolicy">
-             <enum>QComboBox::AdjustToContents</enum>
-            </property>
-            <property name="duplicatesEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="defaultText">
-             <string>Select a Preset</string>
             </property>
            </widget>
           </item>
@@ -1711,36 +1849,6 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="VolumeSkinningInputVolumeNodeComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Select the input volume to apply skinning on</string>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLScalarVolumeNode</string>
-             </stringlist>
-            </property>
-            <property name="showHidden">
-             <bool>false</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="selectNodeUponCreation">
-             <bool>true</bool>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>1</string>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="VolumeSkinningArmatureLabel">
             <property name="text">
@@ -1753,7 +1861,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="1" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="VolumeSkinningAmartureNodeComboBox">
             <property name="toolTip">
              <string>Select the armature that will determine the skinning</string>
@@ -1822,7 +1930,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item row="3" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_8">
             <item>
              <spacer name="horizontalSpacer_7">
@@ -1862,10 +1970,22 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Attribute each voxel of the input volume to a bone of the armature&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Skin Volume</string>
+               <string>Skin volume</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="VolumeSkinningLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -1886,7 +2006,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QToolButton" name="VolumeSkinningInputVolumeNodeToolButton">
             <property name="toolTip">
              <string>Load the volume containing the merged bones.</string>
@@ -1902,7 +2022,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="2" column="3">
            <widget class="QToolButton" name="VolumeSkinningOutputVolumeNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -1912,6 +2032,49 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="text">
              <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="VolumeSkinningOutputVolumeNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="VolumeSkinningInputVolumeNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Select the input volume to apply skinning on</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -1931,6 +2094,9 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="checked">
           <bool>false</bool>
+         </property>
+         <property name="collapsed">
+          <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_15">
           <item row="0" column="0">
@@ -1969,6 +2135,18 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="EditSkinnedVolumeLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="EditSkinnedVolumeSaveToolButton">
               <property name="enabled">
                <bool>false</bool>
@@ -2001,7 +2179,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QToolButton" name="EditSkinnedVolumeNodeToolButton">
+           <widget class="QToolButton" name="EditSkinnedVolumeNodeLoadToolButton">
             <property name="toolTip">
              <string>Load the edited &quot;skinned&quot; volume.</string>
             </property>
@@ -2329,7 +2507,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;How far (in voxel units) outside the body the weights region will be computed&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="value">
-             <number>0</number>
+             <number>2</number>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -2514,6 +2692,53 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
+          <item row="1" column="1" colspan="3">
+           <widget class="ctkPathLineEdit" name="EvalSurfaceWeightWeightPathLineEdit">
+            <property name="filters">
+             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QToolButton" name="EvalSurfaceWeightInputNodeToolButton">
+            <property name="toolTip">
+             <string>Load the surface model to pose.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3">
+           <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Save to file the pre-posed surface model.</string>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
@@ -2545,7 +2770,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item row="3" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <item>
              <spacer name="horizontalSpacer_17">
@@ -2593,6 +2818,18 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="EvalSurfaceWeightLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="EvalSurfaceWeightSaveToolButton">
               <property name="enabled">
                <bool>false</bool>
@@ -2609,42 +2846,8 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="ctkPathLineEdit" name="EvalSurfaceWeightWeightPathLineEdit">
-            <property name="filters">
-             <set>ctkPathLineEdit::Dirs|ctkPathLineEdit::Drives|ctkPathLineEdit::Readable|ctkPathLineEdit::Writable</set>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QToolButton" name="EvalSurfaceWeightInputNodeToolButton">
-            <property name="toolTip">
-             <string>Load the surface model to pose.</string>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>1</string>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="2">
-           <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeToolButton">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Save to file the pre-posed surface model.</string>
-            </property>
+           <widget class="QToolButton" name="EvalSurfaceWeightOutputNodeLoadToolButton">
             <property name="text">
              <string>...</string>
             </property>
@@ -2674,67 +2877,6 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_20">
-          <item row="0" column="0">
-           <widget class="QLabel" name="MaterialReaderInputMeshLabel">
-            <property name="text">
-             <string>Tetrahedral mesh</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="qMRMLNodeComboBox" name="MaterialReaderInputMeshNodeComboBox">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="toolTip">
-             <string>Select the input mesh to apply the material properties on</string>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLModelNode</string>
-             </stringlist>
-            </property>
-            <property name="showHidden">
-             <bool>false</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="selectNodeUponCreation">
-             <bool>true</bool>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="MaterialReaderFileLabel">
-            <property name="text">
-             <string>Material file</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="MaterialReaderOutputMeshLabel">
-            <property name="text">
-             <string>Output mesh</string>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>1</string>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1">
            <widget class="qMRMLNodeComboBox" name="MaterialReaderOutputMeshNodeComboBox">
             <property name="toolTip">
@@ -2765,7 +2907,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0" colspan="3">
+          <item row="3" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_19">
             <item>
              <spacer name="horizontalSpacer_22">
@@ -2809,6 +2951,18 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="MaterialReaderLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QToolButton" name="MaterialReaderSaveToolButton">
               <property name="enabled">
                <bool>false</bool>
@@ -2828,7 +2982,7 @@ p, li { white-space: pre-wrap; }
             </item>
            </layout>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QToolButton" name="MaterialReaderInputMeshNodeToolButton">
             <property name="toolTip">
              <string>Load the tetrahedral mesh.</string>
@@ -2843,7 +2997,49 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
+          <item row="0" column="1">
+           <widget class="qMRMLNodeComboBox" name="MaterialReaderInputMeshNodeComboBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="toolTip">
+             <string>Select the input mesh to apply the material properties on</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="showHidden">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="selectNodeUponCreation">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="MaterialReaderOutputMeshLabel">
+            <property name="text">
+             <string>Output mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="3">
            <widget class="ctkPathLineEdit" name="MaterialReaderFileLineEdit">
             <property name="enabled">
              <bool>true</bool>
@@ -2871,7 +3067,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="2">
+          <item row="2" column="3">
            <widget class="QToolButton" name="MaterialReaderOutputMeshNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -2879,6 +3075,38 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>Save to file the mesh with material properties volume.</string>
             </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="MaterialReaderInputMeshLabel">
+            <property name="text">
+             <string>Tetrahedral mesh</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="MaterialReaderFileLabel">
+            <property name="text">
+             <string>Material file</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QToolButton" name="MaterialReaderOutputMeshNodeLoadToolButton">
             <property name="text">
              <string>...</string>
             </property>
@@ -3035,7 +3263,7 @@ p, li { white-space: pre-wrap; }
            </widget>
           </item>
           <item row="0" column="2">
-           <widget class="QToolButton" name="PoseArmatureArmatureNodeToolButton">
+           <widget class="QToolButton" name="PoseArmatureArmatureNodeLoadToolButton">
             <property name="text">
              <string>...</string>
             </property>
@@ -3059,7 +3287,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Simulate Pose</string>
+          <string>B) Simulate pose</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -3074,7 +3302,7 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Input surface</string>
+             <string>Input mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3083,7 +3311,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
+          <item row="0" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="SimulatePoseArmatureInputNodeComboBox">
             <property name="toolTip">
              <string>Select the posed armature</string>
@@ -3127,42 +3355,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="qMRMLNodeComboBox" name="SimulatePoseInputNodeComboBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="toolTip">
-             <string>Select the input surface that will be posed</string>
-            </property>
-            <property name="nodeTypes">
-             <stringlist>
-              <string>vtkMRMLModelNode</string>
-             </stringlist>
-            </property>
-            <property name="baseName">
-             <string/>
-            </property>
-            <property name="noneEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="addEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="removeEnabled">
-             <bool>true</bool>
-            </property>
-            <property name="workflow" stdset="0">
-             <stringlist>
-              <string>2</string>
-             </stringlist>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
+          <item row="1" column="3">
            <widget class="QToolButton" name="SimulatePoseInputNodeToolButton">
             <property name="toolTip">
              <string>Load the surface model to pose.</string>
@@ -3186,7 +3379,7 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Output surface</string>
+             <string>Output mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3196,7 +3389,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="3">
+          <item row="6" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -3236,10 +3429,34 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Pose the surface using the posed armature. If the checkox is checked, the module will run in background and update the output surface everytime the armature is changed&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Simulate Pose</string>
+               <string>Simulate pose</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="SimulatePoseLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="SimulatePoseSaveToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
               </property>
              </widget>
             </item>
@@ -3287,7 +3504,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="3" column="3">
            <widget class="QToolButton" name="SimulatePoseOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -3306,7 +3523,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
+          <item row="2" column="1" colspan="3">
            <widget class="qMRMLNodeComboBox" name="SimulatePoseSkinComboBox">
             <property name="nodeTypes">
              <stringlist>
@@ -3318,6 +3535,80 @@ p, li { white-space: pre-wrap; }
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QToolButton" name="SimulatePoseOutputNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="qMRMLNodeComboBox" name="SimulatePoseInputNodeComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>Select the input surface that will be posed</string>
+            </property>
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLModelNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string/>
+            </property>
+            <property name="noneEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="removeEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="SimulatePoseCollisionLabel">
+            <property name="text">
+             <string>Enable Collision</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QCheckBox" name="SimulatePoseCollisionCheckBox">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
               <string>2</string>
              </stringlist>
             </property>
@@ -3752,10 +4043,9 @@ p, li { white-space: pre-wrap; }
  </widget>
  <customwidgets>
   <customwidget>
-   <class>qMRMLLabelComboBox</class>
-   <extends>qMRMLWidget</extends>
-   <header>qMRMLLabelComboBox.h</header>
-   <container>1</container>
+   <class>qMRMLCheckableNodeComboBox</class>
+   <extends>qMRMLNodeComboBox</extends>
+   <header>qMRMLCheckableNodeComboBox.h</header>
   </customwidget>
   <customwidget>
    <class>qMRMLNodeComboBox</class>
@@ -3772,11 +4062,6 @@ p, li { white-space: pre-wrap; }
    <class>qSlicerCLIProgressBar</class>
    <extends>QWidget</extends>
    <header>qSlicerCLIProgressBar.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ctkCheckablePushButton</class>
-   <extends>QPushButton</extends>
-   <header>ctkCheckablePushButton.h</header>
   </customwidget>
   <customwidget>
    <class>ctkCheckBox</class>
@@ -3815,11 +4100,6 @@ p, li { white-space: pre-wrap; }
    <extends>QWidget</extends>
    <header>ctkPathLineEdit.h</header>
   </customwidget>
-  <customwidget>
-   <class>qMRMLCheckableNodeComboBox</class>
-   <extends>qMRMLNodeComboBox</extends>
-   <header>qMRMLCheckableNodeComboBox.h</header>
-  </customwidget>
  </customwidgets>
  <resources/>
  <connections>
@@ -3834,8 +4114,8 @@ p, li { white-space: pre-wrap; }
      <y>9</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>230</x>
+     <y>163</y>
     </hint>
    </hints>
   </connection>
@@ -3850,8 +4130,8 @@ p, li { white-space: pre-wrap; }
      <y>377</y>
     </hint>
     <hint type="destinationlabel">
-     <x>194</x>
-     <y>130</y>
+     <x>325</x>
+     <y>199</y>
     </hint>
    </hints>
   </connection>
@@ -3866,8 +4146,8 @@ p, li { white-space: pre-wrap; }
      <y>584</y>
     </hint>
     <hint type="destinationlabel">
-     <x>450</x>
-     <y>139</y>
+     <x>523</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -3882,8 +4162,8 @@ p, li { white-space: pre-wrap; }
      <y>585</y>
     </hint>
     <hint type="destinationlabel">
-     <x>450</x>
-     <y>113</y>
+     <x>523</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -3894,12 +4174,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>450</x>
-     <y>113</y>
+     <x>523</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>99</x>
-     <y>91</y>
+     <x>230</x>
+     <y>163</y>
     </hint>
    </hints>
   </connection>
@@ -3914,8 +4194,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>468</x>
-     <y>675</y>
+     <x>674</x>
+     <y>943</y>
     </hint>
    </hints>
   </connection>
@@ -3930,8 +4210,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>468</x>
-     <y>675</y>
+     <x>513</x>
+     <y>939</y>
     </hint>
    </hints>
   </connection>
@@ -3946,8 +4226,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>130</y>
+     <x>396</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -3962,8 +4242,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>156</y>
+     <x>396</x>
+     <y>203</y>
     </hint>
    </hints>
   </connection>
@@ -3978,8 +4258,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>104</y>
+     <x>396</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -3994,8 +4274,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>130</y>
+     <x>305</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -4010,8 +4290,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>156</y>
+     <x>305</x>
+     <y>203</y>
     </hint>
    </hints>
   </connection>
@@ -4026,8 +4306,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>104</y>
+     <x>305</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -4038,12 +4318,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>104</y>
+     <x>396</x>
+     <y>131</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>104</y>
+     <x>305</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -4058,8 +4338,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>227</x>
-     <y>272</y>
+     <x>207</x>
+     <y>361</y>
     </hint>
    </hints>
   </connection>
@@ -4074,8 +4354,8 @@ p, li { white-space: pre-wrap; }
      <y>319</y>
     </hint>
     <hint type="destinationlabel">
-     <x>260</x>
-     <y>220</y>
+     <x>207</x>
+     <y>289</y>
     </hint>
    </hints>
   </connection>
@@ -4086,12 +4366,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>130</y>
+     <x>396</x>
+     <y>167</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>130</y>
+     <x>305</x>
+     <y>167</y>
     </hint>
    </hints>
   </connection>
@@ -4102,12 +4382,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>194</x>
-     <y>130</y>
+     <x>325</x>
+     <y>493</y>
     </hint>
     <hint type="destinationlabel">
-     <x>225</x>
-     <y>104</y>
+     <x>396</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -4122,8 +4402,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>216</x>
-     <y>324</y>
+     <x>256</x>
+     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -4138,8 +4418,8 @@ p, li { white-space: pre-wrap; }
      <y>379</y>
     </hint>
     <hint type="destinationlabel">
-     <x>216</x>
-     <y>376</y>
+     <x>256</x>
+     <y>570</y>
     </hint>
    </hints>
   </connection>
@@ -4151,11 +4431,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>322</x>
-     <y>615</y>
+     <y>869</y>
     </hint>
     <hint type="destinationlabel">
      <x>327</x>
-     <y>687</y>
+     <y>996</y>
     </hint>
    </hints>
   </connection>
@@ -4166,12 +4446,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>216</x>
-     <y>324</y>
+     <x>256</x>
+     <y>498</y>
     </hint>
     <hint type="destinationlabel">
-     <x>216</x>
-     <y>376</y>
+     <x>256</x>
+     <y>570</y>
     </hint>
    </hints>
   </connection>
@@ -4186,8 +4466,8 @@ p, li { white-space: pre-wrap; }
      <y>224</y>
     </hint>
     <hint type="destinationlabel">
-     <x>107</x>
-     <y>104</y>
+     <x>99</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -4202,8 +4482,8 @@ p, li { white-space: pre-wrap; }
      <y>262</y>
     </hint>
     <hint type="destinationlabel">
-     <x>160</x>
-     <y>113</y>
+     <x>243</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -4214,12 +4494,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>113</y>
+     <x>243</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>481</x>
-     <y>112</y>
+     <x>838</x>
+     <y>141</y>
     </hint>
    </hints>
   </connection>
@@ -4230,12 +4510,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>160</x>
-     <y>113</y>
+     <x>243</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>107</x>
-     <y>104</y>
+     <x>99</x>
+     <y>109</y>
     </hint>
    </hints>
   </connection>
@@ -4246,12 +4526,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>104</y>
+     <x>99</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>481</x>
-     <y>103</y>
+     <x>853</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -4262,12 +4542,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>107</x>
-     <y>104</y>
+     <x>99</x>
+     <y>109</y>
     </hint>
     <hint type="destinationlabel">
-     <x>654</x>
-     <y>147</y>
+     <x>852</x>
+     <y>168</y>
     </hint>
    </hints>
   </connection>
@@ -4282,8 +4562,8 @@ p, li { white-space: pre-wrap; }
      <y>16</y>
     </hint>
     <hint type="destinationlabel">
-     <x>189</x>
-     <y>246</y>
+     <x>435</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -4294,12 +4574,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>225</x>
-     <y>156</y>
+     <x>396</x>
+     <y>203</y>
     </hint>
     <hint type="destinationlabel">
-     <x>189</x>
-     <y>246</y>
+     <x>435</x>
+     <y>331</y>
     </hint>
    </hints>
   </connection>
@@ -4310,12 +4590,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>246</y>
+     <x>385</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
-     <x>220</x>
-     <y>156</y>
+     <x>305</x>
+     <y>203</y>
     </hint>
    </hints>
   </connection>
@@ -4326,12 +4606,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>330</x>
-     <y>103</y>
+     <x>403</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>341</x>
-     <y>161</y>
+     <x>612</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -4342,12 +4622,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>235</x>
-     <y>106</y>
+     <x>308</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
-     <x>243</x>
-     <y>167</y>
+     <x>448</x>
+     <y>221</y>
     </hint>
    </hints>
   </connection>
@@ -4358,12 +4638,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>253</y>
+     <x>852</x>
+     <y>391</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>120</y>
+     <x>853</x>
+     <y>197</y>
     </hint>
    </hints>
   </connection>
@@ -4374,12 +4654,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>654</x>
-     <y>147</y>
+     <x>852</x>
+     <y>168</y>
     </hint>
     <hint type="destinationlabel">
-     <x>658</x>
-     <y>114</y>
+     <x>853</x>
+     <y>129</y>
     </hint>
    </hints>
   </connection>
@@ -4390,12 +4670,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>655</x>
-     <y>316</y>
+     <x>852</x>
+     <y>368</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>560</y>
+     <x>853</x>
+     <y>329</y>
     </hint>
    </hints>
   </connection>
@@ -4410,8 +4690,8 @@ p, li { white-space: pre-wrap; }
      <y>418</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>103</y>
+     <x>410</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -4426,8 +4706,8 @@ p, li { white-space: pre-wrap; }
      <y>418</y>
     </hint>
     <hint type="destinationlabel">
-     <x>270</x>
-     <y>129</y>
+     <x>394</x>
+     <y>179</y>
     </hint>
    </hints>
   </connection>
@@ -4438,12 +4718,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>158</y>
+     <x>837</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>129</y>
+     <x>838</x>
+     <y>177</y>
     </hint>
    </hints>
   </connection>
@@ -4454,12 +4734,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>272</x>
-     <y>120</y>
+     <x>403</x>
+     <y>493</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>103</y>
+     <x>410</x>
+     <y>143</y>
     </hint>
    </hints>
   </connection>
@@ -4474,8 +4754,8 @@ p, li { white-space: pre-wrap; }
      <y>372</y>
     </hint>
     <hint type="destinationlabel">
-     <x>281</x>
-     <y>219</y>
+     <x>391</x>
+     <y>308</y>
     </hint>
    </hints>
   </connection>
@@ -4490,8 +4770,8 @@ p, li { white-space: pre-wrap; }
      <y>372</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>271</y>
+     <x>375</x>
+     <y>379</y>
     </hint>
    </hints>
   </connection>
@@ -4502,12 +4782,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>129</y>
+     <x>394</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>281</x>
-     <y>219</y>
+     <x>391</x>
+     <y>308</y>
     </hint>
    </hints>
   </connection>
@@ -4518,12 +4798,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>300</y>
+     <x>837</x>
+     <y>419</y>
     </hint>
     <hint type="destinationlabel">
-     <x>460</x>
-     <y>271</y>
+     <x>838</x>
+     <y>380</y>
     </hint>
    </hints>
   </connection>
@@ -4534,12 +4814,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>283</x>
-     <y>418</y>
+     <x>256</x>
+     <y>570</y>
     </hint>
     <hint type="destinationlabel">
-     <x>274</x>
-     <y>508</y>
+     <x>233</x>
+     <y>692</y>
     </hint>
    </hints>
   </connection>
@@ -4554,8 +4834,8 @@ p, li { white-space: pre-wrap; }
      <y>390</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>233</x>
+     <y>692</y>
     </hint>
    </hints>
   </connection>
@@ -4570,8 +4850,8 @@ p, li { white-space: pre-wrap; }
      <y>390</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>233</x>
+     <y>764</y>
     </hint>
    </hints>
   </connection>
@@ -4582,12 +4862,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>129</y>
+     <x>394</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>233</x>
+     <y>692</y>
     </hint>
    </hints>
   </connection>
@@ -4598,12 +4878,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>76</y>
+     <x>173</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>256</x>
+     <y>498</y>
     </hint>
    </hints>
   </connection>
@@ -4614,12 +4894,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>270</x>
-     <y>129</y>
+     <x>394</x>
+     <y>179</y>
     </hint>
     <hint type="destinationlabel">
-     <x>283</x>
-     <y>210</y>
+     <x>207</x>
+     <y>289</y>
     </hint>
    </hints>
   </connection>
@@ -4634,8 +4914,8 @@ p, li { white-space: pre-wrap; }
      <y>372</y>
     </hint>
     <hint type="destinationlabel">
-     <x>285</x>
-     <y>184</y>
+     <x>207</x>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -4646,12 +4926,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>76</y>
+     <x>233</x>
+     <y>692</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>233</x>
+     <y>764</y>
     </hint>
    </hints>
   </connection>
@@ -4666,8 +4946,8 @@ p, li { white-space: pre-wrap; }
      <y>390</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>192</x>
+     <y>507</y>
     </hint>
    </hints>
   </connection>
@@ -4682,8 +4962,8 @@ p, li { white-space: pre-wrap; }
      <y>390</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>192</x>
+     <y>613</y>
     </hint>
    </hints>
   </connection>
@@ -4694,12 +4974,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>49</x>
-     <y>76</y>
+     <x>180</x>
+     <y>493</y>
     </hint>
     <hint type="destinationlabel">
-     <x>49</x>
-     <y>76</y>
+     <x>192</x>
+     <y>507</y>
     </hint>
    </hints>
   </connection>
@@ -4714,8 +4994,8 @@ p, li { white-space: pre-wrap; }
      <y>390</y>
     </hint>
     <hint type="destinationlabel">
-     <x>285</x>
-     <y>236</y>
+     <x>207</x>
+     <y>325</y>
     </hint>
    </hints>
   </connection>
@@ -4726,12 +5006,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>99</x>
-     <y>102</y>
+     <x>242</x>
+     <y>613</y>
     </hint>
     <hint type="destinationlabel">
-     <x>90</x>
-     <y>102</y>
+     <x>207</x>
+     <y>325</y>
     </hint>
    </hints>
   </connection>
@@ -4746,8 +5026,8 @@ p, li { white-space: pre-wrap; }
      <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>417</x>
-     <y>154</y>
+     <x>548</x>
+     <y>493</y>
     </hint>
    </hints>
   </connection>
@@ -4762,8 +5042,8 @@ p, li { white-space: pre-wrap; }
      <y>169</y>
     </hint>
     <hint type="destinationlabel">
-     <x>529</x>
-     <y>116</y>
+     <x>660</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -4774,12 +5054,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>680</x>
-     <y>247</y>
+     <x>852</x>
+     <y>603</y>
     </hint>
     <hint type="destinationlabel">
-     <x>684</x>
-     <y>149</y>
+     <x>853</x>
+     <y>494</y>
     </hint>
    </hints>
   </connection>
@@ -4790,12 +5070,12 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>156</y>
+     <x>534</x>
+     <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>418</x>
-     <y>411</y>
+     <x>549</x>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -4806,12 +5086,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>537</y>
+     <x>852</x>
+     <y>801</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>509</y>
+     <x>853</x>
+     <y>762</y>
     </hint>
    </hints>
   </connection>
@@ -4822,12 +5102,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>378</y>
+     <x>837</x>
+     <y>653</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>349</y>
+     <x>838</x>
+     <y>614</y>
     </hint>
    </hints>
   </connection>
@@ -4838,12 +5118,12 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>175</y>
+     <x>837</x>
+     <y>240</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>146</y>
+     <x>838</x>
+     <y>201</y>
     </hint>
    </hints>
   </connection>
@@ -4854,12 +5134,188 @@ p, li { white-space: pre-wrap; }
    <slot>click()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>447</y>
+     <x>852</x>
+     <y>607</y>
     </hint>
     <hint type="destinationlabel">
-     <x>469</x>
-     <y>418</y>
+     <x>853</x>
+     <y>568</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CreateMeshLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>CreateMeshOutputLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>798</x>
+     <y>226</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>803</x>
+     <y>165</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExtractBoneLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ExtractBoneOutputLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>804</x>
+     <y>432</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>804</x>
+     <y>396</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SkinModelMakerLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SkinModelMakerOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>805</x>
+     <y>658</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>805</x>
+     <y>621</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>VolumeSkinningLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>VolumeSkinningOutputVolumeNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>798</x>
+     <y>230</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>803</x>
+     <y>193</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EvalSurfaceWeightLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>EvalSurfaceWeightOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>817</x>
+     <y>607</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>816</x>
+     <y>568</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SimulatePoseLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SimulatePoseOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>817</x>
+     <y>398</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>816</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>SimulatePoseSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>SimulatePoseOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>852</x>
+     <y>398</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>853</x>
+     <y>359</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MergeLabelsLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MergeLabelsOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>800</x>
+     <y>375</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>808</x>
+     <y>191</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>EditSkinnedVolumeLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>EditSkinnedVolumeNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>807</x>
+     <y>352</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>806</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PadImageLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PadImageOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>802</x>
+     <y>610</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>803</x>
+     <y>507</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>MaterialReaderLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MaterialReaderOutputMeshNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>802</x>
+     <y>782</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>803</x>
+     <y>748</y>
     </hint>
    </hints>
   </connection>

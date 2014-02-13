@@ -28,18 +28,18 @@
       <index>1</index>
     </geometry>
     <geometry fileExtensions=".vtk">
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <longflag>--armature</longflag>
+      <description><![CDATA[Optional armature file. It used if MaximumParenthoodDistance > 0]]></description>
+    </geometry>
+
+    <geometry fileExtensions=".vtk">
       <name>OutputSurface</name>
       <label>Weighted Surface</label>
       <description><![CDATA[The same as the <b>Input Surface</b> but with the weight vectors stored as point data.]]></description>
       <channel>output</channel>
       <index>2</index>
-    </geometry>
-
-    <geometry>
-      <name>ArmaturePoly</name>
-      <label>Armature</label>
-      <longflag>--armature</longflag>
-      <description><![CDATA[Optional armature file. It used if MaximumParenthoodDistance > 0]]></description>
     </geometry>
 
   </parameters>
