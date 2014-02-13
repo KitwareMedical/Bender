@@ -87,7 +87,6 @@ if(NOT DEFINED ${proj}_DIR)
     GIT_REPOSITORY "git://public.kitware.com/Bender/SOFA.git"
     GIT_TAG "d1d5775fefefd472a2f6b48ceb06a4c3626269d7"
     INSTALL_COMMAND ""
-    UPDATE_COMMAND ""
     CMAKE_GENERATOR ${gen}
     LIST_SEPARATOR &&
     CMAKE_ARGS
