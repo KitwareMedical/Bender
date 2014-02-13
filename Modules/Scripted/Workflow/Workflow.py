@@ -304,6 +304,8 @@ class WorkflowWidget:
     #    - Icons
     self.get('SimulatePoseInputNodeToolButton').icon = loadIcon
     self.get('SimulatePoseOutputNodeLoadToolButton').icon = loadIcon
+    self.get('SimulatePoseLoadToolButton').icon = loadIcon
+    self.get('SimulatePoseSaveToolButton').icon = saveIcon
     self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
     #    - Signals/Slots
     self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
