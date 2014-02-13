@@ -230,6 +230,9 @@ p, li { white-space: pre-wrap; }
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Open a &lt;span style=&quot; font-weight:600;&quot;&gt;Workflow&lt;/span&gt; module. It will guide through all the necessary steps to reposition an anatomical volume.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
      <property name="text">
       <string>Open
 step by step
