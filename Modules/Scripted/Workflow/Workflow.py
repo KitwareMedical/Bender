@@ -307,6 +307,7 @@ class WorkflowWidget:
     self.get('SimulatePoseLoadToolButton').icon = loadIcon
     self.get('SimulatePoseSaveToolButton').icon = saveIcon
     self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
+    self.get('SimulatePoseOutputNodeLoadToolButton').icon = loadIcon
     #    - Signals/Slots
     self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
     self.get('SimulatePoseInputNodeToolButton').connect('clicked()', self.loadSimulatePoseInputNode)
@@ -2083,7 +2084,8 @@ class WorkflowWidget:
   def validateSimulatePose(self):
     cliNode = self.getCLINode(slicer.modules.simulatepose)
     valid = cliNode.GetStatusString() == 'Completed'
-    self.get('SimulatePoseOutputNodeToolButton').enabled = True
+    self.get('SimulatePoseOutputNodeToolButton').enabled = valid
+    self.get('SimulatePoseSaveToolButton').enabled = valid
     self.get('SimulatePoseCollapsibleGroupBox').setProperty('valid', valid)
     self.validatePoseArmaturePage(validateSections = False)
 
