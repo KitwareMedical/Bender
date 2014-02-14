@@ -33,18 +33,13 @@
 #include "vtkTransform.h"
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
 
 namespace
 {
-//----------------------------------------------------------------------------
-bool IsBlank(char c)
-{
-  return c == ' ' || c == '\t';
-}
-
 //----------------------------------------------------------------------------
 const std::string GetKeyword(const std::string& line)
 {
@@ -53,7 +48,7 @@ const std::string GetKeyword(const std::string& line)
   for (std::string::const_iterator it = line.begin(); it < line.end(); ++it)
     {
     // stop at the first space after the keyword
-    if (keyword != "" && IsBlank(*it))
+    if (keyword != "" && isspace(*it))
       {
       return keyword;
       }
@@ -351,11 +346,14 @@ int vtkBVHReader::RequestData(vtkInformation *vtkNotUsed(request),
       vtkErrorMacro("Error when parsing the file.");
       return 0;
       }
-
     file.close();
     }
 
-  this->ApplyFrameToArmature(this->GetArmature(), this->Frame);
+  if (!this->ApplyFrameToArmature(this->GetArmature(), this->Frame))
+    {
+    vtkErrorMacro("Error when applying pose to armature.");
+    return 0;
+    }
 
   vtkInformation* polydataInfo = outputVector->GetInformationObject(0);
   polydataInfo->Get(vtkDataObject::DATA_OBJECT())->DeepCopy(
@@ -531,7 +529,8 @@ void vtkBVHReader
     {
     if(!std::getline(file, line))
       {
-      std::cerr<<"There was an error during the processing."<< std::endl;
+      std::cerr<<"Error during the processing:"
+              << " could not find the MOTION keyword"<< std::endl;
       this->InvalidReader();
       return;
       }
