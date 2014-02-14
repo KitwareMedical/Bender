@@ -2113,19 +2113,32 @@ class WorkflowWidget:
 
   def onSimulatePoseCLIModified(self, cliNode, event):
     if cliNode.GetStatusString() == 'Completed':
-      if self.get('SimulatePoseInputNodeComboBox').currentNode() != self.get('SimulatePoseOutputNodeComboBox').currentNode():
-        self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().SetVisibility(0)
-        self.get('SimulatePoseOutputNodeComboBox').currentNode().GetDisplayNode().SetOpacity(
-          self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().GetOpacity())
-        self.get('SimulatePoseOutputNodeComboBox').currentNode().GetDisplayNode().SetColor(
-          self.get('SimulatePoseInputNodeComboBox').currentNode().GetDisplayNode().GetColor())
-          
-      self.validateSimulatePose()
+      self.applyColorNodeToPosedTetMesh()
     if not cliNode.IsBusy():
       self.get('SimulatePoseApplyPushButton').setChecked(False)
       self.get('SimulatePoseApplyPushButton').enabled = True
       print 'Simulate Pose %s' % cliNode.GetStatusString()
       self.removeObservers(self.onSimulatePoseCLIModified)
+
+  def applyColorNodeToPosedTetMesh(self):
+    inputNode = self.get('SimulatePoseInputNodeComboBox').currentNode()
+    outputNode = self.get('SimulatePoseOutputNodeComboBox').currentNode()
+    if inputNode != outputNode and inputNode != None:
+      inputDisplayNode = inputNode.GetDisplayNode() if inputNode != None else None
+      displayNode = outputNode.GetDisplayNode()
+      if inputDisplayNode != None:
+        inputDisplayNode.SetVisibility(0)
+        displayNode.SetOpacity(inputDisplayNode.GetOpacity())
+        displayNode.SetColor(inputDisplayNode.GetColor())
+      displayNode.SetActiveScalarName('MaterialId')
+      displayNode.SetActiveAttributeLocation(1) # MaterialId is a cell data array
+      displayNode.SetScalarVisibility(True)
+      colorNode = inputDisplayNode.GetColorNode() if inputDisplayNode != None else self.get('LabelmapColorNodeComboBox').currentNode()
+      displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      displayNode.UpdatePolyDataPipeline()
+
+    self.validateSimulatePose()
+
 
   def loadSimulatePoseInputNode(self):
     self.loadFile('Model to pose', 'ModelFile', self.get('SimulatePoseInputNodeComboBox'))
