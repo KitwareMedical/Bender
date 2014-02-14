@@ -73,6 +73,8 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 #include <vtkThreshold.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkMath.h>
 #include <vtkTriangleFilter.h>
@@ -361,7 +363,7 @@ void getBoneCoordinates(
   sofa::helper::vector<SkeletonJoint<Rigid3Types> >& skeletonJoints,
   sofa::helper::vector<SkeletonBone>&                skeletonBones,
   sofa::helper::vector<Rigid3Types::Coord>&          restCoordinates,
-  bool                                               invertXY = false)
+  bool                                               invertXY = true)
 {
   vtkCellArray* armatureSegments = armature->GetLines();
   vtkCellData*  armatureCellData = armature->GetCellData();
@@ -498,14 +500,16 @@ MechanicalObject<Vec3Types>::SPtr createRigidBoneSurface(
 MechanicalObject<Rigid3Types>::SPtr createArticulatedFrame(
   Node *       parentNode,
   vtkPolyData *armature,
-  bool         generateFrameAnimation = true
+  bool         generateFrameAnimation = true,
+  bool         invertXY = true
   )
 {
   // Extract coordinates
   sofa::helper::vector<SkeletonJoint<Rigid3Types> > skeletonJoints;
   sofa::helper::vector<SkeletonBone>                skeletonBones;
   sofa::helper::vector<Rigid3Types::Coord>          boneCoordinates;
-  getBoneCoordinates(armature,skeletonJoints,skeletonBones,boneCoordinates);
+  getBoneCoordinates(armature, skeletonJoints, skeletonBones,
+                     boneCoordinates, invertXY);
 
   MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
     addNew<MechanicalObject<Rigid3Types> >(parentNode, "articulatedFrame");
@@ -1006,24 +1010,16 @@ int main(int argc, char** argv)
   UniformMass3::SPtr mass = addNew<UniformMass3>(anatomicalMesh.get(),"Mass");
   mass->setTotalMass(100);
 
-  // Add VTK exporter
-  sofa::component::misc::VTKExporter::SPtr exporter =
-    addNew<sofa::component::misc::VTKExporter>(anatomicalMesh, "vtkExporter");
-  exporter->exportAtEnd.setValue(true);
-  exporter->vtkFilename.setValue(OutputTetMesh);
-  exporter->writeTetras.setValue(true);
-  exporter->writeEdges.setValue(false);
-
   if (Verbose)
     {
     std::cout << "Create finite element model..." << std::endl;
     }
-  // Finite element method
-  createFiniteElementModel(anatomicalMesh.get(),youngModulus);
 
   // Collision node
   if (EnableCollision)
     {
+    // Finite element method
+    createFiniteElementModel(anatomicalMesh.get(),youngModulus);
     if (Verbose)
       {
       std::cout << "************************************************************"
@@ -1053,7 +1049,7 @@ int main(int argc, char** argv)
 
   MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
     createArticulatedFrame(anatomicalMap.get(),
-      armature,true);
+                           armature, true, !IsArmatureInRAS);
 
   if (Verbose)
     {
@@ -1098,7 +1094,22 @@ int main(int argc, char** argv)
     }
   vtkNew<vtkPolyData> posedSurface;
   initMesh(posedSurface.GetPointer(), tetMesh, anatomicalMesh);
-  bender::IOUtils::WritePolyData(posedSurface.GetPointer(), OutputTetMesh);
+  if (!IsMeshInRAS)
+    {
+    vtkNew<vtkTransform> transform;
+    transform->RotateZ(180.0);
+
+    vtkNew<vtkTransformPolyDataFilter> transformer;
+    transformer->SetInput(posedSurface.GetPointer());
+    transformer->SetTransform(transform.GetPointer());
+    transformer->Update();
+
+    bender::IOUtils::WritePolyData(transformer->GetOutput(), OutputTetMesh);
+    }
+  else
+    {
+    bender::IOUtils::WritePolyData(posedSurface.GetPointer(), OutputTetMesh);
+    }
 
   if (Verbose)
     {
