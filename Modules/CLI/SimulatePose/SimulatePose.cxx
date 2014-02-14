@@ -1014,12 +1014,12 @@ int main(int argc, char** argv)
     {
     std::cout << "Create finite element model..." << std::endl;
     }
-  // Finite element method
-  createFiniteElementModel(anatomicalMesh.get(),youngModulus);
 
   // Collision node
   if (EnableCollision)
     {
+    // Finite element method
+    createFiniteElementModel(anatomicalMesh.get(),youngModulus);
     if (Verbose)
       {
       std::cout << "************************************************************"
