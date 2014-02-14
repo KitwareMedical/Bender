@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>;Dynamics</category>
+  <category>Dynamics</category>
   <index>5</index>
   <title>Simulate Pose</title>
   <description><![CDATA[Pose a <b>Mesh</b> SOFA's finite element library.]]></description>

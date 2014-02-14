@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>;Segmentation.Bender</category>
+  <category>Segmentation.Bender</category>
   <index>4</index>
   <title>Evaluate Surface Weight</title>
   <description><![CDATA[Evaluate the weights' value for each vertex of the <b>Input Surface</b>.<p>For each weight image of the <b>Weight Directory</b>, a field array with the weight at the <b>Input Surface</b> vertices is added. It is encouraged to run this module on surface that will be posed as it can speed up processing time.</p>]]></description>

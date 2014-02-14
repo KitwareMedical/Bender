@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>;Dynamics</category>
+  <category>Dynamics</category>
   <index>2</index>
   <title>Volume Material Extractor</title>
   <description><![CDATA[This modules extract a specified material from a tetrahedral mesh.</p>]]>

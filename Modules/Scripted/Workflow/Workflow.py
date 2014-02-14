@@ -307,6 +307,7 @@ class WorkflowWidget:
     self.get('SimulatePoseLoadToolButton').icon = loadIcon
     self.get('SimulatePoseSaveToolButton').icon = saveIcon
     self.get('SimulatePoseOutputNodeToolButton').icon = saveIcon
+    self.get('SimulatePoseOutputNodeLoadToolButton').icon = loadIcon
     #    - Signals/Slots
     self.get('SimulatePoseApplyPushButton').connect('clicked(bool)', self.runSimulatePose)
     self.get('SimulatePoseInputNodeToolButton').connect('clicked()', self.loadSimulatePoseInputNode)
@@ -1767,7 +1768,7 @@ class WorkflowWidget:
     defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
     if currentNode != None:
-      defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
+      defaultName = 'bender/%s-%s' % (currentNode.GetName(), defaultName)
     defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
     self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     # observe the input volume node in case its name is changed
@@ -2003,7 +2004,11 @@ class WorkflowWidget:
     weightPath = self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath
     weightDir = qt.QDir(weightPath)
     weightDir.cdUp()
-    defaultPath = weightDir.absoluteFilePath('materials.txt')
+    try:
+      materialFiles = weightDir.entryList(['materials*.txt'])
+      defaultPath = weightDir.absoluteFilePath(materialFiles[0])
+    except IndexError:
+      defaultPath = weightDir.currentPath()
     self.get('MaterialReaderFileLineEdit').setCurrentPath(defaultPath)
 
   #----------------------------------------------------------------------------
@@ -2083,7 +2088,8 @@ class WorkflowWidget:
   def validateSimulatePose(self):
     cliNode = self.getCLINode(slicer.modules.simulatepose)
     valid = cliNode.GetStatusString() == 'Completed'
-    self.get('SimulatePoseOutputNodeToolButton').enabled = True
+    self.get('SimulatePoseOutputNodeToolButton').enabled = valid
+    self.get('SimulatePoseSaveToolButton').enabled = valid
     self.get('SimulatePoseCollapsibleGroupBox').setProperty('valid', valid)
     self.validatePoseArmaturePage(validateSections = False)
 

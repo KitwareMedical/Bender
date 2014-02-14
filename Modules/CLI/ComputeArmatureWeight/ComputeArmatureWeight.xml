@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
-  <category>;Segmentation.Bender</category>
+  <category>Segmentation.Bender</category>
   <index>3</index>
   <title>Compute Armature Weight</title>
   <description><![CDATA[Compute the weight of the <b>Input Armature</b> edges for each voxel of the <b>Input Rest Labelmap</b> using heat diffusion. <p>This module outputs a serie of files named "weight_i.mha" in the <b>Weight Output Directory</b>, where each voxel has the weight associated to the armature edge #i from the <b>Input Armature</b>.</p><p>When computing non-binary weight, the skeleton voxels of the <b>Input Rest Labelmap</b> (inside the partition given by the <b>Input Skinned Labelmap</b>) are used as hot source for the heat-diffusion process. This means that any bone within the weight partition will have a weight of 1. This implies that if that edge is posed, the bone will move completely with that edge. The other voxels weight is determined by diffusing the weight from the hot sources (i.e. bones).</p>]]>
