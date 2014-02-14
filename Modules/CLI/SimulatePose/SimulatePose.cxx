@@ -1010,14 +1010,6 @@ int main(int argc, char** argv)
   UniformMass3::SPtr mass = addNew<UniformMass3>(anatomicalMesh.get(),"Mass");
   mass->setTotalMass(100);
 
-  // Add VTK exporter
-  sofa::component::misc::VTKExporter::SPtr exporter =
-    addNew<sofa::component::misc::VTKExporter>(anatomicalMesh, "vtkExporter");
-  exporter->exportAtEnd.setValue(true);
-  exporter->vtkFilename.setValue(OutputTetMesh);
-  exporter->writeTetras.setValue(true);
-  exporter->writeEdges.setValue(false);
-
   if (Verbose)
     {
     std::cout << "Create finite element model..." << std::endl;
