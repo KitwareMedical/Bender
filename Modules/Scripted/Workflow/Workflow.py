@@ -1238,8 +1238,8 @@ class WorkflowWidget:
       newNodeDisplayNode = newNode.GetModelDisplayNode()
       colorNode = self.get('CreateMeshInputNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
       if newNodeDisplayNode and colorNode:
-        newNodeDisplayNode.SetActiveScalarName('Labels')
-        newNodeDisplayNode.SetActiveAttributeLocation(1) # Labels is a cell data array
+        newNodeDisplayNode.SetActiveScalarName('MaterialId')
+        newNodeDisplayNode.SetActiveAttributeLocation(1) # MaterialId is a cell data array
         newNodeDisplayNode.SetScalarVisibility(True)
         newNodeDisplayNode.SetAndObserveColorNodeID(colorNode.GetID())
         newNodeDisplayNode.UpdatePolyDataPipeline()

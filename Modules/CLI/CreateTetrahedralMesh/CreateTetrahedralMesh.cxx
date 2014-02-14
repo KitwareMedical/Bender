@@ -332,7 +332,7 @@ int DoIt( int argc, char * argv[] )
   points->SetNumberOfPoints(cleaverMesh->tets.size() * 4);
 
   vtkNew<vtkIntArray> cellData;
-  cellData->SetName("Labels");
+  cellData->SetName("MaterialId");
 
   vtkNew<vtkBrokenCells> brokenCells;
   brokenCells->SetPoints(points.GetPointer());
