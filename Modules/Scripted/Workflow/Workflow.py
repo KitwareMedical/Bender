@@ -2265,6 +2265,12 @@ class WorkflowWidget:
     self.saveNode(title, fileType, fileSuffix, nodeComboBox.currentNode())
 
   def saveNode(self, title, fileType, fileSuffix, node):
+    if (node.GetStorageNode() == None ):
+      storageNode = node.CreateDefaultStorageNode()
+      slicer.mrmlScene.AddNode(storageNode)
+      storageNode.Unregister(storageNode)
+      node.SetAndObserveStorageNodeID(storageNode.GetID())
+
     manager = slicer.app.ioManager()
     properties = {}
     properties['nodeID'] = node.GetID()
