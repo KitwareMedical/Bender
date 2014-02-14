@@ -2145,7 +2145,7 @@ class WorkflowWidget:
     self.openModule('SimulatePose')
 
     cliNode = self.getCLINode(slicer.modules.simulatepose)
-    parameters = self.SimulatePoseParameterss()
+    parameters = self.simulatePoseParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def setWeightDirectory(self, dir):
