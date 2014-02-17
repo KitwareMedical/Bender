@@ -226,6 +226,10 @@ int DoIt( int argc, char * argv[] )
   typename ReaderType::Pointer reader            = ReaderType::New();
   reader->SetFileName( InputVolume );
   reader->Update();
+  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
+  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
+  LabelImageType::DirectionType imageDirection =
+    reader->GetOutput()->GetDirection();
 
   typename CastFilterType::Pointer castingFilter = CastFilterType::New();
   castingFilter->SetInput(reader->GetOutput());
@@ -278,29 +282,36 @@ int DoIt( int argc, char * argv[] )
     labelMaps.push_back(new Cleaver::InverseField(labelMaps[0]));
     }
 
-  Cleaver::AbstractVolume *volume = new Cleaver::Volume(labelMaps);
+  Cleaver::AbstractVolume *cleaverVolume = new Cleaver::Volume(labelMaps);
   if (Padding)
     {
-    volume = new Cleaver::PaddedVolume(volume);
+    cleaverVolume = new Cleaver::PaddedVolume(cleaverVolume);
     }
 
   if (Verbose)
     {
     std::cout << "Creating Mesh with Volume Size "
-      << volume->size().toString() << std::endl;
+      << cleaverVolume->size().toString() << std::endl;
     }
 
   //--------------------------------
   //  Create Mesher & TetMesh
   //--------------------------------
   Cleaver::TetMesh *cleaverMesh =
-    Cleaver::createMeshFromVolume(volume, Verbose);
+    Cleaver::createMeshFromVolume(cleaverVolume, Verbose);
+
+  // No need for the volume nor the labelmaps anymore therefore we can release
+  // the memory.
+  delete cleaverVolume;
+  for(size_t i=0; i < labelMaps.size(); ++i)
+    delete labelMaps[i];
+  labelMaps.clear();
+  labels.clear();
+  castingFilter = NULL;
+  reader = NULL;
+
   if (!cleaverMesh)
     {
-    // Clean up
-    delete volume;
-    delete cleaverMesh;
-
     std::cerr << "Mesh computation failed !" << std::endl;
     return EXIT_FAILURE;
     }
@@ -332,7 +343,8 @@ int DoIt( int argc, char * argv[] )
   vtkNew<vtkIntArray> cellData;
   cellData->SetName("MaterialId");
 
-  vtkNew<vtkBrokenCells> brokenCells;
+  vtkSmartPointer<vtkBrokenCells> brokenCells =
+    vtkSmartPointer<vtkBrokenCells>::New();
   brokenCells->SetPoints(points.GetPointer());
   brokenCells->SetVerbose(Verbose);
   for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
@@ -345,7 +357,7 @@ int DoIt( int argc, char * argv[] )
       }
 
     vtkNew<vtkTetra> meshTetra;
-    for (int j = 0; j < 4; ++j)
+    for (size_t j = 0; j < 4; ++j)
       {
       Cleaver::vec3 &pos = cleaverMesh->tets[i]->verts[j]->pos();
       int vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
@@ -367,13 +379,16 @@ int DoIt( int argc, char * argv[] )
     cellData->InsertNextValue(originalLabels[label]);
     }
 
+  // No need for the mesh anymore, release the memory.
+  delete cleaverMesh;
+
   //  Repair broken cells
-  if (! brokenCells->RepairAllCells())
+  if (!brokenCells->RepairAllCells())
     {
-    delete volume;
-    delete cleaverMesh;
     return EXIT_FAILURE;
     }
+  // No need for the cell fixer anymore, release the memory.
+  brokenCells = NULL;
 
   //-----------------------------
   //  Create and clean polydata
@@ -395,10 +410,6 @@ int DoIt( int argc, char * argv[] )
   // spacing or origin, we need to transform the output points so the mesh can
   // match the original image.
   vtkNew<vtkTransform> transform;
-  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
-  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
-  LabelImageType::DirectionType imageDirection =
-    reader->GetOutput()->GetDirection();
 
   // Transform points to RAS (what is concatenated first is done last !)
   vtkNew<vtkMatrix4x4> rasMatrix;
@@ -445,22 +456,24 @@ int DoIt( int argc, char * argv[] )
   // Scaling and rotation
   vtkNew<vtkMatrix4x4> scaleMatrix;
   scaleMatrix->DeepCopy(directionMatrix.GetPointer());
-  for (int i = 0; i < spacing.GetNumberOfComponents(); ++i)
+  for (size_t i = 0; i < spacing.GetNumberOfComponents(); ++i)
     {
     scaleMatrix->SetElement(i, i, scaleMatrix->GetElement(i, i) * spacing[i]);
     }
   transform->Concatenate(scaleMatrix.GetPointer());
 
+  if (Verbose)
+    {
+    transform->Print(std::cout);
+    }
   // Actual transformation
   vtkNew<vtkTransformPolyDataFilter> transformFilter;
   transformFilter->SetInput(cleanFilter->GetOutput());
   transformFilter->SetTransform(transform.GetPointer());
 
+  // Conserve memory
+  transformFilter->GetOutput()->GlobalReleaseDataFlagOn();
   bender::IOUtils::WritePolyData(transformFilter->GetOutput(), OutputMesh);
-
-  // Clean up
-  delete volume;
-  delete cleaverMesh;
 
   return EXIT_SUCCESS;
 }
