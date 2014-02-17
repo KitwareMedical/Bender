@@ -100,7 +100,8 @@ class BenderSampleDataWidget:
     self.dataTree = self.get('BenderSampleDataTree')
     self.dataTree.expandAll()
     self.downloadDirectoryPathLineEdit = self.get('DownloadDirectoryPathLineEdit')
-    self.downloadDirectoryPathLineEdit.currentPath = qt.QDir.home().absoluteFilePath('bender')
+    self.downloadDirectoryPathLineEdit.currentPath = slicer.app.settings().value('Bender/InputDirectory')
+    self.downloadDirectoryPathLineEdit.connect('currentPathChanged(QString)', self.setInputDirectoryPath)
     self.get('BenderSampleDataDownloadPushButton').connect('clicked()', self.downloadCheckedItems)
 
   def downloadCheckedItems(self):
@@ -130,6 +131,9 @@ class BenderSampleDataWidget:
     self.log.ensureCursorVisible()
     self.log.repaint()
     slicer.app.processEvents(qt.QEventLoop.ExcludeUserInputEvents)
+
+  def setInputDirectoryPath(self, path):
+    slicer.app.settings().setValue('Bender/InputDirectory', path)
 
   ### === Convenience python widget methods === ###
   def get(self, objectName):

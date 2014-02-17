@@ -727,10 +727,10 @@ class WorkflowWidget:
     self.validateAdjustPage(validateSections = False)
 
   def loadLabelmapVolumeNode(self):
-    self.loadFile('Volume/Labelmap to reposition', 'VolumeFile', self.get('LabelmapVolumeNodeComboBox'))
+    self.loadInputFile('Volume/Labelmap to reposition', 'VolumeFile', self.get('LabelmapVolumeNodeComboBox'))
 
   def loadLabelmapColorNode(self):
-    self.loadFile('Tissue/Color file', 'ColorTableFile', self.get('LabelmapColorNodeComboBox'))
+    self.loadInputFile('Tissue/Color file', 'ColorTableFile', self.get('LabelmapColorNodeComboBox'))
 
   def applyColorNode(self):
     volumeNode = self.get('LabelmapVolumeNodeComboBox').currentNode()
@@ -1017,7 +1017,7 @@ class WorkflowWidget:
       displayNode.SetAndObserveColorNodeID(colorNode.GetID())
 
   def loadMergeLabelsVolumeNode(self):
-    loadedNode = self.loadLabelmapFile('Merged label volume', 'VolumeFile', self.get('MergeLabelsOutputNodeComboBox'))
+    loadedNode = self.loadOutputLabelmap('Merged label volume', self.get('MergeLabelsOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.changelabel)
       self.observeCLINode(cliNode, self.onMergeLabelsCLIModified)
@@ -1139,7 +1139,7 @@ class WorkflowWidget:
       self.removeObservers(self.onPadImageCLIModified)
 
   def loadPadImageVolumeNode(self):
-    loadedNode = self.loadLabelmap('Padded volume', self.get('PadImageOutputNodeComboBox'))
+    loadedNode = self.loadOutputLabelmap('Padded volume', self.get('PadImageOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.padimage)
       self.observeCLINode(cliNode, self.onPadImageCLIModified)
@@ -1257,8 +1257,8 @@ class WorkflowWidget:
       self.removeObservers(self.onCreateMeshCLIModified)
 
   def loadMeshNode(self):
-    loadedNode = self.loadFile('Tetrahedral Mesh', 'ModelFile',
-                               self.get('CreateMeshOutputNodeComboBox'))
+    loadedNode = self.loadOutputFile('Tetrahedral Mesh', 'ModelFile',
+                                      self.get('CreateMeshOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.createtetrahedralmesh)
       self.observeCLINode(cliNode, self.onCreateMeshCLIModified)
@@ -1364,8 +1364,8 @@ class WorkflowWidget:
       self.removeObservers(self.onExtractBoneCLIModified)
 
   def loadExtractBone(self):
-    loadedNode = self.loadFile('Bone Mesh', 'ModelFile',
-                               self.get('ExtractBoneOutputComboBox'))
+    loadedNode = self.loadOutputFile('Bone Mesh', 'ModelFile',
+                                      self.get('ExtractBoneOutputComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.volumematerialextractor)
       self.observeCLINode(cliNode, self.onExtractBoneCLIModified)
@@ -1484,8 +1484,8 @@ class WorkflowWidget:
       self.removeObservers(self.onExtractSkinCLIModified)
 
   def loadExtractSkin(self):
-    loadedNode = self.loadFile('Bone Skin', 'ModelFile',
-                               self.get('SkinModelMakerOutputNodeComboBox'))
+    loadedNode = self.loadOutputFile('Bone Skin', 'ModelFile',
+                                     self.get('SkinModelMakerOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.SkinModelMakerLogic.GetCLINode()
       self.observeCLINode(cliNode, self.onExtractSkinCLIModified)
@@ -1597,7 +1597,7 @@ class WorkflowWidget:
         skinDisplayNode.SetVisibility(not skinDisplayNode.GetVisibility())
 
   def loadArmatureNode(self):
-    self.loadFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))
+    self.loadInputFile('Armature', 'ArmatureFile', self.get('ArmaturesArmatureNodeComboBox'))
 
   def saveArmatureNode(self):
     armatureNode = self.get('ArmaturesArmatureNodeComboBox').currentNode()
@@ -1677,11 +1677,10 @@ class WorkflowWidget:
       self.removeObservers(self.onVolumeSkinningCLIModified)
 
   def loadSkinningInputVolumeNode(self):
-    self.loadLabelmap('Input volume', self.get('VolumeSkinningInputVolumeNodeComboBox'))
+    self.loadOutputLabelmap('Input volume', self.get('VolumeSkinningInputVolumeNodeComboBox'))
 
   def loadSkinningVolumeNode(self):
-    loadedNode = self.loadLabelmapFile('Skinned volume', 'VolumeFile',
-                                       self.get('VolumeSkinningOutputVolumeNodeComboBox'))
+    loadedNode = self.loadOutputLabelmap('Skinned volume', self.get('VolumeSkinningOutputVolumeNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.volumeskinning)
       self.observeCLINode(cliNode, self.onVolumeSkinningCLIModified)
@@ -1739,7 +1738,7 @@ class WorkflowWidget:
     self.validateEditSkinnedVolume()
 
   def loadEditSkinnedVolumeNode(self):
-    loadedNode = self.loadLabelmapFile('Skinning volume', 'VolumeFile', self.get('EditSkinnedVolumeNodeComboBox'))
+    loadedNode = self.loadOutputLabelmap('Skinning volume', self.get('EditSkinnedVolumeNodeComboBox'))
     if loadedNode != None:
       self.validateEditSkinnedVolume()
 
@@ -1768,8 +1767,8 @@ class WorkflowWidget:
     defaultName = 'weights-%sx' % self.get('ComputeArmatureWeightScaleFactorSpinBox').value
     currentNode = self.get('ComputeArmatureWeightInputVolumeNodeComboBox').currentNode()
     if currentNode != None:
-      defaultName = 'bender/%s-%s' % (currentNode.GetName(), defaultName)
-    defaultPath = qt.QDir.home().absoluteFilePath(defaultName)
+      defaultName = '%s-%s' % (currentNode.GetName(), defaultName)
+    defaultPath = '%s/%s' % (self.getOutputDirectory(), defaultName)
     self.get('ComputeArmatureWeightOutputPathLineEdit').setCurrentPath(defaultPath)
     # observe the input volume node in case its name is changed
     self.removeObservers(self.setDefaultPath)
@@ -1912,10 +1911,10 @@ class WorkflowWidget:
       self.removeObservers(self.onEvalSurfaceWeightCLIModified)
 
   def loadEvalSurfaceWeightInputNode(self):
-    self.loadFile('Model to eval', 'ModelFile', self.get('EvalSurfaceWeightInputNodeComboBox'))
+    self.loadOutputFile('Model to eval', 'ModelFile', self.get('EvalSurfaceWeightInputNodeComboBox'))
 
   def loadEvalSurfaceWeightOutputNode(self):
-    loadedNode = self.loadFile('Evaluated Model', 'ModelFile', self.get('EvalSurfaceWeightOutputNodeComboBox'))
+    loadedNode = self.loadOutputFile('Evaluated Model', 'ModelFile', self.get('EvalSurfaceWeightOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.evalsurfaceweight)
       self.observeCLINode(cliNode, self.onEvalSurfaceWeightCLIModified)
@@ -1980,10 +1979,10 @@ class WorkflowWidget:
       self.removeObservers(self.onMaterialPropertyCLIModified)
 
   def loadMaterialReaderInputMeshNode(self):
-    self.loadFile('Input tetrahedral mesh', 'ModelFile', self.get('MaterialReaderInputMeshNodeComboBox'))
+    self.loadOutputFile('Input tetrahedral mesh', 'ModelFile', self.get('MaterialReaderInputMeshNodeComboBox'))
 
   def loadMaterialReaderMeshNode(self):
-    loadedNode = self.loadFile('Tetrahedral mesh with material properties', 'ModelFile', self.get('MaterialReaderOutputMeshNodeComboBox'))
+    loadedNode = self.loadOutputFile('Tetrahedral mesh with material properties', 'ModelFile', self.get('MaterialReaderOutputMeshNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.materialpropertyreader)
       self.observeCLINode(cliNode, self.onMaterialPropertyCLIModified)
@@ -2001,14 +2000,12 @@ class WorkflowWidget:
     slicer.cli.setNodeParameters(cliNode, parameters)
 
   def setMaterialReaderDefaultPath(self):
-    weightPath = self.get('ComputeArmatureWeightOutputPathLineEdit').currentPath
-    weightDir = qt.QDir(weightPath)
-    weightDir.cdUp()
+    dir = qt.QDir(self.getInputDirectory())
+    materialFiles = dir.entryList(['materials*.txt'])
     try:
-      materialFiles = weightDir.entryList(['materials*.txt'])
-      defaultPath = weightDir.absoluteFilePath(materialFiles[0])
+      defaultPath = dir.absoluteFilePath(materialFiles[0])
     except IndexError:
-      defaultPath = weightDir.currentPath()
+      defaultPath = dir.absolutePath()
     self.get('MaterialReaderFileLineEdit').setCurrentPath(defaultPath)
 
   #----------------------------------------------------------------------------
@@ -2147,10 +2144,10 @@ class WorkflowWidget:
 
 
   def loadSimulatePoseInputNode(self):
-    self.loadFile('Model to pose', 'ModelFile', self.get('SimulatePoseInputNodeComboBox'))
+    self.loadOutputFile('Model to pose', 'ModelFile', self.get('SimulatePoseInputNodeComboBox'))
 
   def loadSimulatePoseOutputNode(self):
-    loadedNode = self.loadFile('Posed model', 'ModelFile', self.get('SimulatePoseOutputNodeComboBox'))
+    loadedNode = self.loadOutputFile('Posed model', 'ModelFile', self.get('SimulatePoseOutputNodeComboBox'))
     if loadedNode != None:
       cliNode = self.getCLINode(slicer.modules.simulatepose)
       self.observeCLINode(cliNode, self.onSimulatePoseCLIModified)
@@ -2243,45 +2240,79 @@ class WorkflowWidget:
       cliNode.SetName(cliModule.title)
     return cliNode
 
-  def loadLabelmapFile(self, title, fileType, nodeComboBox):
-    volumeNode = self.loadFile(title, fileType, nodeComboBox)
+  def getInputDirectory(self):
+    return self.getDirectory('InputDirectory')
+
+  def getOutputDirectory(self):
+    return self.getDirectory('OutputDirectory')
+
+  def getDirectory(self, directory):
+    return slicer.app.settings().value('Bender/%s' %directory)
+
+  def setDirectory(self, directory, value):
+    return slicer.app.settings().setValue('Bender/%s' %directory, value)
+
+  def loadInputLabelmap(self, title, nodeComboBox):
+    return self.loadFile(title, nodeComboBox, 'InputDirectory')
+
+  def loadInputFile(self, title, fileType, nodeComboBox):
+    return self.loadFile(title, fileType, nodeComboBox, 'InputDirectory')
+
+  def loadOutputLabelmap(self, title, nodeComboBox):
+    return self.loadLabelmap(title, nodeComboBox, 'OutputDirectory')
+
+  def loadOutputFile(self, title, fileType, nodeComboBox):
+    return self.loadFile(title, fileType, nodeComboBox, 'OutputDirectory')
+
+  def loadLabelmap(self, title, nodeComboBox, directory):
+    volumeNode = self.loadFile(title, 'VolumeFile', nodeComboBox, directory)
+    self.applyLabelmap(volumeNode)
     if volumeNode != None:
-      volumesLogic = slicer.modules.volumes.logic()
-      volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
       nodeComboBox.setCurrentNode(volumeNode)
     return volumeNode
 
-  def loadLabelmap(self, title, nodeComboBox):
-    volumeNode = self.loadLabelmapFile(title, 'VolumeFile', nodeComboBox)
-    self.applyLabelmap(volumeNode)
-    return volumeNode
-
-  def loadFile(self, title, fileType, nodeComboBox):
+  def loadFile(self, title, fileType, nodeComboBox, directory):
     manager = slicer.app.ioManager()
     loadedNodes = vtk.vtkCollection()
     properties = {}
+    self.updateFileDialogDirectory(directory)
     res = manager.openDialog(fileType, slicer.qSlicerFileDialog.Read, properties, loadedNodes)
     loadedNode = loadedNodes.GetItemAsObject(0)
     if res == True:
+      self.updateDirectorySettings(directory)
       nodeComboBox.setCurrentNode(loadedNode)
     self.reset3DViews()
     return loadedNode
 
-  def saveFile(self, title, fileType, fileSuffix, nodeComboBox):
+  def saveFile(self, title, fileType, fileSuffix, nodeComboBox, directory = 'OutputDirectory'):
     self.saveNode(title, fileType, fileSuffix, nodeComboBox.currentNode())
 
-  def saveNode(self, title, fileType, fileSuffix, node):
+  def saveNode(self, title, fileType, fileSuffix, node, directory = 'OutputDirectory'):
     if (node.GetStorageNode() == None ):
       storageNode = node.CreateDefaultStorageNode()
       slicer.mrmlScene.AddNode(storageNode)
-      storageNode.Unregister(storageNode)
+      storageNode.UnRegister(storageNode)
       node.SetAndObserveStorageNodeID(storageNode.GetID())
 
     manager = slicer.app.ioManager()
     properties = {}
     properties['nodeID'] = node.GetID()
     properties['defaultFileName'] = node.GetName() + fileSuffix
-    manager.openDialog(fileType, slicer.qSlicerFileDialog.Write, properties)
+    self.updateFileDialogDirectory(directory)
+    res = manager.openDialog(fileType, slicer.qSlicerFileDialog.Write, properties)
+    if res:
+      self.updateDirectorySettings(directory)
+
+  def updateFileDialogDirectory(self, directory):
+    # Open a fake qfiledialog to set the correct path
+    dir = self.getDirectory(directory)
+    qt.QFileDialog(self.widget, '', dir)
+
+  def updateDirectorySettings(self, directory):
+    # Open a fake qfiledialog to get the new user path a set it in the settings
+    dialog = qt.QFileDialog(self.widget)
+    dir = dialog.directory().absolutePath()
+    self.setDirectory(directory, dir)
 
   def reset3DViews(self):
     # Reset focal view around volumes
