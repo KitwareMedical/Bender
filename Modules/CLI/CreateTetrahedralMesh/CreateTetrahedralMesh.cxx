@@ -266,8 +266,6 @@ int DoIt( int argc, char * argv[] )
   for(size_t i = 0; i < labels.size(); ++i)
     {
     labelMaps.push_back(new Cleaver::LabelMapField(labels[i]));
-    static_cast<Cleaver::LabelMapField*>(labelMaps.back())->
-      SetGenerateDataFromLabels(true);
     }
 
   if(labelMaps.empty())
