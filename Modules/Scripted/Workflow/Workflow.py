@@ -1007,11 +1007,10 @@ class WorkflowWidget:
   def applyLabelmap(self, volumeNode):
     if volumeNode == None:
       return
+
+    volumesLogic = slicer.modules.volumes.logic()
+    volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
     displayNode = volumeNode.GetDisplayNode()
-    if displayNode == None:
-      volumesLogic = slicer.modules.volumes.logic()
-      volumesLogic.SetVolumeAsLabelMap(volumeNode, 1)
-      displayNode = volumeNode.GetDisplayNode()
     colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
     if displayNode != None and colorNode != None:
       displayNode.SetAndObserveColorNodeID(colorNode.GetID())
