@@ -36,6 +36,12 @@ class BenderWelcomeWidget:
       self.parent = parent
       self.layout = parent.layout()
 
+    settings = slicer.app.settings()
+    if not settings.contains('Bender/InputDirectory'):
+      benderDefaultDir = qt.QDir.home().absoluteFilePath('bender')
+      settings.setValue('Bender/InputDirectory', benderDefaultDir)
+      settings.setValue('Bender/OutputDirectory', benderDefaultDir)
+
   def setup(self):
 
     # UI setup
