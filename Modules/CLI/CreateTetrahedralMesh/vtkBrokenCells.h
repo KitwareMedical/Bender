@@ -41,7 +41,7 @@ class vtkBrokenCells : public vtkObject
 public:
   static vtkBrokenCells *New();
   vtkTypeMacro(vtkBrokenCells, vtkBrokenCells);
-  virtual void PrintSelf(ostream& os, vtkIndent indent) {};
+  virtual void PrintSelf(ostream& os, vtkIndent indent);
 
   typedef std::multimap<vtkIdType, vtkCell*> BrokenCellsMap;
   typedef BrokenCellsMap::iterator BrokenCellsMapIterator;
@@ -61,15 +61,16 @@ public:
   /// will be created
   void AddCell(vtkIdType vertexIndex, vtkCell* cell);
 
+  /// Return the number of broken cells that have been added.
+  vtkIdType GetNumberOfBrokenCells()const;
+
   /// Set the cells points. This will be used to lookup the cells' point
   /// values when repairing the cell.
   /// The invalid points of Points will be modified when RepairCells is called.
   void SetPoints(vtkPoints* points);
   vtkGetObjectMacro(Points, vtkPoints);
 
-  /// Set the cells points. This will be used to lookup the cells' point
-  /// values when repairing the cell.
-  /// The invalid points of Points will be modified when RepairCells is called.
+  /// Set whether the filter prints debug outputs or not.
   vtkSetMacro(Verbose, bool);
   vtkGetMacro(Verbose, bool);
 
@@ -86,8 +87,8 @@ protected:
   vtkPoints* Points;
   bool Verbose;
 
-  vtkBrokenCells(const vtkBrokenCells&) {}; // not implemented
-  void operator=(const vtkBrokenCells&) {}; // not implemented
+  vtkBrokenCells(const vtkBrokenCells&); // not implemented
+  void operator=(const vtkBrokenCells&); // not implemented
 };
 
 #endif

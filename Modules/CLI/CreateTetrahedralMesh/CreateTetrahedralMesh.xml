@@ -36,8 +36,14 @@
       <default>false</default>
     </boolean>
     <boolean>
+      <name>SaveLabelImages</name>
+      <label>Save label images</label>
+      <longflag>--saveLabelImages</longflag>
+      <default>false</default>
+    </boolean>
+    <boolean>
       <name>Verbose</name>
-      <label>Verbose </label>
+      <label>Verbose</label>
       <longflag>--verbose</longflag>
       <default>false</default>
     </boolean>
