@@ -44,11 +44,16 @@ vtkBrokenCells::vtkBrokenCells()
 vtkBrokenCells::~vtkBrokenCells()
 {
   for (BrokenCellsMapIterator it = this->Cells.begin();
-    it != Cells.end(); ++it)
+    it != this->Cells.end(); ++it)
     {
     it->second->UnRegister(this);
     }
   this->SetPoints(NULL);
+}
+
+//----------------------------------------------------------------------------
+void vtkBrokenCells::PrintSelf(ostream& vtkNotUsed(os), vtkIndent vtkNotUsed(indent))
+{
 }
 
 //----------------------------------------------------------------------------
@@ -140,6 +145,12 @@ void vtkBrokenCells::AddCell(vtkIdType vertexIndex, vtkCell* cell)
 
   cell->Register(this);
   this->Cells.insert(std::pair<vtkIdType, vtkCell*>(vertexIndex, cell));
+}
+
+//----------------------------------------------------------------------------
+vtkIdType vtkBrokenCells::GetNumberOfBrokenCells()const
+{
+  return this->Cells.size();
 }
 
 //----------------------------------------------------------------------------

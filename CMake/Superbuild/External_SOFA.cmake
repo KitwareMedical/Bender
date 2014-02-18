@@ -49,7 +49,7 @@ if(CUDA_FOUND AND NOT WIN32)
     -DSOFA-PLUGIN_SOFACUDA:BOOL=ON
     -DCUDA_TOOLKIT_ROOT_DIR:PATH=${CUDA_TOOLKIT_ROOT_DIR}
   )
-endif(CUDA_FOUND)
+endif()
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -85,7 +85,7 @@ if(NOT DEFINED ${proj}_DIR)
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
     GIT_REPOSITORY "git://public.kitware.com/Bender/SOFA.git"
-    GIT_TAG "d7967a8d58adf96db4d311fb937e91b6c69b7249"
+    GIT_TAG "3704279d21342969216a621b8c9b96a5cab33796"
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
     LIST_SEPARATOR &&

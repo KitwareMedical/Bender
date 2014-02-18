@@ -83,4 +83,6 @@ set(dynamicHeaders
 
 #-----------------------------------------------------------------------------
 # Add testing
-# add_subdirectory(Testing)
+if (BUILD_TESTING)
+  add_subdirectory(Testing)
+endif()

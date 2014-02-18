@@ -150,7 +150,6 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
                                            LabelImageType> RelabelFilterType;
   typedef itk::BinaryThresholdImageFilter<LabelImageType,
                                           LabelImageType> ThresholdFilterType;
-  typedef itk::ImageFileWriter<LabelImageType> ImageWriterType;
 
   // Assign continuous labels to the connected components, background is
   // considered to be 0 and will be ignored in the relabeling process.
@@ -200,7 +199,7 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
 }
 
 //----------------------------------------------------------------------------
-bool IsPointInvalid(Cleaver::vec3 pos)
+bool IsPointValid(Cleaver::vec3 pos)
 {
   return vtkBrokenCells::IsPointValid(pos.x, pos.y, pos.z);
 }
@@ -226,6 +225,10 @@ int DoIt( int argc, char * argv[] )
   typename ReaderType::Pointer reader            = ReaderType::New();
   reader->SetFileName( InputVolume );
   reader->Update();
+  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
+  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
+  LabelImageType::DirectionType imageDirection =
+    reader->GetOutput()->GetDirection();
 
   typename CastFilterType::Pointer castingFilter = CastFilterType::New();
   castingFilter->SetInput(reader->GetOutput());
@@ -257,6 +260,12 @@ int DoIt( int argc, char * argv[] )
       ++imageIterator;
       ++labelsIterator;
       }
+    if (SaveLabelImages)
+      {
+      std::stringstream fileName;
+      fileName << "label" << i << ".nrrd";
+      bender::IOUtils::WriteDebugImage<LabelImageType>(labels[i], fileName.str());
+      }
     }
 
   if (Verbose)
@@ -266,8 +275,6 @@ int DoIt( int argc, char * argv[] )
   for(size_t i = 0; i < labels.size(); ++i)
     {
     labelMaps.push_back(new Cleaver::LabelMapField(labels[i]));
-    static_cast<Cleaver::LabelMapField*>(labelMaps.back())->
-      SetGenerateDataFromLabels(true);
     }
 
   if(labelMaps.empty())
@@ -280,29 +287,36 @@ int DoIt( int argc, char * argv[] )
     labelMaps.push_back(new Cleaver::InverseField(labelMaps[0]));
     }
 
-  Cleaver::AbstractVolume *volume = new Cleaver::Volume(labelMaps);
+  Cleaver::AbstractVolume *cleaverVolume = new Cleaver::Volume(labelMaps);
   if (Padding)
     {
-    volume = new Cleaver::PaddedVolume(volume);
+    cleaverVolume = new Cleaver::PaddedVolume(cleaverVolume);
     }
 
   if (Verbose)
     {
     std::cout << "Creating Mesh with Volume Size "
-      << volume->size().toString() << std::endl;
+      << cleaverVolume->size().toString() << std::endl;
     }
 
   //--------------------------------
   //  Create Mesher & TetMesh
   //--------------------------------
   Cleaver::TetMesh *cleaverMesh =
-    Cleaver::createMeshFromVolume(volume, Verbose);
+    Cleaver::createMeshFromVolume(cleaverVolume, Verbose);
+
+  // No need for the volume nor the labelmaps anymore therefore we can release
+  // the memory.
+  delete cleaverVolume;
+  for(size_t i=0; i < labelMaps.size(); ++i)
+    delete labelMaps[i];
+  labelMaps.clear();
+  labels.clear();
+  castingFilter = NULL;
+  reader = NULL;
+
   if (!cleaverMesh)
     {
-    // Clean up
-    delete volume;
-    delete cleaverMesh;
-
     std::cerr << "Mesh computation failed !" << std::endl;
     return EXIT_FAILURE;
     }
@@ -327,14 +341,18 @@ int DoIt( int argc, char * argv[] )
   int paddedVolumeLabel = labels.size();
 
   // Points and cell arrays
-  vtkNew<vtkCellArray> meshTetras;
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(cleaverMesh->tets.size() * 4);
 
+  vtkNew<vtkCellArray> meshTetras;
+  meshTetras->SetNumberOfCells(cleaverMesh->tets.size());
+
   vtkNew<vtkIntArray> cellData;
   cellData->SetName("MaterialId");
+  cellData->SetNumberOfTuples(cleaverMesh->tets.size());
 
-  vtkNew<vtkBrokenCells> brokenCells;
+  vtkSmartPointer<vtkBrokenCells> brokenCells =
+    vtkSmartPointer<vtkBrokenCells>::New();
   brokenCells->SetPoints(points.GetPointer());
   brokenCells->SetVerbose(Verbose);
   for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
@@ -347,18 +365,19 @@ int DoIt( int argc, char * argv[] )
       }
 
     vtkNew<vtkTetra> meshTetra;
-    for (int j = 0; j < 4; ++j)
+    for (size_t j = 0; j < 4; ++j)
       {
       Cleaver::vec3 &pos = cleaverMesh->tets[i]->verts[j]->pos();
-      int vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
+      size_t vertexIndex = cleaverMesh->tets[i]->verts[j]->tm_v_index;
 
       points->SetPoint(vertexIndex, pos.x, pos.y, pos.z);
       meshTetra->GetPointIds()->SetId(j, vertexIndex);
 
       // If invalid, flag the cell so it can be rebuild later
-      if (! IsPointInvalid(pos))
+      if (! IsPointValid(pos))
         {
-        std::cerr << "Invalid point for cell " << i
+        std::cerr << "Invalid point (" << pos.x << ", " << pos.y << ", " << pos.z
+                  << ") at cell " << i
           << ", this point will be patched up but something went wrong with"
           << " Cleaver !" << std::endl;
         brokenCells->AddCell(vertexIndex, meshTetra.GetPointer());
@@ -369,13 +388,20 @@ int DoIt( int argc, char * argv[] )
     cellData->InsertNextValue(originalLabels[label]);
     }
 
+  // No need for the mesh anymore, release the memory.
+  delete cleaverMesh;
+
+  std::cerr << "There are " << brokenCells->GetNumberOfBrokenCells()
+            << " broken cells for " << meshTetras->GetNumberOfCells() << " cells."
+            << std::endl;
   //  Repair broken cells
-  if (! brokenCells->RepairAllCells())
+  if (!brokenCells->RepairAllCells())
     {
-    delete volume;
-    delete cleaverMesh;
+    std::cerr << "Fail to fix the broken cells." << std::endl;
     return EXIT_FAILURE;
     }
+  // No need for the cell fixer anymore, release the memory.
+  brokenCells = NULL;
 
   //-----------------------------
   //  Create and clean polydata
@@ -386,6 +412,10 @@ int DoIt( int argc, char * argv[] )
   vtkMesh->SetPolys(meshTetras.GetPointer());
   vtkMesh->GetCellData()->SetScalars(cellData.GetPointer());
 
+  if (Verbose)
+    {
+    std::cout << "Clean PolyData..." << std::endl;
+    }
   vtkNew<vtkCleanPolyData> cleanFilter;
   cleanFilter->PointMergingOff(); // Prevent from creating triangles or lines
   cleanFilter->SetInput(vtkMesh);
@@ -397,10 +427,6 @@ int DoIt( int argc, char * argv[] )
   // spacing or origin, we need to transform the output points so the mesh can
   // match the original image.
   vtkNew<vtkTransform> transform;
-  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
-  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
-  LabelImageType::DirectionType imageDirection =
-    reader->GetOutput()->GetDirection();
 
   // Transform points to RAS (what is concatenated first is done last !)
   vtkNew<vtkMatrix4x4> rasMatrix;
@@ -447,22 +473,24 @@ int DoIt( int argc, char * argv[] )
   // Scaling and rotation
   vtkNew<vtkMatrix4x4> scaleMatrix;
   scaleMatrix->DeepCopy(directionMatrix.GetPointer());
-  for (int i = 0; i < spacing.GetNumberOfComponents(); ++i)
+  for (size_t i = 0; i < spacing.GetNumberOfComponents(); ++i)
     {
     scaleMatrix->SetElement(i, i, scaleMatrix->GetElement(i, i) * spacing[i]);
     }
   transform->Concatenate(scaleMatrix.GetPointer());
 
+  if (Verbose)
+    {
+    transform->Print(std::cout);
+    }
   // Actual transformation
   vtkNew<vtkTransformPolyDataFilter> transformFilter;
   transformFilter->SetInput(cleanFilter->GetOutput());
   transformFilter->SetTransform(transform.GetPointer());
 
+  // Conserve memory
+  transformFilter->GetOutput()->GlobalReleaseDataFlagOn();
   bender::IOUtils::WritePolyData(transformFilter->GetOutput(), OutputMesh);
-
-  // Clean up
-  delete volume;
-  delete cleaverMesh;
 
   return EXIT_SUCCESS;
 }

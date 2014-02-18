@@ -42,24 +42,17 @@ public:
 
 public:
   LabelMapField(ImageType::Pointer LabelImage);
-  ~LabelMapField();
+  virtual ~LabelMapField();
+
   virtual float valueAt(float x, float y, float z) const;
-  virtual float valueAt(const vec3 &x) const;
 
   virtual BoundingBox bounds() const;
   BoundingBox dataBounds() const;
-  void SetGenerateDataFromLabels(bool _generateData);
-  bool GetGenerateDataFromLabels() {
-    return this->GenerateDataFromLabels;
-  }
 
 private:
   ImageType::Pointer         LabelMap;
   InterpolationType::Pointer Interpolant;
   BoundingBox                Bounds;
-  vec3                       Scale;
-  float *                    data;
-  bool                       GenerateDataFromLabels;
 };
 
 } // namespace
