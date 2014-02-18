@@ -44,7 +44,6 @@ LabelMapField::LabelMapField(ImageType::Pointer labelImage)
 
 LabelMapField::~LabelMapField()
 {
-  std::cout << "~LabelMapField()" << std::endl;
 }
 
 float LabelMapField::valueAt(float x, float y, float z) const
