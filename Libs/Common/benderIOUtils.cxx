@@ -94,23 +94,23 @@ vtkPolyData* IOUtils::ReadPolyData(const std::string& fileName, bool invertXY)
 }
 
 //-----------------------------------------------------------------------------
-void IOUtils::WritePolyData(vtkPolyData* polyData, const std::string& fileName)
+bool IOUtils::WritePolyData(vtkPolyData* polyData, const std::string& fileName)
 {
   cout<<"Write polydata to "<<fileName<<endl;
   vtkNew<vtkPolyDataWriter> pdWriter;
   pdWriter->SetInput(polyData);
   pdWriter->SetFileName(fileName.c_str() );
   pdWriter->SetFileTypeToBinary();
-  pdWriter->Update();
+  return pdWriter->Write();
 }
 
 //-----------------------------------------------------------------------------
-void IOUtils::WriteDebugPolyData(vtkPolyData* polyData,
+bool IOUtils::WriteDebugPolyData(vtkPolyData* polyData,
                                  const std::string& name,
                                  const std::string& dir)
 {
   std::string d = GetDebugDirectory(dir);
-  WritePolyData(polyData, d + "/" + name);
+  return WritePolyData(polyData, d + "/" + name);
 }
 
 //-----------------------------------------------------------------------------

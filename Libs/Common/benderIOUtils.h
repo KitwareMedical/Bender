@@ -40,11 +40,11 @@ class BENDER_COMMON_EXPORT IOUtils
   /// The caller of the function is responsible for deleting the returned polydata.
   static vtkPolyData* ReadPolyData(const std::string& fileName, bool invertXY=false);
 
-  static void WritePolyData(vtkPolyData* polyData, const std::string& fileName);
+  static bool WritePolyData(vtkPolyData* polyData, const std::string& fileName);
 
   /// Convenient method to write a vtk debug polydata to disk.
   /// Internally uses GetDebugDirectory on the given dir.
-  static void WriteDebugPolyData(vtkPolyData* polyData,
+  static bool WriteDebugPolyData(vtkPolyData* polyData,
     const std::string& name, const std::string& dir = "");
 
   /// Convenient method to write an itk image to disk.

@@ -29,7 +29,8 @@
 #include <vtkCleanPolyData.h>
 #include <vtkGeometryFilter.h>
 #include <vtkNew.h>
-#include <vtkPolyDataReader.h>
+#include <vtkPolyData.h>
+#include <vtkCellData.h>
 #include <vtkSmartPointer.h>
 #include <vtkThreshold.h>
 #include <vtkUnstructuredGrid.h>
@@ -38,19 +39,41 @@ int main( int argc, char * argv[] )
 {
   PARSE_ARGS;
 
-  vtkSmartPointer<vtkPolyDataReader> reader =
-    vtkSmartPointer<vtkPolyDataReader>::New();
-  reader->SetFileName(InputTetMesh.c_str());
-  reader->Update();
+  vtkSmartPointer<vtkPolyData> polyData;
+  polyData.TakeReference( bender::IOUtils::ReadPolyData(InputTetMesh) );
+  if (polyData.GetPointer() == 0 ||
+      polyData->GetNumberOfPoints() == 0 ||
+      polyData->GetNumberOfCells() == 0)
+    {
+    std::cerr << "Fail to read polydata" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  vtkCellData* cellData = polyData->GetCellData();
+  vtkDataArray* scalars = cellData ? cellData->GetScalars() : 0;
+  if (!scalars)
+    {
+    std::cerr << "No scalars to extract" << std::endl;
+    if (cellData)
+      {
+      std::cerr << "  There are " << cellData->GetNumberOfArrays()
+                << " cell data arrays."<< std::endl;
+      }
+    else
+      {
+      std::cerr << "  There is no cell data." << std::endl;
+      }
+    return EXIT_FAILURE;
+    }
 
   vtkNew<vtkThreshold> threshold;
-  threshold->SetInput(reader->GetOutput());
+  threshold->SetInput(polyData);
 
   threshold->ThresholdBetween(static_cast<double>(MaterialLabel), static_cast<double>(MaterialLabel));
 
   vtkNew<vtkGeometryFilter> polyMesh;
   polyMesh->SetInput(threshold->GetOutput());
-  
+
   vtkNew<vtkCleanPolyData> cleanFilter;
   cleanFilter->SetInput(polyMesh->GetOutput());
 
