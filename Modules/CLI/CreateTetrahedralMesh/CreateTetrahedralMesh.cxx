@@ -159,8 +159,8 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
 
   if (verbose)
     {
-    std::cout << "Total Number of Labels: " <<
-      relabelFilter->GetNumberOfObjects() << std::endl;
+    std::cout << "Found " <<
+      relabelFilter->GetNumberOfObjects() << " labels." << std::endl;
     }
 
   // Extract the labels
@@ -215,6 +215,7 @@ int DoIt( int argc, char * argv[] )
 
   typedef Cleaver::LabelMapField::ImageType LabelImageType;
   typedef T InputPixelType;
+  typedef Cleaver::LabelMapField::PixelType LabelPixelType;
   typedef itk::Image<InputPixelType,3> InputImageType;
   typedef itk::CastImageFilter<InputImageType,
                                LabelImageType> CastFilterType;
@@ -233,13 +234,15 @@ int DoIt( int argc, char * argv[] )
   typename CastFilterType::Pointer castingFilter = CastFilterType::New();
   castingFilter->SetInput(reader->GetOutput());
 
-  std::vector<Cleaver::ScalarField*> labelMaps;
-
   std::vector<LabelImageType::Pointer> labels =
     SplitLabelMaps(castingFilter->GetOutput(), Verbose);
 
+  // Constants for undesired material
+  const char airMaterial = 0;
+  char paddedVolumeMaterial = labels.size();
+
   // Get a map from the original labels to the new labels
-  std::map<InputPixelType, InputPixelType> originalLabels;
+  std::map<LabelPixelType, InputPixelType> materialToLabel;
 
   for(size_t i = 0; i < labels.size(); ++i)
     {
@@ -247,18 +250,17 @@ int DoIt( int argc, char * argv[] )
       reader->GetOutput(), reader->GetOutput()->GetLargestPossibleRegion());
     itk::ImageRegionConstIterator<LabelImageType> labelsIterator(
       labels[i], labels[i]->GetLargestPossibleRegion());
-    bool foundCorrespondence = false;
-    while(!imageIterator.IsAtEnd()
-      && !labelsIterator.IsAtEnd()
-      && !foundCorrespondence)
+    for ( ;!imageIterator.IsAtEnd()
+            && !labelsIterator.IsAtEnd();++imageIterator, ++labelsIterator)
       {
-      if (labelsIterator.Value() > 0)
+      if (labelsIterator.Value() != -1 &&
+          labelsIterator.Value() != airMaterial &&
+          labelsIterator.Value() != paddedVolumeMaterial)
         {
-        originalLabels[labelsIterator.Value()] = imageIterator.Value();
+        materialToLabel[labelsIterator.Value()] = imageIterator.Value();
+        assert(labelsIterator.Value() == i);
+        break;
         }
-
-      ++imageIterator;
-      ++labelsIterator;
       }
     if (SaveLabelImages)
       {
@@ -270,8 +272,17 @@ int DoIt( int argc, char * argv[] )
 
   if (Verbose)
     {
-    std::cout << "Total labels found:  " << labels.size() << std::endl;
+    std::cout << labels.size() <<  " materials:" << std::endl;
+      std::cout << "  material: 0 <=> label: 0"<< std::endl;
+    typename std::map<LabelPixelType, InputPixelType>::const_iterator it;
+    for (it = materialToLabel.begin(); it != materialToLabel.end(); ++it)
+      {
+      std::cout << "  material: " << static_cast<long>(it->first)
+                << " <=> label: " << static_cast<long>(it->second) << std::endl;
+      }
     }
+
+  std::vector<Cleaver::ScalarField*> labelMaps;
   for(size_t i = 0; i < labels.size(); ++i)
     {
     labelMaps.push_back(new Cleaver::LabelMapField(labels[i]));
@@ -331,35 +342,40 @@ int DoIt( int argc, char * argv[] )
     std::cout << "Worst Angles:" << std::endl;
     std::cout << "min: " << cleaverMesh->min_angle << std::endl;
     std::cout << "max: " << cleaverMesh->max_angle << std::endl;
+    std::cout << "Verts #: " << cleaverMesh->verts.size() << std::endl;
+    std::cout << "Tets #: " << cleaverMesh->tets.size() << std::endl;
     }
 
   //-----------------------
   //  Fill polydata arrays
   //-----------------------
-  // Constants for undesired material
-  const int airLabel = 0;
-  int paddedVolumeLabel = labels.size();
 
   // Points and cell arrays
   vtkNew<vtkPoints> points;
   points->SetNumberOfPoints(cleaverMesh->tets.size() * 4);
 
   vtkNew<vtkCellArray> meshTetras;
-  meshTetras->SetNumberOfCells(cleaverMesh->tets.size());
+  meshTetras->Allocate(meshTetras->EstimateSize(4, cleaverMesh->tets.size()));
 
   vtkNew<vtkIntArray> cellData;
   cellData->SetName("MaterialId");
   cellData->SetNumberOfTuples(cleaverMesh->tets.size());
+  cellData->Allocate(cleaverMesh->tets.size());
 
   vtkSmartPointer<vtkBrokenCells> brokenCells =
     vtkSmartPointer<vtkBrokenCells>::New();
   brokenCells->SetPoints(points.GetPointer());
   brokenCells->SetVerbose(Verbose);
+
+  std::map<LabelPixelType, unsigned long> materialCount;
   for(size_t i = 0; i < cleaverMesh->tets.size(); ++i)
     {
-    int label = cleaverMesh->tets[i]->mat_label;
+    char material = cleaverMesh->tets[i]->mat_label;
 
-    if(label == airLabel || label == paddedVolumeLabel)
+    ++materialCount[material];
+
+    if (material == airMaterial ||
+        material == paddedVolumeMaterial)
       {
       continue;
       }
@@ -385,15 +401,27 @@ int DoIt( int argc, char * argv[] )
       }
 
     meshTetras->InsertNextCell(meshTetra.GetPointer());
-    cellData->InsertNextValue(originalLabels[label]);
+    cellData->InsertNextValue(materialToLabel[material]);
+    }
+  if (Verbose)
+    {
+    std::cout << "Cell count per material:" << std::endl;
+    std::map<LabelPixelType, unsigned long>::const_iterator it;
+    for (it = materialCount.begin(); it != materialCount.end(); ++it)
+      {
+      std::cout << "  material " << static_cast<long>(it->first)
+                << " = " << static_cast<long>(it->second) << std::endl;
+      }
     }
 
   // No need for the mesh anymore, release the memory.
   delete cleaverMesh;
 
-  std::cerr << "There are " << brokenCells->GetNumberOfBrokenCells()
-            << " broken cells for " << meshTetras->GetNumberOfCells() << " cells."
-            << std::endl;
+  if (brokenCells->GetNumberOfBrokenCells() || Verbose)
+    {
+    std::cerr << "There are " << brokenCells->GetNumberOfBrokenCells()
+              << " broken cells." << std::endl;
+    }
   //  Repair broken cells
   if (!brokenCells->RepairAllCells())
     {
@@ -489,10 +517,13 @@ int DoIt( int argc, char * argv[] )
   transformFilter->SetTransform(transform.GetPointer());
 
   // Conserve memory
-  transformFilter->GetOutput()->GlobalReleaseDataFlagOn();
-  bender::IOUtils::WritePolyData(transformFilter->GetOutput(), OutputMesh);
-
-  return EXIT_SUCCESS;
+  //transformFilter->GetOutput()->GlobalReleaseDataFlagOn();
+  bool res = bender::IOUtils::WritePolyData(transformFilter->GetOutput(), OutputMesh);
+  if (!res)
+    {
+    std::cerr << "Fail to write mesh." << std::endl;
+    }
+  return res ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 
