@@ -2135,7 +2135,9 @@ class WorkflowWidget:
       displayNode.SetActiveScalarName('MaterialId')
       displayNode.SetActiveAttributeLocation(1) # MaterialId is a cell data array
       displayNode.SetScalarVisibility(True)
-      colorNode = inputDisplayNode.GetColorNode() if inputDisplayNode != None else self.get('LabelmapColorNodeComboBox').currentNode()
+      colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+      if inputDisplayNode != None and inputDisplayNode.GetColorNode() != None:
+        colorNode = inputDisplayNode.GetColorNode()
       displayNode.SetAndObserveColorNodeID(colorNode.GetID())
       displayNode.UpdatePolyDataPipeline()
 
