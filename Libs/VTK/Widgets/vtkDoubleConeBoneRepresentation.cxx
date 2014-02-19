@@ -360,17 +360,15 @@ int vtkDoubleConeBoneRepresentation
 {
   this->InteractionState =
     this->Superclass::ComputeInteractionState(X, Y, modifier);
-  if (this->InteractionState == vtkBoneRepresentation::Outside && !this->Pose)
+  if (this->InteractionState == vtkBoneRepresentation::Outside
+    && this->ConesPicker->Pick(X,Y,0.0,this->Renderer))
     {
-    if ( this->ConesPicker->Pick(X,Y,0.0,this->Renderer) )
-      {
-      this->InteractionState = vtkBoneRepresentation::OnLine;
-      this->SetRepresentationState(this->InteractionState);
+    this->InteractionState = vtkBoneRepresentation::OnLine;
+    this->SetRepresentationState(this->InteractionState);
 
-      double closest[3];
-      this->ConesPicker->GetPickPosition(closest);
-      this->LineHandleRepresentation->SetWorldPosition(closest);
-      }
+    double closest[3];
+    this->ConesPicker->GetPickPosition(closest);
+    this->LineHandleRepresentation->SetWorldPosition(closest);
     }
 
   return this->InteractionState;
