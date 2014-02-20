@@ -317,17 +317,15 @@ int vtkCylinderBoneRepresentation
 {
   this->InteractionState =
     this->Superclass::ComputeInteractionState(X, Y, modifier);
-  if (this->InteractionState == vtkBoneRepresentation::Outside && ! this->Pose)
+  if (this->InteractionState == vtkBoneRepresentation::Outside
+    && this->CylinderPicker->Pick(X,Y,0.0,this->Renderer))
     {
-    if ( this->CylinderPicker->Pick(X,Y,0.0,this->Renderer) )
-      {
-      this->InteractionState = vtkBoneRepresentation::OnLine;
-      this->SetRepresentationState(this->InteractionState);
+    this->InteractionState = vtkBoneRepresentation::OnLine;
+    this->SetRepresentationState(this->InteractionState);
 
-      double closest[3];
-      this->CylinderPicker->GetPickPosition(closest);
-      this->LineHandleRepresentation->SetWorldPosition(closest);
-      }
+    double closest[3];
+    this->CylinderPicker->GetPickPosition(closest);
+    this->LineHandleRepresentation->SetWorldPosition(closest);
     }
 
   return this->InteractionState;
