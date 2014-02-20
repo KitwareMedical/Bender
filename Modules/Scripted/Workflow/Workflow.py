@@ -1432,7 +1432,10 @@ class WorkflowWidget:
     parameters["InputVolume"] = self.get('SkinModelMakerInputNodeComboBox').currentNode()
     parameters["OutputGeometry"] = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
     parameters["BackgroundLabel"] = self.get('SkinModelMakerBackgroundLabelSpinBox').value
-    parameters["SkinLabel"] = str(self.get('SkinModelMakerSkinLabelSpinBox').value)
+    if self.get('SkinModelMakerUseSkinLabelCheckbox').isChecked():
+      parameters["SkinLabel"] = str(self.get('SkinModelMakerSkinLabelSpinBox').value)
+    else:
+      parameters["SkinLabel"] = ''
     parameters["Decimate"] = True
     parameters["Spacing"] = '6,6,6'
 
