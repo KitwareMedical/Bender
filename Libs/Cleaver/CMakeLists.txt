@@ -49,37 +49,41 @@ include_directories(
   )
 
 set(${KIT}_SRCS
-  LabelMapField.cxx
   )
 
-add_library(${PROJECT_NAME} ${${KIT}_SRCS})
-target_link_libraries(${PROJECT_NAME}
-  ${ITK_LIBRARIES}
-  ${VTK_LIBRARIES}
-  ${Cleaver_LIBRARIES}
-  )
-bender_export_library()
+#add_library(${PROJECT_NAME} ${${KIT}_SRCS})
+#target_link_libraries(${PROJECT_NAME}
+#  ${ITK_LIBRARIES}
+#  ${VTK_LIBRARIES}
+#  ${Cleaver_LIBRARIES}
+#  )
+#bender_export_library()
 
-install(TARGETS ${PROJECT_NAME}
-  RUNTIME DESTINATION ${Bender_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries
-  LIBRARY DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries
-  ARCHIVE DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT Development
-  )
+#install(TARGETS ${PROJECT_NAME}
+#  RUNTIME DESTINATION ${Bender_INSTALL_BIN_DIR} COMPONENT RuntimeLibraries
+#  LIBRARY DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT RuntimeLibraries
+#  ARCHIVE DESTINATION ${Bender_INSTALL_LIB_DIR} COMPONENT Development
+#  )
 
 #-----------------------------------------------------------------------------
 # Configure export file
 
-set(MyLibraryExportDirective "BENDER_${KIT_UPPER}_EXPORT")
-set(MyExportHeaderPrefix ${PROJECT_NAME})
-set(MyLibName ${PROJECT_NAME})
+#set(MyLibraryExportDirective "BENDER_${KIT_UPPER}_EXPORT")
+#set(MyExportHeaderPrefix ${PROJECT_NAME})
+#set(MyLibName ${PROJECT_NAME})
 
-configure_file(
-  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
-  ${PROJECT_NAME}Export.h
+#configure_file(
+#  ${Bender_SOURCE_DIR}/CMake/BenderExport.h.in
+#  ${PROJECT_NAME}Export.h
+#  )
+
+#set(dynamicHeaders
+#  "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Export.h")
+
+set_property(GLOBAL APPEND PROPERTY Bender_INCLUDE_DIRS
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
-
-set(dynamicHeaders
-  "${dynamicHeaders};${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Export.h")
 
 #-----------------------------------------------------------------------------
 # Add testing

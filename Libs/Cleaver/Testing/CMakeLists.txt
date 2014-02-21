@@ -36,7 +36,7 @@ create_test_sourcelist(TESTS
   )
 
 add_executable(${TEST_EXEC_NAME} ${TESTS})
-target_link_libraries(${TEST_EXEC_NAME} ${PROJECT_NAME})
+target_link_libraries(${TEST_EXEC_NAME} ${ITK_LIBRARIES} ${Cleaver_LIBRARIES})
 
 set(${PROJECT_NAME}_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Baseline")
 SIMPLE_TEST(${TEST_EXEC_NAME} TestLabelMapField)

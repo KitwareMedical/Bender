@@ -29,19 +29,18 @@
 #include <itkImage.h>
 #include <itkLinearInterpolateImageFunction.h>
 
-#include "BenderCleaverExport.h"
-
 namespace Cleaver {
 
-class BENDER_CLEAVER_EXPORT LabelMapField : public ScalarField
+template<class TPixel>
+class LabelMapField : public ScalarField
 {
 public:
-  typedef float PixelType;
+  typedef TPixel PixelType;
   typedef itk::Image<PixelType,3> ImageType;
   typedef itk::LinearInterpolateImageFunction<ImageType> InterpolationType;
 
 public:
-  LabelMapField(ImageType::Pointer LabelImage);
+  LabelMapField(typename ImageType::Pointer LabelImage);
   virtual ~LabelMapField();
 
   virtual float valueAt(float x, float y, float z) const;
@@ -50,11 +49,13 @@ public:
   BoundingBox dataBounds() const;
 
 private:
-  ImageType::Pointer         LabelMap;
-  InterpolationType::Pointer Interpolant;
+  typename ImageType::Pointer         LabelMap;
+  typename InterpolationType::Pointer Interpolant;
   BoundingBox                Bounds;
 };
 
 } // namespace
+
+#include "LabelMapField.txx"
 
 #endif // LABELMAPFIELD_H

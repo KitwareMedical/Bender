@@ -23,14 +23,16 @@
 
 namespace Cleaver {
 
-LabelMapField::LabelMapField(ImageType::Pointer labelImage)
+//----------------------------------------------------------------------------
+template< class TPixel>
+LabelMapField<TPixel>::LabelMapField(typename ImageType::Pointer labelImage)
 {
   this->LabelMap = labelImage;
 
   this->Interpolant = InterpolationType::New();
   this->Interpolant->SetInputImage(this->LabelMap);
 
-  ImageType::SizeType size =
+  typename ImageType::SizeType size =
     this->LabelMap->GetLargestPossibleRegion().GetSize();
   //ImageType::PointType origin = this->LabelMap->GetOrigin();
 
@@ -42,14 +44,18 @@ LabelMapField::LabelMapField(ImageType::Pointer labelImage)
   this->Bounds = BoundingBox(o,s);
 }
 
-LabelMapField::~LabelMapField()
+//----------------------------------------------------------------------------
+template< class TPixel>
+LabelMapField<TPixel>::~LabelMapField()
 {
 }
 
-float LabelMapField::valueAt(float x, float y, float z) const
+//----------------------------------------------------------------------------
+template< class TPixel>
+float LabelMapField<TPixel>::valueAt(float x, float y, float z) const
 {
-  double               p[3] = {x - 0.5,y - 0.5,z - 0.5};
-  InterpolationType::ContinuousIndexType index(p);
+  double p[3] = {x - 0.5,y - 0.5,z - 0.5};
+  typename InterpolationType::ContinuousIndexType index(p);
 #ifndef NDEBUG
   if (! this->LabelMap->GetLargestPossibleRegion().IsInside(index))
     {
@@ -63,7 +69,9 @@ float LabelMapField::valueAt(float x, float y, float z) const
   return res;
 }
 
-BoundingBox LabelMapField::bounds() const
+//----------------------------------------------------------------------------
+template< class TPixel>
+BoundingBox LabelMapField<TPixel>::bounds() const
 {
   return this->Bounds;
 }
