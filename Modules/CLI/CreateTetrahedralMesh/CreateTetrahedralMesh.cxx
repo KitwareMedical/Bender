@@ -64,11 +64,12 @@
 //
 namespace
 {
-template <class T> int DoIt( int argc, char * argv[] );
+template <class InputPixelType, class LabelPixelType>
+int DoIt( int argc, char * argv[] );
 
-std::vector<Cleaver::LabelMapField::ImageType::Pointer> SplitLabelMaps(
-  int    argc,
-  char * argv[]);
+template <class InputImageType, class LabelImageType>
+std::vector<typename LabelImageType::Pointer>
+SplitLabelMaps(typename InputImageType::Pointer image, bool verbose);
 } // end of anonymous namespace
 
 int main( int argc, char * argv[] )
@@ -86,34 +87,34 @@ int main( int argc, char * argv[] )
     switch( componentType )
       {
     case itk::ImageIOBase::UCHAR:
-      return DoIt<unsigned char>( argc, argv );
+      return DoIt<unsigned char, short>( argc, argv );
       break;
     case itk::ImageIOBase::CHAR:
-      return DoIt<char>( argc, argv );
+      return DoIt<char, char>( argc, argv );
       break;
     case itk::ImageIOBase::USHORT:
-      return DoIt<unsigned short>( argc, argv );
+      return DoIt<unsigned short, int>( argc, argv );
       break;
     case itk::ImageIOBase::SHORT:
-      return DoIt<short>( argc, argv );
+      return DoIt<short, short>( argc, argv );
       break;
     case itk::ImageIOBase::UINT:
-      return DoIt<unsigned int>( argc, argv );
+      return DoIt<unsigned int, long>( argc, argv );
       break;
     case itk::ImageIOBase::INT:
-      return DoIt<int>( argc, argv );
+      return DoIt<int, int>( argc, argv );
       break;
     case itk::ImageIOBase::ULONG:
-      return DoIt<unsigned long>( argc, argv );
+      return DoIt<unsigned long, long long>( argc, argv );
       break;
     case itk::ImageIOBase::LONG:
-      return DoIt<long>( argc, argv );
+      return DoIt<long, long>( argc, argv );
       break;
     case itk::ImageIOBase::FLOAT:
-      return DoIt<float>( argc, argv );
+      return DoIt<float, float>( argc, argv );
       break;
     case itk::ImageIOBase::DOUBLE:
-      return DoIt<double>( argc, argv );
+      return DoIt<double, double>( argc, argv );
       break;
     case itk::ImageIOBase::UNKNOWNCOMPONENTTYPE:
     default:
@@ -141,19 +142,18 @@ namespace
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-std::vector<Cleaver::LabelMapField::ImageType::Pointer >
-SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
+template <class InputImageType, class LabelImageType>
+std::vector<typename LabelImageType::Pointer>
+SplitLabelMaps(typename InputImageType::Pointer image, bool verbose)
 {
-
-  typedef Cleaver::LabelMapField::ImageType LabelImageType;
-  typedef itk::RelabelComponentImageFilter<LabelImageType,
-                                           LabelImageType> RelabelFilterType;
-  typedef itk::BinaryThresholdImageFilter<LabelImageType,
+  typedef itk::RelabelComponentImageFilter<InputImageType,
+                                           InputImageType> RelabelFilterType;
+  typedef itk::BinaryThresholdImageFilter<InputImageType,
                                           LabelImageType> ThresholdFilterType;
 
   // Assign continuous labels to the connected components, background is
   // considered to be 0 and will be ignored in the relabeling process.
-  RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
+  typename RelabelFilterType::Pointer relabelFilter = RelabelFilterType::New();
   relabelFilter->SetInput( image );
   relabelFilter->Update();
 
@@ -164,12 +164,12 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
     }
 
   // Extract the labels
-  typedef RelabelFilterType::LabelType LabelType;
-  ThresholdFilterType::Pointer skinThresholdFilter =
+  typedef typename RelabelFilterType::LabelType LabelType;
+  typename ThresholdFilterType::Pointer skinThresholdFilter =
     ThresholdFilterType::New();
 
   // Create a list of images corresponding to labels
-  std::vector<LabelImageType::Pointer> labels;
+  std::vector<typename LabelImageType::Pointer> labels;
 
   // The skin label will become background for internal (smaller) organs
   skinThresholdFilter->SetInput(relabelFilter->GetOutput());
@@ -183,7 +183,7 @@ SplitLabelMaps(Cleaver::LabelMapField::ImageType *image, bool verbose)
   for (LabelType i = 1, end = relabelFilter->GetNumberOfObjects()+1; i < end;
        ++i)
     {
-    ThresholdFilterType::Pointer organThresholdFilter =
+    typename ThresholdFilterType::Pointer organThresholdFilter =
       ThresholdFilterType::New();
     organThresholdFilter->SetInput(relabelFilter->GetOutput());
     organThresholdFilter->SetLowerThreshold(i);
@@ -207,35 +207,27 @@ bool IsPointValid(Cleaver::vec3 pos)
 //----------------------------------------------------------------------------
 //
 //----------------------------------------------------------------------------
-template <class T>
+template <class InputPixelType, class LabelPixelType>
 int DoIt( int argc, char * argv[] )
 {
 
   PARSE_ARGS;
 
-  typedef Cleaver::LabelMapField::ImageType LabelImageType;
-  typedef T InputPixelType;
-  typedef Cleaver::LabelMapField::PixelType LabelPixelType;
   typedef itk::Image<InputPixelType,3> InputImageType;
-  typedef itk::CastImageFilter<InputImageType,
-                               LabelImageType> CastFilterType;
   typedef itk::ImageFileReader<InputImageType> ReaderType;
-  typedef itk::ConstantPadImageFilter<InputImageType,
-                                      InputImageType> ConstantPadType;
+  typedef itk::Image<LabelPixelType,3> LabelImageType;
 
-  typename ReaderType::Pointer reader            = ReaderType::New();
+  typename ReaderType::Pointer reader = ReaderType::New();
   reader->SetFileName( InputVolume );
   reader->Update();
-  LabelImageType::SpacingType spacing = reader->GetOutput()->GetSpacing();
-  LabelImageType::PointType origin = reader->GetOutput()->GetOrigin();
-  LabelImageType::DirectionType imageDirection =
+  typename InputImageType::SpacingType spacing =
+    reader->GetOutput()->GetSpacing();
+  typename InputImageType::PointType origin = reader->GetOutput()->GetOrigin();
+  typename InputImageType::DirectionType imageDirection =
     reader->GetOutput()->GetDirection();
 
-  typename CastFilterType::Pointer castingFilter = CastFilterType::New();
-  castingFilter->SetInput(reader->GetOutput());
-
-  std::vector<LabelImageType::Pointer> labels =
-    SplitLabelMaps(castingFilter->GetOutput(), Verbose);
+  std::vector<typename LabelImageType::Pointer> labels =
+    SplitLabelMaps<InputImageType, LabelImageType>(reader->GetOutput(), Verbose);
 
   // Constants for undesired material
   const char airMaterial = 0;
@@ -266,7 +258,8 @@ int DoIt( int argc, char * argv[] )
       {
       std::stringstream fileName;
       fileName << "label" << i << ".nrrd";
-      bender::IOUtils::WriteDebugImage<LabelImageType>(labels[i], fileName.str());
+      bender::IOUtils::WriteDebugImage<LabelImageType>(
+        labels[i], fileName.str());
       }
     }
 
@@ -285,7 +278,8 @@ int DoIt( int argc, char * argv[] )
   std::vector<Cleaver::ScalarField*> labelMaps;
   for(size_t i = 0; i < labels.size(); ++i)
     {
-    labelMaps.push_back(new Cleaver::LabelMapField(labels[i]));
+    labelMaps.push_back(
+      new Cleaver::LabelMapField<LabelPixelType>(labels[i]));
     }
 
   if(labelMaps.empty())
@@ -323,7 +317,6 @@ int DoIt( int argc, char * argv[] )
     delete labelMaps[i];
   labelMaps.clear();
   labels.clear();
-  castingFilter = NULL;
   reader = NULL;
 
   if (!cleaverMesh)
@@ -406,7 +399,7 @@ int DoIt( int argc, char * argv[] )
   if (Verbose)
     {
     std::cout << "Cell count per material:" << std::endl;
-    std::map<LabelPixelType, unsigned long>::const_iterator it;
+    typename std::map<LabelPixelType, unsigned long>::const_iterator it;
     for (it = materialCount.begin(); it != materialCount.end(); ++it)
       {
       std::cout << "  material " << static_cast<long>(it->first)

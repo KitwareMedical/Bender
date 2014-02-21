@@ -24,7 +24,7 @@
 int TestLabelMapField(int argc, char * argv[]);
 bool TestLabelMapField();
 
-typedef Cleaver::LabelMapField::ImageType LabelImageType;
+typedef Cleaver::LabelMapField<float>::ImageType LabelImageType;
 
 int TestLabelMapField(int argc, char * argv[])
 {
@@ -34,7 +34,7 @@ int TestLabelMapField(int argc, char * argv[])
 
 LabelImageType::Pointer CreateImage()
 {
-  LabelImageType::Pointer image = Cleaver::LabelMapField::ImageType::New();
+  LabelImageType::Pointer image = LabelImageType::New();
   LabelImageType::SizeType size;
   size[0] = 3; // size along X
   size[1] = 3; // size along Y
@@ -83,7 +83,7 @@ LabelImageType::Pointer CreateImage()
 bool TestLabelMapField()
 {
   LabelImageType::Pointer image = CreateImage();
-  Cleaver::LabelMapField labelMapField(image);
+  Cleaver::LabelMapField<float> labelMapField(image);
   //labelMapField.SetGenerateDataFromLabels(true);
   for (float z = 0.; z <= 0.; z+=0.5)
     {
