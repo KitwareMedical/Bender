@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filter</category>
+  <title>Maverick Voting Resampler</title>
+  <description>Resamples an image based on simple voting</description>
+  <version>0.1 (alpha)</version>
+  <documentation-url></documentation-url>
+  <license></license>
+  <contributor>Patrick Reynolds</contributor>
+  <acknowledgements></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description>Input/output parameters</description>
+    <image>
+      <name>inputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description>Input volume</description>
+    </image>
+    <string>
+      <name>outputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description>Resampling results</description>
+    </string>
+  </parameters>
+  <parameters>
+    <label>Options</label>
+    <boolean>
+      <name>ResampleZ</name>
+      <description>
+        Whether we want to resample in the Z axis as well.
+      </description>
+      <label>Resample along Z-Axis</label>
+      <longflag>resamplez</longflag>
+      <default>true</default>
+    </boolean>
+  </parameters>
+</executable>
