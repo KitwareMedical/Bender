@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>869</width>
+    <width>566</width>
     <height>1030</height>
    </rect>
   </property>
@@ -699,10 +699,10 @@ p, li { white-space: pre-wrap; }
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item row="4" column="0" colspan="2">
         <widget class="ctkCollapsibleGroupBox" name="PadImageCollapsibleGroupBox">
          <property name="title">
-          <string>B) Pad image</string>
+          <string>C) Pad image</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -774,7 +774,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="PadImageApplyPushButton">
               <property name="text">
-               <string>Pad Image</string>
+               <string>Pad</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -912,6 +912,212 @@ p, li { white-space: pre-wrap; }
             <property name="workflow" stdset="0">
              <stringlist>
               <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="3" column="0" colspan="2">
+        <widget class="ctkCollapsibleGroupBox" name="ResampleImageCollapsibleGroupBox">
+         <property name="title">
+          <string>B) Resample image</string>
+         </property>
+         <property name="collapsed">
+          <bool>false</bool>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_16">
+          <item row="1" column="1">
+           <widget class="qMRMLNodeComboBox" name="ResampleImageOutputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>PaddedLabelMap</string>
+            </property>
+            <property name="renameEnabled">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="4">
+           <layout class="QHBoxLayout" name="horizontalLayout_17">
+            <item>
+             <spacer name="horizontalSpacer_16">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ResampleImageGoToModulePushButton">
+              <property name="text">
+               <string>Go to Voting Resample module</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>2</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ResampleImageApplyPushButton">
+              <property name="text">
+               <string>Resample</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ResampleImageLoadToolButton">
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="ResampleImageSaveToolButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+              <property name="text">
+               <string>...</string>
+              </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>0</string>
+               </stringlist>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="1" colspan="3">
+           <widget class="qMRMLNodeComboBox" name="ResampleImageInputNodeComboBox">
+            <property name="nodeTypes">
+             <stringlist>
+              <string>vtkMRMLScalarVolumeNode</string>
+             </stringlist>
+            </property>
+            <property name="baseName">
+             <string>InputLabelMap</string>
+            </property>
+            <property name="addEnabled">
+             <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="ResampleImageOutputLabel">
+            <property name="text">
+             <string>Output labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="ResampleImageSpacingLabel">
+            <property name="text">
+             <string>Pad value</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="ResampleImageInputLabel">
+            <property name="text">
+             <string>Input labelmap</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QToolButton" name="ResampleImageOutputNodeToolButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="ResampleImageOutputNodeLoadToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="ctkCoordinatesWidget" name="ResampleImageCoordinatesWidget">
+            <property name="decimals">
+             <number>0</number>
+            </property>
+            <property name="minimum">
+             <double>0.000000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>100.000000000000000</double>
+            </property>
+            <property name="coordinates" stdset="0">
+             <string>5,5,5</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
               <string>2</string>
              </stringlist>
             </property>
@@ -4111,6 +4317,11 @@ p, li { white-space: pre-wrap; }
    <header>ctkComboBox.h</header>
   </customwidget>
   <customwidget>
+   <class>ctkCoordinatesWidget</class>
+   <extends>QWidget</extends>
+   <header>ctkCoordinatesWidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>ctkExpandButton</class>
    <extends>QToolButton</extends>
    <header>ctkExpandButton.h</header>
@@ -4401,14 +4612,14 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>PadImageOutputNodeComboBox</sender>
+   <sender>MergeLabelsOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
    <receiver>VolumeSkinningInputVolumeNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>325</x>
-     <y>493</y>
+     <x>49</x>
+     <y>76</y>
     </hint>
     <hint type="destinationlabel">
      <x>396</x>
@@ -4759,8 +4970,8 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>403</x>
-     <y>493</y>
+     <x>294</x>
+     <y>550</y>
     </hint>
     <hint type="destinationlabel">
      <x>410</x>
@@ -4999,8 +5210,8 @@ p, li { white-space: pre-wrap; }
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>180</x>
-     <y>493</y>
+     <x>294</x>
+     <y>550</y>
     </hint>
     <hint type="destinationlabel">
      <x>192</x>
@@ -5091,7 +5302,7 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>MergeLabelsOutputNodeComboBox</sender>
    <signal>currentNodeChanged(vtkMRMLNode*)</signal>
-   <receiver>PadImageInputNodeComboBox</receiver>
+   <receiver>ResampleImageInputNodeComboBox</receiver>
    <slot>setCurrentNode(vtkMRMLNode*)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -5099,8 +5310,8 @@ p, li { white-space: pre-wrap; }
      <y>199</y>
     </hint>
     <hint type="destinationlabel">
-     <x>549</x>
-     <y>457</y>
+     <x>325</x>
+     <y>382</y>
     </hint>
    </hints>
   </connection>
@@ -5357,6 +5568,86 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>339</x>
      <y>422</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ResampleImageInputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>282</x>
+     <y>514</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>550</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Workflow</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>ResampleImageOutputNodeComboBox</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>282</x>
+     <y>514</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>294</x>
+     <y>576</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResampleImageOutputNodeComboBox</sender>
+   <signal>currentNodeChanged(vtkMRMLNode*)</signal>
+   <receiver>PadImageInputNodeComboBox</receiver>
+   <slot>setCurrentNode(vtkMRMLNode*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>408</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>325</x>
+     <y>524</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResampleImageSaveToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ResampleImageOutputNodeToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>542</x>
+     <y>631</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>543</x>
+     <y>576</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ResampleImageLoadToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ResampleImageOutputNodeLoadToolButton</receiver>
+   <slot>click()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>511</x>
+     <y>631</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>512</x>
+     <y>576</y>
     </hint>
    </hints>
   </connection>

@@ -169,6 +169,18 @@ class WorkflowWidget:
     self.get('PadImageOutputNodeToolButton').connect('clicked()', self.savePadImageVolumeNode)
     self.get('PadImageApplyPushButton').connect('clicked(bool)', self.runPadImage)
     self.get('PadImageGoToModulePushButton').connect('clicked()', self.openPadImageModule)
+    #  b) Resample Image
+    #    - Icons
+    self.get('ResampleImageOutputNodeToolButton').icon = saveIcon
+    self.get('ResampleImageSaveToolButton').icon = saveIcon
+    self.get('ResampleImageOutputNodeLoadToolButton').icon = loadIcon
+    self.get('ResampleImageLoadToolButton').icon = loadIcon
+    #    - Signals/Slots
+    self.get('ResampleImageInputNodeComboBox').connect('currentNodeChanged(vtkMRMLNode*)', self.setupResampleImage)
+    self.get('ResampleImageOutputNodeLoadToolButton').connect('clicked()', self.loadResampleImageVolumeNode)
+    self.get('ResampleImageOutputNodeToolButton').connect('clicked()', self.saveResampleImageVolumeNode)
+    self.get('ResampleImageApplyPushButton').connect('clicked(bool)', self.runResampleImage)
+    self.get('ResampleImageGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
 
     # 3) Mesh
     # a) Tet-Mesh generator
@@ -446,6 +458,8 @@ class WorkflowWidget:
                            'MergeLabelsOutputNodeComboBox',
                            'PadImageInputNodeComboBox',
                            'PadImageOutputNodeComboBox',
+                           'ResampleImageInputNodeComboBox',
+                           'ResampleImageOutputNodeComboBox',
                            'CreateMeshInputNodeComboBox',
                            'CreateMeshOutputNodeComboBox',
                            'SkinModelMakerInputNodeComboBox',
@@ -815,6 +829,7 @@ class WorkflowWidget:
   def validateExtractPage(self, validateSections = True):
     if validateSections:
       self.validateMergeLabels()
+      self.validateResampleImage()
       self.validatePadImage()
     valid = self.get('PadImageCollapsibleGroupBox').property('valid')
     self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
@@ -901,8 +916,8 @@ class WorkflowWidget:
         self.get('MergeLabelsOutputNodeComboBox').currentNode())
 
     enablePadImage = not self.isWorkflow(0) or valid
-    self.get('PadImageCollapsibleGroupBox').collapsed = not enablePadImage
-    self.get('PadImageCollapsibleGroupBox').setEnabled(enablePadImage)
+    self.get('ResampleImageCollapsibleGroupBox').collapsed = not enablePadImage
+    self.get('ResampleImageCollapsibleGroupBox').setEnabled(enablePadImage)
 
   def searchLabels(self, colorNode, label):
     """ Search the color node for all the labels that contain the word 'label'
@@ -1041,7 +1056,125 @@ class WorkflowWidget:
         return self.get('LabelsTableWidget').item(row, 0).text()
 
   #----------------------------------------------------------------------------
-  #    b) Pad Image
+  #    b) Resample Image
+  def initResampleImage(self):
+    self.setupResampleImage(self.get('ResampleImageInputNodeComboBox').currentNode())
+    self.validateResampleImage()
+
+  def updateResampleImage(self, node, event):
+    volumeNode = self.get('ResampleImageInputNodeComboBox').currentNode()
+    if volumeNode == None or (node.IsA('vtkMRMLScalarVolumeNode') and node != volumeNode):
+      return
+    elif node.IsA('vtkMRMLVolumeDisplayNode'):
+      if node != volumeNode.GetDisplayNode():
+        return
+    self.setupResampleImage(volumeNode)
+
+  def setupResampleImage(self, volumeNode):
+    if volumeNode == None or not volumeNode.GetLabelMap():
+      return
+    self.removeObservers(self.updateResampleImage)
+
+    self.createResampleImageOutput(volumeNode)
+
+    # Update spacing
+    spacing = volumeNode.GetSpacing()
+    newSpacing = [s * 2 for s in spacing]
+    self.get('ResampleImageCoordinatesWidget').coordinates = ", ".join(str(s) for s in newSpacing)
+
+    self.addObserver(volumeNode, 'ModifiedEvent', self.updateResampleImage)
+    self.validateResampleImage()
+
+  def validateResampleImage(self):
+    cliNode = self.getCLINode(slicer.modules.votingresample)
+    valid = (cliNode.GetStatusString() == 'Completed')
+    self.get('ResampleImageOutputNodeToolButton').enabled = valid
+    self.get('ResampleImageSaveToolButton').enabled = valid
+    self.get('ResampleImageCollapsibleGroupBox').setProperty('valid',valid)
+
+    enablePadImage = not self.isWorkflow(0) or valid
+    self.get('PadImageCollapsibleGroupBox').collapsed = not enablePadImage
+    self.get('PadImageCollapsibleGroupBox').setEnabled(enablePadImage)
+
+  def createResampleImageOutput(self, node):
+    """ Make sure the output scalar volume node is a node with a -resampled suffix.
+    """
+    if node == None or self.IsSetup:
+      return
+    # Don't create the node if the name already contains "resampled"
+    if node.GetName().lower().find('-resampled') != -1:
+      return
+    nodeName = '%s-resampled' % node.GetName()
+    # make sure such node does not already exist.
+    resampledNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if resampledNode == None:
+      self.get('ResampleImageOutputNodeComboBox').selectNodeUponCreation = False
+      newNode = self.get('ResampleImageOutputNodeComboBox').addNode()
+      self.get('ResampleImageOutputNodeComboBox').selectNodeUponCreation = True
+      newNode.SetName(nodeName)
+      resampledNode = newNode
+
+    self.get('ResampleImageOutputNodeComboBox').setCurrentNode(resampledNode)
+
+  def resampleImageParameters(self):
+    parameters = {}
+    parameters["inputVolume"] = self.get('ResampleImageInputNodeComboBox').currentNode()
+    parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
+    parameters["outputSpacing"] = self.get('ResampleImageCoordinatesWidget').coordinates
+    return parameters
+
+  def runResampleImage(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.votingresample)
+      parameters = self.resampleImageParameters()
+      self.get('ResampleImageApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onResampleImageCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.votingresample, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onResampleImageCLIModified)
+      self.get('ResampleImageApplyPushButton').enabled = False
+      cliNode.Cancel()
+
+  def onResampleImageCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      # apply label map
+      newNode = self.get('ResampleImageOutputNodeComboBox').currentNode()
+      if newNode != None:
+        displayNode = newNode.GetDisplayNode()
+        if displayNode == None:
+          volumesLogic = slicer.modules.volumes.logic()
+          volumesLogic.SetVolumeAsLabelMap(newNode, 1)
+          displayNode = newNode.GetDisplayNode()
+        colorNode = self.get('LabelmapColorNodeComboBox').currentNode()
+        if displayNode != None and colorNode != None:
+          displayNode.SetAndObserveColorNodeID(colorNode.GetID())
+      self.validateResampleImage()
+
+    if not cliNode.IsBusy():
+      self.get('ResampleImageApplyPushButton').setChecked(False)
+      self.get('ResampleImageApplyPushButton').enabled = True
+      print 'Voting Resample %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onResampleImageCLIModified)
+
+  def loadResampleImageVolumeNode(self):
+    loadedNode = self.loadOutputLabelmap('Resampled volume', self.get('ResampleImageOutputNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.votingresample)
+      self.observeCLINode(cliNode, self.onResampleImageCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
+  def saveResampleImageVolumeNode(self):
+    self.saveFile('Resampled volume', 'VolumeFile', '.mha', self.get('ResampleImageOutputNodeComboBox'))
+
+  def openResampleImageModule(self):
+    self.openModule('ResampleImage')
+
+    cliNode = self.getCLINode(slicer.modules.votingresample)
+    parameters = self.resampleImageParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  #----------------------------------------------------------------------------
+  #    c) Pad Image
   def initPadImage(self):
     self.setupPadImage(self.get('PadImageInputNodeComboBox').currentNode())
     self.validatePadImage()
