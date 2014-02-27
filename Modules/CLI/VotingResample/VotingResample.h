@@ -9,42 +9,51 @@
 
 #include "itkPluginFilterWatcher.h"
 
-typedef   unsigned short  PixelType;
-typedef itk::Image< PixelType, 3 >  ImageType;
-typedef  itk::ImageFileReader< ImageType >    ReaderType;
-
-
-ImageType::Pointer VotingResample( ImageType::Pointer input,
-                                   bool ResampleZ,
-                                   ModuleProcessInformation * processInformation = NULL,
-                                   double progressFraction = 1, 
-                                   double progressStart = 0)
-  { 
-
+//----------------------------------------------------------------------------
+template <class ImageType>
+typename ImageType::Pointer
+VotingResample(typename ImageType::Pointer input,
+               std::vector<float>& spacing,
+               ModuleProcessInformation * processInformation = NULL,
+               double progressFraction = 1,
+               double progressStart = 0)
+{
+  // Get the input properties
+  const typename ImageType::RegionType& inputRegion = input->GetLargestPossibleRegion();
+  const typename ImageType::PointType& inputOrigin = input->GetOrigin();
+  const typename ImageType::SpacingType& inputSpacing = input->GetSpacing();
+  const typename ImageType::DirectionType& inputDirection = input->GetDirection();
+  const typename ImageType::SizeType& inputSize = inputRegion.GetSize();
+  typedef typename ImageType::SizeType::SizeValueType SizeValueType;
 
   // Setup the output
-  ImageType::Pointer output = ImageType::New();
-  ImageType::RegionType inputRegion = input->GetLargestPossibleRegion();
-  ImageType::SizeType outputSize = inputRegion.GetSize();
-  ImageType::PointType outputOrigin = input->GetOrigin();
-  ImageType::IndexType outputIndex = inputRegion.GetIndex();
-  ImageType::SpacingType outputSpacing = input->GetSpacing();
-  ImageType::DirectionType outputDirection = input->GetDirection();
-  int tmpMax = 0;
-  if(ResampleZ)
+  typename ImageType::Pointer output = ImageType::New();
+  typename ImageType::SizeType outputSize = inputRegion.GetSize();
+  typename ImageType::PointType outputOrigin = input->GetOrigin();
+  typename ImageType::IndexType outputIndex = inputRegion.GetIndex();
+  typename ImageType::SpacingType outputSpacing = input->GetSpacing();
+  typename ImageType::DirectionType outputDirection = input->GetDirection();
+
+  for(size_t i = 0; i < spacing.size(); i++)
     {
-    tmpMax = 3;
+    if (spacing[i] > 1e-6)
+      {
+      outputSpacing[i] = spacing[i];
+
+      // Update size
+      double scale = static_cast<double>(outputSpacing[i]) / inputSpacing[i];
+      outputSize[i] =
+        static_cast<SizeValueType>(0.5 + static_cast<double>(inputSize[i]) / scale);
+
+      // Update origin
+      double sign = input->GetDirection()[i][i];
+      outputOrigin[i] =
+        inputOrigin[i] + sign * (outputSpacing[i] - inputSpacing[i]) /2.;
+      }
     }
-  else
-    {
-    tmpMax = 2;
-    }
-  for(int i = 0; i < tmpMax; i++)
-    {
-    outputSize[i] = outputSize[i] / 2;
-    outputSpacing[i] = outputSpacing[i] * 2;
-    }
-  ImageType::RegionType outputRegion;
+
+
+  typename ImageType::RegionType outputRegion;
   outputRegion.SetSize(outputSize);
   outputRegion.SetIndex(outputIndex);
   output->SetRegions(outputRegion);
@@ -59,9 +68,10 @@ ImageType::Pointer VotingResample( ImageType::Pointer input,
           ResampleImageFilterType;
   typedef itk::VotingResampleImageFunction<ImageType, double>
           VotingFunctionType;
-  VotingFunctionType::Pointer interpolator = VotingFunctionType::New();
+  typename VotingFunctionType::Pointer interpolator = VotingFunctionType::New();
   interpolator->SetInputImage(input);
-  ResampleImageFilterType::Pointer resample = ResampleImageFilterType::New();
+  typename ResampleImageFilterType::Pointer resample =
+    ResampleImageFilterType::New();
   itk::PluginFilterWatcher resampleWatcher( resample, "Voting Resample", processInformation, progressFraction, progressStart );
   resample->SetInput(input);
   resample->SetInterpolator(interpolator);

@@ -70,8 +70,10 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
 ::EvaluateAtContinuousIndex(
   const ContinuousIndexType& index) const
 {
+  typedef typename TInputImage::PixelType PixelType;
   typedef itk::ConstNeighborhoodIterator< TInputImage > 
     NeighborhoodIteratorType;
+
 
   typename NeighborhoodIteratorType::RadiusType radius;
   radius.Fill(1);
@@ -85,9 +87,9 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
     }
   
   it.SetLocation(newIndex);
-  itk::Neighborhood<unsigned short,3> n = it.GetNeighborhood();
-  std::map<unsigned short, int> tally;
-  std::map<unsigned short, int>::const_iterator itr;
+  itk::Neighborhood<PixelType,3> n = it.GetNeighborhood();
+  std::map<PixelType, int> tally;
+  typename std::map<PixelType, int>::const_iterator itr;
   for (unsigned int i = 0; i < n.Size(); i++)
     {
     tally[n[i]] = 0;

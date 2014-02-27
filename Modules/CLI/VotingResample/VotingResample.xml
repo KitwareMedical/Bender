@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>Filter</category>
-  <title>Maverick Voting Resampler</title>
+  <title>Voting Resampler</title>
   <description>Resamples an image based on simple voting</description>
   <version>0.1 (alpha)</version>
   <documentation-url></documentation-url>
@@ -11,31 +11,30 @@
   <parameters>
     <label>IO</label>
     <description>Input/output parameters</description>
-    <image>
+    <image type="label">
       <name>inputVolume</name>
       <label>Input Volume</label>
       <channel>input</channel>
       <index>0</index>
-      <description>Input volume</description>
+      <description><![CDATA[Input volume]]></description>
     </image>
-    <string>
+    <image type="label">
       <name>outputVolume</name>
       <label>Output Volume</label>
       <channel>output</channel>
       <index>1</index>
-      <description>Resampling results</description>
-    </string>
+      <description><![CDATA[Resampling result]]></description>
+    </image>
   </parameters>
   <parameters>
     <label>Options</label>
-    <boolean>
-      <name>ResampleZ</name>
-      <description>
-        Whether we want to resample in the Z axis as well.
-      </description>
-      <label>Resample along Z-Axis</label>
-      <longflag>resamplez</longflag>
-      <default>true</default>
-    </boolean>
+    <float-vector>
+      <name>outputSpacing</name>
+      <flag>-s</flag>
+      <longflag>--spacing</longflag>
+      <description><![CDATA[Spacing along each dimension (0 means use input spacing)]]></description>
+      <label>Spacing</label>
+      <default>0,0,0</default>
+    </float-vector>
   </parameters>
 </executable>
