@@ -66,10 +66,12 @@ class BenderWelcomeWidget:
 
     self.get('GoToSampleDataButton').connect('clicked()', self.goToSampleDataModule)
     self.get('GoToWorkflowMenuButton').connect('clicked()', self.goToFEMWorkflowModule)
+    self.get('GoToLabelsStatisticsButton').connect('clicked()', self.goToLabelsStatisticsModule)
 
     workflowMenu = qt.QMenu(self.get('GoToWorkflowMenuButton'))
     workflowMenu.addAction('Simple Workflow').connect('triggered()', self.goToSimpleWorkflowModule)
     workflowMenu.addAction('FEM Workflow').connect('triggered()', self.goToFEMWorkflowModule)
+    workflowMenu.addAction('Labels Statistics').connect('triggered()', self.goToLabelsStatisticsModule)
     self.get('GoToWorkflowMenuButton').setMenu(workflowMenu)
 
     # Label image setup
@@ -104,6 +106,9 @@ class BenderWelcomeWidget:
 
   def goToFEMWorkflowModule(self):
     slicer.util.selectModule('Workflow')
+
+  def goToLabelsStatisticsModule(self):
+    slicer.util.selectModule('BenderLabelStatistics')
 
 
   ### === Convenience python widget methods === ###
