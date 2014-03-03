@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filter</category>
+  <title>Voting Resampler</title>
+  <description>Resamples an image based on simple voting</description>
+  <version>0.1 (alpha)</version>
+  <documentation-url></documentation-url>
+  <license></license>
+  <contributor>Patrick Reynolds</contributor>
+  <acknowledgements></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description>Input/output parameters</description>
+    <image type="label">
+      <name>inputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input volume]]></description>
+    </image>
+    <image type="label">
+      <name>outputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Resampling result]]></description>
+    </image>
+  </parameters>
+  <parameters>
+    <label>Options</label>
+    <float-vector>
+      <name>outputSpacing</name>
+      <flag>-s</flag>
+      <longflag>--spacing</longflag>
+      <description><![CDATA[Spacing along each dimension (0 means use input spacing)]]></description>
+      <label>Spacing</label>
+      <default>0,0,0</default>
+    </float-vector>
+  </parameters>
+</executable>

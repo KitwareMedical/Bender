@@ -18,28 +18,19 @@
 #
 #============================================================================
 
-# List all the modules (ordered by dependencies) to build by Slicer
-set(modules
-  ChangeLabel
-  CreateTetrahedralMesh
-  MaterialPropertyReader
-  ModelQuadricClusteringDecimation
-  VolumeSkinning
-  ComputeArmatureWeight
-  EvalSurfaceWeight
-  PadImage
-  PoseSurface
-  PoseLabelmap
-  SimulatePose
-  VolumeMaterialExtractor
-  VotingResample
+#-----------------------------------------------------------------------------
+set(BASELINE ${CMAKE_CURRENT_SOURCE_DIR}/../Data/Baseline)
+set(CLP ${MODULE_NAME})
+
+#-----------------------------------------------------------------------------
+add_executable(${CLP}Test ${CLP}Test.cxx)
+target_link_libraries(${CLP}Test ${CLP}Lib)
+set_target_properties(${CLP}Test PROPERTIES LABELS ${CLP})
+
+set(testname ${CLP}Test)
+add_test(NAME ${testname} COMMAND ${Launcher_Command} $<TARGET_FILE:${CLP}Test>
+  ModuleEntryPoint
+  ${TEST_DATA}/CTHeadAxial.nhdr ${TEMP}/${CLP}Test.nhdr
   )
+set_property(TEST ${testname} PROPERTY LABELS ${CLP})
 
-set(Bender_MODULES)
-
-foreach(module ${modules})
-  list(APPEND Bender_MODULES
-    ${CMAKE_CURRENT_SOURCE_DIR}/${module})
-endforeach()
-
-set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
