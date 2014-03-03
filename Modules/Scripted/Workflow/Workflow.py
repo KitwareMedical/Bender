@@ -1121,6 +1121,25 @@ class WorkflowWidget:
     parameters["inputVolume"] = self.get('ResampleImageInputNodeComboBox').currentNode()
     parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
     parameters["outputSpacing"] = self.get('ResampleImageCoordinatesWidget').coordinates
+
+    parameters["highPrecedenceLabels"] = ''
+    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
+    for labelType in highPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      parameters["highPrecedenceLabels"] += '%s, ' %value
+
+    parameters["lowPrecedenceLabels"] = ''
+    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
+    for labelType in lowPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      parameters["lowPrecedenceLabels"] += '%s, ' %value
+
     return parameters
 
   def runResampleImage(self, run):
