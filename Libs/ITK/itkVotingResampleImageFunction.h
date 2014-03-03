@@ -1,5 +1,24 @@
 /*=========================================================================
 
+  Program: Bender
+
+  Copyright (c) Kitware Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+=========================================================================*/
+/*=========================================================================
+
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkVotingResampleImageFunction.h,v $
   Language:  C++
@@ -85,6 +104,25 @@ public:
   virtual OutputType EvaluateAtContinuousIndex( 
     const ContinuousIndexType & index ) const;
 
+  // Set the precedence labels. No check is done, the previous labels are
+  // simply replaced by the new ones.
+  // Precedence labels influence what label is picked over another label:
+  //  - High precedence labels are always picked over normal labels.
+  //  - Low precedence labels are only picked if the aren't any other labels
+  // around.
+  // The order of the precedence labels in the vector matters:
+  //  - Highest precedence labels are a the beginning of the HighPrecedenceLabels
+  // vector. For example, [209, 253, 111] would make the label 209 always
+  // overwrite the label 111 if both are present.
+  //  - Likewise for low precedence labels, the lowest precedence labels are at
+  // the beginning of the vector. For example, [143, 5, 17] would make the
+  // label 17 always overwrite the label 143 if they are competing for in the
+  // same voxel.
+  void SetHighPrecedenceLabels(std::vector<int>& labels);
+  std::vector<int> GetHighPrecedenceLabels() const;
+  void SetLowPrecedenceLabels(std::vector<int>& labels);
+  std::vector<int> GetLowPrecedenceLabels() const;
+
 protected:
   VotingResampleImageFunction();
   ~VotingResampleImageFunction(){};
@@ -95,7 +133,9 @@ private:
   void operator=( const Self& ); //purposely not implemented
 
   /** Number of neighbors used in the interpolation */
-  static const unsigned long  m_Neighbors;  
+  static const unsigned long  m_Neighbors;
+  std::vector<int> m_HighPrecedenceLabels;
+  std::vector<int> m_LowPrecedenceLabels;
 
 };
 

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <executable>
   <category>Filter</category>
-  <title>Voting Resampler</title>
+  <title>Voting Resample</title>
   <description>Resamples an image based on simple voting</description>
   <version>0.1 (alpha)</version>
-  <documentation-url></documentation-url>
+  <documentation-url><![CDATA[Resamples the a labelmap to the given spacing. The resampling is done using a voting scheme. For each output voxel, the the value of that voxel is given by the most represented value around that voxel.]]></documentation-url>
   <license></license>
-  <contributor>Patrick Reynolds</contributor>
+  <contributor>Patrick Reynolds, Johan Andruejol</contributor>
   <acknowledgements></acknowledgements>
   <parameters>
     <label>IO</label>
@@ -36,5 +36,17 @@
       <label>Spacing</label>
       <default>0,0,0</default>
     </float-vector>
+    <integer-vector>
+      <name>highPrecedenceLabels</name>
+      <label>High Precedence Labels</label>
+      <longflag>--high</longflag>
+      <description><![CDATA[List of label values (comma separated) that should take precedence when multiple labels are competing for the same voxel. Highest precedence labels are used first. For example, "209, 253, 111" would make the label 209 always overwrite the label 111 if they are competing for in the same voxel.]]></description>
+    </integer-vector>
+    <integer-vector>
+      <name>lowPrecedenceLabels</name>
+      <label>Low Precedence Labels</label>
+      <longflag>--low</longflag>
+      <description><![CDATA[List of label values (comma separated) that should *NOT* take precedence when multiple labelsare competing for the same voxel. Lowest precedence labels are listed first. For example, "143, 5, 17" would make the label 17 always overwrite the label 143 if they are competing for in the same voxel.]]></description>
+    </integer-vector>
   </parameters>
 </executable>
