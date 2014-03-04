@@ -774,8 +774,7 @@ Node::SPtr createCollisionNode(Node *parentNode, vtkPolyData * polyMesh,
   modelTypes.push_back("Line");
   modelTypes.push_back("Point");
 
-  Node::SPtr collisionNode(parentNode, false);
-
+  Node::SPtr collisionNode = parentNode->createChild("collisionNode");
   // Create a new node for a collision model if a surface is given
   if (createCollisionSurface)
     {
@@ -787,7 +786,6 @@ Node::SPtr createCollisionNode(Node *parentNode, vtkPolyData * polyMesh,
       return collisionNode;
       }
 
-    collisionNode = parentNode->createChild("collisionNode");
 
     // Load mesh
     vtkSmartPointer<vtkPoints>    points;
@@ -1117,5 +1115,5 @@ int main(int argc, char** argv)
     }
   sofa::simulation::getSimulation()->unload(root);
 
-  return 0;
+  return EXIT_SUCCESS;
 }
