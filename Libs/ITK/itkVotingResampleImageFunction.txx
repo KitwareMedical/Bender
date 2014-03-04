@@ -63,7 +63,10 @@ template<class TInputImage, class TCoordRep>
 VotingResampleImageFunction< TInputImage, TCoordRep >
 ::VotingResampleImageFunction()
 {
-
+  for (int i = 0; i < TInputImage::ImageDimension; ++i)
+    {
+    this->m_OutputSpacing[i] = 0;
+    }
 }
 
 /**
@@ -107,6 +110,16 @@ std::vector<int> VotingResampleImageFunction<TInputImage, TCoordRep>
 }
 
 /**
+ * SetOutputSpacing
+ */
+template<class TInputImage, class TCoordRep>
+void VotingResampleImageFunction<TInputImage, TCoordRep>
+::SetOutputSpacing(const SpacingType& spacing)
+{
+  this->m_OutputSpacing = spacing;
+}
+
+/**
  * PrintSelf
  */
 template<class TInputImage, class TCoordRep>
@@ -131,18 +144,21 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
   typedef itk::ConstNeighborhoodIterator< TInputImage > 
     NeighborhoodIteratorType;
 
-
-  typename NeighborhoodIteratorType::RadiusType radius;
-  radius.Fill(1);
-  NeighborhoodIteratorType it( radius, this->GetInputImage(), 
-    this->GetInputImage()->GetRequestedRegion() );
-  
+  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
+  RadiusType radius;
   IndexType newIndex;
-  for(int i = 0; i < 3; i++)
+  for (int i = 0; i < TInputImage::ImageDimension; ++i)
     {
-    newIndex[i] = (int)index[i];
+    radius[i] =
+      static_cast<typename RadiusType::SizeValueType>(
+        this->m_OutputSpacing[i]) / 2;
+
+    newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i]);
     }
-  
+
+
+  NeighborhoodIteratorType it(radius, this->GetInputImage(),
+    this->GetInputImage()->GetRequestedRegion());
   it.SetLocation(newIndex);
   itk::Neighborhood<PixelType,3> n = it.GetNeighborhood();
 

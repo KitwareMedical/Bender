@@ -88,7 +88,7 @@ VotingResample(typename ImageType::Pointer input,
       // Update size
       double scale = static_cast<double>(outputSpacing[i]) / inputSpacing[i];
       outputSize[i] =
-        static_cast<SizeValueType>(0.5 + static_cast<double>(inputSize[i]) / scale);
+        static_cast<SizeValueType>(static_cast<double>(inputSize[i]) / scale);
 
       // Update origin
       double sign = input->GetDirection()[i][i];
@@ -117,6 +117,7 @@ VotingResample(typename ImageType::Pointer input,
   interpolator->SetInputImage(input);
   interpolator->SetHighPrecedenceLabels(highPrecedenceLabels);
   interpolator->SetLowPrecedenceLabels(lowPrecedenceLabels);
+  interpolator->SetOutputSpacing(output->GetSpacing());
   typename ResampleImageFilterType::Pointer resample =
     ResampleImageFilterType::New();
   itk::PluginFilterWatcher resampleWatcher( resample, "Voting Resample", processInformation, progressFraction, progressStart );
@@ -124,8 +125,8 @@ VotingResample(typename ImageType::Pointer input,
   resample->SetInterpolator(interpolator);
   resample->SetSize(output->GetLargestPossibleRegion().GetSize());
   resample->SetOutputSpacing(output->GetSpacing());
-  resample->SetOutputOrigin(outputOrigin);
-  resample->SetOutputDirection(outputDirection);
+  resample->SetOutputOrigin(output->GetOrigin());
+  resample->SetOutputDirection(output->GetDirection());
   resample->Update(); 
 
   // return the result

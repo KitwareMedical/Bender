@@ -93,6 +93,9 @@ public:
   /** ContinuousIndex typedef support. */
   typedef typename Superclass::ContinuousIndexType ContinuousIndexType;
 
+  /** SpacingType typedef support. */
+  typedef typename InputImageType::SpacingType SpacingType;
+
   /** Evaluate the function at a ContinuousIndex position
    *
    * Returns the linearly interpolated image intensity at a 
@@ -123,6 +126,9 @@ public:
   void SetLowPrecedenceLabels(std::vector<int>& labels);
   std::vector<int> GetLowPrecedenceLabels() const;
 
+  void SetOutputSpacing(const SpacingType& spacing);
+  itkGetConstReferenceMacro(OutputSpacing, SpacingType);
+
 protected:
   VotingResampleImageFunction();
   ~VotingResampleImageFunction(){};
@@ -136,6 +142,7 @@ private:
   static const unsigned long  m_Neighbors;
   std::vector<int> m_HighPrecedenceLabels;
   std::vector<int> m_LowPrecedenceLabels;
+  SpacingType m_OutputSpacing;
 
 };
 
