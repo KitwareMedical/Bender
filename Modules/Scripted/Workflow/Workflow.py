@@ -1079,7 +1079,21 @@ class WorkflowWidget:
 
     # Update spacing
     spacing = volumeNode.GetSpacing()
-    newSpacing = [s * 2 for s in spacing]
+
+    scale = [2.0, 2.0, 2.0]
+    imageData = volumeNode.GetImageData()
+    if imageData:
+      dimensions = [0.0, 0.0, 0.0]
+      imageData.GetDimensions(dimensions)
+
+      for i in range(len(dimensions)):
+        outputSize = int(dimensions[i] / scale[i])
+        scale[i] = float(dimensions[i]) / float(outputSize)
+
+    newSpacing = []
+    for i in range(len(scale)):
+      newSpacing.append(spacing[i] * scale[i])
+
     self.get('ResampleImageCoordinatesWidget').coordinates = ", ".join(str(s) for s in newSpacing)
 
     self.addObserver(volumeNode, 'ModifiedEvent', self.updateResampleImage)
