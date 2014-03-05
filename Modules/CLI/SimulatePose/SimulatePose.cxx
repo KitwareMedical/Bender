@@ -947,7 +947,16 @@ int main(int argc, char** argv)
 {
   PARSE_ARGS;
 
-  double dt = 0.01;
+  if (Verbose)
+    {
+    std::cout << "Simulate pose with " << NumberOfSteps << " steps." << std::endl;
+    }
+  int nbsteps = NumberOfSteps;
+  const double dt = 1./ nbsteps;
+  // SOFA bug: even if the end time is 1.0, there seems to be a need for doing
+  // an extra step.
+  ++nbsteps;
+
   sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
 
   // The graph root node
@@ -1073,22 +1082,16 @@ int main(int argc, char** argv)
   if (Verbose)
     {
     std::cout << "Animate..." << std::endl;
+    std::cout << "Computing "<< nbsteps + 1 <<" iterations:" << std::endl;
     }
-  // --- Sofa time-stepping loop
-  sofa::simulation::getSimulation()->animate(root.get());
-
-  const int nbsteps = 3; //int(1/dt);
-  if (Verbose)
+  for (unsigned int i=0; i<=nbsteps; i++)
     {
-    std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
-    }
-  for (unsigned int i=0; i<nbsteps; i++)
-    {
-    sofa::simulation::getSimulation()->animate(root.get());
     if (Verbose)
       {
-      std::cout << "Iteration: " << i+1 << std::endl;
+      std::cout << " Iteration #" << i << "..." << std::endl;
       }
+    sofa::simulation::getSimulation()->animate(root.get(), dt);
+    //sofa::simulation::getSimulation()->animate(root.get());
     }
   vtkNew<vtkPolyData> posedSurface;
   initMesh(posedSurface.GetPointer(), tetMesh, anatomicalMesh);
