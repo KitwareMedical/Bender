@@ -1105,7 +1105,7 @@ p, li { white-space: pre-wrap; }
           <item row="3" column="1" colspan="3">
            <widget class="ctkCoordinatesWidget" name="ResampleImageCoordinatesWidget">
             <property name="decimals">
-             <number>0</number>
+             <number>3</number>
             </property>
             <property name="minimum">
              <double>0.000000000000000</double>

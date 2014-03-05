@@ -1079,7 +1079,21 @@ class WorkflowWidget:
 
     # Update spacing
     spacing = volumeNode.GetSpacing()
-    newSpacing = [s * 2 for s in spacing]
+
+    scale = [2.0, 2.0, 2.0]
+    imageData = volumeNode.GetImageData()
+    if imageData:
+      dimensions = [0.0, 0.0, 0.0]
+      imageData.GetDimensions(dimensions)
+
+      for i in range(len(dimensions)):
+        outputSize = int(dimensions[i] / scale[i])
+        scale[i] = float(dimensions[i]) / float(outputSize)
+
+    newSpacing = []
+    for i in range(len(scale)):
+      newSpacing.append(spacing[i] * scale[i])
+
     self.get('ResampleImageCoordinatesWidget').coordinates = ", ".join(str(s) for s in newSpacing)
 
     self.addObserver(volumeNode, 'ModifiedEvent', self.updateResampleImage)
@@ -1121,6 +1135,25 @@ class WorkflowWidget:
     parameters["inputVolume"] = self.get('ResampleImageInputNodeComboBox').currentNode()
     parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
     parameters["outputSpacing"] = self.get('ResampleImageCoordinatesWidget').coordinates
+
+    parameters["highPrecedenceLabels"] = ''
+    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
+    for labelType in highPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      parameters["highPrecedenceLabels"] += '%s, ' %value
+
+    parameters["lowPrecedenceLabels"] = ''
+    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
+    for labelType in lowPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      parameters["lowPrecedenceLabels"] += '%s, ' %value
+
     return parameters
 
   def runResampleImage(self, run):

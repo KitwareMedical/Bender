@@ -1,5 +1,24 @@
 /*=========================================================================
 
+  Program: Bender
+
+  Copyright (c) Kitware Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0.txt
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+=========================================================================*/
+/*=========================================================================
+
   Program:   Insight Segmentation & Registration Toolkit
   Module:    $RCSfile: itkVotingResampleImageFunction.txx,v $
   Language:  C++
@@ -44,9 +63,61 @@ template<class TInputImage, class TCoordRep>
 VotingResampleImageFunction< TInputImage, TCoordRep >
 ::VotingResampleImageFunction()
 {
-
+  for (int i = 0; i < TInputImage::ImageDimension; ++i)
+    {
+    this->m_OutputSpacing[i] = 0;
+    }
 }
 
+/**
+ * SetHighPrecedenceLabels
+ */
+template<class TInputImage, class TCoordRep>
+void VotingResampleImageFunction<TInputImage, TCoordRep>::
+SetHighPrecedenceLabels(std::vector<int>& labels)
+{
+  this->m_HighPrecedenceLabels = labels;
+}
+
+/**
+ * GetHighPrecedenceLabels
+ */
+template<class TInputImage, class TCoordRep>
+std::vector<int> VotingResampleImageFunction<TInputImage, TCoordRep>
+::GetHighPrecedenceLabels() const
+{
+  return this->m_HighPrecedenceLabels;
+}
+
+/**
+ * SetLowPrecedenceLabels
+ */
+template<class TInputImage, class TCoordRep>
+void VotingResampleImageFunction<TInputImage, TCoordRep>
+::SetLowPrecedenceLabels(std::vector<int>& labels)
+{
+  this->m_LowPrecedenceLabels = labels;
+}
+
+/**
+ * GetLowPrecedenceLabels
+ */
+template<class TInputImage, class TCoordRep>
+std::vector<int> VotingResampleImageFunction<TInputImage, TCoordRep>
+::GetLowPrecedenceLabels() const
+{
+  return this->m_LowPrecedenceLabels;
+}
+
+/**
+ * SetOutputSpacing
+ */
+template<class TInputImage, class TCoordRep>
+void VotingResampleImageFunction<TInputImage, TCoordRep>
+::SetOutputSpacing(const SpacingType& spacing)
+{
+  this->m_OutputSpacing = spacing;
+}
 
 /**
  * PrintSelf
@@ -58,7 +129,6 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
 {
   this->Superclass::PrintSelf(os,indent);
 }
-
 
 /**
  * Evaluate at image index position
@@ -74,43 +144,121 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
   typedef itk::ConstNeighborhoodIterator< TInputImage > 
     NeighborhoodIteratorType;
 
-
-  typename NeighborhoodIteratorType::RadiusType radius;
-  radius.Fill(1);
-  NeighborhoodIteratorType it( radius, this->GetInputImage(), 
-    this->GetInputImage()->GetRequestedRegion() );
-  
+  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
+  RadiusType radius;
   IndexType newIndex;
-  for(int i = 0; i < 3; i++)
+  for (int i = 0; i < TInputImage::ImageDimension; ++i)
     {
-    newIndex[i] = (int)index[i];
+    radius[i] =
+      static_cast<typename RadiusType::SizeValueType>(
+        this->m_OutputSpacing[i]) / 2;
+
+    newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i]);
     }
-  
+
+
+  NeighborhoodIteratorType it(radius, this->GetInputImage(),
+    this->GetInputImage()->GetRequestedRegion());
   it.SetLocation(newIndex);
   itk::Neighborhood<PixelType,3> n = it.GetNeighborhood();
+
+  // Initialize the tally.
+  // If at least one high priority label is present, the tally can be ignored
+  // as it's one of the high precedence label that will be used. In that case
+  // the loop is simply used to find which one has the highest precedence.
   std::map<PixelType, int> tally;
-  typename std::map<PixelType, int>::const_iterator itr;
+  bool highPrecedenceLabelFound = false;
+  typedef std::vector<int>::const_iterator IteratorType;
+  IteratorType highestPrecedenceLabelIterator = this->m_HighPrecedenceLabels.end();
+  PixelType ret;
   for (unsigned int i = 0; i < n.Size(); i++)
     {
-    tally[n[i]] = 0;
+    for (IteratorType HPIterator = this->m_HighPrecedenceLabels.begin();
+      HPIterator != this->m_HighPrecedenceLabels.end(); ++HPIterator)
+      {
+      if (static_cast<int>(n[i]) == *HPIterator)
+        {
+        if (!highPrecedenceLabelFound)
+          {
+          // First time a high precedence label is found, initialize the
+          // highestPrecedenceLabel value for future comparisons
+          highPrecedenceLabelFound = true;
+          highestPrecedenceLabelIterator = HPIterator;
+          ret = n[i];
+          }
+        else if (HPIterator < highestPrecedenceLabelIterator)
+          {
+          highestPrecedenceLabelIterator = HPIterator;
+          ret = n[i];
+          }
+        }
+      }
+
+    if (!highPrecedenceLabelFound)
+      {
+      tally[n[i]] = 0;
+      }
     }
+
+  if (highPrecedenceLabelFound)
+    {
+    return ret;
+    }
+
+  // No high precedence labels were present, so do the normal counting.
   for (unsigned int i = 0; i < n.Size(); i++)
     {
     tally[n[i]] += 1;
+
+    for (IteratorType LPIterator = this->m_LowPrecedenceLabels.begin();
+      LPIterator != this->m_LowPrecedenceLabels.end(); ++LPIterator)
+      {
+      // If any low precedence label is present, do NOT count them as they
+      // shouldn't be selected over normal labels.
+      if (static_cast<int>(n[i]) == *LPIterator)
+        {
+        tally[n[i]] = 0;
+        }
+      }
     }
-  bool first = true;
+
+  // Find the election winner
   int max = 0;
-  unsigned short ret = 0;
+  ret = 0;
+  typename std::map<PixelType, int>::const_iterator itr;
   for(itr = tally.begin(); itr != tally.end(); ++itr)
     {
-    if(first == true || itr->second > max)
+    if(itr->second > max)
       {
-      first = false;
       max = itr->second;
       ret = itr->first;
       }
     }
-  return ret;  
+
+  if (max > 0)
+    {
+    return ret;
+    }
+
+  // There were no election winner. This means that there were only low
+  // precedence labels. Find and return the label with smallest low precedence.
+  ret = n[0];
+  IteratorType smallestLowPrecedenceLabelIterator =
+    this->m_LowPrecedenceLabels.begin();
+  for (unsigned int i = 0; i < n.Size(); i++)
+    {
+    for (IteratorType LPIterator = this->m_LowPrecedenceLabels.begin();
+      LPIterator != this->m_LowPrecedenceLabels.end(); ++LPIterator)
+      {
+      if (static_cast<int>(n[i]) == *LPIterator
+        && LPIterator >= smallestLowPrecedenceLabelIterator)
+        {
+        ret = n[i];
+        smallestLowPrecedenceLabelIterator = LPIterator;
+        }
+      }
+    }
+  return ret;
 }
 
 } // end namespace itk
