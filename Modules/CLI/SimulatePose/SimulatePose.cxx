@@ -774,8 +774,7 @@ Node::SPtr createCollisionNode(Node *parentNode, vtkPolyData * polyMesh,
   modelTypes.push_back("Line");
   modelTypes.push_back("Point");
 
-  Node::SPtr collisionNode(parentNode, false);
-
+  Node::SPtr collisionNode = parentNode->createChild("collisionNode");
   // Create a new node for a collision model if a surface is given
   if (createCollisionSurface)
     {
@@ -787,7 +786,6 @@ Node::SPtr createCollisionNode(Node *parentNode, vtkPolyData * polyMesh,
       return collisionNode;
       }
 
-    collisionNode = parentNode->createChild("collisionNode");
 
     // Load mesh
     vtkSmartPointer<vtkPoints>    points;
@@ -949,7 +947,16 @@ int main(int argc, char** argv)
 {
   PARSE_ARGS;
 
-  double dt = 0.01;
+  if (Verbose)
+    {
+    std::cout << "Simulate pose with " << NumberOfSteps << " steps." << std::endl;
+    }
+  int nbsteps = NumberOfSteps;
+  const double dt = 1./ nbsteps;
+  // SOFA bug: even if the end time is 1.0, there seems to be a need for doing
+  // an extra step.
+  ++nbsteps;
+
   sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
 
   // The graph root node
@@ -1075,22 +1082,16 @@ int main(int argc, char** argv)
   if (Verbose)
     {
     std::cout << "Animate..." << std::endl;
+    std::cout << "Computing "<< nbsteps + 1 <<" iterations:" << std::endl;
     }
-  // --- Sofa time-stepping loop
-  sofa::simulation::getSimulation()->animate(root.get());
-
-  const int nbsteps = 3; //int(1/dt);
-  if (Verbose)
+  for (unsigned int i=0; i<=nbsteps; i++)
     {
-    std::cout << "Computing "<<nbsteps<<" iterations." << std::endl;
-    }
-  for (unsigned int i=0; i<nbsteps; i++)
-    {
-    sofa::simulation::getSimulation()->animate(root.get());
     if (Verbose)
       {
-      std::cout << "Iteration: " << i+1 << std::endl;
+      std::cout << " Iteration #" << i << "..." << std::endl;
       }
+    sofa::simulation::getSimulation()->animate(root.get(), dt);
+    //sofa::simulation::getSimulation()->animate(root.get());
     }
   vtkNew<vtkPolyData> posedSurface;
   initMesh(posedSurface.GetPointer(), tetMesh, anatomicalMesh);
@@ -1117,5 +1118,5 @@ int main(int argc, char** argv)
     }
   sofa::simulation::getSimulation()->unload(root);
 
-  return 0;
+  return EXIT_SUCCESS;
 }

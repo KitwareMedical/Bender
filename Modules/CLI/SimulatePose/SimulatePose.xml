@@ -53,6 +53,13 @@
       <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
       <default>false</default>
     </boolean>
+    <integer>
+      <name>NumberOfSteps</name>
+      <label>Number of steps</label>
+      <longflag>--steps</longflag>
+      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
+      <default>4</default>
+    </integer>
   </parameters>
   <parameters advanced="true">
     <label>Advanced</label>
