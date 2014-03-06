@@ -37,6 +37,7 @@
 #define __itkVotingResampleImageFunction_h
 
 #include "itkInterpolateImageFunction.h"
+#include "itkConstNeighborhoodIterator.h"
 
 namespace itk
 {
@@ -96,6 +97,13 @@ public:
   /** SpacingType typedef support. */
   typedef typename InputImageType::SpacingType SpacingType;
 
+  /** NeighborhoodIteratorType typedef support. */
+  typedef itk::ConstNeighborhoodIterator< TInputImage > NeighborhoodIteratorType;
+
+  /** Radius typedef support. */
+  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
+  typedef typename RadiusType::SizeValueType RadiusValueType;
+
   /** Evaluate the function at a ContinuousIndex position
    *
    * Returns the linearly interpolated image intensity at a 
@@ -129,6 +137,9 @@ public:
   void SetOutputSpacing(const SpacingType& spacing);
   itkGetConstReferenceMacro(OutputSpacing, SpacingType);
 
+  itkSetMacro(Radius, RadiusValueType);
+  itkGetConstMacro(Radius, RadiusValueType);
+
 protected:
   VotingResampleImageFunction();
   ~VotingResampleImageFunction(){};
@@ -143,6 +154,7 @@ private:
   std::vector<int> m_HighPrecedenceLabels;
   std::vector<int> m_LowPrecedenceLabels;
   SpacingType m_OutputSpacing;
+  RadiusValueType m_Radius;
 
 };
 

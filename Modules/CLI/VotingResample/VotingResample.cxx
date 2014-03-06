@@ -189,6 +189,7 @@ int DoIt( int argc, char *argv[] )
                               outputSpacing,
                               highPrecedenceLabels,
                               lowPrecedenceLabels,
+                              radius,
                               CLPProcessInformation, 1, 0 );
   timeCollector.Stop("VotingResample");
 

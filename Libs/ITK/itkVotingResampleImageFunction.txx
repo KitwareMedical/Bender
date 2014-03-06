@@ -38,7 +38,6 @@
 
 #include "itkVotingResampleImageFunction.h"
 
-#include "itkConstNeighborhoodIterator.h"
 #include "itkNeighborhood.h"
 #include <map>
 
@@ -141,17 +140,24 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
   const ContinuousIndexType& index) const
 {
   typedef typename TInputImage::PixelType PixelType;
-  typedef itk::ConstNeighborhoodIterator< TInputImage > 
-    NeighborhoodIteratorType;
 
-  typedef typename NeighborhoodIteratorType::RadiusType RadiusType;
   RadiusType radius;
   IndexType newIndex;
   for (int i = 0; i < TInputImage::ImageDimension; ++i)
     {
-    radius[i] =
-      static_cast<typename RadiusType::SizeValueType>(
-        this->m_OutputSpacing[i]) / 2;
+    if (this->m_Radius == -1)
+      {
+      double numberOfInputVoxelsCoveredByOutputVoxel =
+        this->m_OutputSpacing[i] / this->GetInputImage()->GetSpacing()[i];
+      // Remove the size of the central voxel and divide by 2 for the radius.
+      double inputRadius = (numberOfInputVoxelsCoveredByOutputVoxel - 1) / 2.;
+      radius[i] = static_cast<typename RadiusType::SizeValueType>(
+        inputRadius >= 1.0 ? inputRadius + 0.5 : 1.0);
+      }
+    else
+      {
+      radius[i] = this->m_Radius;
+      }
 
     newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i]);
     }
