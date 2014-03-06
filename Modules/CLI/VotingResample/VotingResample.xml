@@ -60,5 +60,12 @@
         <step>1</step>
       </constraints>
     </integer>
+    <boolean>
+      <name>autoadjustSpacing</name>
+      <label>Auto-adjust spacing</label>
+      <longflag>--adjust</longflag>
+      <description><![CDATA[Whether the output image spacing is adjusted based on the output image expected size.]]></description>
+      <default>false</default>
+    </boolean>
   </parameters>
 </executable>
