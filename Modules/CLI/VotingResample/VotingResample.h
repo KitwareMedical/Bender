@@ -92,7 +92,7 @@ VotingResample(typename ImageType::Pointer input,
         static_cast<SizeValueType>(static_cast<double>(inputSize[i]) / scale);
 
       // Update origin
-      double sign = input->GetDirection()[i][i];
+      double sign = inputDirection[i][i];
       outputOrigin[i] =
         inputOrigin[i] + sign * (outputSpacing[i] - inputSpacing[i]) /2.;
       }

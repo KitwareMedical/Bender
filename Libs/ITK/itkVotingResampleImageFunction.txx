@@ -176,7 +176,7 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
   bool highPrecedenceLabelFound = false;
   typedef std::vector<int>::const_iterator IteratorType;
   IteratorType highestPrecedenceLabelIterator = this->m_HighPrecedenceLabels.end();
-  PixelType ret;
+  PixelType ret = 0;
   for (unsigned int i = 0; i < n.Size(); i++)
     {
     for (IteratorType HPIterator = this->m_HighPrecedenceLabels.begin();
