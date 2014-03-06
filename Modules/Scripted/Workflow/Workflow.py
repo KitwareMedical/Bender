@@ -1076,26 +1076,6 @@ class WorkflowWidget:
     self.removeObservers(self.updateResampleImage)
 
     self.createResampleImageOutput(volumeNode)
-
-    # Update spacing
-    spacing = volumeNode.GetSpacing()
-
-    scale = [2.0, 2.0, 2.0]
-    imageData = volumeNode.GetImageData()
-    if imageData:
-      dimensions = [0.0, 0.0, 0.0]
-      imageData.GetDimensions(dimensions)
-
-      for i in range(len(dimensions)):
-        outputSize = int(dimensions[i] / scale[i])
-        scale[i] = float(dimensions[i]) / float(outputSize)
-
-    newSpacing = []
-    for i in range(len(scale)):
-      newSpacing.append(spacing[i] * scale[i])
-
-    self.get('ResampleImageCoordinatesWidget').coordinates = ", ".join(str(s) for s in newSpacing)
-
     self.addObserver(volumeNode, 'ModifiedEvent', self.updateResampleImage)
     self.validateResampleImage()
 
@@ -1134,7 +1114,13 @@ class WorkflowWidget:
     parameters = {}
     parameters["inputVolume"] = self.get('ResampleImageInputNodeComboBox').currentNode()
     parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
-    parameters["outputSpacing"] = self.get('ResampleImageCoordinatesWidget').coordinates
+    #parameters["radius"] = -1
+    parameters["autoadjustSpacing"] = True
+
+    # Update spacing
+    spacing = parameters["inputVolume"].GetSpacing()
+    scale = self.get('ResampleImageSpacingSpinBox').value
+    parameters["outputSpacing"] = ", ".join(str(s*scale) for s in spacing)
 
     parameters["highPrecedenceLabels"] = ''
     highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
@@ -1200,7 +1186,7 @@ class WorkflowWidget:
     self.saveFile('Resampled volume', 'VolumeFile', '.mha', self.get('ResampleImageOutputNodeComboBox'))
 
   def openResampleImageModule(self):
-    self.openModule('ResampleImage')
+    self.openModule('VotingResample')
 
     cliNode = self.getCLINode(slicer.modules.votingresample)
     parameters = self.resampleImageParameters()
