@@ -149,9 +149,12 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
   IndexType newIndex;
   for (int i = 0; i < TInputImage::ImageDimension; ++i)
     {
-    radius[i] =
-      static_cast<typename RadiusType::SizeValueType>(
-        this->m_OutputSpacing[i]) / 2;
+    double numberOfInputVoxelsCoveredByOutputVoxel =
+      this->m_OutputSpacing[i] / this->GetInputImage()->GetSpacing()[i];
+    // Remove the size of the central voxel and divide by 2 for the radius.
+    double inputRadius = (numberOfInputVoxelsCoveredByOutputVoxel - 1) / 2.;
+    radius[i] = static_cast<typename RadiusType::SizeValueType>(
+      inputRadius >= 1. ? inputRadius + 0.5 : 1. );
 
     newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i]);
     }
