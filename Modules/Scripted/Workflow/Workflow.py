@@ -181,6 +181,7 @@ class WorkflowWidget:
     self.get('ResampleImageOutputNodeToolButton').connect('clicked()', self.saveResampleImageVolumeNode)
     self.get('ResampleImageApplyPushButton').connect('clicked(bool)', self.runResampleImage)
     self.get('ResampleImageGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onMaterialChanged)
 
     # 3) Mesh
     # a) Tet-Mesh generator
@@ -1116,29 +1117,13 @@ class WorkflowWidget:
     parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
     #parameters["radius"] = -1
     parameters["autoadjustSpacing"] = True
+    parameters["highPrecedenceLabels"] =  self.get('ResampleImageHighPrecedenceLabelsLineEdit').text
+    parameters["lowPrecedenceLabels"] = self.get('ResampleImageLowPrecedenceLabelsLineEdit').text
 
     # Update spacing
     spacing = parameters["inputVolume"].GetSpacing()
     scale = self.get('ResampleImageSpacingSpinBox').value
     parameters["outputSpacing"] = ", ".join(str(s*scale) for s in spacing)
-
-    parameters["highPrecedenceLabels"] = ''
-    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
-    for labelType in highPrecedenceLabelTypes:
-      try:
-        value = self.getMergedLabel(labelType)
-      except ValueError:
-        value = ''
-      parameters["highPrecedenceLabels"] += '%s, ' %value
-
-    parameters["lowPrecedenceLabels"] = ''
-    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
-    for labelType in lowPrecedenceLabelTypes:
-      try:
-        value = self.getMergedLabel(labelType)
-      except ValueError:
-        value = ''
-      parameters["lowPrecedenceLabels"] += '%s, ' %value
 
     return parameters
 
@@ -1191,6 +1176,27 @@ class WorkflowWidget:
     cliNode = self.getCLINode(slicer.modules.votingresample)
     parameters = self.resampleImageParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def onMaterialChanged(self):
+    highPrecedenceLabels = ''
+    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
+    for labelType in highPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      highPrecedenceLabels += '%s, ' %value
+    self.get('ResampleImageHighPrecedenceLabelsLineEdit').text = highPrecedenceLabels
+
+    lowPrecedenceLabels = ''
+    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
+    for labelType in lowPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      lowPrecedenceLabels += '%s, ' %value
+    self.get('ResampleImageLowPrecedenceLabelsLineEdit').text = lowPrecedenceLabels
 
   #----------------------------------------------------------------------------
   #    c) Pad Image
