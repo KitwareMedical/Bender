@@ -159,7 +159,7 @@ VotingResampleImageFunction< TInputImage, TCoordRep >
       radius[i] = this->m_Radius;
       }
 
-    newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i]);
+    newIndex[i] = static_cast<typename IndexType::IndexValueType>(index[i] + 0.5);
     }
 
 
