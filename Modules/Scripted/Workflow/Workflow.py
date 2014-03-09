@@ -181,6 +181,7 @@ class WorkflowWidget:
     self.get('ResampleImageOutputNodeToolButton').connect('clicked()', self.saveResampleImageVolumeNode)
     self.get('ResampleImageApplyPushButton').connect('clicked(bool)', self.runResampleImage)
     self.get('ResampleImageGoToModulePushButton').connect('clicked()', self.openResampleImageModule)
+    self.get('LabelsTableWidget').connect('itemChanged(QTableWidgetItem*)', self.onMaterialChanged)
 
     # 3) Mesh
     # a) Tet-Mesh generator
@@ -1076,26 +1077,6 @@ class WorkflowWidget:
     self.removeObservers(self.updateResampleImage)
 
     self.createResampleImageOutput(volumeNode)
-
-    # Update spacing
-    spacing = volumeNode.GetSpacing()
-
-    scale = [2.0, 2.0, 2.0]
-    imageData = volumeNode.GetImageData()
-    if imageData:
-      dimensions = [0.0, 0.0, 0.0]
-      imageData.GetDimensions(dimensions)
-
-      for i in range(len(dimensions)):
-        outputSize = int(dimensions[i] / scale[i])
-        scale[i] = float(dimensions[i]) / float(outputSize)
-
-    newSpacing = []
-    for i in range(len(scale)):
-      newSpacing.append(spacing[i] * scale[i])
-
-    self.get('ResampleImageCoordinatesWidget').coordinates = ", ".join(str(s) for s in newSpacing)
-
     self.addObserver(volumeNode, 'ModifiedEvent', self.updateResampleImage)
     self.validateResampleImage()
 
@@ -1134,25 +1115,15 @@ class WorkflowWidget:
     parameters = {}
     parameters["inputVolume"] = self.get('ResampleImageInputNodeComboBox').currentNode()
     parameters["outputVolume"] = self.get('ResampleImageOutputNodeComboBox').currentNode()
-    parameters["outputSpacing"] = self.get('ResampleImageCoordinatesWidget').coordinates
+    #parameters["radius"] = -1
+    parameters["autoadjustSpacing"] = True
+    parameters["highPrecedenceLabels"] =  self.get('ResampleImageHighPrecedenceLabelsLineEdit').text
+    parameters["lowPrecedenceLabels"] = self.get('ResampleImageLowPrecedenceLabelsLineEdit').text
 
-    parameters["highPrecedenceLabels"] = ''
-    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
-    for labelType in highPrecedenceLabelTypes:
-      try:
-        value = self.getMergedLabel(labelType)
-      except ValueError:
-        value = ''
-      parameters["highPrecedenceLabels"] += '%s, ' %value
-
-    parameters["lowPrecedenceLabels"] = ''
-    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
-    for labelType in lowPrecedenceLabelTypes:
-      try:
-        value = self.getMergedLabel(labelType)
-      except ValueError:
-        value = ''
-      parameters["lowPrecedenceLabels"] += '%s, ' %value
+    # Update spacing
+    spacing = parameters["inputVolume"].GetSpacing()
+    scale = self.get('ResampleImageSpacingSpinBox').value
+    parameters["outputSpacing"] = ", ".join(str(s*scale) for s in spacing)
 
     return parameters
 
@@ -1200,11 +1171,32 @@ class WorkflowWidget:
     self.saveFile('Resampled volume', 'VolumeFile', '.mha', self.get('ResampleImageOutputNodeComboBox'))
 
   def openResampleImageModule(self):
-    self.openModule('ResampleImage')
+    self.openModule('VotingResample')
 
     cliNode = self.getCLINode(slicer.modules.votingresample)
     parameters = self.resampleImageParameters()
     slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def onMaterialChanged(self):
+    highPrecedenceLabels = ''
+    highPrecedenceLabelTypes = ['skin', 'bone', 'muscle'] # watchout, order matters !
+    for labelType in highPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      highPrecedenceLabels += '%s, ' %value
+    self.get('ResampleImageHighPrecedenceLabelsLineEdit').text = highPrecedenceLabels
+
+    lowPrecedenceLabels = ''
+    lowPrecedenceLabelTypes = ['background'] # watchout, order matters !
+    for labelType in lowPrecedenceLabelTypes:
+      try:
+        value = self.getMergedLabel(labelType)
+      except ValueError:
+        value = ''
+      lowPrecedenceLabels += '%s, ' %value
+    self.get('ResampleImageLowPrecedenceLabelsLineEdit').text = lowPrecedenceLabels
 
   #----------------------------------------------------------------------------
   #    c) Pad Image

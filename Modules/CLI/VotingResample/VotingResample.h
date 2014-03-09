@@ -59,6 +59,8 @@ VotingResample(typename ImageType::Pointer input,
                std::vector<float>& spacing,
                std::vector<int>& highPrecedenceLabels,
                std::vector<int>& lowPrecedenceLabels,
+               int radius,
+               bool adjustSpacing,
                ModuleProcessInformation * processInformation = NULL,
                double progressFraction = 1,
                double progressStart = 0)
@@ -83,15 +85,24 @@ VotingResample(typename ImageType::Pointer input,
     {
     if (spacing[i] > 1e-6)
       {
-      outputSpacing[i] = spacing[i];
+      double scale = static_cast<double>(spacing[i]) / inputSpacing[i];
 
       // Update size
-      double scale = static_cast<double>(outputSpacing[i]) / inputSpacing[i];
       outputSize[i] =
         static_cast<SizeValueType>(static_cast<double>(inputSize[i]) / scale);
 
+      if (adjustSpacing)
+        {
+        double realScale = static_cast<double>(inputSize[i]) / outputSize[i];
+        outputSpacing[i] = inputSpacing[i] * realScale;
+        }
+      else
+        {
+        outputSpacing[i] = spacing[i];
+        }
+
       // Update origin
-      double sign = input->GetDirection()[i][i];
+      double sign = inputDirection[i][i];
       outputOrigin[i] =
         inputOrigin[i] + sign * (outputSpacing[i] - inputSpacing[i]) /2.;
       }
@@ -118,6 +129,7 @@ VotingResample(typename ImageType::Pointer input,
   interpolator->SetHighPrecedenceLabels(highPrecedenceLabels);
   interpolator->SetLowPrecedenceLabels(lowPrecedenceLabels);
   interpolator->SetOutputSpacing(output->GetSpacing());
+  interpolator->SetRadius(radius);
   typename ResampleImageFilterType::Pointer resample =
     ResampleImageFilterType::New();
   itk::PluginFilterWatcher resampleWatcher( resample, "Voting Resample", processInformation, progressFraction, progressStart );

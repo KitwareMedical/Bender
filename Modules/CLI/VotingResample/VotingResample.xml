@@ -48,5 +48,24 @@
       <longflag>--low</longflag>
       <description><![CDATA[List of label values (comma separated) that should *NOT* take precedence when multiple labelsare competing for the same voxel. Lowest precedence labels are listed first. For example, "143, 5, 17" would make the label 17 always overwrite the label 143 if they are competing for in the same voxel.]]></description>
     </integer-vector>
+    <integer>
+      <name>radius</name>
+      <label>Voting radius</label>
+      <longflag>--radius</longflag>
+      <description><![CDATA[Select the radius around the current voxel for which other voxels are taken into account for the voting. -1 (default value) means that the radius is automatically computed based on the image spacing and the desired output spacing.]]></description>
+      <default>-1</default>
+      <constraints>
+        <minimum>-1</minimum>
+        <maximum>50</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+    <boolean>
+      <name>autoadjustSpacing</name>
+      <label>Auto-adjust spacing</label>
+      <longflag>--adjust</longflag>
+      <description><![CDATA[Whether the output image spacing is adjusted based on the output image expected size.]]></description>
+      <default>false</default>
+    </boolean>
   </parameters>
 </executable>
