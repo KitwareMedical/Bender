@@ -35,8 +35,10 @@
 #include "vtkBenderArmaturesModuleMRMLCoreExport.h"
 class vtkBoneRepresentation;
 class vtkCallbackCommand;
+class vtkObserverManager;
 class vtkMRMLBoneDisplayNode;
 class vtkMRMLDisplayNode;
+class vtkMRMLAnnotationHierarchyNode;
 
 /// \ingroup Bender_MRML
 /// \brief Annotation to design and edit a bone.
@@ -86,8 +88,14 @@ public:
   //--------------------------------------------------------------------------
   // Annotation methods
   //--------------------------------------------------------------------------
+  virtual void Initialize(vtkMRMLScene* mrmlScene)
+    {
+    vtkErrorMacro("Invalid method for vtkMRMLBoneNode."
+      "Use Initialize(scene, parent) instead.");
+    }
 
-  virtual void Initialize(vtkMRMLScene* mrmlScene);
+  void Initialize(
+    vtkMRMLScene* mrmlScene, vtkMRMLAnnotationHierarchyNode* parent);
 
   /// Reimplement the vtkMRMLAnnotationNode method to create a modified event.
   //void SetVisible(int visible);
@@ -103,6 +111,9 @@ public:
   /// Create a default display node if not already present.
   /// \sa CreateDefaultStorageNode()
   void CreateBoneDisplayNode();
+
+  /// Convenience method to get the hierarchy node associated with this bone.
+  vtkMRMLAnnotationHierarchyNode* GetHierarchyNode();
 
   /// Get the bone length.
   double GetLength();
@@ -293,6 +304,19 @@ protected:
 
   vtkMRMLBoneNode(const vtkMRMLBoneNode&); /// not implemented
   void operator=(const vtkMRMLBoneNode&); /// not implemented
+
+  /// MRML scene callback
+  static void MRMLSceneCallback(
+    vtkObject *caller, unsigned long eid,
+    void *clientData, void *callData);
+
+  virtual void ProcessMRMLSceneEvents(
+    vtkObject *caller, unsigned long eid, void *callData);
+
+  void AddBoneHierarchyNode();
+
+  vtkMRMLAnnotationHierarchyNode* CurrentHierarchyNode;
+  vtkObserverManager* SceneObserverManager;
 
   vtkCallbackCommand* Callback;
 
