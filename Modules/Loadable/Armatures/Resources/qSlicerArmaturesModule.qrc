@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>Icons/Armatures.png</file>
         <file>Icons/BoneWithArrow.png</file>
+        <file>Icons/Camera.png</file>
     </qresource>
 </RCC>

@@ -3460,7 +3460,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="2" column="0" colspan="4">
+          <item row="2" column="0" colspan="5">
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <item>
              <spacer name="horizontalSpacer_11">
@@ -3482,6 +3482,22 @@ p, li { white-space: pre-wrap; }
               </property>
               <property name="text">
                <string>Go to Armatures module</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="PoseArmatureImportAnimationToolButton_2">
+              <property name="text">
+               <string/>
+              </property>
+              <property name="icon">
+                <iconset>
+                  <normaloff>:/Icons/Camera.png</normaloff>:/Icons/Camera.png</iconset>
+              </property>
+              <property name="workflow" stdset="0">
+                <stringlist>
+                  <string>0</string>
+                </stringlist>
               </property>
              </widget>
             </item>
@@ -3517,7 +3533,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="3">
+          <item row="0" column="4">
            <widget class="QToolButton" name="PoseArmatureArmatureNodeSaveToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -3533,7 +3549,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
+          <item row="0" column="3">
            <widget class="QToolButton" name="PoseArmatureArmatureNodeLoadToolButton">
             <property name="text">
              <string>...</string>
@@ -3546,13 +3562,27 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="1" column="0" colspan="4">
+          <item row="1" column="0" colspan="5">
            <widget class="qMRMLArmaturesAnimationWidget" name="PoseArmaturesAnimationWidget">
+            <property name="selectFrame">
+             <bool>true</bool>
+            </property>
             <property name="workflow" stdset="0">
              <stringlist>
-              <string>0</string>
-              <string>1</string>
               <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QToolButton" name="PoseArmatureImportAnimationToolButton">
+            <property name="icon">
+             <iconset>
+              <normaloff>:/Icons/Camera.png</normaloff>:/Icons/Camera.png</iconset>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>1</string>
              </stringlist>
             </property>
            </widget>
@@ -5715,6 +5745,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>282</x>
      <y>131</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureImportAnimationToolButton</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseArmaturesAnimationWidget</receiver>
+   <slot>importAnimation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>741</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>749</x>
+     <y>156</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>PoseArmatureImportAnimationToolButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>PoseArmaturesAnimationWidget</receiver>
+   <slot>importAnimation()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>759</x>
+     <y>176</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>769</x>
+     <y>151</y>
     </hint>
    </hints>
   </connection>

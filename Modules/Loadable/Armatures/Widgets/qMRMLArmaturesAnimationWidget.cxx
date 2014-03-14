@@ -51,6 +51,7 @@ public:
   void setup();
 
   vtkMRMLArmatureNode* ArmatureNode;
+  bool SelectFrame;
 };
 
 
@@ -63,6 +64,7 @@ qMRMLArmaturesAnimationWidgetPrivate
   : q_ptr(&object)
 {
   this->ArmatureNode = 0;
+  this->SelectFrame = false;
   this->setup();
 }
 
@@ -78,7 +80,7 @@ void qMRMLArmaturesAnimationWidgetPrivate::setup()
     q, SLOT(onFrameChanged(double)));
 
   QObject::connect(this->ImportAnimationPushButton, SIGNAL(clicked()),
-    q, SLOT(onImportAnimationClicked()));
+    q, SLOT(importAnimation()));
 }
 
 //-----------------------------------------------------------------------------
@@ -94,6 +96,20 @@ qMRMLArmaturesAnimationWidget::qMRMLArmaturesAnimationWidget(QWidget* _parent)
 //-----------------------------------------------------------------------------
 qMRMLArmaturesAnimationWidget::~qMRMLArmaturesAnimationWidget()
 {
+}
+
+//-----------------------------------------------------------------------------
+bool qMRMLArmaturesAnimationWidget::selectFrame()const
+{
+  Q_D(const qMRMLArmaturesAnimationWidget);
+  return d->SelectFrame;
+}
+
+//-----------------------------------------------------------------------------
+void qMRMLArmaturesAnimationWidget::setSelectFrame(bool select)
+{
+  Q_D(qMRMLArmaturesAnimationWidget);
+  d->SelectFrame = select;
 }
 
 //-----------------------------------------------------------------------------
@@ -133,7 +149,7 @@ void qMRMLArmaturesAnimationWidget::onFrameChanged(double newFrame)
 }
 
 //-----------------------------------------------------------------------------
-void qMRMLArmaturesAnimationWidget::onImportAnimationClicked()
+void qMRMLArmaturesAnimationWidget::importAnimation()
 {
   Q_D(qMRMLArmaturesAnimationWidget);
   if (!d->ArmatureNode)
@@ -144,6 +160,7 @@ void qMRMLArmaturesAnimationWidget::onImportAnimationClicked()
   // open dialog with bvh file
   qSlicerIO::IOProperties ioProperties;
   ioProperties["targetArmature"] = d->ArmatureNode->GetID();
+  ioProperties["selectFrame"] = d->SelectFrame;
   vtkNew<vtkCollection> nodes;
   qSlicerApplication::application()->ioManager()->openDialog(
     QString("ArmatureFile"),
