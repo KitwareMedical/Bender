@@ -72,11 +72,6 @@ public:
   int CreateArmatureFromModel(
     vtkMRMLArmatureNode* armature, vtkPolyData* model);
 
-  /// MRML scene callback
-  static void MRMLSceneCallback(
-    vtkObject *caller, unsigned long eid,
-    void *clientData, void *callData);
-
   /// Get the total number of frames from the BVHReader.
   /// Returns 0 by default and if there's no BVH reader.
   unsigned int GetNumberOfFrames();
@@ -105,22 +100,6 @@ protected:
 
   /// Write data from a  referenced node
   virtual int WriteDataInternal(vtkMRMLNode *refNode);
-
-  virtual void ProcessMRMLSceneEvents(
-    vtkObject *caller, unsigned long eid, void *callData);
-
-  void AddBoneParent(vtkMRMLBoneNode* boneNode,
-                     vtkMRMLHierarchyNode* parentNode);
-  /// Return the parent of the bone being added into the scene.
-  /// \sa CurrentlyAddedBoneNodeParent, CurrentlyAddedArmatureNode
-  vtkMRMLHierarchyNode* GetCurrentBoneParent();
-
-
-  // Scene callback variables
-  vtkMRMLBoneNode* CurrentlyAddedBoneNode;
-  vtkMRMLBoneNode* CurrentlyAddedBoneNodeParent;
-  vtkMRMLArmatureNode* CurrentlyAddedArmatureNode;
-  vtkObserverManager* SceneObserverManager;
 
   // Only valid when reading a *.bvh file.
   vtkBVHReader* BVHReader;

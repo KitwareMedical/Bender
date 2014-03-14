@@ -298,6 +298,13 @@ protected:
   int ShouldResetPoseMode;
 
   unsigned int Frame;
+
+
+  // Scene callback variables
+  vtkMRMLBoneNode* CurrentlyAddedBoneNode;
+  vtkMRMLAnnotationHierarchyNode* CurrentlyAddedNodeParent;
+  vtkObserverManager* SceneObserverManager;
+
 };
 
 //----------------------------------------------------------------------------

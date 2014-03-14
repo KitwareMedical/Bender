@@ -31,13 +31,17 @@
 #include <vtkQuaternion.h>
 
 // MRML includes
+#include <vtkMRMLAnnotationHierarchyNode.h>
 #include <vtkMRMLScene.h>
 
 // VTK includes
 #include <vtkCallbackCommand.h>
+#include <vtkFloatArray.h>
+#include <vtkIntArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkObserverManager.h>
 
 #include <vtkProperty.h>
 
@@ -68,6 +72,15 @@ static void MRMLBoneNodeCallback(vtkObject* vtkNotUsed(caller),
 //----------------------------------------------------------------------------
 vtkMRMLBoneNode::vtkMRMLBoneNode()
 {
+  this->CurrentHierarchyNode = 0;
+
+  this->SceneObserverManager = vtkObserverManager::New();
+  this->SceneObserverManager->AssignOwner(this);
+  this->SceneObserverManager->GetCallbackCommand()->SetClientData(
+    reinterpret_cast<void *>(this));
+  this->SceneObserverManager->GetCallbackCommand()->SetCallback(
+    vtkMRMLBoneNode::MRMLSceneCallback);
+
   this->Callback = vtkCallbackCommand::New();
   this->BoneProperties = vtkBoneWidget::New();
   this->BoneRepresentationType = 0;
@@ -87,6 +100,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
 //----------------------------------------------------------------------------
 vtkMRMLBoneNode::~vtkMRMLBoneNode()
 {
+  this->SceneObserverManager->Delete();
   this->Callback->Delete();
   this->BoneProperties->Delete();
 }
@@ -235,13 +249,25 @@ void vtkMRMLBoneNode::ProcessMRMLEvents(vtkObject* caller,
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::ProcessMRMLSceneEvents(vtkObject *caller, unsigned long eid, void *callData)
+{
+  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
+  if (eid == vtkMRMLScene::NodeAddedEvent && node == this)
+    {
+    this->AddBoneHierarchyNode();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLBoneNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
+void vtkMRMLBoneNode
+::Initialize(vtkMRMLScene* mrmlScene, vtkMRMLAnnotationHierarchyNode* parent)
 {
   if (!mrmlScene)
     {
@@ -251,7 +277,29 @@ void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
   // \tbd remove this SetScene call as it shouldn't be mandatory.
   this->SetScene(mrmlScene);
   this->CreateBoneDisplayNode();
+
+  // HACK:
+  // The vtkSlicerAnnotationModuleLogic adds the hierarchy nodes with no
+  // respect for the bone parent. To make this right, we add
+  // an observer that needs to be called before the annotation logic to
+  // make sure that the hierarchy node is added properly.
+  // The CurrentlyAdded*Node are used to know what is the current armature
+  // and the current bones.
+  vtkNew<vtkIntArray> events;
+  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  vtkNew<vtkFloatArray> priorities;
+  // HACK: it should even be done before the scene models think the bones
+  // have no parent.
+  priorities->InsertNextValue(10000.0);
+  this->SceneObserverManager->AddObjectEvents(
+    this->GetScene(), events.GetPointer(), priorities.GetPointer());
+
+  this->CurrentHierarchyNode = parent;
   this->Superclass::Initialize(mrmlScene);
+
+  // Reset observer and CurrentHierarchyNode variables
+  this->SceneObserverManager->RemoveObjectEvents(this->GetScene());
+  this->CurrentHierarchyNode = 0;
 }
 
 //----------------------------------------------------------------------------
@@ -267,6 +315,14 @@ vtkMRMLBoneDisplayNode* vtkMRMLBoneNode::GetBoneDisplayNode()
       }
     }
   return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLAnnotationHierarchyNode* vtkMRMLBoneNode::GetHierarchyNode()
+{
+  return vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+    vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+      this->GetScene(), this->GetID()));
 }
 
 //---------------------------------------------------------------------------
@@ -924,4 +980,37 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::MRMLSceneCallback(vtkObject *caller, unsigned long eid,
+                    void *clientData, void *callData)
+{
+  vtkMRMLBoneNode *self = reinterpret_cast<vtkMRMLBoneNode *>(clientData);
+  assert(vtkMRMLScene::SafeDownCast(caller));
+  assert(caller == self->GetScene());
+
+  self->ProcessMRMLSceneEvents(caller, eid, callData);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::AddBoneHierarchyNode()
+{
+  if (!this->CurrentHierarchyNode || !this->GetID())
+    {
+    return;
+    }
+
+  vtkNew<vtkMRMLAnnotationHierarchyNode> hierarchyNode;
+  hierarchyNode->AllowMultipleChildrenOff();
+  hierarchyNode->SetHideFromEditors(1);
+  hierarchyNode->SetName(
+    this->GetScene()->GetUniqueNameByString("BoneAnnotationHierarchy"));
+
+  hierarchyNode->SetParentNodeID(this->CurrentHierarchyNode->GetID());
+
+  this->GetScene()->AddNode(hierarchyNode.GetPointer());
+
+  hierarchyNode->SetDisplayableNodeID(this->GetID());
 }

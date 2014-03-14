@@ -558,17 +558,20 @@ void qSlicerArmaturesModuleWidgetPrivate
     Q_Q(qSlicerArmaturesModuleWidget);
     vtkMRMLBoneNode* boneToDelete = this->BoneNode;
 
+    vtkMRMLAnnotationHierarchyNode* parentHierarchy = 0;
     if (newParentNode)
       {
       this->BonesTreeView->setCurrentNode(newParentNode);
+      parentHierarchy = newParentNode->GetHierarchyNode();
       }
     else
       {
       this->BonesTreeView->setCurrentNode(this->ArmatureNode);
+      parentHierarchy = this->ArmatureNode;
       }
 
     vtkNew<vtkMRMLBoneNode> copiedBoneNode;
-    copiedBoneNode->Initialize(q->mrmlScene());
+    copiedBoneNode->Initialize(q->mrmlScene(), parentHierarchy);
 
     copiedBoneNode->Copy(boneToDelete);
     boneToDelete->RemoveAllDisplayNodeIDs();

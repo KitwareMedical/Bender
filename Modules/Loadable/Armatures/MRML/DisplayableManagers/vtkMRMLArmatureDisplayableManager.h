@@ -25,6 +25,8 @@
 #include "vtkMRMLAnnotationDisplayableManager.h"
 #include "vtkBenderArmaturesModuleMRMLDisplayableManagersExport.h"
 
+class vtkMRMLAnnotationHierarchyNode;
+
 /// \brief Displayable manager for bone armatures in 3D views.
 ///
 /// Add and control a vtkBoneWidget for each bone node (vtkMRMLBoneNode) found
@@ -87,7 +89,7 @@ protected:
   /// Create a bone with the given head and tail coordinates and add it to the
   /// current MRML scene.
   void CreateAndAddBoneToCurrentScene(
-    double head[3], double tail[3], const char *associatedNodeID);
+    double head[3], double tail[3], const char *associatedNodeID, vtkMRMLAnnotationHierarchyNode* parent);
 
 private:
   vtkMRMLArmatureDisplayableManager(const vtkMRMLArmatureDisplayableManager&);// Not implemented

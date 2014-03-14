@@ -25,7 +25,6 @@
 #include <vtkCellData.h>
 #include <vtkCollection.h>
 #include <vtkDoubleArray.h>
-#include <vtkFloatArray.h>
 #include <vtkIdTypeArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
@@ -52,25 +51,12 @@ vtkMRMLNodeNewMacro(vtkMRMLArmatureStorageNode);
 //----------------------------------------------------------------------------
 vtkMRMLArmatureStorageNode::vtkMRMLArmatureStorageNode()
 {
-  this->CurrentlyAddedBoneNode = 0;
-  this->CurrentlyAddedBoneNodeParent = 0;
-  this->CurrentlyAddedArmatureNode = 0;
-
-  this->SceneObserverManager = vtkObserverManager::New();
-  this->SceneObserverManager->AssignOwner(this);
-  this->SceneObserverManager->GetCallbackCommand()->SetClientData(
-    reinterpret_cast<void *>(this));
-  this->SceneObserverManager->GetCallbackCommand()->SetCallback(
-    vtkMRMLArmatureStorageNode::MRMLSceneCallback);
-
   this->BVHReader = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLArmatureStorageNode::~vtkMRMLArmatureStorageNode()
 {
-  this->SceneObserverManager->Delete();
-
   if (this->BVHReader)
     {
     this->BVHReader->Delete();
@@ -87,19 +73,6 @@ void vtkMRMLArmatureStorageNode::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkMRMLArmatureStorageNode::CanReadInReferenceNode(vtkMRMLNode *refNode)
 {
   return refNode->IsA("vtkMRMLArmatureNode");
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLArmatureStorageNode
-::MRMLSceneCallback(vtkObject *caller, unsigned long eid,
-                    void *clientData, void *callData)
-{
-  vtkMRMLArmatureStorageNode *self =
-    reinterpret_cast<vtkMRMLArmatureStorageNode *>(clientData);
-  assert(vtkMRMLScene::SafeDownCast(caller));
-  assert(caller == self->GetScene());
-
-  self->ProcessMRMLSceneEvents(caller, eid, callData);
 }
 
 //----------------------------------------------------------------------------
@@ -154,56 +127,6 @@ void vtkMRMLArmatureStorageNode
     double angle = rotation.GetRotationAngleAndAxis(axis);
     boneNode->RotateTailWithParentWXYZ(angle, axis);
     }
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLArmatureStorageNode
-::ProcessMRMLSceneEvents(vtkObject *caller, unsigned long eid, void *callData)
-{
-  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
-  if (eid == vtkMRMLScene::NodeAddedEvent &&
-      node == this->CurrentlyAddedBoneNode)
-    {
-    this->AddBoneParent(vtkMRMLBoneNode::SafeDownCast(node),
-                        this->GetCurrentBoneParent());
-    }
-}
-
-//----------------------------------------------------------------------------
-void vtkMRMLArmatureStorageNode::AddBoneParent(vtkMRMLBoneNode* boneNode,
-                                               vtkMRMLHierarchyNode* parentNode)
-{
-  if (!boneNode || !parentNode)
-    {
-    return;
-    }
-  vtkNew<vtkMRMLAnnotationHierarchyNode> hierarchyNode;
-  hierarchyNode->AllowMultipleChildrenOff();
-  hierarchyNode->SetName(
-    this->GetScene()->GetUniqueNameByString("AnnotationHierarchy"));
-
-  hierarchyNode->SetParentNodeID(parentNode->GetID());
-
-  this->GetScene()->AddNode(hierarchyNode.GetPointer());
-
-  hierarchyNode->SetDisplayableNodeID(boneNode->GetID());
-}
-
-//----------------------------------------------------------------------------
-vtkMRMLHierarchyNode* vtkMRMLArmatureStorageNode::GetCurrentBoneParent()
-{
-  vtkMRMLHierarchyNode* parentHierarchyNode = 0;
-  if (this->CurrentlyAddedBoneNodeParent)
-    {
-    parentHierarchyNode =
-      vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
-        this->GetScene(), this->CurrentlyAddedBoneNodeParent->GetID());
-    }
-  else
-    {
-    parentHierarchyNode = this->CurrentlyAddedArmatureNode;
-    }
-  return parentHierarchyNode;
 }
 
 //----------------------------------------------------------------------------
@@ -268,24 +191,6 @@ int vtkMRMLArmatureStorageNode::CreateArmatureFromModel(
       << "-> No pose imported !" <<std::endl;
     }
 
-  // HACK:
-  // The vtkSlicerAnnotationModuleLogic adds the hierarchy nodes with no
-  // respect for the bone parent. To make this right, we add
-  // an observer that needs to be called before the annotation logic to
-  // make sure that the hierarchy node is added properly.
-  // The CurrentlyAdded*Node are used to know what is the current armature
-  // and the current bones.
-  this->CurrentlyAddedArmatureNode = armatureNode;
-
-  vtkNew<vtkIntArray> events;
-  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
-  vtkNew<vtkFloatArray> priorities;
-  // HACK: it should even be done before the scene models think the bones
-  // have no parent.
-  priorities->InsertNextValue(10000.0);
-  this->SceneObserverManager->AddObjectEvents(
-    this->GetScene(), events.GetPointer(), priorities.GetPointer());
-
   vtkNew<vtkCollection> addedBones;
   for (vtkIdType id = 0, pointId = 0;
     id < parenthood->GetNumberOfTuples(); ++id, pointId += 2)
@@ -344,21 +249,21 @@ int vtkMRMLArmatureStorageNode::CreateArmatureFromModel(
         }
       }
 
-    this->CurrentlyAddedBoneNode = boneNode;
-    this->CurrentlyAddedBoneNodeParent = boneParentNode;
-    boneNode->Initialize(this->GetScene());
-    this->CurrentlyAddedBoneNodeParent = 0;
-    this->CurrentlyAddedBoneNode = 0;
+    vtkMRMLAnnotationHierarchyNode* parentHierarchyNode = 0;
+    if (boneParentNode)
+      {
+      parentHierarchyNode = boneParentNode->GetHierarchyNode();
+      }
+    else
+      {
+      parentHierarchyNode = armatureNode;
+      }
+    boneNode->Initialize(this->GetScene(), parentHierarchyNode);
+
 
     addedBones->AddItem(boneNode);
     boneNode->Delete();
     }
-
-  // Reset observer and CurrentlyAdded*Node variables
-  this->SceneObserverManager->RemoveObjectEvents(this->GetScene());
-  this->CurrentlyAddedBoneNode = 0;
-  this->CurrentlyAddedBoneNodeParent = 0;
-  this->CurrentlyAddedArmatureNode = 0;
 
   return 1;
 }
