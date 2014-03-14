@@ -89,14 +89,11 @@ qSlicerArmaturesIOOptionsWidgetPrivate
   qSlicerArmaturesIOOptionsWidget& object)
   : q_ptr(&object)
 {
-  Q_Q(qSlicerArmaturesIOOptionsWidget);
-
   this->Reader = 0;
   this->Renderer = 0;
   this->RenderWindow = 0;
   this->RenderWindowInteractor = 0;
   this->WindowToImageFilter = 0;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -134,8 +131,6 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::createRendering(QString filename)
     {
     return;
     }
-
-  Q_Q(qSlicerArmaturesIOOptionsWidget);
 
   this->Reader = vtkBVHReader::New();
   this->Renderer = vtkRenderer::New();
@@ -177,8 +172,6 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::createRendering(QString filename)
 //-----------------------------------------------------------------------------
 void qSlicerArmaturesIOOptionsWidgetPrivate::deleteRendering()
 {
-  Q_Q(qSlicerArmaturesIOOptionsWidget);
-
   if (this->Reader)
     {
     this->DisplayLabel->setText("");
@@ -219,21 +212,29 @@ void qSlicerArmaturesIOOptionsWidget::setFileName(const QString& fileName)
 {
   Q_D(qSlicerArmaturesIOOptionsWidget);
 
-  if (d->Properties.contains("filename")
-    && fileName != d->Properties["filename"])
-    {
-    this->enableFrameChange(false);
-    }
+  // Save selectFrame value before enableFrameChange modifies it.
+  const bool selectFrame = d->Properties.contains("selectFrame") ?
+    d->Properties["selectFrame"].toBool() :
+    d->FrameSelectionEnabledCheckBox->isChecked();
+
+  // Disable rendering
+  d->FrameSelectionEnabledCheckBox->setChecked(false);
 
   this->Superclass::setFileName(fileName);
-  this->setEnabled(fileName.lastIndexOf(".bvh") != -1);
+
+  const bool isBVH = fileName.lastIndexOf(".bvh") != -1;
+  this->setEnabled(isBVH);
+  if (isBVH)
+    {
+    d->FrameSelectionEnabledCheckBox->setChecked(selectFrame);
+    }
+
 }
 
 //------------------------------------------------------------------------------
 void qSlicerArmaturesIOOptionsWidget
 ::setFileNames(const QStringList& fileNames)
 {
-  Q_D(qSlicerArmaturesIOOptionsWidget);
   this->setFileName(fileNames.size() > 0 ? fileNames.front() : "");
 }
 
@@ -241,8 +242,9 @@ void qSlicerArmaturesIOOptionsWidget
 void qSlicerArmaturesIOOptionsWidget::updateProperties()
 {
   Q_D(qSlicerArmaturesIOOptionsWidget);
-  d->Properties["frame"] =
-    static_cast<unsigned int>(d->FrameSliderWidget->value());
+  d->Properties["frame"] = d->FrameSelectionEnabledCheckBox->isChecked() ?
+    static_cast<unsigned int>( d->FrameSliderWidget->value()) : 0;
+  d->Properties["selectFrame"] = d->FrameSelectionEnabledCheckBox->isChecked();
   this->updateToolTip();
 }
 

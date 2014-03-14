@@ -14,7 +14,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Volume Options</string>
+   <string>Armature Options</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <property name="margin">
@@ -22,8 +22,11 @@
    </property>
    <item>
     <widget class="QCheckBox" name="FrameSelectionEnabledCheckBox">
+     <property name="toolTip">
+      <string>Select a frame to use as a pose</string>
+     </property>
      <property name="text">
-      <string>Frame selection</string>
+      <string>Frame</string>
      </property>
     </widget>
    </item>
