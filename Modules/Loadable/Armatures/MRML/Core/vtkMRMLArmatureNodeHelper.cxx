@@ -218,9 +218,6 @@ bool vtkMRMLArmatureNodeHelper
     return false;
     }
 
-  targetArmature->ResetPoseMode();
-  int oldState = targetArmature->SetWidgetState(vtkMRMLArmatureNode::Pose);
-
   vtkNew<vtkCollection> targetBones;
   targetArmature->GetAllBones(targetBones.GetPointer());
 
@@ -232,6 +229,8 @@ bool vtkMRMLArmatureNodeHelper
     return false;
     }
 
+  targetArmature->ResetPoseMode();
+  int oldState = targetArmature->SetWidgetState(vtkMRMLArmatureNode::Pose);
   // Prepare resizing
   std::vector<double> animationSizes;
   for (CorrespondenceList::iterator it = correspondence.begin();
@@ -370,9 +369,16 @@ bool vtkMRMLArmatureNodeHelper
       std::cerr<<"Could not find correspondence. Stopping."<<std::endl;
       return false;
       }
-    correspondence.push_back(
-      std::make_pair(targetBone,
-        animationArmature->GetBoneByName(targetBone->GetName())));
+    vtkBoneWidget* correspondingBone =
+      animationArmature->GetBoneByName(targetBone->GetName());
+    if (!correspondingBone)
+      {
+      std::cerr<<"Could not find matching bone for "
+        <<targetBone->GetName()<<". Stopping."<<std::endl;
+      return false;
+      }
+
+    correspondence.push_back(std::make_pair(targetBone, correspondingBone));
     }
   return true;
 }
