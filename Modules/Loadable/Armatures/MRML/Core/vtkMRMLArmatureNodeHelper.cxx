@@ -113,9 +113,21 @@ bool vtkMRMLArmatureNodeHelper::ResizeArmature(vtkMRMLArmatureNode* armature,
     {
     vtkMRMLBoneNode* bone =
       vtkMRMLBoneNode::SafeDownCast(bones->GetItemAsObject(i));
+    //\todo fixme, root isn't necessary the only top level bone
+    bool isTopLevel = (bone == root);
 
     // Before anything, save bone size and length
-    double size = GetBoneSize(bone);
+    double size;
+    if (isTopLevel)
+      {
+      // In root case, we actually want the length since root target head
+      // has already been translated to the animation's head.
+      size = bone->GetLength();
+      }
+    else
+      {
+      = GetBoneSize(bone);
+      }
     if (oldSizes)
       {
       oldSizes->push_back(size);
@@ -144,8 +156,6 @@ bool vtkMRMLArmatureNodeHelper::ResizeArmature(vtkMRMLArmatureNode* armature,
     bone->GetWorldTailRest(oldTargetTail);
 
     // Resize bone
-    //\todo fixme, root isn't necessary the only top level bone
-    bool isTopLevel = (bone == root);
     double newSize = sizes[i];
     if (bone->GetBoneLinkedWithParent() || isTopLevel)
       {
@@ -231,21 +241,31 @@ bool vtkMRMLArmatureNodeHelper
 
   targetArmature->ResetPoseMode();
   int oldState = targetArmature->SetWidgetState(vtkMRMLArmatureNode::Pose);
+
   // Prepare resizing
+  vtkMRMLBoneNode* targetRoot =
+    vtkMRMLBoneNode::SafeDownCast(roots->GetItemAsObject(0));
+
   std::vector<double> animationSizes;
   for (CorrespondenceList::iterator it = correspondence.begin();
     it < correspondence.end(); ++it)
     {
-    animationSizes.push_back(
-      vtkMRMLArmatureNodeHelper::GetBoneSize(it->second));
+    if (it->first == targetRoot)
+      {
+      // In root case, we actually want the length since root target head
+      // will be translated to the animation's head.
+      animationSizes.push_back(it->first->GetLength());
+      }
+    else
+      {
+      animationSizes.push_back(
+        vtkMRMLArmatureNodeHelper::GetBoneSize(it->second));
+      }
     }
 
   // Get anim and target origin
 
   // First move target root to anim root
-  vtkMRMLBoneNode* targetRoot =
-    vtkMRMLBoneNode::SafeDownCast(roots->GetItemAsObject(0));
-
   double targetRootHead[3], animRootHead[3];
   targetRoot->GetWorldHeadRest(targetRootHead);
   for (CorrespondenceList::iterator it = correspondence.begin();
