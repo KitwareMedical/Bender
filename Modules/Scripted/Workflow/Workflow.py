@@ -15,8 +15,8 @@ class Workflow:
     parent.categories = ["", "Segmentation.Bender"]
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
     parent.helpText = string.Template("""
-Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/Workflow\">$a/Documentation/$b.$c/Modules/Workflow</a> for more information.
-    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
+Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/Workflow\">$a/Documentation/$b.$c/Modules/FEMWorkflow</a> for more information.
+    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':2, 'c':0 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
@@ -142,6 +142,7 @@ class WorkflowWidget:
     self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
+    self.get('LabelmapGoToLabelStatisticsModulePushButton').connect('clicked()', self.openLabelStatisticsModule)
     self.get('LPSRASTransformPushButton').connect('clicked()', self.runLPSRASTransform)
 
     # 2) Extract
@@ -774,6 +775,8 @@ class WorkflowWidget:
 
   def openLabelmapModule(self):
     self.openModule('Volumes')
+  def openLabelStatisticsModule(self):
+    self.openModule('BenderLabelStatistics')
 
   #    b) Transform
   def runLPSRASTransform(self):

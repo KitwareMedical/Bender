@@ -4,8 +4,8 @@
   <index>4</index>
   <title>Evaluate Surface Weight</title>
   <description><![CDATA[Evaluate the weights' value for each vertex of the <b>Input Surface</b>.<p>For each weight image of the <b>Weight Directory</b>, a field array with the weight at the <b>Input Surface</b> vertices is added. It is encouraged to run this module on surface that will be posed as it can speed up processing time.</p>]]></description>
-  <version>1.1.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/EvalSurfaceWeight</documentation-url>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/EvalWeight</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware), Johan Andruejol (Kitware), Julien Finet (Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>

@@ -13,7 +13,7 @@ class SimpleWorkflow:
     parent.contributors = ["Julien Finet (Kitware), Johan Andruejol (Kitware)"]
     parent.helpText = string.Template("""
 Step by step workflow to reposition a labelmap. See <a href=\"$a/Documentation/$b.$c/Modules/SimpleWorkflow\">$a/Documentation/$b.$c/Modules/SimpleWorkflow</a> for more information.
-    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
+    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':2, 'c':0 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """

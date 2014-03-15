@@ -2,12 +2,12 @@
 <executable>
   <category>Filter</category>
   <title>Voting Resample</title>
-  <description>Resamples an image based on simple voting</description>
-  <version>0.1 (alpha)</version>
-  <documentation-url><![CDATA[Resamples the a labelmap to the given spacing. The resampling is done using a voting scheme. For each output voxel, the the value of that voxel is given by the most represented value around that voxel.]]></documentation-url>
-  <license></license>
-  <contributor>Patrick Reynolds, Johan Andruejol</contributor>
-  <acknowledgements></acknowledgements>
+  <description><![CDATA[Resamples a labelmap to the given spacing. The resampling is done using a voting scheme. For each output voxel, the value of that voxel is given by the most represented value around that voxel.]]></description>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/VotingResample</documentation-url>
+  <license/>
+  <contributor>Patrick Reynolds (Kitware), Johan Andruejol (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
   <parameters>
     <label>IO</label>
     <description>Input/output parameters</description>

@@ -23,7 +23,7 @@ class BenderSampleData:
       cache so it will be available directly next time.
       Use of this module requires an active network connection.
       See <a href=\"$a/Documentation/$b.$c/Modules/SampleData\">$a/Documentation/$b.$c/Modules/SampleData</a> for more information.
-      """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
+      """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':2, 'c':0 })
     parent.acknowledgementText = """
     This work is supported by Air Force Research Laboratory (AFRL)
     """
@@ -186,7 +186,7 @@ class BenderSampleDataLogic( SampleDataLogic ):
       'Inputs' :
         {
         'Volume' : ['man-arm-2mm', 'LabelmapFile', 'http://packages.kitware.com/download/item/3614/man-arm-2mm.mha', 'man-arm-2mm.mha'],
-        'Tissues' : ['Tissues-v1.1.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/3615/Tissues-v1.1.0.txt', 'Tissues-v1.1.0.txt'],
+        'Tissues' : ['Tissues-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/5127/Tissues-v2.0.0.txt', 'Tissues-v2.0.0.txt'],
         'Materials' : ['Materials-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/4964/Materials-v2.0.0.txt', 'Materials-v2.0.0.txt'],
         },
       'Outputs' :

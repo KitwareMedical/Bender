@@ -13,9 +13,9 @@ class BenderLabelStatistics:
     parent.dependencies = ["CropVolume"]
     parent.helpText = string.Template("""
 Use this module to calculate counts and volumes for different labels of a label map plus statistics on the grayscale background volume.  Note: volumes must have same dimensions.  See <a href=\"$a/Documentation/$b.$c/Modules/LabelStatistics\">$a/Documentation/$b.$c/Modules/LabelStatistics</a> for more information.
-    """).substitute({ 'a':parent.slicerWikiUrl, 'b':slicer.app.majorVersion, 'c':slicer.app.minorVersion })
+    """).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':2, 'c':0 })
     parent.acknowledgementText = """
-    Supported by NA-MIC, NAC, BIRN, NCIGT, and the Slicer Community. See http://www.slicer.org for details.  Module implemented by Steve Pieper.
+    Supported by Air Force Research Laboratory (AFRL) and the Slicer Community. See http://www.slicer.org for details.
     """
     self.parent = parent
 
