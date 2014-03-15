@@ -316,7 +316,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
                         const std::vector<std::string> &elements
                         )
 {
-  double stiffness = 100000.;//10.; // 30.
+  double stiffness = 10000.;//10.; // 30.
   double friction = 0.;
   double proximity = 0.05;
   double restitution = 0.1;
@@ -368,8 +368,8 @@ void addCollisionModels(Node::SPtr                      collisionNode,
 Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std::string(
                                              "default"))
 {
-  typedef LocalMinDistance ProximityType;
-  //typedef MinProximityIntersection ProximityType;
+//   typedef LocalMinDistance ProximityType;
+  typedef MinProximityIntersection ProximityType;
   Node::SPtr root = getSimulation()->createNewGraph("root");
 
   //Components for collision management
@@ -1637,7 +1637,7 @@ int main(int argc, char** argv)
     }
   int nbsteps = NumberOfSteps;
   //   const double dt = 1./ nbsteps;
-    const double dt = 0.001;
+    const double dt = 0.0001;
   // SOFA bug: even if the end time is 1.0, there seems to be a need for doing
   // an extra step.
   ++nbsteps;
@@ -1734,12 +1734,6 @@ int main(int argc, char** argv)
   UniformMass3::SPtr anatomicalMass = addNew<UniformMass3>(anatomicalNode.get(),"Mass");
   anatomicalMass->setTotalMass(100);
 
-/*
-  IdentityMapping<Vec3Types, Vec3Types>::SPtr identityMapping =
-    addNew<IdentityMapping<Vec3Types, Vec3Types> >(anatomicalNode,
-                                                   "identityMapping");
-  identityMapping->setModels(boneMesh.get(), posedMesh.get());
-*/
   if (Verbose)
     {
     std::cout << "Create finite element model..." << std::endl;
