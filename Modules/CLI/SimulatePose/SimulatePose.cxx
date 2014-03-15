@@ -316,9 +316,9 @@ void addCollisionModels(Node::SPtr                      collisionNode,
                         const std::vector<std::string> &elements
                         )
 {
-  double stiffness = 40.;//10.; // 30.
+  double stiffness = 100000.;//10.; // 30.
   double friction = 0.;
-  double proximity = 0.3;
+  double proximity = 0.05;
   double restitution = 0.1;
   for (size_t i=0; i < elements.size(); ++i)
     {
@@ -326,7 +326,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
       {
       TriangleModel::SPtr triModel = addNew<TriangleModel>(collisionNode,
         "TriangleCollision");
-      triModel->bothSide.setValue(true);
+      triModel->bothSide.setValue(false);
       triModel->setSelfCollision(true);
       triModel->setContactStiffness(stiffness);
       triModel->setContactFriction(friction);
@@ -337,7 +337,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
       {
       LineModel::SPtr lineModel = addNew<LineModel>(collisionNode,
         "LineCollision");
-      lineModel->bothSide.setValue(true);
+      lineModel->bothSide.setValue(false);
       lineModel->setSelfCollision(true);
       lineModel->setContactStiffness(stiffness);
       lineModel->setContactFriction(friction);
@@ -348,7 +348,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
       {
       PointModel::SPtr pointModel = addNew<PointModel>(collisionNode,
         "PointCollision");
-      pointModel->bothSide.setValue(true);
+      pointModel->bothSide.setValue(false);
       pointModel->setSelfCollision(true);
       pointModel->setContactStiffness(stiffness);
       pointModel->setContactFriction(friction);
@@ -1054,7 +1054,7 @@ void createFiniteElementModel(Node *              parentNode,
     addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
   femSolver->setComputeGlobalMatrix(false);
   femSolver->setMethod("large");
-  femSolver->setPoissonRatio(.3);
+  femSolver->setPoissonRatio(.4);
   femSolver->_youngModulus.setValue(youngModulus);
 }
 
@@ -1449,7 +1449,7 @@ Node::SPtr createCollisionNode(Node *parentNode, vtkPolyData * polyMesh,
 
   std::vector<std::string> modelTypes;
   modelTypes.push_back("Triangle");
-  //modelTypes.push_back("Line");
+  modelTypes.push_back("Line");
   modelTypes.push_back("Point");
 
   //Node::SPtr collisionNode(parentNode, false);//
@@ -1630,13 +1630,14 @@ int main(int argc, char** argv)
 {
   PARSE_ARGS;
 
-  
+
   if (Verbose)
     {
     std::cout << "Simulate pose with " << NumberOfSteps << " steps." << std::endl;
     }
   int nbsteps = NumberOfSteps;
-  const double dt = 1./ nbsteps;
+  //   const double dt = 1./ nbsteps;
+    const double dt = 0.001;
   // SOFA bug: even if the end time is 1.0, there seems to be a need for doing
   // an extra step.
   ++nbsteps;
@@ -1691,7 +1692,6 @@ int main(int argc, char** argv)
   // Time stepper for the armature
   createEulerSolverNode(root.get(),"Implicit");
 
-
   if (Verbose)
     {
     std::cout << "************************************************************"
@@ -1717,26 +1717,6 @@ int main(int argc, char** argv)
   UniformMass3::SPtr frameMass = addNew<UniformMass3>(skeletalNode.get(),"FrameMass");
   frameMass->setTotalMass(10000000000);
 
-/*
-  if (Verbose)
-    {
-    std::cout << "************************************************************"
-              << std::endl;
-    std::cout << "Create bone mesh..." << std::endl;
-    }
-
-  // Node for the bone mesh
-  Node::SPtr boneNode = skeletalNode->createChild("BoneMesh");
-
-  MechanicalObject<Vec3Types>::SPtr boneMesh = loadBoneMesh(
-    boneNode.get(), tetMesh, BoneLabel);
-  UniformMass3::SPtr boneMass = addNew<UniformMass3>(boneNode.get(),"Mass");
-  boneMass->setTotalMass(30);
-  //skinMesh(skeletalNode.get(), articulatedFrame, posedMesh,
-  //         armature, tetMesh);
-  skinBoneMesh(boneNode.get(), articulatedFrame, boneMesh,
-               armature, tetMesh, BoneLabel);
-*/
   if (Verbose)
     {
     std::cout << "************************************************************"
@@ -1819,22 +1799,6 @@ int main(int argc, char** argv)
     forcefield->init();
     }
 
-
-
-/*
-  if (Verbose)
-    {
-    std::cout << "************************************************************"
-              << std::endl;
-    std::cout << "Skin mesh..." << std::endl;
-    }
-  skinMesh(anatomicalMap.get(), articulatedFrame, posedMesh,
-           armature, tetMesh);
-  //skinBoneMesh(boneNode.get(), articulatedFrame, boneMesh,
-  //             armature, tetMesh, BoneLabel);
-  */
-//   mapArticulatedFrameToMesh(anatomicalMap.get(),articulatedFrame,posedMesh);
-
   if (Verbose)
     {
     std::cout << "************************************************************"
@@ -1853,14 +1817,6 @@ int main(int argc, char** argv)
     std::cout << "Init..." << std::endl;
     }
   sofa::simulation::getSimulation()->init(root.get());
-//root->setAnimate(true);
-/*
-  sofa::helper::vector< BaseNode* > parents = collisionNode->getParents();
-  for (int i=0; i < parents.size(); ++i)
-    {
-    std::cout << ">>>>>> Collision parent " << i << ": " << parents[i]->name.getValue() << std::endl;
-    }
-*/
 
   glutInit(&argc, argv);
   sofa::gui::initMain();
