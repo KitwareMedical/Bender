@@ -96,8 +96,8 @@ set(${kit}_VERSION_MAJOR 2)
 set(${kit}_VERSION_MINOR 0)
 set(${kit}_VERSION_PATCH 0)
 # Releases define a tweak level
-#set(${kit}_VERSION_TWEAK 0)
-#set(${kit}_VERSION_RC 0)
+set(${kit}_VERSION_TWEAK 0)
+set(${kit}_VERSION_RC 1)
 
 include(BenderExtractRepositoryInfo)
 bender_extract_repository_info(VAR_PREFIX ${kit}) # Used to configure ${kit}VersionConfigure.h.in
