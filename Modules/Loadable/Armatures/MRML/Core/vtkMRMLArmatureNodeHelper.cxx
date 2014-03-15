@@ -126,7 +126,7 @@ bool vtkMRMLArmatureNodeHelper::ResizeArmature(vtkMRMLArmatureNode* armature,
       }
     else
       {
-      = GetBoneSize(bone);
+      size = GetBoneSize(bone);
       }
     if (oldSizes)
       {
