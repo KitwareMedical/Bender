@@ -60,7 +60,7 @@ namespace itk
  * \ingroup ImageFunctions ImageInterpolators 
  */
 template <class TInputImage, class TCoordRep = float>
-class ITK_EXPORT VotingResampleImageFunction : 
+class VotingResampleImageFunction : 
   public InterpolateImageFunction<TInputImage,TCoordRep> 
 {
 public:
@@ -160,16 +160,6 @@ private:
 
 } // end namespace itk
 
-// Define instantiation macro for this template.
-#define ITK_TEMPLATE_VotingResampleImageFunction(_, EXPORT, x, y) \
-  namespace itk { \
-  _(2(class EXPORT VotingResampleImageFunction< ITK_TEMPLATE_2 x >)) \
-  namespace Templates { typedef VotingResampleImageFunction< ITK_TEMPLATE_2 x > \
-                                              VotingResampleImageFunction##y; } \
-  }
-
-#if ITK_TEMPLATE_TXX
 # include "itkVotingResampleImageFunction.txx"
-#endif
 
 #endif

@@ -26,26 +26,18 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
 
-find_package(VTK REQUIRED)
-include(${VTK_USE_FILE})
-
 find_package(Bender REQUIRED)
 include(${Bender_USE_FILE})
 
 set(MODULE_INCLUDE_DIRECTORIES
   ${Bender_INCLUDE_DIRS}
-  ${Eigen3_INCLUDE_DIRS}
   )
 
 set(MODULE_ADDITIONAL_SRCS
   VotingResample.cxx
-  VotingResample.h
   )
 set(MODULE_TARGET_LIBRARIES
-  ${Bender_LIBRARIES}
   ${ITK_LIBRARIES}
-  vtkIO
-  vtkGraphics
   )
 
 SEMMacroBuildCLI(
