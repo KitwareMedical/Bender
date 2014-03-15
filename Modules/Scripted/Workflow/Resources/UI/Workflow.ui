@@ -2785,7 +2785,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;How far (in voxel units) outside the body the weights region will be computed&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="value">
-             <number>2</number>
+             <number>12</number>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
