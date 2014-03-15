@@ -263,6 +263,12 @@ p, li { white-space: pre-wrap; }
               <property name="text">
                <string>Go to Label Statistics module</string>
               </property>
+              <property name="workflow" stdset="0">
+               <stringlist>
+                <string>1</string>
+                <string>2</string>
+               </stringlist>
+              </property>
              </widget>
             </item>
             <item>
@@ -1196,7 +1202,7 @@ p, li { white-space: pre-wrap; }
           <string>Create a tetrahedral mesh from the merged labelmap.</string>
          </property>
          <property name="title">
-          <string>A) Create mesh</string>
+          <string>A) Create tetrahedral mesh</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="1" column="0">
@@ -1638,7 +1644,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Toggle the skin surface model visibility&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Toggle skin visibility</string>
+               <string>Show/Hide skin</string>
               </property>
              </widget>
             </item>
@@ -2765,6 +2771,7 @@ p, li { white-space: pre-wrap; }
             <property name="workflow" stdset="0">
              <stringlist>
               <string>2</string>
+              <string>1</string>
              </stringlist>
             </property>
            </widget>
@@ -2785,11 +2792,12 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;How far (in voxel units) outside the body the weights region will be computed&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="value">
-             <number>2</number>
+             <number>12</number>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
               <string>2</string>
+              <string>1</string>
              </stringlist>
             </property>
            </widget>

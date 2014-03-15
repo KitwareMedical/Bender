@@ -88,7 +88,7 @@ public:
   //--------------------------------------------------------------------------
   // Annotation methods
   //--------------------------------------------------------------------------
-  virtual void Initialize(vtkMRMLScene* mrmlScene)
+  virtual void Initialize(vtkMRMLScene* vtkNotUsed(mrmlScene))
     {
     vtkErrorMacro("Invalid method for vtkMRMLBoneNode."
       "Use Initialize(scene, parent) instead.");

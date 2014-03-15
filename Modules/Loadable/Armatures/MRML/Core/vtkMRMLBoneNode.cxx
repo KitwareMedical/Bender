@@ -250,7 +250,7 @@ void vtkMRMLBoneNode::ProcessMRMLEvents(vtkObject* caller,
 
 //----------------------------------------------------------------------------
 void vtkMRMLBoneNode
-::ProcessMRMLSceneEvents(vtkObject *caller, unsigned long eid, void *callData)
+::ProcessMRMLSceneEvents(vtkObject *vtkNotUsed(caller), unsigned long eid, void *callData)
 {
   vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
   if (eid == vtkMRMLScene::NodeAddedEvent && node == this)
@@ -851,8 +851,8 @@ void vtkMRMLBoneNode::Scale(double factorX, double factorY, double factorZ)
 {
   double factors[3];
   factors[0] = factorX;
-  factors[1] = factorX;
-  factors[2] = factorX;
+  factors[1] = factorY;
+  factors[2] = factorZ;
   this->Scale(factors);
 }
 
