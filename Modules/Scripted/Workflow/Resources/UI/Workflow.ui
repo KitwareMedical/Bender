@@ -259,6 +259,13 @@ p, li { white-space: pre-wrap; }
              </widget>
             </item>
             <item>
+             <widget class="QPushButton" name="LabelmapGoToLabelStatisticsModulePushButton">
+              <property name="text">
+               <string>Go to Label Statistics module</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="ctkMenuButton" name="LPSRASTransformPushButton">
               <property name="enabled">
                <bool>false</bool>
@@ -3491,13 +3498,13 @@ p, li { white-space: pre-wrap; }
                <string/>
               </property>
               <property name="icon">
-                <iconset>
-                  <normaloff>:/Icons/Camera.png</normaloff>:/Icons/Camera.png</iconset>
+               <iconset>
+                <normaloff>:/Icons/Camera.png</normaloff>:/Icons/Camera.png</iconset>
               </property>
               <property name="workflow" stdset="0">
-                <stringlist>
-                  <string>0</string>
-                </stringlist>
+               <stringlist>
+                <string>0</string>
+               </stringlist>
               </property>
              </widget>
             </item>

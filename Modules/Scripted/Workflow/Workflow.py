@@ -142,6 +142,7 @@ class WorkflowWidget:
     self.get('LabelmapColorNodeToolButton').connect('clicked()', self.loadLabelmapColorNode)
     self.get('LabelMapApplyColorNodePushButton').connect('clicked()', self.applyColorNode)
     self.get('LabelmapGoToModulePushButton').connect('clicked()', self.openLabelmapModule)
+    self.get('LabelmapGoToLabelStatisticsModulePushButton').connect('clicked()', self.openLabelStatisticsModule)
     self.get('LPSRASTransformPushButton').connect('clicked()', self.runLPSRASTransform)
 
     # 2) Extract
@@ -774,6 +775,8 @@ class WorkflowWidget:
 
   def openLabelmapModule(self):
     self.openModule('Volumes')
+  def openLabelStatisticsModule(self):
+    self.openModule('BenderLabelStatistics')
 
   #    b) Transform
   def runLPSRASTransform(self):
