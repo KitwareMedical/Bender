@@ -4,8 +4,8 @@
   <index>6</index>
   <title>Pose Labelmap</title>
   <description><![CDATA[Transform a labelmap according to the input <b>Armature</b> pose and the associated weights.<p>The <b>Armature</b> and the weights should be associated with the volume the <b>Surface</b> originated from. For each surface voxel of the labelmap, the algorithm tri-linearly interpolates the input weight vector field. The resulting weight vector is used to blend the input armature transforms that is then applied to the voxel.</p><p>Since the computation can take time on fine volume, it is advised to first pose the skin and or skeleton model extracted from the <b>Input Rest Labelmap</b> to tweak the pose as necessary.</p>]]></description>
-  <version>1.1.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/PoseLabelmap</documentation-url>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/PoseLabelmap</documentation-url>
   <license/>
   <contributor>Yuanxin Liu (Kitware), Julien Finet(Kitware)</contributor>
   <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>

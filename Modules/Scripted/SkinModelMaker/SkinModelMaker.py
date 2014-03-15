@@ -180,7 +180,7 @@ class SkinModelMaker:
          an additional decimation is possible using Quadric Clustering.
          See <a href=\"$a/Documentation/$b.$c/Modules/SkinModelMaker\">$a/Documentation/$b.$c/Modules/SkinModelMaker</a> for more information.
       """
-      ).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':1, 'c':1 })
+      ).substitute({ 'a':'http://public.kitware.com/Wiki/Bender', 'b':2, 'c':0 })
     parent.acknowledgementText = """This work is supported by Air Force Research Laboratory (AFRL)"""
     self.parent = parent
 

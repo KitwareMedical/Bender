@@ -5,8 +5,8 @@
   <title>Volume Material Extractor</title>
   <description><![CDATA[This modules extract a specified material from a tetrahedral mesh.</p>]]>
   </description>
-  <version>1.1.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/VolumeSkinning</documentation-url>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/VolumeMaterialExtractor</documentation-url>
   <license/>
   <contributor>Ricardo Ortiz (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
