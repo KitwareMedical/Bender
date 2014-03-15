@@ -52,6 +52,7 @@ MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 
 #include "itkPluginFilterWatcher.h"
 
+namespace{
 //----------------------------------------------------------------------------
 template <class ImageType>
 typename ImageType::Pointer
@@ -143,6 +144,8 @@ VotingResample(typename ImageType::Pointer input,
 
   // return the result
   return resample->GetOutput();
+}
+
 }
 
 #endif
