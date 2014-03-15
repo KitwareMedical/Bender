@@ -53,6 +53,9 @@
 #include "qSlicerModuleManager.h"
 #include "qSlicerStyle.h"
 
+// ITK includes
+#include "itkFactoryRegistration.h"
+
 #ifdef Slicer_USE_PYTHONQT
 # include "qSlicerScriptedLoadableModuleFactory.h"
 #endif
@@ -199,6 +202,8 @@ void loadLanguage()
 //----------------------------------------------------------------------------
 int SlicerAppMain(int argc, char* argv[])
 {
+  itk::itkFactoryRegistration();
+
   // [Bender]
   QCoreApplication::setApplicationName("Bender");
   QApplication::setStyle("plastique");
