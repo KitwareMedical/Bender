@@ -123,6 +123,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_EXTENSIONMANAGER_SUPPORT:BOOL=OFF
       -DSlicer_USE_QtTesting:BOOL=OFF
       -DSlicer_USE_PYTHONQT:BOOL=ON
+      -DSlicer_USE_PYTHONQT_WITH_TCL:BOOL=OFF
       -DSlicer_QTLOADABLEMODULES_DISABLED:STRING=SlicerWelcome
       -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy^^SelfTests^^LabelStatistics
       -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
