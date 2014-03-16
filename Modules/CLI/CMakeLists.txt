@@ -21,12 +21,18 @@
 # List all the modules (ordered by dependencies) to build by Slicer
 set(modules
   ChangeLabel
+  CreateTetrahedralMesh
+  MaterialPropertyReader
   ModelQuadricClusteringDecimation
   VolumeSkinning
   ComputeArmatureWeight
   EvalSurfaceWeight
+  PadImage
   PoseSurface
   PoseLabelmap
+  SimulatePose
+  VolumeMaterialExtractor
+  VotingResample
   )
 
 set(Bender_MODULES)

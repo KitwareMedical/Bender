@@ -174,19 +174,26 @@ public:
   // Description:
   // Returns if the parent is directly the bone's parent.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  bool IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+  bool AreBonesDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
 
  // Description:
-  // Returns if the parent is directly or inderectly the bone's parent.
+  // Returns if the parent is directly or indirectly the bone's parent.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  bool IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
+  bool AreBonesParent(vtkBoneWidget* bone, vtkBoneWidget* parent);
 
   // Description:
-  // Returns the bone's children if the bone has any and it belongs
-  // to the armature.
-  // The user is responsible for deleting the returned collection.
+  // Returns the bone's direct children if the bone has any and it belongs
+  // to the armature. If recursive is true, then this returns all the children
+  // (direct and indirect) of the bone.
   // @sa CreateBone() AddBone() RemoveBone() HasBone() FindBoneChildren()
-  vtkCollection* FindBoneChildren(vtkBoneWidget* parent);
+  void FindBoneChildren(
+    vtkCollection* children, vtkBoneWidget* parent, bool recursive = false);
+
+  // Description:
+  // Returns whether or not the number of children the bone has.
+  // In the case where the bone does not belong to the armature, returns -1.
+  // @sa FindBoneChildren()
+  int CountDirectBoneChildren(vtkBoneWidget* parent);
 
   // Description:
   // Get a bone using its name. This will return the first bone with
@@ -236,9 +243,9 @@ public:
   //ETX
 
   // Description:
-  // Set/Get the bones widget state.
+  // Set/Get the bones widget state. The previous state is returned
   // @sa vtkBoneWidget
-  void SetWidgetState(int state);
+  int SetWidgetState(int state);
   vtkGetMacro(WidgetState, int);
 
   // Description:
@@ -282,7 +289,7 @@ public:
   // Merge the two bones of the armature together. The bones must
   // be parented and belong to the armature.
   // Returns the merged bone upon succes, NULL otherwise.
-  // @sa AddBone(), RemoveBone(), ArmatureEventType, IsBoneParent()
+  // @sa AddBone(), RemoveBone(), ArmatureEventType, AreBonesParent()
   vtkBoneWidget* MergeBones(vtkBoneWidget* headBone, vtkBoneWidget* tailBone);
 
   // Description:
@@ -305,6 +312,46 @@ public:
   vtkIdTypeArray* GetParenthoodArray();
   vtkStringArray* GetNamesArray();
   vtkDoubleArray* GetRestToPoseRotationArray();
+  // Returns the list of the bone children from a root.
+  // This uses a depth first searched.
+  // If no root is specified, the first root bone found is used.
+  void GetAllBones(vtkCollection* bones, vtkBoneWidget* root = 0);
+
+  // Description:
+  // Return the first root found (if any)
+  vtkBoneWidget* GetRoot();
+
+  // Description:
+  // Return the top-level bones.
+  void GetRoots(vtkCollection* roots);
+
+  // Description:
+  // Scale the rest armature by the given factor.
+  // \sa Translate(), RotateWXYZ(), Transform().
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Description:
+  // Translate the whole armature to the new position.
+  // \sa Scale(), RotateWXYZ(), Transform().
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Description:
+  // Rotate the whole rest armature. Angle is in degrees.
+  // \sa Translate(), Scale(), Transform().
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Description:
+  // Apply the given transformation to the rest armature.
+  // It does nothing if the given transform is null.
+  // \sa Scale(), Translate(), RotateWXYZ(), Transform().
+  void Transform(vtkTransform* t);
 
 protected:
   vtkArmatureWidget();
@@ -323,7 +370,7 @@ protected:
   // Top level bone tree
   typedef std::vector<vtkBoneWidget*> BoneVectorType;
   typedef BoneVectorType::iterator BoneVectorIterator;
-  std::vector<vtkBoneWidget*> TopLevelBones;
+  BoneVectorType TopLevelBones;
 
   // Bone Properties
   vtkBoneRepresentation* BonesRepresentation;
@@ -386,6 +433,11 @@ protected:
 
   // Init function to add the necesseray arrays to the armature.
   void AddArmatureArrays();
+
+  // Depth first searched to add the parent's children to the given
+  // annotation
+  void AddChildrenToCollectionRecursively(
+    vtkCollection* collection, vtkBoneWidget* parent);
 
 private:
   vtkArmatureWidget(const vtkArmatureWidget&);  //Not implemented

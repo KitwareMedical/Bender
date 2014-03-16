@@ -33,6 +33,7 @@ class vtkBoneRepresentation;
 class vtkBoneWidget;
 class vtkCallbackCommand;
 class vtkMRMLArmatureDisplayableManager;
+class vtkMRMLArmatureStorageNode;
 class vtkMRMLBoneNode;
 class vtkMRMLModelNode;
 
@@ -83,6 +84,14 @@ public:
                                  unsigned long event,
                                  void* callData);
 
+  /// Set/Get the armature storage node
+  vtkMRMLNode* GetStorageNode();
+  vtkMRMLArmatureStorageNode* GetArmatureStorageNode();
+  void SetArmatureStorageNode(vtkMRMLArmatureStorageNode* armatureStorageNode);
+
+  void SetFrame(unsigned int frame);
+  vtkGetMacro(Frame, unsigned int);
+
   //--------------------------------------------------------------------------
   // Annotation methods
   //--------------------------------------------------------------------------
@@ -117,7 +126,7 @@ public:
 
   /// Set the bones widget state.
   /// \sa GetWidgetState()
-  void SetWidgetState(int state);
+  int SetWidgetState(int state);
   /// Get the bones widget state.
   /// \sa SetWidgetState()
   int GetWidgetState();
@@ -185,6 +194,25 @@ public:
   /// \sa GetColor(), SetColor()
   void SetBoneLinkedWithParent(vtkBoneWidget* bone, bool linked);
   bool GetBoneLinkedWithParent(vtkBoneWidget* bone);*/
+
+  // Scale the armature in Rest mode.
+  void Scale(double factor);
+  void Scale(double factorX, double factorY, double factorZ);
+  void Scale(double factors[3]);
+
+  // Translate the barmatureone in Rest mode.
+  void Translate(double x, double y, double z);
+  void Translate(double rootHead[3]);
+
+  // Rotate the armature in Rest mode.
+  void RotateX(double angle);
+  void RotateY(double angle);
+  void RotateZ(double angle);
+  void RotateWXYZ(double angle, double x, double y, double z);
+  void RotateWXYZ(double angle, double axis[3]);
+
+  // Transform the bone in Rest mode.
+  void Transform(vtkTransform* t);
 
   //BTX
   enum MRMLArmatureNode
@@ -268,6 +296,15 @@ protected:
   int WidgetState;
   int BonesRepresentationType;
   int ShouldResetPoseMode;
+
+  unsigned int Frame;
+
+
+  // Scene callback variables
+  vtkMRMLBoneNode* CurrentlyAddedBoneNode;
+  vtkMRMLAnnotationHierarchyNode* CurrentlyAddedNodeParent;
+  vtkObserverManager* SceneObserverManager;
+
 };
 
 //----------------------------------------------------------------------------

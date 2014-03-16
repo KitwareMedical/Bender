@@ -32,8 +32,12 @@ set(${KIT}_INCLUDE_DIRECTORIES
   )
 
 set(${KIT}_SRCS
+  vtkMRMLArmatureNodeHelper.cxx
+  vtkMRMLArmatureNodeHelper.h
   vtkMRMLArmatureNode.cxx
   vtkMRMLArmatureNode.h
+  vtkMRMLArmatureStorageNode.cxx
+  vtkMRMLArmatureStorageNode.h
   vtkMRMLBoneDisplayNode.cxx
   vtkMRMLBoneDisplayNode.h
   vtkMRMLBoneNode.cxx

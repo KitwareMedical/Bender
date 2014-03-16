@@ -1018,7 +1018,7 @@ void vtkMRMLArmatureDisplayableManager
       double head[3];
       currentBone->GetWorldHeadRest(head);
       this->CreateAndAddBoneToCurrentScene(
-        head, worldCoordinates, associatedNodeID);
+        head, worldCoordinates, associatedNodeID, currentBone->GetHierarchyNode());
       return;
       }
     }
@@ -1043,7 +1043,9 @@ void vtkMRMLArmatureDisplayableManager
   if (this->m_ClickCounter->Click() >= 2)
     {
     this->CreateAndAddBoneToCurrentScene(
-      this->LastClickWorldCoordinates, worldCoordinates, associatedNodeID);
+      this->LastClickWorldCoordinates,
+      worldCoordinates, associatedNodeID,
+      this->Internal->SelectedArmatureNode);
     }
   memcpy(this->LastClickWorldCoordinates,
     worldCoordinates, 4 * sizeof(double));
@@ -1052,7 +1054,8 @@ void vtkMRMLArmatureDisplayableManager
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager
 ::CreateAndAddBoneToCurrentScene(double head[3], double tail[3],
-                                 const char *associatedNodeID)
+                                 const char *associatedNodeID,
+                                 vtkMRMLAnnotationHierarchyNode* parent)
 {
 // switch to updating state to avoid events mess
   this->m_Updating = 1;
@@ -1070,7 +1073,7 @@ void vtkMRMLArmatureDisplayableManager
     vtkDebugMacro("Associate Node ID: " << associatedNodeID);
     boneNode->SetAttribute("AssociatedNodeID", associatedNodeID);
     }
-  boneNode->Initialize(this->GetMRMLScene());
+  boneNode->Initialize(this->GetMRMLScene(), parent);
 
   // reset updating state
   this->m_Updating = 0;

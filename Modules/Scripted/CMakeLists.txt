@@ -20,7 +20,12 @@
 
 #add_subdirectory(Scripts)
 set(modules
-  Scripts
+  BenderLabelStatistics
+  BenderSampleData
+  BenderWelcome
+  SkinModelMaker
+  Workflow
+  SimpleWorkflow
   )
 
 set(Bender_MODULES)

@@ -36,7 +36,7 @@ if(DEFINED ${proj}_DIR AND NOT EXISTS ${${proj}_DIR})
 endif()
 
 # Set dependency list
-set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3)
+set(${proj}_DEPENDENCIES ${ITK_EXTERNAL_NAME} VTK Eigen3 Cleaver)
 
 # Include dependent projects if any
 SlicerMacroCheckExternalProjectDependency(${proj})
@@ -88,6 +88,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DVTK_DIR:PATH=${VTK_DIR}
       -DITK_DIR:PATH=${ITK_DIR}
       -DEIGEN3_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/Eigen3
+      -DCleaver_DIR:PATH=${Cleaver_DIR}
       #${dependency_args}
     DEPENDS
       ${${proj}_DEPENDENCIES}

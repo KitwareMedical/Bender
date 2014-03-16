@@ -43,6 +43,7 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkSmartPointer.h>
 #include <vtkStringArray.h>
+#include <vtkTransform.h>
 #include <vtkWidgetCallbackMapper.h>
 #include <vtkWidgetEvent.h>
 
@@ -422,19 +423,18 @@ ArmatureTreeNode* vtkArmatureWidget::CreateNewMapElement(vtkBoneWidget* parent)
 }
 
 //----------------------------------------------------------------------------
-void vtkArmatureWidget::SetWidgetState(int state)
+int vtkArmatureWidget::SetWidgetState(int state)
 {
   if (state == this->WidgetState)
     {
-    return;
+    return this->WidgetState;
     }
 
+  int oldState = this->WidgetState;
   this->WidgetState = state;
   if (this->TopLevelBones.empty())
     {
-    vtkErrorMacro("Could not find any root element !"
-      " Cannot set armature state.");
-    return;
+    return oldState;
     }
 
   switch (this->WidgetState)
@@ -471,12 +471,13 @@ void vtkArmatureWidget::SetWidgetState(int state)
     default:
       {
       vtkErrorMacro("Unknown state: "
-        <<this->WidgetState<<"/n  ->State unchanged");
+        <<this->WidgetState<<"  ->State unchanged");
       break;
       }
     }
 
   this->Modified();
+  return oldState;
 }
 
 //----------------------------------------------------------------------------
@@ -614,14 +615,14 @@ vtkBoneWidget* vtkArmatureWidget::GetBoneParent(vtkBoneWidget* bone)
 
 //----------------------------------------------------------------------------
 bool vtkArmatureWidget
-::IsBoneDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+::AreBonesDirectParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   return this->GetBoneParent(bone) == parent;
 }
 
 //----------------------------------------------------------------------------
 bool vtkArmatureWidget
-::IsBoneParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
+::AreBonesParent(vtkBoneWidget* bone, vtkBoneWidget* parent)
 {
   if (!parent)
     {
@@ -647,9 +648,14 @@ bool vtkArmatureWidget
 }
 
 //----------------------------------------------------------------------------
-vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
+void vtkArmatureWidget::FindBoneChildren(vtkCollection* children,
+                                         vtkBoneWidget* parent,
+                                         bool recursive)
 {
-  vtkCollection* children = vtkCollection::New();
+  if (!children)
+    {
+    return;
+    }
 
   ArmatureTreeNode* node = this->GetNode(parent);
   if (node)
@@ -658,10 +664,19 @@ vtkCollection* vtkArmatureWidget::FindBoneChildren(vtkBoneWidget* parent)
       it != node->Children.end(); ++it)
       {
       children->AddItem((*it)->Bone);
+      if (recursive)
+        {
+        this->FindBoneChildren(children, (*it)->Bone, recursive);
+        }
       }
     }
+}
 
-  return children;
+//----------------------------------------------------------------------------
+int vtkArmatureWidget::CountDirectBoneChildren(vtkBoneWidget* parent)
+{
+  ArmatureTreeNode* node = this->GetNode(parent);
+  return node ?  static_cast<int>(node->Children.size()) : -1;
 }
 
 //----------------------------------------------------------------------------
@@ -848,7 +863,7 @@ vtkBoneWidget* vtkArmatureWidget
     return NULL;
     }
 
-  if (! this->IsBoneParent(tailBone, headBone))
+  if (! this->AreBonesParent(tailBone, headBone))
     {
     vtkErrorMacro("Cannot merge bones that are not parented");
     return NULL;
@@ -889,20 +904,11 @@ vtkBoneWidget* vtkArmatureWidget
 //----------------------------------------------------------------------------
 void vtkArmatureWidget::ResetPoseToRest()
 {
-  int oldState = this->WidgetState;
   this->ShouldResetPoseToRest = true;
 
-  if (this->WidgetState == vtkArmatureWidget::Pose)
-    {
-    this->SetWidgetState(vtkArmatureWidget::Rest);
-    }
-
+  int oldState = this->SetWidgetState(vtkArmatureWidget::Rest);
   this->SetWidgetState(vtkArmatureWidget::Pose);
-
-  if(oldState == vtkArmatureWidget::Rest)
-    {
-    this->SetWidgetState(vtkArmatureWidget::Rest);
-    }
+  this->SetWidgetState(oldState);
 }
 
 //----------------------------------------------------------------------------
@@ -1131,6 +1137,138 @@ void vtkArmatureWidget::UpdatePolyData()
 }
 
 //----------------------------------------------------------------------------
+void vtkArmatureWidget::Scale(double factor)
+{
+  this->Scale(factor, factor, factor);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Scale(double factorX, double factorY, double factorZ)
+{
+  double factors[3];
+  factors[0] = factorX;
+  factors[1] = factorX;
+  factors[2] = factorX;
+  this->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Scale(double factors[3])
+{
+  vtkNew<vtkTransform> scale;
+  scale->Scale(factors);
+  this->Transform(scale.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Translate(double x, double y, double z)
+{
+  double translation[3];
+  translation[0] = x;
+  translation[1] = y;
+  translation[2] = z;
+  this->Translate(translation);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Translate(double rootHead[3])
+{
+  vtkNew<vtkTransform> translate;
+  translate->Translate(rootHead);
+  this->Transform(translate.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::RotateX(double angle)
+{
+  this->RotateWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::RotateY(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::RotateZ(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::RotateWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::RotateWXYZ(double angle, double axis[3])
+{
+  vtkNew<vtkTransform> rotation;
+  rotation->RotateWXYZ(angle, axis);
+  this->Transform(rotation.GetPointer());
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget::Transform(vtkTransform* transform)
+{
+  if (!transform)
+    {
+    return;
+    }
+
+  int oldState = this->SetWidgetState(vtkArmatureWidget::Rest);
+
+  for (BoneVectorType::iterator topLevel = this->TopLevelBones.begin();
+    topLevel != this->TopLevelBones.end(); ++topLevel)
+    {
+    vtkNew<vtkCollection> bones;
+    this->GetAllBones(bones.GetPointer(), *topLevel);
+
+    vtkNew<vtkPoints> positions;
+    for (int i = 0; i < bones->GetNumberOfItems(); ++i)
+      {
+      vtkBoneWidget* bone =
+        vtkBoneWidget::SafeDownCast(bones->GetItemAsObject(i));
+      assert(bone);
+
+      double pos[3];
+      bone->GetWorldHeadRest(pos);
+      positions->InsertNextPoint(pos);
+
+      bone->GetWorldTailRest(pos);
+      positions->InsertNextPoint(pos);
+      }
+
+    vtkNew<vtkPoints> newPositions;
+    transform->TransformPoints(
+      positions.GetPointer(), newPositions.GetPointer());
+
+    for (vtkIdType i = 0; i < newPositions->GetNumberOfPoints() / 2; ++i)
+      {
+      vtkBoneWidget* bone =
+        vtkBoneWidget::SafeDownCast(bones->GetItemAsObject(i));
+      assert(bone);
+
+      double pos[3];
+      newPositions->GetPoint(2*i, pos);
+      bone->SetWorldHeadRest(pos);
+
+      newPositions->GetPoint(2*i + 1, pos);
+      bone->SetWorldTailRest(pos);
+      }
+    }
+
+  this->SetWidgetState(oldState);
+  this->Modified();
+}
+
+//----------------------------------------------------------------------------
 void vtkArmatureWidget::ComputeTransform(double start[3], double end[3], double mat[3][3])
 {
   double startNormalized[3] = {start[0], start[1], start[2]};
@@ -1196,6 +1334,44 @@ void vtkArmatureWidget::ComputeAxisAngleMatrix(double axis[3], double angle, dou
   mat[2][2] = vz2 + co * (1.0f - vz2);
 }
 
+//-----------------------------------------------------------------------------
+void vtkArmatureWidget::GetAllBones(vtkCollection* bones, vtkBoneWidget* root)
+{
+  if (!bones)
+    {
+    return;
+    }
+
+  if (!root)
+    {
+    root = this->GetRoot();
+    }
+
+  bones->AddItem(root);
+  this->AddChildrenToCollectionRecursively(bones, root);
+}
+
+//-----------------------------------------------------------------------------
+vtkBoneWidget* vtkArmatureWidget::GetRoot()
+{
+  return this->TopLevelBones.front();
+}
+
+//-----------------------------------------------------------------------------
+void vtkArmatureWidget::GetRoots(vtkCollection* roots)
+{
+  if (!roots)
+    {
+    return;
+    }
+
+  for (BoneVectorIterator it = this->TopLevelBones.begin();
+      it != this->TopLevelBones.end(); ++it)
+    {
+    roots->AddItem(*it);
+    }
+}
+
 //----------------------------------------------------------------------------
 vtkDoubleArray* vtkArmatureWidget::GetTransformsArray()
 {
@@ -1230,6 +1406,28 @@ vtkDoubleArray* vtkArmatureWidget::GetRestToPoseRotationArray()
 {
   return vtkDoubleArray::SafeDownCast(
     this->PolyData->GetCellData()->GetAbstractArray("RestToPoseRotation"));
+}
+
+//----------------------------------------------------------------------------
+void vtkArmatureWidget
+::AddChildrenToCollectionRecursively(vtkCollection* children,
+                                     vtkBoneWidget* parent)
+{
+  if (!parent)
+    {
+    return;
+    }
+
+  ArmatureTreeNode* node = this->GetNode(parent);
+  if (node)
+    {
+    for (NodeIteratorType it = node->Children.begin();
+      it != node->Children.end(); ++it)
+      {
+      children->AddItem((*it)->Bone);
+      this->AddChildrenToCollectionRecursively(children, (*it)->Bone);
+      }
+    }
 }
 
 //----------------------------------------------------------------------------

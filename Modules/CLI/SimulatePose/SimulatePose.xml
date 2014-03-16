@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Dynamics</category>
+  <index>5</index>
+  <title>Simulate Pose</title>
+  <description><![CDATA[Pose a <b>Mesh</b> SOFA's finite element library.]]></description>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/SimulatePose</documentation-url>
+  <license/>
+  <contributor>Ricardo Ortiz (Kitware), Julien Finet (Kitware)</contributor>
+  <acknowledgements><![CDATA[This work is supported by Air Force Research Laboratory (AFRL)]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <geometry fileExtensions=".vtk">
+      <name>InputTetMesh</name>
+      <label>Volumetric mesh</label>
+      <description><![CDATA[Input volumetric mesh to be posed.]]></description>
+      <channel>input</channel>
+      <index>0</index>
+    </geometry>
+    <geometry fileExtensions=".vtk">
+      <name>ArmaturePoly</name>
+      <label>Armature</label>
+      <description><![CDATA[Armature model containing the bone poses. The armature must 'fit' inside <b>Surface</b>.]]></description>
+      <channel>input</channel>
+      <index>1</index>
+    </geometry>
+
+    <geometry fileExtensions=".vtk">
+      <name>InputSurface</name>
+      <label>Surface mesh</label>
+      <description><![CDATA[Input surface mesh used for collision detection and response.]]></description>
+      <channel>input</channel>
+      <index>2</index>
+    </geometry>
+
+    <geometry fileExtensions=".vtk">
+      <name>OutputTetMesh</name>
+      <label>Output posed mesh</label>
+      <description><![CDATA[Output volumetric mesh posed by the <b>Armature</b> transforms.]]></description>
+      <channel>output</channel>
+      <index>3</index>
+    </geometry>
+  </parameters>
+  <parameters>
+    <label>Controls</label>
+    <description><![CDATA[Control how the module operates]]></description>
+    <boolean>
+      <name>EnableCollision</name>
+      <label>Collision</label>
+      <longflag>--collision</longflag>
+      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
+      <default>false</default>
+    </boolean>
+    <integer>
+      <name>NumberOfSteps</name>
+      <label>Number of steps</label>
+      <longflag>--steps</longflag>
+      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
+      <default>4</default>
+    </integer>
+  </parameters>
+  <parameters advanced="true">
+    <label>Advanced</label>
+    <description><![CDATA[Advanced properties]]></description>
+
+    <boolean>
+      <name>IsArmatureInRAS</name>
+      <label>Armature in RAS</label>
+      <description><![CDATA[Whether input armature is already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be internally transformed into RAS.]]></description>
+      <longflag>--armatureInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>IsMeshInRAS</name>
+      <label>Meshes in RAS</label>
+      <description><![CDATA[Whether the input meshes are already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, it will be be internally transformed into RAS.]]></description>
+      <longflag>--meshInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>Verbose</name>
+      <label>Verbose</label>
+      <longflag>--verbose</longflag>
+      <description><![CDATA[Print verbose outputs.]]></description>
+      <default>false</default>
+    </boolean>
+  </parameters>
+</executable>

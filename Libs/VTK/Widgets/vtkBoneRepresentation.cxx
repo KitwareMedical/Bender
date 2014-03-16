@@ -243,6 +243,17 @@ void vtkBoneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
+namespace
+{
+// Return whether the given 2D vectors are equal.
+bool CompareVector2(const double* v1, const double* v2)
+{
+  return fabs(v1[0] - v2[0]) < 1e-6 && fabs(v1[1] - v2[1]) < 1e-6;
+}
+
+} // End namespace
+
+//----------------------------------------------------------------------------
 void vtkBoneRepresentation::WidgetInteraction(double e[2])
 {
   if (!this->Pose)
@@ -276,9 +287,16 @@ void vtkBoneRepresentation::WidgetInteraction(double e[2])
   oldLine[1] = this->LastEventPosition[1] - center[1];
   vtkMath::Normalize2D(oldLine);
 
+  // Make sure the line aren't the same
+  if (CompareVector2(currentLine, oldLine))
+    {
+    return;
+    }
+
   // Get the angle between those two lines.
   double angle = vtkMath::DegreesFromRadians(
                    acos(vtkMath::Dot2D(currentLine, oldLine)));
+  assert(angle == angle);
 
   //Get the camera vector.
   double cameraVec[3];

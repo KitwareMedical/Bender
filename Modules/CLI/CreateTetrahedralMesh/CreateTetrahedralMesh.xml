@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Meshing</category>
+  <title>Create Tetrahedral Mesh</title>
+  <description><![CDATA[<p>Create a multimaterial tetrahedral mesh out of a label map.</p>]]>
+  </description>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/CreateTetrahedralMesh</documentation-url>
+  <license/>
+  <contributor>Ricardo Ortiz (Kitware), Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image type="label">
+      <name>InputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input labelmap. This is the labelmap for which the <b>Label(s) to Change</b> will be changed into the <b>Output Label</b>.]]></description>
+    </image>
+    <geometry fileExtensions=".vtk">
+      <name>OutputMesh</name>
+      <label>Output Model</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Result tetrahedral mesh]]></description>
+    </geometry>
+  </parameters>
+  <parameters>
+    <label>Filter Settings</label>
+    <boolean>
+      <name>Padding</name>
+      <label>Padding</label>
+      <longflag>--padding</longflag>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>SaveLabelImages</name>
+      <label>Save label images</label>
+      <longflag>--saveLabelImages</longflag>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>Verbose</name>
+      <label>Verbose</label>
+      <longflag>--verbose</longflag>
+      <default>false</default>
+    </boolean>
+  </parameters>
+</executable>

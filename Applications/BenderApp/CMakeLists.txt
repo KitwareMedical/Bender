@@ -27,6 +27,8 @@ endif()
 find_package(Bender REQUIRED)
 include(${Bender_USE_FILE})
 
+find_package(SOFA REQUIRED)
+
 set(BenderApp_VERSION_MAJOR ${Bender_VERSION_MAJOR})
 set(BenderApp_VERSION_MINOR ${Bender_VERSION_MINOR})
 set(BenderApp_VERSION_PATCH ${Bender_VERSION_PATCH})
@@ -92,6 +94,7 @@ set(SlicerApp_INCLUDE_DIRECTORIES
   ${qMRMLWidgets_INCLUDE_DIRS}
   ${qSlicerModulesCore_SOURCE_DIR}
   ${qSlicerModulesCore_BINARY_DIR}
+  ${ITKFactoryRegistration_INCLUDE_DIRS}
   )
 include_directories(${SlicerApp_INCLUDE_DIRECTORIES})
 
@@ -129,7 +132,7 @@ add_library(${KIT_LIBRARY_NAME}
 set_target_properties(${KIT_LIBRARY_NAME} PROPERTIES LABELS ${PROJECT_NAME})
 
 set(SlicerApp_LIBRARIES
-  qSlicerModulesCore
+  qSlicerBaseQTApp
   )
 
 if(Slicer_BUILD_CLI_SUPPORT)
@@ -221,10 +224,12 @@ add_executable(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
 set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX} PROPERTIES LABELS ${PROJECT_NAME})
 
 if(APPLE)
+  set(link_flags "-Wl,-rpath,@loader_path/../")
   set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
     PROPERTIES
       OUTPUT_NAME ${SlicerApp_APPLICATION_NAME}
       MACOSX_BUNDLE_BUNDLE_VERSION "${Slicer_VERSION_FULL}"
+      LINK_FLAGS ${link_flags}
     )
   if(DEFINED Slicer_VERSION_TWEAK)
     set_target_properties(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX} PROPERTIES
@@ -235,6 +240,7 @@ endif()
 
 target_link_libraries(${PROJECT_NAME}${SlicerApp_EXE_SUFFIX}
   ${KIT_LIBRARY_NAME}
+  qSlicerBaseQTApp
   )
 
 #-----------------------------------------------------------------------------
@@ -307,8 +313,13 @@ if(${PROJECT_NAME} STREQUAL ${Slicer_MAIN_PROJECT})
     set(splash_image_path ${CMAKE_CURRENT_SOURCE_DIR}/Resources/Images/${SlicerApp_APPLICATION_NAME}SplashScreen.png)
 
     set(BenderApp_LIBRARY_PATHS_BUILD ${SLICER_LIBRARY_PATHS_BUILD})
+    # Add all the bender necessary paths to the launcher, i.e. all the bender
+    # specific libraries here
     foreach(Bender_LIBRARY_DIR ${Bender_LIBRARY_DIRS})
       list(APPEND BenderApp_LIBRARY_PATHS_BUILD ${Bender_LIBRARY_DIR}/<CMAKE_CFG_INTDIR>)
+    endforeach()
+    foreach(sofa_library_path ${SOFA_BIN_DIR})
+      list(APPEND BenderApp_LIBRARY_PATHS_BUILD ${sofa_library_path})
     endforeach()
 
     ctkAppLauncherConfigure(

@@ -425,12 +425,15 @@ void qSlicerAppMainWindowPrivate::readSettings()
   settings.endGroup();
   // [Ninja]
   //this->FavoriteModules << settings.value("Modules/FavoriteModules").toStringList();
-  this->FavoriteModules << "Workflow" << "Armatures"
-                        << "VolumeSkinning" << "ComputeArmatureWeight"
-                        << "EvalSurfaceWeight" << "PoseBody" << "PoseLabelmap"
-                        << "Volumes" << "VolumeRendering" << "Models";
-  this->DefaultModule = "Workflow";
+  this->FavoriteModules << "Workflow"
+                        << "Armatures"
+                        << "Volumes"
+                        << "VolumeRendering"
+                        << "Models";
+  this->DefaultModule = "BenderWelcome";
+  this->ModuleIcons["BenderWelcome"] = QIcon(":Icons/Medium/DesktopIcon.png");
   this->ModuleIcons["Workflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
+  this->ModuleIcons["SimpleWorkflow"] = QIcon(":Icons/Medium/DesktopIcon.png");
   this->ModuleIcons["VolumeSkinning"] = QIcon(":VolumeSkinning.png");
   this->ModuleIcons["ComputeArmatureWeight"] = QIcon(":ComputeArmatureWeight.png");
   this->ModuleIcons["EvalSurfaceWeight"] = QIcon(":EvalSurfaceWeight.png");

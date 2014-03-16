@@ -34,7 +34,7 @@ include(${Bender_USE_FILE})
 
 set(MODULE_INCLUDE_DIRECTORIES
   ${Bender_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
+  ${Eigen3_INCLUDE_DIRS}
   )
 
 set(MODULE_ADDITIONAL_SRCS
@@ -45,6 +45,9 @@ set(MODULE_ADDITIONAL_SRCS
   )
 set(MODULE_TARGET_LIBRARIES
   ${Bender_LIBRARIES}
+  ${ITK_LIBRARIES}
+  vtkIO
+  vtkGraphics
   )
 
 SEMMacroBuildCLI(
@@ -52,7 +55,7 @@ SEMMacroBuildCLI(
   ADDITIONAL_SRCS ${MODULE_ADDITIONAL_SRCS}
   LOGO_HEADER ${Bender_SOURCE_DIR}/Utilities/Logos/AFRL.h
   INCLUDE_DIRECTORIES ${MODULE_INCLUDE_DIRECTORIES}
-  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES} ${ITK_LIBRARIES} vtkIO vtkGraphics
+  TARGET_LIBRARIES ${MODULE_TARGET_LIBRARIES}
   )
 
 #-----------------------------------------------------------------------------

@@ -41,7 +41,11 @@ set(${proj}_DEPENDENCIES "")
 # Include dependent projects if any
 bender_check_external_project_dependency(${proj})
 
-set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3")
+set(${proj}_INTERNAL_DEPENDENCIES_LIST "Bender&&Eigen3&&Cleaver&&SOFA")
+
+if (NOT WIN32)
+  find_package(GLEW REQUIRED)
+endif()
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
@@ -49,7 +53,14 @@ set(proj ${${proj_filename}_proj})
 
 if(NOT DEFINED ${proj}_DIR)
   message(STATUS "${__indent}Adding project ${proj}")
+
   find_package(Qt4 REQUIRED)
+  set(Bender_MINIMUM_QT_VERSION "4.8.3")
+  if("${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}" VERSION_LESS "${Bender_MINIMUM_QT_VERSION}")
+    message(FATAL_ERROR "error: Bender needs with version greater than Qt"
+      "${Bender_MINIMUM_QT_VERSION} -- (Qt ${QT_VERSION_MAJOR}."
+      "${QT_VERSION_MINOR}.${QT_VERSION_PATCH}. was found ${extra_error_message}")
+  endif()
 
   # Set CMake OSX variable to pass down the external project
   set(CMAKE_OSX_EXTERNAL_PROJECT_ARGS)
@@ -79,7 +90,7 @@ if(NOT DEFINED ${proj}_DIR)
     BINARY_DIR ${${proj}_DIR}
     PREFIX ${proj}${ep_suffix}
     GIT_REPOSITORY "git://public.kitware.com/Bender/Slicer.git"
-    GIT_TAG "dabe11290061a89345e870df0dee6e3fd606d873"
+    GIT_TAG "d36af0c88bc60771a7ad88fbddfc2b14512ea0f1"
     ${bender_external_update}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
@@ -99,6 +110,7 @@ if(NOT DEFINED ${proj}_DIR)
       -DGIT_EXECUTABLE:FILEPATH=${GIT_EXECUTABLE}
       -D${proj}_USE_GIT_PROTOCOL:BOOL=${Bender_USE_GIT_PROTOCOL}
       -DQT_QMAKE_EXECUTABLE:FILEPATH=${QT_QMAKE_EXECUTABLE}
+      -DSlicer_PLATFORM_CHECK:BOOL=FALSE
       -DSlicer_REQUIRED_QT_VERSION:STRING=${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}
       -DSlicer_ADDITIONAL_DEPENDENCIES:STRING=${${proj}_INTERNAL_DEPENDENCIES_LIST}
       -DSlicer_ADDITIONAL_EXTERNAL_PROJECT_DIR:PATH=${Bender_SUPERBUILD_DIR}
@@ -111,8 +123,9 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_EXTENSIONMANAGER_SUPPORT:BOOL=OFF
       -DSlicer_USE_QtTesting:BOOL=OFF
       -DSlicer_USE_PYTHONQT:BOOL=ON
+      -DSlicer_USE_PYTHONQT_WITH_TCL:BOOL=OFF
       -DSlicer_QTLOADABLEMODULES_DISABLED:STRING=SlicerWelcome
-      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy.py^^SelfTests.py
+      -DSlicer_QTSCRIPTEDMODULES_DISABLED:STRING=Endoscopy^^SelfTests^^LabelStatistics
       -DSlicer_BUILD_ChangeTrackerPy:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeExplorer:BOOL=OFF
       -DSlicer_BUILD_MultiVolumeImporter:BOOL=OFF
@@ -124,6 +137,8 @@ if(NOT DEFINED ${proj}_DIR)
       -DSlicer_BUILD_BRAINSTOOLS:BOOL=OFF
       -DSlicer_BUILD_Extensions:BOOL=OFF
       -DSlicer_EXTENSION_SOURCE_DIRS:STRING=${Bender_MODULES_LIST}
+      -DGLEW_INCLUDE_DIR:PATH=${GLEW_INCLUDE_DIR}
+      -DGLEW_LIBRARY:FILEPATH=${GLEW_LIBRARY}
     DEPENDS
       ${${proj}_DEPENDENCIES}
     )

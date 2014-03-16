@@ -101,6 +101,34 @@ public:
   VoxelOffset Offsets[8];
 };
 
+// This function provides a more robust way of getting the voxel coordinates
+// by returning the nearest neighbor coordinates if the given point is outside
+// the weight map (Note outside the image itself, not the weight region).
+// This is useful beacause surface sometimes lay outside of the weight images
+// but we still want to attribute weight to these pixel.
+//-------------------------------------------------------------------------------
+bool PhysicalPointToContinuousIndex(WeightImage::Pointer weight,
+                                    itk::Point<double,3>&x,
+                                    itk::ContinuousIndex<double,3>& coord)
+{
+  if(weight->TransformPhysicalPointToContinuousIndex(x, coord))
+    {
+    return true;
+    }
+  else
+    {
+    WeightImage::RegionType region = weight->GetLargestPossibleRegion();
+
+    for (int i = 0; i < 3; ++i)
+      {
+      coord[i] =
+        std::min<double>(
+          std::max<double>(coord[i], region.GetIndex(i)),
+          region.GetSize(i) - 1.0);
+      }
+    return region.IsInside(coord);
+    }
+}
 
 //-------------------------------------------------------------------------------
 void ComputeDomainVoxels(WeightImage::Pointer image //input
@@ -128,7 +156,7 @@ void ComputeDomainVoxels(WeightImage::Pointer image //input
 
     itk::Point<double,3> x(xraw);
     itk::ContinuousIndex<double,3> coord;
-    image->TransformPhysicalPointToContinuousIndex(x, coord);
+    PhysicalPointToContinuousIndex(image, x, coord);
 
     Voxel p;
     p.CopyWithCast(coord);
@@ -233,19 +261,26 @@ int main( int argc, char * argv[] )
     {
     itk::Point<double,3> x(points->GetPoint(pi));
     itk::ContinuousIndex<double,3> coord;
-    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
-    if(weight0->GetLargestPossibleRegion().IsInside(coord))
+
+    if(PhysicalPointToContinuousIndex(weight0, x, coord))
       {
       sampleVertices.push_back(pi);
       }
+    else
+      {
+      return EXIT_FAILURE;
+      }
     }
 
-  if (sampleVertices.size() <= 0)
+  if (sampleVertices.size() <= 0
+    || sampleVertices.size() != points->GetNumberOfPoints())
     {
-    std::cerr<<sampleVertices.size()<<" out of "<<points->GetNumberOfPoints()
-      <<" vertices are in the weight image domain"<<std::endl;
+    std::cout<<"FAILURE: "<<sampleVertices.size()<<" out of "
+      <<points->GetNumberOfPoints()
+      <<" vertices are in the weight image domain."<<std::endl;
     return EXIT_FAILURE;
     }
+
 
   std::vector<Voxel> domainVoxels;
   ComputeDomainVoxels(weight0,points,sampleVertices,domainVoxels);
@@ -315,12 +350,12 @@ int main( int argc, char * argv[] )
 
     itk::Point<double,3> x(xraw);
     itk::ContinuousIndex<double,3> coord;
-    weight0->TransformPhysicalPointToContinuousIndex(x, coord);
+    PhysicalPointToContinuousIndex(weight0, x, coord);
 
     bool res = weightMap.Lerp(coord, w_pi);
     if(!res)
       {
-      std::cout<<"WARNING: Lerp failed for "<< pi
+      std::cerr<<"WARNING: Lerp failed for "<< pi
           << " l:[" << xraw[0] << ", " << xraw[1] << ", " << xraw[2] << "]"
           << " w:" << coord<<std::endl;
       }

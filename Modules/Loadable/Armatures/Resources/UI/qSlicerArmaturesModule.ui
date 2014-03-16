@@ -423,6 +423,18 @@ p, li { white-space: pre-wrap; }
         </layout>
        </widget>
       </item>
+      <item>
+       <widget class="ctkCollapsibleGroupBox" name="ArmaturePoseCollapsibleGroupBox">
+        <property name="title">
+         <string>Armature Pose</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_3">
+         <item row="0" column="0">
+          <widget class="qMRMLArmaturesAnimationWidget" name="ArmaturesAnimationWidget"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -701,9 +713,20 @@ p, li { white-space: pre-wrap; }
    <header>qMRMLTreeView.h</header>
   </customwidget>
   <customwidget>
+   <class>qMRMLWidget</class>
+   <extends>QWidget</extends>
+   <header>qMRMLWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>qMRMLAnnotationTreeView</class>
    <extends>qMRMLTreeView</extends>
    <header>qMRMLAnnotationTreeView.h</header>
+  </customwidget>
+  <customwidget>
+   <class>qMRMLArmaturesAnimationWidget</class>
+   <extends>qMRMLWidget</extends>
+   <header>qMRMLArmaturesAnimationWidget.h</header>
   </customwidget>
   <customwidget>
    <class>qSlicerWidget</class>

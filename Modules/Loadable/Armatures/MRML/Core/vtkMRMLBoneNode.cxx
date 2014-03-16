@@ -31,13 +31,17 @@
 #include <vtkQuaternion.h>
 
 // MRML includes
+#include <vtkMRMLAnnotationHierarchyNode.h>
 #include <vtkMRMLScene.h>
 
 // VTK includes
 #include <vtkCallbackCommand.h>
+#include <vtkFloatArray.h>
+#include <vtkIntArray.h>
 #include <vtkMath.h>
 #include <vtkNew.h>
 #include <vtkObjectFactory.h>
+#include <vtkObserverManager.h>
 
 #include <vtkProperty.h>
 
@@ -68,6 +72,15 @@ static void MRMLBoneNodeCallback(vtkObject* vtkNotUsed(caller),
 //----------------------------------------------------------------------------
 vtkMRMLBoneNode::vtkMRMLBoneNode()
 {
+  this->CurrentHierarchyNode = 0;
+
+  this->SceneObserverManager = vtkObserverManager::New();
+  this->SceneObserverManager->AssignOwner(this);
+  this->SceneObserverManager->GetCallbackCommand()->SetClientData(
+    reinterpret_cast<void *>(this));
+  this->SceneObserverManager->GetCallbackCommand()->SetCallback(
+    vtkMRMLBoneNode::MRMLSceneCallback);
+
   this->Callback = vtkCallbackCommand::New();
   this->BoneProperties = vtkBoneWidget::New();
   this->BoneRepresentationType = 0;
@@ -87,6 +100,7 @@ vtkMRMLBoneNode::vtkMRMLBoneNode()
 //----------------------------------------------------------------------------
 vtkMRMLBoneNode::~vtkMRMLBoneNode()
 {
+  this->SceneObserverManager->Delete();
   this->Callback->Delete();
   this->BoneProperties->Delete();
 }
@@ -235,13 +249,25 @@ void vtkMRMLBoneNode::ProcessMRMLEvents(vtkObject* caller,
 }
 
 //----------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::ProcessMRMLSceneEvents(vtkObject *vtkNotUsed(caller), unsigned long eid, void *callData)
+{
+  vtkMRMLNode* node = reinterpret_cast<vtkMRMLNode*>(callData);
+  if (eid == vtkMRMLScene::NodeAddedEvent && node == this)
+    {
+    this->AddBoneHierarchyNode();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkMRMLBoneNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
 
 //----------------------------------------------------------------------------
-void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
+void vtkMRMLBoneNode
+::Initialize(vtkMRMLScene* mrmlScene, vtkMRMLAnnotationHierarchyNode* parent)
 {
   if (!mrmlScene)
     {
@@ -251,14 +277,52 @@ void vtkMRMLBoneNode::Initialize(vtkMRMLScene* mrmlScene)
   // \tbd remove this SetScene call as it shouldn't be mandatory.
   this->SetScene(mrmlScene);
   this->CreateBoneDisplayNode();
+
+  // HACK:
+  // The vtkSlicerAnnotationModuleLogic adds the hierarchy nodes with no
+  // respect for the bone parent. To make this right, we add
+  // an observer that needs to be called before the annotation logic to
+  // make sure that the hierarchy node is added properly.
+  // The CurrentlyAdded*Node are used to know what is the current armature
+  // and the current bones.
+  vtkNew<vtkIntArray> events;
+  events->InsertNextValue(vtkMRMLScene::NodeAddedEvent);
+  vtkNew<vtkFloatArray> priorities;
+  // HACK: it should even be done before the scene models think the bones
+  // have no parent.
+  priorities->InsertNextValue(10000.0);
+  this->SceneObserverManager->AddObjectEvents(
+    this->GetScene(), events.GetPointer(), priorities.GetPointer());
+
+  this->CurrentHierarchyNode = parent;
   this->Superclass::Initialize(mrmlScene);
+
+  // Reset observer and CurrentHierarchyNode variables
+  this->SceneObserverManager->RemoveObjectEvents(this->GetScene());
+  this->CurrentHierarchyNode = 0;
 }
 
 //----------------------------------------------------------------------------
 vtkMRMLBoneDisplayNode* vtkMRMLBoneNode::GetBoneDisplayNode()
 {
-  return vtkMRMLBoneDisplayNode::SafeDownCast(
-    this->GetNthDisplayNodeByClass(0, "vtkMRMLBoneDisplayNode"));
+  for (int i = 0; i < this->GetNumberOfDisplayNodes(); ++i)
+    {
+    vtkMRMLBoneDisplayNode* bdn = vtkMRMLBoneDisplayNode::SafeDownCast(
+      this->GetNthDisplayNode(i));
+    if (bdn)
+      {
+      return bdn;
+      }
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
+vtkMRMLAnnotationHierarchyNode* vtkMRMLBoneNode::GetHierarchyNode()
+{
+  return vtkMRMLAnnotationHierarchyNode::SafeDownCast(
+    vtkMRMLHierarchyNode::GetAssociatedHierarchyNode(
+      this->GetScene(), this->GetID()));
 }
 
 //---------------------------------------------------------------------------
@@ -561,15 +625,15 @@ void vtkMRMLBoneNode::SetWorldToParentPoseRotation(const double* rotation)
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToParentRestRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToParentRestRotation()
 {
-  return this->BoneProperties->GetWorldToParentRestRotation().GetData();
+  return this->BoneProperties->GetWorldToParentRestRotation();
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToParentPoseRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToParentPoseRotation()
 {
-  return this->BoneProperties->GetWorldToParentPoseRotation().GetData();
+  return this->BoneProperties->GetWorldToParentPoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -605,15 +669,27 @@ double* vtkMRMLBoneNode::GetWorldToParentPoseTranslation()
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetParentToBoneRestRotation()
+void vtkMRMLBoneNode::GetWorldToParentRestTranslation(double pos[3])
 {
-  return this->BoneProperties->GetParentToBoneRestRotation().GetData();
+  this->BoneProperties->GetWorldToParentRestTranslation(pos);
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetParentToBonePoseRotation()
+void vtkMRMLBoneNode::GetWorldToParentPoseTranslation(double pos[3])
 {
-  return this->BoneProperties->GetParentToBonePoseRotation().GetData();
+  this->BoneProperties->GetWorldToParentPoseTranslation(pos);
+}
+
+//---------------------------------------------------------------------------
+vtkQuaterniond vtkMRMLBoneNode::GetParentToBoneRestRotation()
+{
+  return this->BoneProperties->GetParentToBoneRestRotation();
+}
+
+//---------------------------------------------------------------------------
+vtkQuaterniond vtkMRMLBoneNode::GetParentToBonePoseRotation()
+{
+  return this->BoneProperties->GetParentToBonePoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -629,15 +705,15 @@ double* vtkMRMLBoneNode::GetParentToBonePoseTranslation()
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToBoneRestRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToBoneRestRotation()
 {
-  return this->BoneProperties->GetWorldToBoneRestRotation().GetData();
+  return this->BoneProperties->GetWorldToBoneRestRotation();
 }
 
 //---------------------------------------------------------------------------
-double* vtkMRMLBoneNode::GetWorldToBonePoseRotation()
+vtkQuaterniond vtkMRMLBoneNode::GetWorldToBonePoseRotation()
 {
-  return this->BoneProperties->GetWorldToBonePoseRotation().GetData();
+  return this->BoneProperties->GetWorldToBonePoseRotation();
 }
 
 //---------------------------------------------------------------------------
@@ -692,6 +768,160 @@ void vtkMRMLBoneNode::SetBoneLinkedWithParent(bool linked)
 bool vtkMRMLBoneNode::GetBoneLinkedWithParent()
 {
   return this->LinkedWithParent;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentX(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentY(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentZ(double angle)
+{
+  this->RotateTailWithParentWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::RotateTailWithParentWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithParentWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateTailWithParentWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldX(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldY(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldZ(double angle)
+{
+  this->RotateTailWithWorldWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::RotateTailWithWorldWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateTailWithWorldWXYZ(angle, axis);
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateTailWithWorldWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateTailWithWorldWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factor)
+{
+  this->Scale(factor, factor, factor);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factorX, double factorY, double factorZ)
+{
+  double factors[3];
+  factors[0] = factorX;
+  factors[1] = factorY;
+  factors[2] = factorZ;
+  this->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Scale(double factors[3])
+{
+  this->BoneProperties->Scale(factors);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Translate(double x, double y, double z)
+{
+  double translation[3];
+  translation[0] = x;
+  translation[1] = y;
+  translation[2] = z;
+  this->Translate(translation);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Translate(double rootHead[3])
+{
+  this->BoneProperties->Translate(rootHead);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateX(double angle)
+{
+  this->RotateWXYZ(angle, 1.0, 0.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateY(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 1.0, 0.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateZ(double angle)
+{
+  this->RotateWXYZ(angle, 0.0, 0.0, 1.0);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateWXYZ(double angle, double x, double y, double z)
+{
+  double axis[3];
+  axis[0] = x;
+  axis[1] = y;
+  axis[2] = z;
+  this->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::RotateWXYZ(double angle, double axis[3])
+{
+  this->BoneProperties->RotateWXYZ(angle, axis);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::Transform(vtkTransform* transform)
+{
+  this->BoneProperties->Transform(transform);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::SetLength(double size)
+{
+  this->BoneProperties->SetLength(size);
 }
 
 //---------------------------------------------------------------------------
@@ -750,4 +980,37 @@ void vtkMRMLBoneNode::PasteBoneNodeProperties(vtkBoneWidget* boneWidget)
 
   // -- All the other properties --
   boneWidget->DeepCopy(this->BoneProperties);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode
+::MRMLSceneCallback(vtkObject *caller, unsigned long eid,
+                    void *clientData, void *callData)
+{
+  vtkMRMLBoneNode *self = reinterpret_cast<vtkMRMLBoneNode *>(clientData);
+  assert(vtkMRMLScene::SafeDownCast(caller));
+  assert(caller == self->GetScene());
+
+  self->ProcessMRMLSceneEvents(caller, eid, callData);
+}
+
+//----------------------------------------------------------------------------
+void vtkMRMLBoneNode::AddBoneHierarchyNode()
+{
+  if (!this->CurrentHierarchyNode || !this->GetID())
+    {
+    return;
+    }
+
+  vtkNew<vtkMRMLAnnotationHierarchyNode> hierarchyNode;
+  hierarchyNode->AllowMultipleChildrenOff();
+  hierarchyNode->SetHideFromEditors(1);
+  hierarchyNode->SetName(
+    this->GetScene()->GetUniqueNameByString("BoneAnnotationHierarchy"));
+
+  hierarchyNode->SetParentNodeID(this->CurrentHierarchyNode->GetID());
+
+  this->GetScene()->AddNode(hierarchyNode.GetPointer());
+
+  hierarchyNode->SetDisplayableNodeID(this->GetID());
 }

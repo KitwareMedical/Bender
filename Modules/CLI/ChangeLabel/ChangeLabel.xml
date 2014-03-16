@@ -4,8 +4,8 @@
   <title>Change Label</title>
   <description><![CDATA[<p>Change one or multiple labels in a labelmap to a new given value.</p><p><u>Note:</u> Although the GUI interface only allows to change multiple labels into only one, this CLI actually handles the case where the list of <b>Label(s) to Change</b> can be changed into multiple <b>Output Label</b>.</p>]]>
   </description>
-  <version>1.1.0</version>
-  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/1.1/Modules/ChangeLabel</documentation-url>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/ChangeLabel</documentation-url>
   <license/>
   <contributor>Julien Finet (Kitware), Johan Andruejol (Kitware)</contributor>
   <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>

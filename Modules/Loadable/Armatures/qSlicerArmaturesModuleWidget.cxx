@@ -26,6 +26,8 @@
 #include <QVector3D>
 
 // Armatures includes
+#include "qMRMLArmaturesAnimationWidget.h"
+
 #include "qSlicerArmaturesModuleWidget.h"
 #include "qSlicerArmaturesModuleWidget_p.h"
 #include "ui_qSlicerArmaturesModule.h"
@@ -39,14 +41,16 @@
 #include <vtkStdString.h>
 
 // QSlicer includes
-#include <qSlicerIOManager.h>
 #include <qSlicerApplication.h>
+#include <qSlicerFileDialog.h>
+#include <qSlicerIOManager.h>
 
 // Annotations includes
 #include <qMRMLSceneAnnotationModel.h>
 #include <vtkSlicerAnnotationModuleLogic.h>
 
 // MRML includes
+#include <vtkMRMLArmatureStorageNode.h>
 #include <vtkMRMLBoneDisplayNode.h>
 #include <vtkMRMLHierarchyNode.h>
 #include <vtkMRMLInteractionNode.h>
@@ -549,17 +553,20 @@ void qSlicerArmaturesModuleWidgetPrivate
     Q_Q(qSlicerArmaturesModuleWidget);
     vtkMRMLBoneNode* boneToDelete = this->BoneNode;
 
+    vtkMRMLAnnotationHierarchyNode* parentHierarchy = 0;
     if (newParentNode)
       {
       this->BonesTreeView->setCurrentNode(newParentNode);
+      parentHierarchy = newParentNode->GetHierarchyNode();
       }
     else
       {
       this->BonesTreeView->setCurrentNode(this->ArmatureNode);
+      parentHierarchy = this->ArmatureNode;
       }
 
     vtkNew<vtkMRMLBoneNode> copiedBoneNode;
-    copiedBoneNode->Initialize(q->mrmlScene());
+    copiedBoneNode->Initialize(q->mrmlScene(), parentHierarchy);
 
     copiedBoneNode->Copy(boneToDelete);
     boneToDelete->RemoveAllDisplayNodeIDs();
@@ -661,6 +668,7 @@ void qSlicerArmaturesModuleWidget
     {
     return;
     }
+  d->ArmaturesAnimationWidget->setMRMLArmatureNode(armatureNode);
 
   if (d->ArmatureNode) // Switching or deleting current armature
     {
@@ -769,7 +777,7 @@ void qSlicerArmaturesModuleWidget::addAndPlaceBone()
     qCritical() << "Invalid scene, no interaction or selection node";
     return;
     }
-  selectionNode->SetReferenceActiveAnnotationID("vtkMRMLBoneNode");
+  selectionNode->SetReferenceActivePlaceNodeClassName("vtkMRMLBoneNode");
   interactionNode->SwitchToSinglePlaceMode();
 }
 
@@ -826,7 +834,7 @@ void qSlicerArmaturesModuleWidget::loadArmatureFromModel(int index)
     }
   else
     {
-    d->logic()->ReadArmatureFromModel(path.toLatin1());
+    d->logic()->AddArmatureFile(path.toLatin1());
     }
 
   d->LoadArmatureFromModelComboBox->setCurrentIndex(-1);
@@ -860,19 +868,22 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromArmatureNode()
   d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode != 0
                                             && d->ArmatureNode->GetVisibility());
   d->ArmatureStateComboBox->setEnabled(d->ArmatureNode != 0);
+  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
+    && d->ArmatureStateComboBox->currentText() == "Pose");
+
+  if (!d->ArmatureNode)
+    {
+    return;
+    }
+
+  d->ArmatureVisibilityCheckBox->setChecked(d->ArmatureNode->GetVisibility());
   bool wasBlocked = d->ArmatureStateComboBox->blockSignals(true);
   d->ArmatureStateComboBox->setCurrentIndex(
     (d->ArmatureNode != 0
      && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose) ? 1 : 0);
   d->ArmatureStateComboBox->blockSignals(wasBlocked);
 
-  d->ArmatureResetPoseModeButton->setEnabled(d->ArmatureNode != 0
-    && d->ArmatureNode->GetWidgetState() == vtkMRMLArmatureNode::Pose);
-
-  if (d->ArmatureNode)
-    {
-    d->updateArmatureWidget(d->ArmatureNode);
-    }
+  d->updateArmatureWidget(d->ArmatureNode);
 }
 
 //-----------------------------------------------------------------------------

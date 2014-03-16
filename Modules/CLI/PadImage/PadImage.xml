@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Filtering</category>
+  <title>Pad Image</title>
+  <description><![CDATA[<p>Increase the image size by padding with a constant value.</p>]]>
+  </description>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/PadImage</documentation-url>
+  <license/>
+  <contributor>Julien Finet (Kitware), Ricardo Ortiz (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <image type="label">
+      <name>InputVolume</name>
+      <label>Input Volume</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[Input labelmap. This is the labelmap for which the <b>Label(s) to Change</b> will be changed into the <b>Output Label</b>.]]></description>
+    </image>
+    <image type="label">
+      <name>OutputVolume</name>
+      <label>Output Volume</label>
+      <channel>output</channel>
+      <index>1</index>
+      <description><![CDATA[Changed input volume. It is the same labelmap as the Input Volume expect for the <b>Label(s) to change</b> that will have the <b>Output Label</b> value.]]></description>
+    </image>
+  </parameters>
+  <parameters>
+    <label>Filter Settings</label>
+    <integer>
+      <name>PadValue</name>
+      <label>Pad Value</label>
+      <flag>-v</flag>
+      <longflag>--value</longflag>
+      <description><![CDATA[Value to fill the padded region with.]]></description>
+      <default>0</default>
+    </integer>
+    <integer>
+      <name>PadThickness</name>
+      <label>Pad Thickness</label>
+      <flag>-t</flag>
+      <longflag>--thickness</longflag>
+      <description><![CDATA[Thickness of the padded region.]]></description>
+      <default>2</default>
+    </integer>
+  </parameters>
+</executable>
