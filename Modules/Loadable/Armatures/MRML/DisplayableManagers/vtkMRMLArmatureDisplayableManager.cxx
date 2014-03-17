@@ -83,7 +83,6 @@ public:
   void AddArmatureNode(vtkMRMLArmatureNode*);
   void RemoveArmatureNode(vtkMRMLArmatureNode*);
   void RemoveArmatureNode(ArmatureNodesLink::iterator);
-  void RemoveAllArmatureNodes();
   void UpdateArmatureNodeFromWidget(vtkMRMLArmatureNode* armatureNode,
                                     vtkArmatureWidget* widget);
   void UpdateArmatureWidgetFromNode(vtkMRMLArmatureNode* armatureNode,
@@ -117,6 +116,8 @@ public:
   vtkArmatureWidget* GetArmatureWidget(vtkMRMLArmatureNode*);
   vtkBoneWidget* GetBoneWidget(vtkMRMLBoneNode*);
 
+  void UnobserveAllNodes();
+
   ArmatureNodesLink ArmatureNodes;
   BoneNodesLink BoneNodes;
   vtkMRMLArmatureDisplayableManager* External;
@@ -137,7 +138,7 @@ vtkMRMLArmatureDisplayableManager::vtkInternal
 //---------------------------------------------------------------------------
 vtkMRMLArmatureDisplayableManager::vtkInternal::~vtkInternal()
 {
-  this->RemoveAllArmatureNodes();
+  this->UnobserveAllNodes();
 }
 
 //---------------------------------------------------------------------------
@@ -275,18 +276,6 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal
 
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::vtkInternal
-::RemoveAllArmatureNodes()
-{
-  // The manager has the responsabilty to delete the widgets.
-  while (this->ArmatureNodes.size() > 0)
-    {
-    this->RemoveArmatureNode(this->ArmatureNodes.begin());
-    }
-  this->ArmatureNodes.clear();
-}
-
-//---------------------------------------------------------------------------
-void vtkMRMLArmatureDisplayableManager::vtkInternal
 ::RemoveAllBoneNodes(vtkMRMLArmatureNode* armatureNode)
 {
   if (armatureNode == 0)
@@ -357,7 +346,7 @@ void vtkMRMLArmatureDisplayableManager::vtkInternal::UpdateArmatureNodes()
 {
   if (this->External->GetMRMLScene() == 0)
     {
-    this->RemoveAllArmatureNodes();
+    this->UnobserveAllNodes();
     return;
     }
 
@@ -561,6 +550,34 @@ vtkBoneWidget* vtkMRMLArmatureDisplayableManager::vtkInternal
 
   BoneNodesLink::iterator it = this->BoneNodes.find(boneNode);
   return (it != this->BoneNodes.end()) ? it->second : 0;
+}
+
+//---------------------------------------------------------------------------
+void vtkMRMLArmatureDisplayableManager::vtkInternal::UnobserveAllNodes()
+{
+  for (BoneNodesLink::iterator it = this->BoneNodes.begin();
+    it != this->BoneNodes.end(); ++it)
+    {
+    if (it->second)
+      {
+      it->second->RemoveAllObservers();
+      it->second->Delete();
+      it->second = 0;
+      }
+    }
+  this->BoneNodes.clear();
+
+  for (ArmatureNodesLink::iterator it = this->ArmatureNodes.begin();
+    it != this->ArmatureNodes.end(); ++it)
+    {
+    if (it->second)
+      {
+      it->second->RemoveAllObservers();
+      it->second->Delete();
+      it->second = 0;
+      }
+    }
+  this->ArmatureNodes.clear();
 }
 
 //---------------------------------------------------------------------------
@@ -771,7 +788,7 @@ vtkMRMLArmatureDisplayableManager::~vtkMRMLArmatureDisplayableManager()
 //---------------------------------------------------------------------------
 void vtkMRMLArmatureDisplayableManager::UnobserveMRMLScene()
 {
-  this->Internal->RemoveAllArmatureNodes();
+  this->Internal->UnobserveAllNodes();
 }
 
 //---------------------------------------------------------------------------
