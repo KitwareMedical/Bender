@@ -105,7 +105,7 @@ protected slots:
 
   /// Update the GUI for the \a selected node.
   /// \sa updateWidgetFromArmatureNode(), updateWidgetFromBoneNode()
-  void onTreeNodeSelected(vtkMRMLNode* node);
+  void setActiveNode(vtkMRMLNode* node);
 
   void updateCurrentMRMLArmatureNode();
   void updateCurrentMRMLBoneNode();
