@@ -338,7 +338,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Extract bones and skin</string>
+       <string>Merge and resample</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1131,7 +1131,7 @@ p, li { white-space: pre-wrap; }
           <item row="3" column="1" colspan="3">
            <widget class="QDoubleSpinBox" name="ResampleImageSpacingSpinBox">
             <property name="value">
-             <double>2.000000000000000</double>
+             <double>4.000000000000000</double>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -1178,7 +1178,7 @@ p, li { white-space: pre-wrap; }
      </widget>
      <widget class="QWidget" name="MeshingPage">
       <property name="accessibleName">
-       <string>Mesh surface</string>
+       <string>Extract materials</string>
       </property>
       <property name="accessibleDescription">
        <string>Create a tetrahedral mesh from the merged labelmap.</string>
@@ -1218,7 +1218,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="CreateMeshInputLabel">
             <property name="text">
-             <string>Merge labelmap</string>
+             <string>Merged labelmap</string>
             </property>
             <property name="workflow" stdset="0">
              <string>2</string>
@@ -1493,7 +1493,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="ExtractBoneInputLabel">
             <property name="text">
-             <string>Mesh</string>
+             <string>Input mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <string>2</string>
@@ -1503,7 +1503,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="ExtractBoneOutputLabel">
             <property name="text">
-             <string>Bone Mesh</string>
+             <string>Output bone mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <string>1;2</string>
@@ -1555,7 +1555,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Skin model maker</string>
+          <string>C) Extract skin mesh</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
