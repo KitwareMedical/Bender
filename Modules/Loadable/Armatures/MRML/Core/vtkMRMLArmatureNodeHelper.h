@@ -52,6 +52,7 @@ public:
   typedef std::vector<CorrespondencePair> CorrespondenceList;
 
   // Tries to emulate the pose of animation armature on the target armature.
+  // The target armature will be left in pose mode.
   static bool AnimateArmature(
     vtkMRMLArmatureNode* targetArmature,
     vtkArmatureWidget* animationarmature);
