@@ -189,6 +189,10 @@ class BenderSampleDataLogic( SampleDataLogic ):
         'Tissues' : ['Tissues-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/5138/Tissues-v2.txt', 'Tissues-v2.0.0.txt'],
         'Materials' : ['Materials-v2.0.0', 'ColorTableFile', 'http://packages.kitware.com/download/item/4964/Materials-v2.txt', 'Materials-v2.0.0.txt'],
         },
+      'Animations':
+        {
+        'adult-running' : ['adult-animation-running-v2.0.0', 'ArmatureFile', 'http://packages.kitware.com/download/item/5145/adult-animation-running.bvh', 'adult-animation-running-v2.0.0.bvh']
+        },
       'Outputs' :
         {
         'Posed armature' : ['arm-biceps-curl-v2.0.0.bvh', 'ArmatureFile', 'http://packages.kitware.com/download/item/5140/arm-biceps-curl-v2.bvh', 'arm-biceps-curl-v2.0.0.bvh'],
