@@ -24,6 +24,17 @@
 #include "vtkQuaternion.h"
 
 // SOFA includes
+#include <plugins/ldidetection/lib/LayeredDepthImagesPipeline.h>
+#include <plugins/ldidetection/lib/LDIDetection.h>
+#include <plugins/Flexible/quadrature/TopologyGaussPointSampler.h>
+#include <plugins/Flexible/shapeFunction/BarycentricShapeFunction.h>
+#include <plugins/Flexible/deformationMapping/LinearMapping.h>
+#include <plugins/Flexible/strainMapping/PrincipalStretchesMapping.h>
+#include <plugins/Flexible/material/StabilizedNeoHookeanForceField.h>
+
+
+
+
 #include <sofa/component/collision/BaseContactMapper.h>
 #include <sofa/component/collision/BruteForceDetection.h>
 #include <sofa/component/collision/DefaultCollisionGroupManager.h>
@@ -35,20 +46,23 @@
 #include <sofa/component/collision/NewProximityIntersection.h>
 #include <sofa/component/collision/PointModel.h>
 #include <sofa/component/collision/TriangleModel.h>
+#include <sofa/component/engine/BoxROI.h>
 #include <sofa/component/linearsolver/CGLinearSolver.h>
 #include <sofa/component/mapping/BarycentricMappingRigid.h>
 #include <sofa/component/misc/RequiredPlugin.h>
 #include <sofa/component/misc/VTKExporter.h>
 #include <sofa/component/odesolver/EulerImplicitSolver.h>
 #include <sofa/component/odesolver/EulerSolver.h>
+#include <sofa/component/projectiveconstraintset/FixedConstraint.h>
 #include <sofa/component/projectiveconstraintset/SkeletalMotionConstraint.h>
 #include <sofa/component/topology/MeshTopology.h>
 #include <sofa/component/typedef/Sofa_typedef.h>
+#include <sofa/gui/GUIManager.h>
+#include <sofa/gui/Main.h>
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
-#include <sofa/gui/GUIManager.h>
-#include <sofa/gui/Main.h>
+
 
 // SofaCUDA includes
 #ifdef SOFA_CUDA
@@ -92,13 +106,15 @@
 // ---------------------------------------------------------------------
 using namespace sofa::component::collision;
 using namespace sofa::component::container;
+using namespace sofa::component::engine;
 using namespace sofa::component::forcefield;
-using namespace sofa::component::odesolver;
 using namespace sofa::component::linearsolver;
 using namespace sofa::component::mapping;
+using namespace sofa::component::odesolver;
 using namespace sofa::component::projectiveconstraintset;
 using namespace sofa::component::topology;
 using namespace sofa::component::visualmodel;
+using namespace sofa::component::shapefunction;
 using namespace sofa::helper;
 using namespace sofa::simulation;
 
@@ -316,15 +332,15 @@ void addCollisionModels(Node::SPtr                      collisionNode,
                         const std::vector<std::string> &elements
                         )
 {
-  double stiffness = 10000.;//10.; // 30.
+  double stiffness = 20.;//10.; // 30.
   double friction = 0.;
-  double proximity = 0.05;
-  double restitution = 0.1;
+  double proximity = 0.9;
+  double restitution = 0.0;
   for (size_t i=0; i < elements.size(); ++i)
     {
     if (elements[i] == "Triangle")
       {
-      TriangleModel::SPtr triModel = addNew<TriangleModel>(collisionNode,
+      TriangleModelInRegularGrid::SPtr triModel = addNew<TriangleModelInRegularGrid>(collisionNode,
         "TriangleCollision");
       triModel->bothSide.setValue(false);
       triModel->setSelfCollision(true);
@@ -368,44 +384,41 @@ void addCollisionModels(Node::SPtr                      collisionNode,
 Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std::string(
                                              "default"))
 {
-//   typedef LocalMinDistance ProximityType;
-  typedef MinProximityIntersection ProximityType;
+  //   typedef LocalMinDistance ProximityIntersectionType;
+  typedef MinProximityIntersection ProximityIntersectionType;
   Node::SPtr root = getSimulation()->createNewGraph("root");
 
   //Components for collision management
   //------------------------------------
   //--> adding collision pipeline
-  DefaultPipeline::SPtr collisionPipeline =
-    sofa::core::objectmodel::New<DefaultPipeline>();
-  collisionPipeline->setName("Collision Pipeline");
-  root->addObject(collisionPipeline);
+  sofa::component::misc::RequiredPlugin::SPtr ldicollisionPlugin =
+  addNew<sofa::component::misc::RequiredPlugin>(root,"LDI Detection");
+  ldicollisionPlugin->pluginName.setValue("ldidetection");
+
+  LayeredDepthImagesPipeline::SPtr collisionPipeline = addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
+  collisionPipeline->Kselfpressure.setValue(1000);
+  collisionPipeline->Kpressure.setValue(20);
+  collisionPipeline->resolution.setValue(256);
+  collisionPipeline->resolutionPixel.setValue(20);
+  collisionPipeline->depthBB.setValue(8);
+  collisionPipeline->bSelfCollision.setValue(true);
 
   //--> adding collision detection system
-  BruteForceDetection::SPtr detection =
-    sofa::core::objectmodel::New<BruteForceDetection>();
-  detection->setName("Detection");
-  root->addObject(detection);
+  addNew<LDIDetection>(root,"LDIDetection");
 
-  //--> adding component to detection intersection of elements
-  ProximityType::SPtr detectionProximity =
-    sofa::core::objectmodel::New<ProximityType>();
-  detectionProximity->setName("Proximity");
-  detectionProximity->setAlarmDistance(0.0001);     //warning distance
-  detectionProximity->setContactDistance(0.000001);   //min distance before setting a spring to create a repulsion
-  root->addObject(detectionProximity);
+  //--> adding collision detection system
+  addNew<BruteForceDetection>(root,"Detection");
 
   //--> adding contact manager
-  DefaultContactManager::SPtr contactManager =
-    sofa::core::objectmodel::New<DefaultContactManager>();
-  contactManager->setName("Contact Manager");
-  contactManager->setDefaultResponseType(responseType);
-  root->addObject(contactManager);
+  addNew<DefaultContactManager>(root,"Contact Manager");
+
+  //--> adding component to detection intersection of elements
+  ProximityIntersectionType::SPtr detectionProximity = addNew<ProximityIntersectionType>(root,"Proximity");
+  detectionProximity->setAlarmDistance(0.5);     //warning distance
+  detectionProximity->setContactDistance(0.2);   //min distance before setting a spring to create a repulsion
 
   //--> adding component to handle groups of collision.
-  DefaultCollisionGroupManager::SPtr collisionGroupManager =
-    sofa::core::objectmodel::New<DefaultCollisionGroupManager>();
-  collisionGroupManager->setName("Collision Group Manager");
-  root->addObject(collisionGroupManager);
+  addNew<DefaultCollisionGroupManager>(root,"Collision Group Manager");
 
   return root;
 }
@@ -992,53 +1005,47 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
   Node *       parentNode,
   vtkPolyData *armature,
   vtkPolyData* mesh,
+  Vector6 &box,
   bool         invertXY = true
   )
 {
-  // Extract coordinates
-/*  sofa::helper::vector<SkeletonJoint<Vec3Types> > skeletonJoints;
-  sofa::helper::vector<SkeletonBone>              skeletonBones;
-  sofa::helper::vector<Vec3Types::Coord>          boneCoordinates;
-  getBoneCoordinates(armature, skeletonJoints, skeletonBones,
-                     boneCoordinates, invertXY);
-*/
+
   vtkPoints* posedPoints = poseMesh(mesh, armature, invertXY);
   MechanicalObject<Vec3Types>::SPtr articulatedFrame =
     addNew<MechanicalObject<Vec3Types> >(parentNode, "articulatedFrame");
 
   // Get bone positions
-  //size_t totalNumberOfBones = boneCoordinates.size();
 
   size_t numberOfPoints = posedPoints->GetNumberOfPoints();
   std::cout << "Number of points: " << numberOfPoints << std::endl;
-  //articulatedFrame->resize(totalNumberOfBones);
+
   articulatedFrame->resize(numberOfPoints);
   Data<MechanicalObject<Vec3Types>::VecCoord> *x =
     articulatedFrame->write(VecCoordId::position());
 
   MechanicalObject<Vec3Types>::VecCoord &vertices = *x->beginEdit();
-
   for(size_t i = 0; i < numberOfPoints; ++i)
     {
-    //vertices[i] = skeletonJoints[i].mChannels[1]; // 1 = final
     Vector3 point;
     posedPoints->GetPoint(i, point.ptr());
     vertices[i] = point;
     }
   x->endEdit();
 
-  MeshTopology::SPtr meshTopology = addNew<MeshTopology>(parentNode,"ArticulatedFrameTopology");
-  meshTopology->seqPoints.setParent(&articulatedFrame->x);
-/*
-  // Copy tetrahedra array from vtk cell array
-  MeshTopology::SeqEdges& lines =
-    *meshTopology->seqEdges.beginEdit();
-  for(size_t i = 0, end = totalNumberOfBones-1; i < end; ++i)
-    {
-    lines.push_back(MeshTopology::Edge(i, i+1));
-    }
-  meshTopology->seqEdges.endEdit();
-*/
+  UniformMass3::SPtr frameMass = addNew<UniformMass3>(parentNode,"FrameMass");
+  frameMass->setTotalMass(1);
+
+  posedPoints->ComputeBounds();
+  double bounds[6];
+  posedPoints->GetBounds(bounds);
+
+  box[0] = bounds[0];
+  box[1] = bounds[2];
+  box[2] = bounds[4];
+  box[3] = bounds[1];
+  box[4] = bounds[3];
+  box[5] = bounds[5];
+
   posedPoints->Delete();
   return articulatedFrame;
 }
@@ -1050,12 +1057,47 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
 void createFiniteElementModel(Node *              parentNode,
                               Vec3Types::VecReal &youngModulus )
 {
-  TetrahedronFEMForceField< Vec3Types >::SPtr femSolver =
-    addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
-  femSolver->setComputeGlobalMatrix(false);
-  femSolver->setMethod("large");
-  femSolver->setPoissonRatio(.4);
-  femSolver->_youngModulus.setValue(youngModulus);
+
+  Node::SPtr behavior = parentNode->createChild("behavior");
+  MechanicalObject<Vec3Types> *tetMesh = dynamic_cast<MechanicalObject<Vec3Types>*>( parentNode->getMechanicalState());
+
+  // Define control nodes
+  BarycentricShapeFunction<ShapeFunction3>::SPtr shapeFunction = addNew<BarycentricShapeFunction<ShapeFunction3> >(parentNode,"shapeFunction");
+
+  // Sample mesh where the deformation gradients re going to be defined
+  TopologyGaussPointSampler::SPtr sampler = addNew<TopologyGaussPointSampler>(behavior,"sampler");
+  sampler->f_inPosition.setParent(&tetMesh->x);
+
+  MechanicalObject<F331Types>::SPtr F = addNew<MechanicalObject<F331Types> >(behavior,"F");
+
+  // Map mesh to sampled nodes
+  LinearMapping<Vec3Types,F331Types>::SPtr linearMapping = addNew<LinearMapping<Vec3Types,F331Types> >(behavior,"linearMapping");
+  linearMapping->setModels(tetMesh,F.get());
+
+  // Create strain measurements
+  Node::SPtr strainNode = behavior->createChild("strain");
+    {
+    MechanicalObject<U331Types>::SPtr U = addNew<MechanicalObject<U331Types> >(strainNode,"U");
+    PrincipalStretchesMapping<F331Types,U331Types>::SPtr principalMapping = addNew<PrincipalStretchesMapping<F331Types,U331Types> >(strainNode,"principalMapping");
+    principalMapping->threshold.setValue(0.6);
+    principalMapping->asStrain.setValue(false);
+    principalMapping->setModels(F.get(),U.get());
+
+    StabilizedNeoHookeanForceField<U331Types>::SPtr forceField = addNew<StabilizedNeoHookeanForceField<U331Types> >(strainNode,"Force Field");
+
+    Vec3Types::VecReal &modulus = *forceField->_youngModulus.beginEdit();
+    modulus = youngModulus;
+    forceField->_youngModulus.endEdit();
+    Vec3Types::VecReal &poisson = *forceField->_poissonRatio.beginEdit();
+    poisson[0] = 0.3;
+    forceField->_poissonRatio.endEdit();
+    }
+//   TetrahedronFEMForceField< Vec3Types >::SPtr femSolver =
+//     addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
+//   femSolver->setComputeGlobalMatrix(false);
+//   femSolver->setMethod("large");
+//   femSolver->setPoissonRatio(.4);
+//   femSolver->_youngModulus.setValue(youngModulus);
 }
 
 // ---------------------------------------------------------------------
@@ -1644,7 +1686,7 @@ int main(int argc, char** argv)
 
   sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
 
-  // The graph root node
+  // Create the scene graph root node
   Node::SPtr root = createRootWithCollisionPipeline();
   root->setGravity( Coord3(0,0,0) );
   root->setDt(dt);
@@ -1700,7 +1742,6 @@ int main(int argc, char** argv)
     }
 
   // Create a constrained articulated frame
-  //Node::SPtr skeletalNode = anatomicalNode->createChild("AnatomicalMap");
   Node::SPtr skeletalNode = sceneNode->createChild("Skeleton");
 
   if (Verbose)
@@ -1710,12 +1751,18 @@ int main(int argc, char** argv)
     std::cout << "Create articulated frame..." << std::endl;
     }
 
-  //MechanicalObject<Rigid3Types>::SPtr articulatedFrame =
-    //createArticulatedFrame(skeletalNode.get(),
+  Vector6 box;
   MechanicalObject<Vec3Types>::SPtr articulatedFrame =
-    createFinalFrame(skeletalNode.get(), armature, tetMesh, !IsArmatureInRAS);
-  UniformMass3::SPtr frameMass = addNew<UniformMass3>(skeletalNode.get(),"FrameMass");
-  frameMass->setTotalMass(10000000000);
+    createFinalFrame(skeletalNode.get(), armature, tetMesh,box, !IsArmatureInRAS);
+
+  // Crete a fix contraint to fix the positions of the posed ghost frame
+  BoxROI<Vec3Types>::SPtr boxRoi = addNew<BoxROI<Vec3Types> >(skeletalNode.get(),"BoxRoi");
+  sofa::helper::vector<Vector6> &boxes = *boxRoi->boxes.beginEdit();
+  boxes.push_back(box);
+  boxRoi->boxes.endEdit();
+
+  FixedConstraint<Vec3Types>::SPtr fixedConstraint = addNew<FixedConstraint<Vec3Types> >(skeletalNode.get(),"fixedContraint");
+  fixedConstraint->f_indices.setParent(&boxRoi->f_indices);
 
   if (Verbose)
     {
@@ -1725,7 +1772,7 @@ int main(int argc, char** argv)
     }
 
   // Node for the mesh
-  Node::SPtr anatomicalNode = skeletalNode->createChild("AnatomicalMesh");
+  Node::SPtr anatomicalNode = sceneNode->createChild("AnatomicalMesh");
 
   // Create mesh dof
   Vec3Types::VecReal                youngModulus;
@@ -1756,19 +1803,11 @@ int main(int argc, char** argv)
     int index = 0 ;
     using sofa::component::interactionforcefield::StiffSpringForceField;
 
-    MechanicalObject<Vec3Types>* articulatedFrame = dynamic_cast<MechanicalObject<Vec3Types>*>(
-      skeletalNode->getObject("Skeleton_articulatedFrame"));
-    std::cout << "Articulated frame: " << articulatedFrame << std::endl;
-
-    sofa::core::behavior::BaseForceField::SPtr forcefield =
-      sofa::core::objectmodel::New< StiffSpringForceField<Vec3Types> >(
-        articulatedFrame, posedMesh.get());
-    StiffSpringForceField< Vec3Types >* stiffspringforcefield =
-      static_cast< StiffSpringForceField< Vec3Types >* >(forcefield.get());
-    std::cout << "Stiff spring: " << stiffspringforcefield << std::endl;
+    StiffSpringForceField<Vec3Types>::SPtr stiffspringforcefield = sofa::core::objectmodel::New<StiffSpringForceField<Vec3Types> >(articulatedFrame.get(),posedMesh.get());
     stiffspringforcefield->setName("Spring-Contact");
-    stiffspringforcefield->setArrowSize((float)1);
-    stiffspringforcefield->setDrawMode(2); //Arrow mode if size > 0
+    anatomicalNode->addObject(stiffspringforcefield);
+
+    std::cout << "Stiff spring: " << stiffspringforcefield << std::endl;
 
     double stiffness = 10000.;
     double distance = 1.;
@@ -1781,16 +1820,10 @@ int main(int argc, char** argv)
         stiffspringforcefield->addSpring(pointId, pointId, stiffness, 0.0, distance);
         }
       }
-    //stiffspringforcefield->addSpring(1, 1025, stiffness, 0.0, distance);
-    //stiffspringforcefield->addSpring(2, 1833, stiffness, 0.0, distance);
 
     const sofa::core::objectmodel::TagSet &tags = posedMesh->getTags();
     for (sofa::core::objectmodel::TagSet::const_iterator it=tags.begin(); it!=tags.end(); ++it)
       stiffspringforcefield->addTag(*it);
-
-    posedMesh->getContext()->addObject(stiffspringforcefield);
-
-    forcefield->init();
     }
 
   if (Verbose)
