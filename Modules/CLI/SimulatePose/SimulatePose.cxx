@@ -396,7 +396,7 @@ Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std
   ldicollisionPlugin->pluginName.setValue("ldidetection");
 
   LayeredDepthImagesPipeline::SPtr collisionPipeline = addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
-  collisionPipeline->Kselfpressure.setValue(1000);
+  collisionPipeline->Kselfpressure.setValue(100);
   collisionPipeline->Kpressure.setValue(20);
   collisionPipeline->resolution.setValue(256);
   collisionPipeline->resolutionPixel.setValue(20);
@@ -1891,3 +1891,4 @@ int main(int argc, char** argv)
 
   return EXIT_SUCCESS;
 }
+
