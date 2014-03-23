@@ -62,7 +62,7 @@
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
-
+#include <GL/glew.h>
 
 // SofaCUDA includes
 #ifdef SOFA_CUDA
@@ -395,7 +395,8 @@ Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std
   addNew<sofa::component::misc::RequiredPlugin>(root,"LDI Detection");
   ldicollisionPlugin->pluginName.setValue("ldidetection");
 
-  LayeredDepthImagesPipeline::SPtr collisionPipeline = addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
+  LayeredDepthImagesPipeline::SPtr collisionPipeline =
+    addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
   collisionPipeline->Kselfpressure.setValue(100);
   collisionPipeline->Kpressure.setValue(20);
   collisionPipeline->resolution.setValue(256);
@@ -1054,15 +1055,27 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
 /// Create a FEM in parentNode.  A MeshTopology should be defined in
 /// parentNode prior to calling this function.
 // ---------------------------------------------------------------------
-void createFiniteElementModel(Node *              parentNode,
+void createFiniteElementModel(Node* parentNode, bool collision,
                               Vec3Types::VecReal &youngModulus )
 {
+  if (!collision)
+    {
+    TetrahedronFEMForceField< Vec3Types >::SPtr femSolver =
+      addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
+    femSolver->setComputeGlobalMatrix(false);
+    femSolver->setMethod("large");
+    femSolver->setPoissonRatio(.4);
+    femSolver->_youngModulus.setValue(youngModulus);
+    return;
+    }
 
   Node::SPtr behavior = parentNode->createChild("behavior");
-  MechanicalObject<Vec3Types> *tetMesh = dynamic_cast<MechanicalObject<Vec3Types>*>( parentNode->getMechanicalState());
+  MechanicalObject<Vec3Types> *tetMesh =
+    dynamic_cast<MechanicalObject<Vec3Types>*>( parentNode->getMechanicalState());
 
   // Define control nodes
-  BarycentricShapeFunction<ShapeFunction3>::SPtr shapeFunction = addNew<BarycentricShapeFunction<ShapeFunction3> >(parentNode,"shapeFunction");
+  BarycentricShapeFunction<ShapeFunction3>::SPtr shapeFunction =
+    addNew<BarycentricShapeFunction<ShapeFunction3> >(parentNode,"shapeFunction");
 
   // Sample mesh where the deformation gradients re going to be defined
   TopologyGaussPointSampler::SPtr sampler = addNew<TopologyGaussPointSampler>(behavior,"sampler");
@@ -1071,19 +1084,22 @@ void createFiniteElementModel(Node *              parentNode,
   MechanicalObject<F331Types>::SPtr F = addNew<MechanicalObject<F331Types> >(behavior,"F");
 
   // Map mesh to sampled nodes
-  LinearMapping<Vec3Types,F331Types>::SPtr linearMapping = addNew<LinearMapping<Vec3Types,F331Types> >(behavior,"linearMapping");
+  LinearMapping<Vec3Types,F331Types>::SPtr linearMapping =
+    addNew<LinearMapping<Vec3Types,F331Types> >(behavior,"linearMapping");
   linearMapping->setModels(tetMesh,F.get());
 
   // Create strain measurements
   Node::SPtr strainNode = behavior->createChild("strain");
     {
     MechanicalObject<U331Types>::SPtr U = addNew<MechanicalObject<U331Types> >(strainNode,"U");
-    PrincipalStretchesMapping<F331Types,U331Types>::SPtr principalMapping = addNew<PrincipalStretchesMapping<F331Types,U331Types> >(strainNode,"principalMapping");
+    PrincipalStretchesMapping<F331Types,U331Types>::SPtr principalMapping =
+      addNew<PrincipalStretchesMapping<F331Types,U331Types> >(strainNode,"principalMapping");
     principalMapping->threshold.setValue(0.6);
     principalMapping->asStrain.setValue(false);
     principalMapping->setModels(F.get(),U.get());
 
-    StabilizedNeoHookeanForceField<U331Types>::SPtr forceField = addNew<StabilizedNeoHookeanForceField<U331Types> >(strainNode,"Force Field");
+    StabilizedNeoHookeanForceField<U331Types>::SPtr forceField =
+      addNew<StabilizedNeoHookeanForceField<U331Types> >(strainNode,"Force Field");
 
     Vec3Types::VecReal &modulus = *forceField->_youngModulus.beginEdit();
     modulus = youngModulus;
@@ -1092,12 +1108,6 @@ void createFiniteElementModel(Node *              parentNode,
     poisson[0] = 0.3;
     forceField->_poissonRatio.endEdit();
     }
-//   TetrahedronFEMForceField< Vec3Types >::SPtr femSolver =
-//     addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
-//   femSolver->setComputeGlobalMatrix(false);
-//   femSolver->setMethod("large");
-//   femSolver->setPoissonRatio(.4);
-//   femSolver->_youngModulus.setValue(youngModulus);
 }
 
 // ---------------------------------------------------------------------
@@ -1233,7 +1243,6 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
       double parameters[2] = {0};
       materialParameters->GetTuple(cellId, parameters);
       youngModulus.push_back(parameters[0]);
-      //youngModulus.push_back(2000.);
       }
     }
   meshTopology->seqTetrahedra.endEdit();
@@ -1668,7 +1677,7 @@ void initMesh(vtkPolyData* outputPolyData, vtkPolyData* inputPolyData,
 }
 
 //------------------------------------------------------------------------------
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
   PARSE_ARGS;
 
@@ -1748,7 +1757,7 @@ int main(int argc, char** argv)
     {
     std::cout << "************************************************************"
               << std::endl;
-    std::cout << "Create articulated frame..." << std::endl;
+    std::cout << "Create ghost frame..." << std::endl;
     }
 
   Vector6 box;
@@ -1761,7 +1770,8 @@ int main(int argc, char** argv)
   boxes.push_back(box);
   boxRoi->boxes.endEdit();
 
-  FixedConstraint<Vec3Types>::SPtr fixedConstraint = addNew<FixedConstraint<Vec3Types> >(skeletalNode.get(),"fixedContraint");
+  FixedConstraint<Vec3Types>::SPtr fixedConstraint =
+    addNew<FixedConstraint<Vec3Types> >(skeletalNode.get(),"fixedContraint");
   fixedConstraint->f_indices.setParent(&boxRoi->f_indices);
 
   if (Verbose)
@@ -1783,48 +1793,57 @@ int main(int argc, char** argv)
 
   if (Verbose)
     {
+    std::cout << "************************************************************"
+              << std::endl;
     std::cout << "Create finite element model..." << std::endl;
     }
 
-  Node::SPtr collisionNode;
+  // Finite element method
+  createFiniteElementModel(anatomicalNode.get(), EnableCollision, youngModulus);
+
   // Collision node
   if (EnableCollision)
     {
-    // Finite element method
-    createFiniteElementModel(anatomicalNode.get(),youngModulus);
     if (Verbose)
       {
       std::cout << "************************************************************"
                 << std::endl;
       std::cout << "Create collision node..." << std::endl;
       }
+    Node::SPtr collisionNode;
     collisionNode = createCollisionNode(anatomicalNode.get(),
                                         surfaceMesh,posedMesh.get());
-    int index = 0 ;
-    using sofa::component::interactionforcefield::StiffSpringForceField;
-
-    StiffSpringForceField<Vec3Types>::SPtr stiffspringforcefield = sofa::core::objectmodel::New<StiffSpringForceField<Vec3Types> >(articulatedFrame.get(),posedMesh.get());
-    stiffspringforcefield->setName("Spring-Contact");
-    anatomicalNode->addObject(stiffspringforcefield);
-
-    std::cout << "Stiff spring: " << stiffspringforcefield << std::endl;
-
-    double stiffness = 10000.;
-    double distance = 1.;
-    const vtkIdType numberOfPoints = tetMesh->GetPoints()->GetNumberOfPoints();
-    size_t sample = 0;
-    for (vtkIdType pointId = 0; pointId < numberOfPoints; ++pointId)
-      {
-      if (isPointInLabel(tetMesh, BoneLabel, pointId) && !(sample++ % 1))
-        {
-        stiffspringforcefield->addSpring(pointId, pointId, stiffness, 0.0, distance);
-        }
-      }
-
-    const sofa::core::objectmodel::TagSet &tags = posedMesh->getTags();
-    for (sofa::core::objectmodel::TagSet::const_iterator it=tags.begin(); it!=tags.end(); ++it)
-      stiffspringforcefield->addTag(*it);
     }
+
+  if (Verbose)
+    {
+    std::cout << "************************************************************"
+              << std::endl;
+    std::cout << "Create spring forces..." << std::endl;
+    }
+  int index = 0 ;
+  using sofa::component::interactionforcefield::StiffSpringForceField;
+
+  StiffSpringForceField<Vec3Types>::SPtr stiffspringforcefield =
+    sofa::core::objectmodel::New<StiffSpringForceField<Vec3Types> >(articulatedFrame.get(),posedMesh.get());
+  stiffspringforcefield->setName("Spring-Contact");
+  anatomicalNode->addObject(stiffspringforcefield);
+
+  double stiffness = 10000.;
+  double distance = 1.;
+  const vtkIdType numberOfPoints = tetMesh->GetPoints()->GetNumberOfPoints();
+  size_t sample = 0;
+  for (vtkIdType pointId = 0; pointId < numberOfPoints; ++pointId)
+    {
+    if (isPointInLabel(tetMesh, BoneLabel, pointId) && !(sample++ % 1))
+      {
+      stiffspringforcefield->addSpring(pointId, pointId, stiffness, 0.0, distance);
+      }
+    }
+
+  const sofa::core::objectmodel::TagSet &tags = posedMesh->getTags();
+  for (sofa::core::objectmodel::TagSet::const_iterator it=tags.begin(); it!=tags.end(); ++it)
+    stiffspringforcefield->addTag(*it);
 
   if (Verbose)
     {
@@ -1835,7 +1854,7 @@ int main(int argc, char** argv)
   if (Debug)
     {
     std::string sceneFileName = OutputTetMesh;
-    sceneFileName += "Scene.scn";
+    sceneFileName += ".scn";
     std::cout << "Write scene at " << sceneFileName << std::endl;
     sofa::simulation::getSimulation()->exportXML(root.get(), sceneFileName.c_str());
     }
@@ -1843,26 +1862,43 @@ int main(int argc, char** argv)
     {
     std::cout << "Init..." << std::endl;
     }
+  glewExperimental=true;
   sofa::simulation::getSimulation()->init(root.get());
 
-  glutInit(&argc, argv);
-  sofa::gui::initMain();
-  sofa::gui::GUIManager::Init(argv[0]);
-  if (int err = sofa::gui::GUIManager::MainLoop(root))
-    return err;
-  if (Verbose)
+  if (GUI)
     {
-    std::cout << "Animate..." << std::endl;
-    std::cout << "Computing "<< nbsteps + 1 <<" iterations:" << std::endl;
+    std::cout << "Open GUI..." << std::endl;
+    int gluArgc  = 1;
+    char** gluArgv = new char *;
+    gluArgv[0] = new char[strlen(argv[0])+1];
+    memcpy(gluArgv[0], argv[0], strlen(argv[0])+1);
+    glutInit(&gluArgc, gluArgv);
+    sofa::gui::initMain();
+    sofa::gui::GUIManager::Init(gluArgv[0]);
+    //root->setAnimate(true);
+    int err = sofa::gui::GUIManager::MainLoop(root);
+    if (err)
+      {
+      std::cerr << "Error in SOFA. " << std::endl;
+      return err;
+      }
     }
-  for (unsigned int i=0; i<=nbsteps; i++)
+  else
     {
     if (Verbose)
       {
-      std::cout << " Iteration #" << i << "..." << std::endl;
+      std::cout << "Animate..." << std::endl;
+      std::cout << "Computing "<< nbsteps + 1 <<" iterations:" << std::endl;
       }
-    sofa::simulation::getSimulation()->animate(root.get(), dt);
-    //sofa::simulation::getSimulation()->animate(root.get());
+    for (unsigned int i=0; i<=nbsteps; i++)
+      {
+      if (Verbose)
+        {
+        std::cout << " Iteration #" << i << "..." << std::endl;
+        }
+      sofa::simulation::getSimulation()->animate(root.get(), dt);
+      //sofa::simulation::getSimulation()->animate(root.get());
+      }
     }
   vtkNew<vtkPolyData> posedSurface;
   initMesh(posedSurface.GetPointer(), tetMesh, anatomicalNode);

@@ -102,6 +102,13 @@
       <description><![CDATA[Generate debug information (e.g sofa scene).]]></description>
       <default>false</default>
     </boolean>
+    <boolean>
+      <name>GUI</name>
+      <label>GUI</label>
+      <longflag>--gui</longflag>
+      <description><![CDATA[Show SOFA gui.]]></description>
+      <default>false</default>
+    </boolean>
 
   </parameters>
 </executable>
