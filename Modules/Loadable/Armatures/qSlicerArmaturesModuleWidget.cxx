@@ -131,10 +131,6 @@ void qSlicerArmaturesModuleWidgetPrivate
   q->qvtkConnect(this->logic(), vtkCommand::ModifiedEvent,
                  q, SLOT(updateWidgetFromLogic()));
 
-  QObject::connect(this->BonesTreeView,
-    SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-    q, SLOT(onTreeNodeSelected(vtkMRMLNode*)));
-
     // -- Rest/Pose --
   QObject::connect(this->ArmatureStateComboBox,
     SIGNAL(currentIndexChanged(int)),
@@ -500,7 +496,7 @@ void qSlicerArmaturesModuleWidgetPrivate
       vtkMRMLBoneNode::SafeDownCast(q->mrmlScene()->GetNodeByID(nodeID));
     if (boneNode && boneNode->GetSelected())
       {
-      this->BonesTreeView->setCurrentNode(boneNode);
+      this->logic()->SetActiveBone(boneNode);
       }
     }
 }
@@ -690,7 +686,6 @@ void qSlicerArmaturesModuleWidget
   d->ArmatureNode = armatureNode;
 
   d->logic()->SetActiveArmature(armatureNode);
-  this->onTreeNodeSelected(armatureNode);
   this->updateWidgetFromArmatureNode();
 }
 
@@ -857,6 +852,7 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromLogic()
       d->ArmatureNodeComboBox->setCurrentNode(activeNode);
       }
     }
+  this->setActiveNode(activeNode);
 }
 
 //-----------------------------------------------------------------------------
@@ -894,7 +890,7 @@ void qSlicerArmaturesModuleWidget::updateWidgetFromBoneNode()
 }
 
 //-----------------------------------------------------------------------------
-void qSlicerArmaturesModuleWidget::onTreeNodeSelected(vtkMRMLNode* node)
+void qSlicerArmaturesModuleWidget::setActiveNode(vtkMRMLNode* node)
 {
   Q_D(qSlicerArmaturesModuleWidget);
 
