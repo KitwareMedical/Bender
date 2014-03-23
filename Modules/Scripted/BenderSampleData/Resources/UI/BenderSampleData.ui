@@ -99,7 +99,15 @@ p, li { white-space: pre-wrap; }
          </property>
          <item>
           <property name="text">
-           <string>adult-running</string>
+           <string>arm-biceps-curl</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>man-running</string>
           </property>
           <property name="checkState">
            <enum>Unchecked</enum>

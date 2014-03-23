@@ -191,11 +191,12 @@ class BenderSampleDataLogic( SampleDataLogic ):
         },
       'Animations':
         {
-        'adult-running' : ['adult-animation-running-v2.0.0', 'ArmatureFile', 'http://packages.kitware.com/download/item/5145/adult-animation-running.bvh', 'adult-animation-running-v2.0.0.bvh']
+        'arm-biceps-curl' : ['man-arm-biceps-curl', 'ArmatureFile', 'http://packages.kitware.com/download/item/5140/man-arm-biceps-curl-v2.bvh', 'man-arm-biceps-curl-v2.0.0.bvh'],
+        'man-running' : ['man-run', 'ArmatureFile', 'http://packages.kitware.com/download/item/5145/man-run-v2.bvh', 'man-run-v2.0.0.bvh']
         },
       'Outputs' :
         {
-        'Posed armature' : ['arm-biceps-curl-v2.0.0.bvh', 'ArmatureFile', 'http://packages.kitware.com/download/item/5140/arm-biceps-curl-v2.bvh', 'arm-biceps-curl-v2.0.0.bvh'],
+        'Posed armature' : ['man-arm-2mm-armature', 'ArmatureFile', 'http://packages.kitware.com/download/item/5146/man-arm-2mm-armature-v2.bvh', 'man-arm-2mm-armature-v2.0.0.bvh'],
         },
       'Simple Workflow' :
         {
