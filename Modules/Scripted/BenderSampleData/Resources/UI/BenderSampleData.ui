@@ -95,6 +95,30 @@ p, li { white-space: pre-wrap; }
         </item>
         <item>
          <property name="text">
+          <string>Animations</string>
+         </property>
+         <item>
+          <property name="text">
+           <string>arm-biceps-curl</string>
+          </property>
+          <property name="checkState">
+           <enum>Checked</enum>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>man-running</string>
+          </property>
+          <property name="checkState">
+           <enum>Unchecked</enum>
+          </property>
+          <property name="flags">
+           <set>ItemIsSelectable|ItemIsUserCheckable|ItemIsEnabled</set>
+          </property>
+         </item>
+        </item>
+        <item>
+         <property name="text">
           <string>Outputs</string>
          </property>
          <item>
