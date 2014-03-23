@@ -19,15 +19,13 @@
 ==============================================================================*/
 
 /// Qt includes
-#include <QBuffer>
 #include <QDebug>
-#include <QImage>
-#include <QLabel>
 #include <QVariant>
 
 // CTK includes
 #include <ctkFlowLayout.h>
 #include <ctkPopupWidget.h>
+#include <ctkVTKRenderView.h>
 
 /// Bender includes
 #include <vtkArmatureWidget.h>
@@ -45,10 +43,7 @@
 
 // VTK includes
 #include <vtkCamera.h>
-#include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkWindowToImageFilter.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_Volumes
@@ -71,13 +66,9 @@ public:
   void setupUi(qSlicerWidget* slicerArmaturesIOOptionsWidget);
 
   vtkBVHReader* Reader;
-  vtkRenderer* Renderer;
-  vtkRenderWindow* RenderWindow;
-  vtkRenderWindowInteractor* RenderWindowInteractor;
-  vtkWindowToImageFilter* WindowToImageFilter;
+  ctkVTKRenderView* RenderView;
 
   ctkPopupWidget* Popup;
-  QLabel* DisplayLabel;
 
   void createRendering(QString filename);
   void deleteRendering();
@@ -90,10 +81,7 @@ qSlicerArmaturesIOOptionsWidgetPrivate
   : q_ptr(&object)
 {
   this->Reader = 0;
-  this->Renderer = 0;
-  this->RenderWindow = 0;
-  this->RenderWindowInteractor = 0;
-  this->WindowToImageFilter = 0;
+  this->RenderView = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,6 +89,10 @@ qSlicerArmaturesIOOptionsWidgetPrivate::
 ~qSlicerArmaturesIOOptionsWidgetPrivate()
 {
   this->deleteRendering();
+  if (this->RenderView)
+    {
+    delete this->RenderView;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -112,11 +104,17 @@ void qSlicerArmaturesIOOptionsWidgetPrivate
 
   this->Popup = new ctkPopupWidget(this->FrameSliderWidget);
   QHBoxLayout* popupLayout = new QHBoxLayout(this->Popup);
-  this->DisplayLabel = new QLabel(this->Popup);
-  this->DisplayLabel->setScaledContents(true);
-  popupLayout->addWidget(this->DisplayLabel);
+  this->RenderView = new ctkVTKRenderView(this->Popup);
+  this->RenderView->setFixedSize(QSize( 200, 200));
+  this->RenderView->scheduleRender();
+  popupLayout->addWidget(this->RenderView);
+  int left, top, right, bottom;
+  popupLayout->getContentsMargins(&left, &top, &right, &bottom);
+  this->Popup->setMaximumSize(QSize( 200 + left + right , 200 + top + bottom));
   this->Popup->setAutoShow(true);
   this->Popup->setAutoHide(true);
+  this->Popup->setVerticalDirection(ctkBasePopupWidget::BottomToTop);
+  this->Popup->setAlignment(Qt::AlignJustify | Qt::AlignTop);
 
   q->connect(this->FrameSelectionEnabledCheckBox, SIGNAL(stateChanged(int)),
     q, SLOT(enableFrameChange(int)));
@@ -133,40 +131,25 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::createRendering(QString filename)
     }
 
   this->Reader = vtkBVHReader::New();
-  this->Renderer = vtkRenderer::New();
-  this->RenderWindow = vtkRenderWindow::New();
-  this->RenderWindowInteractor = vtkRenderWindowInteractor::New();
-
-  this->RenderWindow->AddRenderer(this->Renderer);
-  this->RenderWindowInteractor->SetRenderWindow(this->RenderWindow);
-
-  this->Renderer->GetActiveCamera()->SetPosition(0.0, 1.0, 0.0);
-
-  this->WindowToImageFilter = vtkWindowToImageFilter::New();
-  this->WindowToImageFilter->SetInput(this->RenderWindow);
-
   this->Reader->SetFileName(filename.toLatin1());
   this->Reader->Update();
 
   if (!this->Reader->GetArmature())
     {
-    this->deleteRendering();
+    this->Reader->Delete();
+    this->Reader = 0;
+    return;
     }
-  else
+
+  vtkArmatureWidget* armature = this->Reader->GetArmature();
+  if (armature)
     {
-    this->Reader->GetArmature()->SetInteractor(this->RenderWindowInteractor);
-    this->Reader->GetArmature()->SetCurrentRenderer(this->Renderer);
-
-    this->RenderWindow->SetOffScreenRendering(1);
-    this->RenderWindow->SetSize(
-      this->FrameSliderWidget->width(), this->FrameSliderWidget->width());
-    this->RenderWindow->Render();
-    this->RenderWindowInteractor->Initialize();
-    this->RenderWindow->Render();
-    this->Reader->GetArmature()->On();
-
-    this->FrameSliderWidget->setMaximum(this->Reader->GetNumberOfFrames() - 1);
+    armature->SetInteractor(this->RenderView->interactor());
+    armature->SetCurrentRenderer(this->RenderView->renderer());
+    armature->On();
+    armature->SetProcessEvents(false);
     }
+  this->FrameSliderWidget->setMaximum(this->Reader->GetNumberOfFrames() - 1);
 }
 
 //-----------------------------------------------------------------------------
@@ -174,20 +157,15 @@ void qSlicerArmaturesIOOptionsWidgetPrivate::deleteRendering()
 {
   if (this->Reader)
     {
-    this->DisplayLabel->setText("");
     this->FrameSliderWidget->setValue(0);
     this->FrameSliderWidget->setMaximum(0);
 
+    if (this->Reader->GetArmature())
+      {
+      this->Reader->GetArmature()->SetEnabled(0);
+      }
     this->Reader->Delete();
     this->Reader = 0;
-    this->Renderer->Delete();
-    this->Renderer = 0;
-    this->RenderWindow->Delete();
-    this->RenderWindow = 0;
-    this->RenderWindowInteractor->Delete();
-    this->RenderWindowInteractor = 0;
-    this->WindowToImageFilter->Delete();
-    this->WindowToImageFilter = 0;
     }
 }
 
@@ -275,17 +253,11 @@ void qSlicerArmaturesIOOptionsWidget::updateToolTip()
     }
 
   d->Reader->SetFrame(d->FrameSliderWidget->value());
+  d->Reader->Update();
   if (d->Reader->GetArmature())
     {
-    d->Renderer->ResetCamera(
+    d->RenderView->renderer()->ResetCamera(
       d->Reader->GetArmature()->GetPolyData()->GetBounds());
     }
-
-  d->WindowToImageFilter->Modified(); // See vtkWindowToImageFilter
-  d->WindowToImageFilter->Update();
-
-  QImage image;
-  vtkImageData* frame = d->WindowToImageFilter->GetOutput();
-  qMRMLUtils::vtkImageDataToQImage(frame, image);
-  d->DisplayLabel->setPixmap(QPixmap::fromImage(image));
+  d->RenderView->scheduleRender();
 }
