@@ -3679,6 +3679,18 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_13">
+          <item row="6" column="0">
+           <widget class="QLabel" name="SimulatePoseGUILabel">
+            <property name="text">
+             <string>GUI</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="SimulatePoseInputLabel">
             <property name="sizePolicy">
@@ -3756,7 +3768,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="SimulatePoseOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -3775,7 +3787,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="4">
+          <item row="8" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -3860,7 +3872,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="qMRMLNodeComboBox" name="SimulatePoseOutputNodeComboBox">
             <property name="toolTip">
              <string>Select the output posed surface</string>
@@ -3890,7 +3902,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
+          <item row="4" column="3">
            <widget class="QToolButton" name="SimulatePoseOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -3926,7 +3938,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="4" column="2">
            <widget class="QToolButton" name="SimulatePoseOutputNodeLoadToolButton">
             <property name="text">
              <string>...</string>
@@ -3974,7 +3986,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="SimulatePoseCollisionLabel">
             <property name="text">
              <string>Enable Collision</string>
@@ -3987,14 +3999,56 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1" colspan="3">
+          <item row="5" column="1" colspan="3">
            <widget class="QCheckBox" name="SimulatePoseCollisionCheckBox">
             <property name="text">
              <string/>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="workflow" stdset="0">
              <stringlist>
               <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="SimulatePoseGUICheckBox">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="SimulatePoseBoneMaterialLabel">
+            <property name="text">
+             <string>Bone material</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QSpinBox" name="SimulatePoseBoneMaterialSpinBox">
+            <property name="maximum">
+             <number>9999999</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
               <string>2</string>
              </stringlist>
             </property>
@@ -5799,6 +5853,22 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>511</x>
      <y>631</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>816</x>
+     <y>516</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExtractBoneMaterialSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>SimulatePoseBoneMaterialSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>512</x>

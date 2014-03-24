@@ -2261,7 +2261,11 @@ class WorkflowWidget:
     parameters["InputTetMesh"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
     parameters["OutputTetMesh"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
     parameters["InputSurface"] = self.get('SimulatePoseSkinComboBox').currentNode()
+    parameters["BoneLabel"] = self.get('SimulatePoseBoneMaterialSpinBox').value
     parameters["EnableCollision"] = self.get('SimulatePoseCollisionCheckBox').isChecked()
+    parameters["GUI"] = self.get('SimulatePoseGUICheckBox').isChecked()
+    parameters["Verbose"] = True
+    parameters["Debug"] = True
     return parameters
 
   def runSimulatePose(self, run):
