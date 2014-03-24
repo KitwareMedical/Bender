@@ -1598,7 +1598,8 @@ class WorkflowWidget:
     else:
       parameters["SkinLabel"] = ''
     parameters["Decimate"] = True
-    parameters["Spacing"] = '6,6,6'
+    parameters["Spacing"] = ", ".join(str(self.get('SkinModelMakerDecimateSpacingSpinBox').value) for s in range(3))
+    parameters["Smooth"] = self.get('SkinModelMakerSmoothCheckBox').isChecked()
 
     return parameters
 
