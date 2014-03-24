@@ -47,6 +47,13 @@
     <label>Controls</label>
     <description><![CDATA[Control how the module operates]]></description>
     <boolean>
+      <name>LinearFEM</name>
+      <label>Linear FEM</label>
+      <longflag>--linearFEM</longflag>
+      <description><![CDATA[Use linear FEM. This speeds up the initialization step.]]></description>
+      <default>false</default>
+    </boolean>
+    <boolean>
       <name>EnableCollision</name>
       <label>Collision</label>
       <longflag>--collision</longflag>
@@ -57,7 +64,7 @@
       <name>NumberOfSteps</name>
       <label>Number of steps</label>
       <longflag>--steps</longflag>
-      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
+      <description><![CDATA[The more steps, the smaller the steps are.]]></description>
       <default>3</default>
     </integer>
     <integer>
