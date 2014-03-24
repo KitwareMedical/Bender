@@ -1561,7 +1561,19 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_17">
-          <item row="4" column="3">
+          <item row="4" column="0">
+           <widget class="QLabel" name="SkinModelMakerDecimateSpacingLabel">
+            <property name="text">
+             <string>Output spacing</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="3">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -1580,7 +1592,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="4">
+          <item row="7" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
              <spacer name="horizontalSpacer_19">
@@ -1712,6 +1724,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="1" colspan="3">
            <widget class="QSpinBox" name="SkinModelMakerSkinLabelSpinBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1779,7 +1794,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1805,7 +1820,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="6" column="1">
            <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1840,6 +1855,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="SkinModelMakerSkinLabel">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Skin label</string>
             </property>
@@ -1868,7 +1886,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="6" column="2">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeLoadToolButton">
             <property name="text">
              <string>...</string>
@@ -1889,6 +1907,7 @@ p, li { white-space: pre-wrap; }
             <property name="workflow" stdset="0">
              <stringlist>
               <string>2</string>
+              <string>1</string>
              </stringlist>
             </property>
            </widget>
@@ -1898,6 +1917,46 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CHoose if the &lt;span style=&quot; font-weight:600;&quot;&gt;skin label&lt;/span&gt; will be used to compute the skin model. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+              <string>1</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="SkinModelMakerSmoothLabel">
+            <property name="text">
+             <string>Smooth</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QDoubleSpinBox" name="SkinModelMakerDecimateSpacingSpinBox">
+            <property name="value">
+             <double>6.000000000000000</double>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="3">
+           <widget class="QCheckBox" name="SkinModelMakerSmoothCheckBox">
             <property name="text">
              <string/>
             </property>
@@ -2929,13 +2988,13 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Evaluate surface weights</string>
+          <string>B) Evaluate weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightInputNodeLabel">
             <property name="text">
-             <string>Input surface</string>
+             <string>Input mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3028,7 +3087,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
-             <string>Output surface</string>
+             <string>Output mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3157,7 +3216,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Material Propeties</string>
+          <string>C) Material propeties</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
