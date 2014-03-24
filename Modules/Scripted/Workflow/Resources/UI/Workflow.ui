@@ -338,7 +338,7 @@ p, li { white-space: pre-wrap; }
        <string/>
       </property>
       <property name="accessibleName">
-       <string>Extract bones and skin</string>
+       <string>Merge and resample</string>
       </property>
       <property name="accessibleDescription">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1131,7 +1131,7 @@ p, li { white-space: pre-wrap; }
           <item row="3" column="1" colspan="3">
            <widget class="QDoubleSpinBox" name="ResampleImageSpacingSpinBox">
             <property name="value">
-             <double>2.000000000000000</double>
+             <double>4.000000000000000</double>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -1178,7 +1178,7 @@ p, li { white-space: pre-wrap; }
      </widget>
      <widget class="QWidget" name="MeshingPage">
       <property name="accessibleName">
-       <string>Mesh surface</string>
+       <string>Extract materials</string>
       </property>
       <property name="accessibleDescription">
        <string>Create a tetrahedral mesh from the merged labelmap.</string>
@@ -1218,7 +1218,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="CreateMeshInputLabel">
             <property name="text">
-             <string>Merge labelmap</string>
+             <string>Merged labelmap</string>
             </property>
             <property name="workflow" stdset="0">
              <string>2</string>
@@ -1493,7 +1493,7 @@ p, li { white-space: pre-wrap; }
           <item row="0" column="0">
            <widget class="QLabel" name="ExtractBoneInputLabel">
             <property name="text">
-             <string>Mesh</string>
+             <string>Input mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <string>2</string>
@@ -1503,7 +1503,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="ExtractBoneOutputLabel">
             <property name="text">
-             <string>Bone Mesh</string>
+             <string>Output bone mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <string>1;2</string>
@@ -1555,13 +1555,25 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Skin model maker</string>
+          <string>C) Extract skin mesh</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_17">
-          <item row="4" column="3">
+          <item row="4" column="0">
+           <widget class="QLabel" name="SkinModelMakerDecimateSpacingLabel">
+            <property name="text">
+             <string>Output spacing</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="3">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -1580,7 +1592,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="5" column="0" colspan="4">
+          <item row="7" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_16">
             <item>
              <spacer name="horizontalSpacer_19">
@@ -1712,6 +1724,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="1" colspan="3">
            <widget class="QSpinBox" name="SkinModelMakerSkinLabelSpinBox">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="toolTip">
              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -1779,7 +1794,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="SkinModelMakerNodeOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
@@ -1805,7 +1820,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="6" column="1">
            <widget class="qMRMLNodeComboBox" name="SkinModelMakerOutputNodeComboBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
@@ -1840,6 +1855,9 @@ p, li { white-space: pre-wrap; }
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="SkinModelMakerSkinLabel">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Skin label</string>
             </property>
@@ -1868,7 +1886,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
+          <item row="6" column="2">
            <widget class="QToolButton" name="SkinModelMakerOutputNodeLoadToolButton">
             <property name="text">
              <string>...</string>
@@ -1889,6 +1907,7 @@ p, li { white-space: pre-wrap; }
             <property name="workflow" stdset="0">
              <stringlist>
               <string>2</string>
+              <string>1</string>
              </stringlist>
             </property>
            </widget>
@@ -1898,6 +1917,46 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;CHoose if the &lt;span style=&quot; font-weight:600;&quot;&gt;skin label&lt;/span&gt; will be used to compute the skin model. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+              <string>1</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="SkinModelMakerSmoothLabel">
+            <property name="text">
+             <string>Smooth</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" colspan="3">
+           <widget class="QDoubleSpinBox" name="SkinModelMakerDecimateSpacingSpinBox">
+            <property name="value">
+             <double>6.000000000000000</double>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1" colspan="3">
+           <widget class="QCheckBox" name="SkinModelMakerSmoothCheckBox">
             <property name="text">
              <string/>
             </property>
@@ -2929,13 +2988,13 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>B) Evaluate surface weights</string>
+          <string>B) Evaluate weights</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightInputNodeLabel">
             <property name="text">
-             <string>Input surface</string>
+             <string>Input mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3028,7 +3087,7 @@ p, li { white-space: pre-wrap; }
           <item row="2" column="0">
            <widget class="QLabel" name="EvalSurfaceWeightOutputNodeLabel">
             <property name="text">
-             <string>Output surface</string>
+             <string>Output mesh</string>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
@@ -3157,7 +3216,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Material Propeties</string>
+          <string>C) Material propeties</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>
@@ -3620,6 +3679,18 @@ p, li { white-space: pre-wrap; }
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_13">
+          <item row="6" column="0">
+           <widget class="QLabel" name="SimulatePoseGUILabel">
+            <property name="text">
+             <string>GUI</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="SimulatePoseInputLabel">
             <property name="sizePolicy">
@@ -3697,7 +3768,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="SimulatePoseOutputLabel">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -3716,7 +3787,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="4">
+          <item row="8" column="0" colspan="4">
            <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
              <spacer name="horizontalSpacer_9">
@@ -3801,7 +3872,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="4" column="1">
            <widget class="qMRMLNodeComboBox" name="SimulatePoseOutputNodeComboBox">
             <property name="toolTip">
              <string>Select the output posed surface</string>
@@ -3831,7 +3902,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="3">
+          <item row="4" column="3">
            <widget class="QToolButton" name="SimulatePoseOutputNodeToolButton">
             <property name="enabled">
              <bool>false</bool>
@@ -3867,7 +3938,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
+          <item row="4" column="2">
            <widget class="QToolButton" name="SimulatePoseOutputNodeLoadToolButton">
             <property name="text">
              <string>...</string>
@@ -3915,7 +3986,7 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="SimulatePoseCollisionLabel">
             <property name="text">
              <string>Enable Collision</string>
@@ -3928,14 +3999,56 @@ p, li { white-space: pre-wrap; }
             </property>
            </widget>
           </item>
-          <item row="4" column="1" colspan="3">
+          <item row="5" column="1" colspan="3">
            <widget class="QCheckBox" name="SimulatePoseCollisionCheckBox">
             <property name="text">
              <string/>
             </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
             <property name="workflow" stdset="0">
              <stringlist>
               <string>1</string>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="SimulatePoseGUICheckBox">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="SimulatePoseBoneMaterialLabel">
+            <property name="text">
+             <string>Bone material</string>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
+              <string>2</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="3">
+           <widget class="QSpinBox" name="SimulatePoseBoneMaterialSpinBox">
+            <property name="maximum">
+             <number>9999999</number>
+            </property>
+            <property name="workflow" stdset="0">
+             <stringlist>
               <string>2</string>
              </stringlist>
             </property>
@@ -5740,6 +5853,22 @@ p, li { white-space: pre-wrap; }
     <hint type="sourcelabel">
      <x>511</x>
      <y>631</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>816</x>
+     <y>516</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ExtractBoneMaterialSpinBox</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>SimulatePoseBoneMaterialSpinBox</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>481</x>
+     <y>356</y>
     </hint>
     <hint type="destinationlabel">
      <x>512</x>

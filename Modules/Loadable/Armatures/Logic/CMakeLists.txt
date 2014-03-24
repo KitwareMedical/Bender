@@ -56,7 +56,6 @@ SlicerMacroBuildModuleLogic(
 set(${KIT}_PRESET_RESOURCES
   Adult-armature.vtk
   Arm-armature.vtk
-  BVHCompatibleArmature.arm
   Child-armature.vtk
   StickMan-armature.vtk
   )

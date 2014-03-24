@@ -10,6 +10,7 @@ class SkinModelMakerLogic:
     self.ChangeLabelParameters = {}
     self.GenerateModelParameters = {}
     self.DecimateParameters = {}
+    self.SmoothParameters = {}
 
     # Status
     self.CLINode = slicer.vtkMRMLCommandLineModuleNode()
@@ -72,6 +73,14 @@ class SkinModelMakerLogic:
     self.DecimateParameters['UseFeatureEdges'] = True
     self.DecimateParameters['UseFeaturePoints'] = True
 
+    self.SmoothParameters['Smooth'] = parameters['Smooth']
+    self.SmoothParameters['NumberOfIterations'] = 200
+    if 'NumberOfIterations' in parameters:
+      self.SmoothParameters['NumberOfIterations'] = parameters['NumberOfIterations']
+    self.SmoothParameters['Convergence'] = 0.0
+    if 'Convergence' in parameters:
+      self.SmoothParameters['Convergence'] = parameters['Convergence']
+
     # Start CLI chain
     self.WaitForCompletion = wait_for_completion
     self.runChangeLabel()
@@ -127,9 +136,21 @@ class SkinModelMakerLogic:
 
       print ('Model Quadric Clustering %s' % cliNode.GetStatusString())
       if cliNode.GetStatusString() == 'Completed':
-        self.GetCLINode().SetStatus(self.CLINode.Completed)
+        self.runSmoother()
       else:
         self.CLINode.SetStatus(cliNode.GetStatus())
+
+  def runSmoother(self):
+    if self.SmoothParameters["Smooth"]:
+      model = self.DecimateParameters["DecimatedModel"]
+      polyData = model.GetPolyData()
+      smoother = vtk.vtkSmoothPolyDataFilter()
+      smoother.SetInput(polyData)
+      smoother.SetNumberOfIterations(self.SmoothParameters['NumberOfIterations'])
+      smoother.SetConvergence(self.SmoothParameters['Convergence'])
+      smoother.Update()
+      model.SetAndObservePolyData(smoother.GetOutputDataObject(0))
+    self.GetCLINode().SetStatus(self.CLINode.Completed)
 
   def getCLINode(self, cliModule):
     """ Return the cli node to use for a given CLI module. Create the node in

@@ -1598,7 +1598,8 @@ class WorkflowWidget:
     else:
       parameters["SkinLabel"] = ''
     parameters["Decimate"] = True
-    parameters["Spacing"] = '6,6,6'
+    parameters["Spacing"] = ", ".join(str(self.get('SkinModelMakerDecimateSpacingSpinBox').value) for s in range(3))
+    parameters["Smooth"] = self.get('SkinModelMakerSmoothCheckBox').isChecked()
 
     return parameters
 
@@ -2260,7 +2261,11 @@ class WorkflowWidget:
     parameters["InputTetMesh"] = self.get('SimulatePoseInputNodeComboBox').currentNode()
     parameters["OutputTetMesh"] = self.get('SimulatePoseOutputNodeComboBox').currentNode()
     parameters["InputSurface"] = self.get('SimulatePoseSkinComboBox').currentNode()
+    parameters["BoneLabel"] = self.get('SimulatePoseBoneMaterialSpinBox').value
     parameters["EnableCollision"] = self.get('SimulatePoseCollisionCheckBox').isChecked()
+    parameters["GUI"] = self.get('SimulatePoseGUICheckBox').isChecked()
+    parameters["Verbose"] = True
+    parameters["Debug"] = True
     return parameters
 
   def runSimulatePose(self, run):

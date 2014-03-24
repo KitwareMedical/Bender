@@ -240,7 +240,7 @@ bool vtkMRMLArmatureNodeHelper
     }
 
   targetArmature->ResetPoseMode();
-  int oldState = targetArmature->SetWidgetState(vtkMRMLArmatureNode::Pose);
+  targetArmature->SetWidgetState(vtkMRMLArmatureNode::Pose);
 
   // Prepare resizing
   vtkMRMLBoneNode* targetRoot =
@@ -304,8 +304,6 @@ bool vtkMRMLArmatureNodeHelper
     {
     return false;
     }
-
-  targetArmature->SetWidgetState(oldState);
 
   return true;
 }

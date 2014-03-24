@@ -58,7 +58,14 @@
       <label>Number of steps</label>
       <longflag>--steps</longflag>
       <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
-      <default>4</default>
+      <default>3</default>
+    </integer>
+    <integer>
+      <name>BoneLabel</name>
+      <label>Bone label</label>
+      <longflag>--bone</longflag>
+      <description><![CDATA[Label of the bone.]]></description>
+      <default>2</default>
     </integer>
   </parameters>
   <parameters advanced="true">
@@ -88,5 +95,20 @@
       <description><![CDATA[Print verbose outputs.]]></description>
       <default>false</default>
     </boolean>
+    <boolean>
+      <name>Debug</name>
+      <label>Debug</label>
+      <longflag>--debug</longflag>
+      <description><![CDATA[Generate debug information (e.g sofa scene).]]></description>
+      <default>false</default>
+    </boolean>
+    <boolean>
+      <name>GUI</name>
+      <label>GUI</label>
+      <longflag>--gui</longflag>
+      <description><![CDATA[Show SOFA gui.]]></description>
+      <default>false</default>
+    </boolean>
+
   </parameters>
 </executable>
