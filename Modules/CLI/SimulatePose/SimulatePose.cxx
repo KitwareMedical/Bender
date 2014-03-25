@@ -23,6 +23,10 @@
 #include "benderIOUtils.h"
 #include "vtkQuaternion.h"
 
+// OpenGL includes
+//#include <GL/glew.h>
+//#include <GL/glut.h>
+
 // SOFA includes
 #include <plugins/ldidetection/lib/LayeredDepthImagesPipeline.h>
 #include <plugins/ldidetection/lib/LDIDetection.h>
@@ -31,9 +35,6 @@
 #include <plugins/Flexible/deformationMapping/LinearMapping.h>
 #include <plugins/Flexible/strainMapping/PrincipalStretchesMapping.h>
 #include <plugins/Flexible/material/StabilizedNeoHookeanForceField.h>
-
-
-
 
 #include <sofa/component/collision/BaseContactMapper.h>
 #include <sofa/component/collision/BruteForceDetection.h>
@@ -62,7 +63,6 @@
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
-#include <GL/glew.h>
 
 // SofaCUDA includes
 #ifdef SOFA_CUDA
@@ -207,12 +207,19 @@ std::map<vtkIdType, vtkIdType> copyVertices( vtkPoints* points,
       numberOfPointWithLabel;
     }
   vtkIdType meshPointId = mechanicalMesh->getSize() > 1 ? mechanicalMesh->getSize() : 0;
-  std::cout << "Mesh size: " << mechanicalMesh->getSize() << " -> " << meshPointId << std::endl;
   mechanicalMesh->resize(numberOfPoints);
 
-  std::cout << "  Total # of points for label " << (filter > 0 ? label : -1) << ": "
-            << numberOfPoints << " out of " << points->GetNumberOfPoints()
-            << " points." << std::endl;
+  std::cout << "  Total # of points ";
+  if (filter > 0)
+    {
+    std::cout << "for label " << label;
+    }
+  std::cout  <<  ": " << numberOfPoints;
+  if (filter > 0)
+    {
+    std::cout << " out of " << points->GetNumberOfPoints();
+    }
+  std::cout << " points." << std::endl;
 
   Data<MechanicalObject<Vec3Types>::VecCoord>* x =
     mechanicalMesh->write(VecCoordId::position());
@@ -499,9 +506,6 @@ void getBoneCoordinates(
   std::cout << "Number of bones: " << armatureSegments->GetNumberOfCells() <<
     std::endl;
 
-  vtkIdTypeArray* parenthood = vtkIdTypeArray::SafeDownCast(
-    armatureCellData->GetArray("Parenthood"));
-
   vtkNew<vtkIdList> cell;
   armatureSegments->InitTraversal();
   int edgeId(0);
@@ -551,8 +555,8 @@ void getBoneCoordinates(
     typename T::Coord finalPose,restPosition;
     Vector3            centerOfMass = 0.5*(childJoint+parentJoint);
 
-    vtkQuaterniond q = computeOrientationFromReferenceAxis(centerOfMass,
-      childJoint);
+    //vtkQuaterniond q = computeOrientationFromReferenceAxis(centerOfMass,
+    //  childJoint);
 
     //restPosition.getCenter()      = centerOfMass;
     restPosition = centerOfMass;
@@ -877,7 +881,6 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
   //------------------------------------------------------
 
   // Find out if all the weight have a corresponding array
-  bool shouldUseWeightImages = false;
   vtkPointData* pointData = mesh->GetPointData();
   vtkPoints* inputPoints = mesh->GetPoints();
   int numPoints = mesh->GetNumberOfPoints();
@@ -894,7 +897,6 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
     if (!weightArray || weightArray->GetNumberOfTuples() != numPoints)
       {
       //surfaceVertexWeights.clear();
-      //shouldUseWeightImages = true;
       numWeights = i;
 
       std::cerr<<"Could not find field array for weight " << i << std::endl;
@@ -1225,8 +1227,6 @@ MechanicalObject<Vec3Types>::SPtr loadMesh(Node*               parentNode,
     {
     std::cerr << "Error: No material parameters data array in mesh" << std::endl;
     }
-  vtkIntArray* materialIds = vtkIntArray::SafeDownCast(
-    data->GetArray("MaterialId"));
 
   vtkNew<vtkIdList> element;
   for (vtkIdType cellId = 0; tetras->GetNextCell(element.GetPointer());++cellId)
@@ -1642,7 +1642,6 @@ void initMesh(vtkPolyData* outputPolyData, vtkPolyData* inputPolyData,
   MeshTopology *topology = anatomicalMesh->getNodeObject<MeshTopology>();
   vtkNew<vtkPoints> points;
   const vtkIdType numberOfPoints = topology->getNbPoints();
-  std::cout << "Number of Points: " << numberOfPoints << std::endl;
   points->SetNumberOfPoints(numberOfPoints);
   for (vtkIdType pointId = 0; pointId < numberOfPoints; ++pointId)
     {
@@ -1850,7 +1849,6 @@ int main(int argc, char* argv[])
               << std::endl;
     std::cout << "Create spring forces..." << std::endl;
     }
-  int index = 0 ;
   using sofa::component::interactionforcefield::StiffSpringForceField;
 
   StiffSpringForceField<Vec3Types>::SPtr stiffspringforcefield =
@@ -1891,7 +1889,6 @@ int main(int argc, char* argv[])
     {
     std::cout << "Init..." << std::endl;
     }
-  //glewExperimental=true;
   sofa::simulation::getSimulation()->init(root.get());
 
   int gluArgc  = 1;
@@ -1906,7 +1903,7 @@ int main(int argc, char* argv[])
     //
     sofa::gui::initMain();
     sofa::gui::GUIManager::Init(gluArgv[0]);
-    //root->setAnimate(true);
+    root->setAnimate(true);
     int err = sofa::gui::GUIManager::MainLoop(root);
     if (err)
       {
