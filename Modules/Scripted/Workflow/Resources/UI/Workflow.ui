@@ -2570,7 +2570,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600;&quot;&gt;Compute Weights&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Compute armature weight&lt;/span&gt; computes the bone weights(influence) at each input labelmap voxel. Weights are used to combine transforms when repositioning labelmaps or surface models.&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Evaluate surface weights&lt;/span&gt; assigns the weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Evaluate weights&lt;/span&gt; assigns the weights at each point of an input surface model. This process is necessary to reposition the surface models in the next step.&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Material Propertiss&lt;/span&gt; assigns material properties defined in the material file to each point of an input surface model. This process is also necessary to reposition the surface models in the next step.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <layout class="QFormLayout" name="formLayout_4">
@@ -3133,7 +3133,7 @@ p, li { white-space: pre-wrap; }
             <item>
              <widget class="QPushButton" name="EvalSurfaceWeightGoToPushButton">
               <property name="toolTip">
-               <string>Open the &quot;Evaluate Surface Weights&quot; module</string>
+               <string>Open the &quot;Evaluate Weights&quot; module</string>
               </property>
               <property name="text">
                <string>Go to Evaluate Surface Weight module</string>
@@ -3155,7 +3155,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;For each vertex of the surface, associate a weight for faster posing computation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
               </property>
               <property name="text">
-               <string>Evaluate surface weight</string>
+               <string>Evaluate weight</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -3216,7 +3216,7 @@ p, li { white-space: pre-wrap; }
           </sizepolicy>
          </property>
          <property name="title">
-          <string>C) Material propeties</string>
+          <string>C) Material properties</string>
          </property>
          <property name="collapsed">
           <bool>false</bool>

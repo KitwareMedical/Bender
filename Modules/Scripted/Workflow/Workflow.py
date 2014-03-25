@@ -2310,7 +2310,18 @@ class WorkflowWidget:
         colorNode = inputDisplayNode.GetColorNode()
       displayNode.SetAndObserveColorNodeID(colorNode.GetID())
       displayNode.UpdatePolyDataPipeline()
-
+    # Hide bones and skin models
+    skinNode = self.get('SkinModelMakerOutputNodeComboBox').currentNode()
+    if skinNode:
+      skinDisplayNode = skinNode.GetModelDisplayNode()
+      if skinDisplayNode:
+        skinDisplayNode.SetVisibility(0)
+    boneNode = self.get('ExtractBoneOutputComboBox').currentNode()
+    if boneNode:
+      boneDisplayNode = boneNode.GetModelDisplayNode()
+      if boneDisplayNode:
+        boneDisplayNode.SetVisibility(0)
+    # Validate
     self.validateSimulatePose()
 
 
