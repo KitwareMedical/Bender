@@ -4021,7 +4021,7 @@ p, li { white-space: pre-wrap; }
              <string/>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="workflow" stdset="0">
              <stringlist>
