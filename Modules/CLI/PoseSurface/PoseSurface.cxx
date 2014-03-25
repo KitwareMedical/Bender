@@ -650,7 +650,7 @@ int main( int argc, char * argv[] )
   // This property controls how many bone transforms are blended together
   // when interpolating. Usually 2 but can go up to 4 sometimes.
   // 1 for no interpolation (use the closest bone transform).
-  size_t MaximumNumberOfInterpolatedBones = 4;
+  const size_t MaximumNumberOfInterpolatedBones = 4;
   // This property controls whether to interpolate with ScLerp
   // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
   // Blending).
@@ -969,16 +969,13 @@ int main( int argc, char * argv[] )
     return EXIT_FAILURE;
     }
 
-  if (numWeights < MaximumNumberOfInterpolatedBones)
-    {
-    MaximumNumberOfInterpolatedBones = numWeights;
-    }
-
   if (CLPProcessInformation && CLPProcessInformation->Abort)
     {
     std::cerr << "Abort requested." << std::endl;
     return EXIT_FAILURE;
     }
+  size_t maximumNumberOfInterpolatedBones =
+    std::min(MaximumNumberOfInterpolatedBones, numWeights - 1);
   //----------------------------
   // Pose
   //----------------------------
@@ -1022,19 +1019,19 @@ int main( int argc, char * argv[] )
         for (size_t i=0; i < numWeights; ++i)
           {
           double w = surfaceVertexWeights[i]->GetValue(pi) / wSum;
-          ws.push_back(std::make_pair(w, i));
+          ws.push_back(std::make_pair(w, static_cast<int>(i)));
           }
         // To limit computation errors, it is important to start interpolating with the
         // highest w first.
         std::partial_sort(ws.begin(),
-                          ws.begin() + MaximumNumberOfInterpolatedBones,
+                          ws.begin() + maximumNumberOfInterpolatedBones,
                           ws.end(),
                           WIComp);
         vtkDualQuaternion<double> transform = dqs[ws[0].second];
         double w = ws[0].first;
         // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
         // sure it works with more than 2.
-        for (size_t i=1; i < MaximumNumberOfInterpolatedBones; ++i)
+        for (size_t i=1; i < maximumNumberOfInterpolatedBones; ++i)
           {
           double w2 = ws[i].first;
           int i2 = ws[i].second;
