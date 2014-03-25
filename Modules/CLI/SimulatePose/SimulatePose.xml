@@ -79,10 +79,22 @@
       <default>false</default>
     </boolean>
     <integer>
-      <name>MaximumNumberOfSteps</name>
+      <name>NumberOfArmatureSteps</name>
+      <label>Number of armature steps</label>
+      <longflag>--armatureSteps</longflag>
+      <description><![CDATA[Number of steps to apply the armature poses.]]></description>
+      <default>100</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>1000</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+    <integer>
+      <name>MaximumNumberOfSimulationSteps</name>
       <label>Maximum number of steps</label>
       <longflag>--maxSteps</longflag>
-      <description><![CDATA[The simulation stops when there is no more significant change between two steps or if the maximum number of steps is reached.]]></description>
+      <description><![CDATA[The simulation stops when there is no more significant change between two steps or if the maximum number of simulation steps is reached.]]></description>
       <default>1000</default>
     </integer>
     <integer>
