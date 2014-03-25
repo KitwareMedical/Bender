@@ -1002,7 +1002,7 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
 }
 
 // ---------------------------------------------------------------------
-MechanicalObject<Vec3Types>::SPtr createFinalFrame(
+MechanicalObject<Vec3Types>::SPtr createGhostMesh(
   Node *       parentNode,
   vtkPolyData *armature,
   vtkPolyData* mesh,
@@ -1012,17 +1012,17 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
 {
 
   vtkPoints* posedPoints = poseMesh(mesh, armature, invertXY);
-  MechanicalObject<Vec3Types>::SPtr articulatedFrame =
-    addNew<MechanicalObject<Vec3Types> >(parentNode, "articulatedFrame");
+  MechanicalObject<Vec3Types>::SPtr ghostMesh =
+    addNew<MechanicalObject<Vec3Types> >(parentNode, "ghostMesh");
 
   // Get bone positions
 
   size_t numberOfPoints = posedPoints->GetNumberOfPoints();
   std::cout << "Number of points: " << numberOfPoints << std::endl;
 
-  articulatedFrame->resize(numberOfPoints);
+  ghostMesh->resize(numberOfPoints);
   Data<MechanicalObject<Vec3Types>::VecCoord> *x =
-    articulatedFrame->write(VecCoordId::position());
+    ghostMesh->write(VecCoordId::position());
 
   MechanicalObject<Vec3Types>::VecCoord &vertices = *x->beginEdit();
   for(size_t i = 0; i < numberOfPoints; ++i)
@@ -1048,7 +1048,7 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
   box[5] = bounds[5];
 
   posedPoints->Delete();
-  return articulatedFrame;
+  return ghostMesh;
 }
 
 
@@ -1677,21 +1677,50 @@ void initMesh(vtkPolyData* outputPolyData, vtkPolyData* inputPolyData,
 }
 
 //------------------------------------------------------------------------------
+double meanSquareError(MechanicalObject<Vec3Types>::SPtr mesh1,
+                       MechanicalObject<Vec3Types>::SPtr mesh2)
+{
+  const Data<MechanicalObject<Vec3Types>::VecCoord>* position1 =
+    mesh1->read(VecCoordId::position());
+  const Data<MechanicalObject<Vec3Types>::VecCoord>* position2 =
+    mesh2->read(VecCoordId::position());
+
+  if (!position1 || !position2)
+    {
+    std::cerr << "No positions: " << position1 << ", " << position2 << std::endl;
+    return -1.;
+    }
+  // Copy vertices from vtk mesh
+  const MechanicalObject<Vec3Types>::VecCoord& vertices1 = position1->getValue();
+  const MechanicalObject<Vec3Types>::VecCoord& vertices2 = position2->getValue();
+
+  size_t numberOfPoints = vertices1.size();
+  if (numberOfPoints != vertices2.size())
+    {
+    std::cerr << "Not the same number of vertices: "
+              << vertices1.size() << " != " << vertices2.size() << std::endl;
+    return -1.;
+    }
+
+  double error = 0.;
+  MechanicalObject<Vec3Types>::VecCoord::const_iterator it1;
+  MechanicalObject<Vec3Types>::VecCoord::const_iterator it2;
+  for(it1 = vertices1.begin(), it2 = vertices2.begin();
+      it1 != vertices1.end();
+      ++it1, ++it2)
+    {
+    Vector3 distance = *it1 - *it2;
+    error += distance.norm2() / numberOfPoints;
+    }
+  return error;
+}
+
+//------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
   PARSE_ARGS;
 
-
-  if (Verbose)
-    {
-    std::cout << "Simulate pose with " << NumberOfSteps << " steps." << std::endl;
-    }
-  int nbsteps = NumberOfSteps;
-  //   const double dt = 1./ nbsteps;
-    const double dt = 0.0001;
-  // SOFA bug: even if the end time is 1.0, there seems to be a need for doing
-  // an extra step.
-  ++nbsteps;
+  const double dt = 0.0001;
 
   sofa::simulation::setSimulation(new sofa::simulation::graph::DAGSimulation());
 
@@ -1757,12 +1786,12 @@ int main(int argc, char* argv[])
     {
     std::cout << "************************************************************"
               << std::endl;
-    std::cout << "Create ghost frame..." << std::endl;
+    std::cout << "Create ghost mesh..." << std::endl;
     }
 
   Vector6 box;
-  MechanicalObject<Vec3Types>::SPtr articulatedFrame =
-    createFinalFrame(skeletalNode.get(), armature, tetMesh,box, !IsArmatureInRAS);
+  MechanicalObject<Vec3Types>::SPtr ghostMesh =
+    createGhostMesh(skeletalNode.get(), armature, tetMesh,box, !IsArmatureInRAS);
 
   // Crete a fix contraint to fix the positions of the posed ghost frame
   BoxROI<Vec3Types>::SPtr boxRoi = addNew<BoxROI<Vec3Types> >(skeletalNode.get(),"BoxRoi");
@@ -1825,7 +1854,7 @@ int main(int argc, char* argv[])
   using sofa::component::interactionforcefield::StiffSpringForceField;
 
   StiffSpringForceField<Vec3Types>::SPtr stiffspringforcefield =
-    sofa::core::objectmodel::New<StiffSpringForceField<Vec3Types> >(articulatedFrame.get(),posedMesh.get());
+    sofa::core::objectmodel::New<StiffSpringForceField<Vec3Types> >(ghostMesh.get(),posedMesh.get());
   stiffspringforcefield->setName("Spring-Contact");
   anatomicalNode->addObject(stiffspringforcefield);
 
@@ -1865,14 +1894,16 @@ int main(int argc, char* argv[])
   //glewExperimental=true;
   sofa::simulation::getSimulation()->init(root.get());
 
+  int gluArgc  = 1;
+  char** gluArgv = new char *;
+  gluArgv[0] = new char[strlen(argv[0])+1];
+  memcpy(gluArgv[0], argv[0], strlen(argv[0])+1);
+  glutInit(&gluArgc, gluArgv);
+
   if (GUI)
     {
     std::cout << "Open GUI..." << std::endl;
-    int gluArgc  = 1;
-    char** gluArgv = new char *;
-    gluArgv[0] = new char[strlen(argv[0])+1];
-    memcpy(gluArgv[0], argv[0], strlen(argv[0])+1);
-    glutInit(&gluArgc, gluArgv);
+    //
     sofa::gui::initMain();
     sofa::gui::GUIManager::Init(gluArgv[0]);
     //root->setAnimate(true);
@@ -1887,17 +1918,45 @@ int main(int argc, char* argv[])
     {
     if (Verbose)
       {
-      std::cout << "Animate..." << std::endl;
-      std::cout << "Computing "<< nbsteps + 1 <<" iterations:" << std::endl;
+      std::cout << "Create OpenGL context..." << std::endl;
       }
-    for (unsigned int i=0; i<=nbsteps; i++)
+    glutCreateWindow(argv[0]);
+  //glewExperimental=true;
+
+    root->setAnimate(true);
+
+    if (Verbose)
       {
-      if (Verbose)
-        {
-        std::cout << " Iteration #" << i << "..." << std::endl;
-        }
+      std::cout << "Animate..." << std::endl;
+      }
+
+    // Forces take time to start moving the mesh
+    const size_t minimumNumberOfSteps = 30;
+
+    double lastError = 1.;
+    double stdDeviation = 0.;
+
+    // We can't use the distance error directly because the simulation might
+    // oscillate.
+    for (size_t step = 0;
+         (step < minimumNumberOfSteps || stdDeviation > MinimumStandardDeviation) &&
+         (step < static_cast<size_t>(MaximumNumberOfSteps)) ; ++step)
+      {
       sofa::simulation::getSimulation()->animate(root.get(), dt);
       //sofa::simulation::getSimulation()->animate(root.get());
+
+      const double error = meanSquareError(ghostMesh, posedMesh);
+      double mean = (lastError + error) / 2.;
+      stdDeviation = sqrt((pow(lastError - mean, 2) + pow(error - mean, 2)) / 2.);
+      //errorChange =  fabs(lastError-error) / lastError;
+      lastError = error;
+      if (Verbose)
+        {
+        std::cout << " Iteration #" << step
+                  << " (distance: " << lastError
+                  << " std: " << stdDeviation
+                  << std::endl;
+        }
       }
     }
   vtkNew<vtkPolyData> posedSurface;
