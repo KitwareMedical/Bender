@@ -472,7 +472,7 @@ void Allocate(typename InImage::Pointer in, typename OutImage::Pointer out)
 itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
                                 bender::WeightMap::WeightVector w_pi,
                                 bool linearBlend,
-                                const int maximumNumberOfInterpolatedBones,
+                                size_t maximumNumberOfInterpolatedBones,
                                 const std::vector<vtkDualQuaternion<double> >& dqs)
 {
   double restPos[3];
@@ -482,6 +482,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
   itk::Vector<double,3> posedCoord(0.0);
 
   const size_t numSites = w_pi.GetSize();
+  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites - 1);
   double wSum(0.0);
   for (size_t i = 0; i < numSites; ++i)
     {
@@ -540,7 +541,7 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
                                 size_t numSites,
                                 const bender::WeightMap& weightMap,
                                 bool linearBlend,
-                                int maximumNumberOfInterpolatedBones,
+                                size_t maximumNumberOfInterpolatedBones,
                                 const std::vector<vtkDualQuaternion<double> >& dqs)
 {
   typename itk::Image<T,3>::PointType p;
@@ -550,6 +551,7 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
   restCoord[1] = p[1];
   restCoord[2] = p[2];
   bender::WeightMap::WeightVector w_pi(numSites);
+  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites - 1);
   //typename itk::Image<T,3>::IndexType weightIndex;
   //weightIndex[0] = round(index[0]);
   //weightIndex[1] = round(index[1]);
@@ -695,7 +697,7 @@ int DoIt(int argc, char* argv[])
  // This property controls how many bone transforms are blended together
   // when interpolating. Usually 2 but can go up to 4 sometimes.
   // 1 for no interpolation (use the closest bone transform).
-  const int MaximumNumberOfInterpolatedBones = 4;
+  const size_t MaximumNumberOfInterpolatedBones = 4;
   // This property controls whether to interpolate with ScLerp
   // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
   // Blending).

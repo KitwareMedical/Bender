@@ -820,6 +820,7 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
                     bool invertXY = true, double coef = 1.,
                     bool verbose = true)
 {
+  const size_t MaximumNumberOfInterpolatedBones = 4;
   coef = std::min (1., std::max(0., coef));
   if (verbose)
     {
@@ -922,7 +923,8 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
       }
     }
 
-  const size_t MaximumNumberOfInterpolatedBones = 4;
+  const size_t maximumNumberOfInterpolatedBones =
+    std::min(MaximumNumberOfInterpolatedBones, numWeights - 1);
   // This property controls whether to interpolate with ScLerp
   // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
   // Blending).
@@ -981,14 +983,14 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
         // To limit computation errors, it is important to start interpolating with the
         // highest w first.
         std::partial_sort(ws.begin(),
-                          ws.begin() + MaximumNumberOfInterpolatedBones,
+                          ws.begin() + maximumNumberOfInterpolatedBones,
                           ws.end(),
                           WIComp);
         vtkDualQuaternion<double> transform = dqs[ws[0].second];
         double w = ws[0].first;
         // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
         // sure it works with more than 2.
-        for (size_t i=1; i < MaximumNumberOfInterpolatedBones; ++i)
+        for (size_t i=1; i < maximumNumberOfInterpolatedBones; ++i)
           {
           double w2 = ws[i].first;
           int i2 = ws[i].second;
