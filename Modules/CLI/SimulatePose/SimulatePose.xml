@@ -44,8 +44,15 @@
     </geometry>
   </parameters>
   <parameters>
-    <label>Controls</label>
-    <description><![CDATA[Control how the module operates]]></description>
+    <label>Simulation</label>
+    <description><![CDATA[Control the simulation]]></description>
+    <boolean>
+      <name>LinearFEM</name>
+      <label>Linear FEM</label>
+      <longflag>--linearFEM</longflag>
+      <description><![CDATA[Use linear FEM. This speeds up the initialization step.]]></description>
+      <default>true</default>
+    </boolean>
     <boolean>
       <name>EnableCollision</name>
       <label>Collision</label>
@@ -54,18 +61,53 @@
       <default>false</default>
     </boolean>
     <integer>
-      <name>NumberOfSteps</name>
-      <label>Number of steps</label>
-      <longflag>--steps</longflag>
-      <description><![CDATA[Enable/Disable collision detection. This slows the process time by multiple order of magnitudes.]]></description>
-      <default>3</default>
-    </integer>
-    <integer>
       <name>BoneLabel</name>
       <label>Bone label</label>
       <longflag>--bone</longflag>
       <description><![CDATA[Label of the bone.]]></description>
       <default>2</default>
+    </integer>
+  </parameters>
+  <parameters>
+    <label>Animation</label>
+    <description><![CDATA[Control the animation]]></description>
+    <boolean>
+      <name>GUI</name>
+      <label>GUI</label>
+      <longflag>--gui</longflag>
+      <description><![CDATA[Show SOFA gui.]]></description>
+      <default>false</default>
+    </boolean>
+    <integer>
+      <name>NumberOfArmatureSteps</name>
+      <label>Number of armature steps</label>
+      <longflag>--armatureSteps</longflag>
+      <description><![CDATA[Number of steps to apply the armature poses.]]></description>
+      <default>100</default>
+      <constraints>
+        <minimum>1</minimum>
+        <maximum>1000</maximum>
+        <step>1</step>
+      </constraints>
+    </integer>
+    <integer>
+      <name>MaximumNumberOfSimulationSteps</name>
+      <label>Maximum number of steps</label>
+      <longflag>--maxSteps</longflag>
+      <description><![CDATA[The simulation stops when there is no more significant change between two steps or if the maximum number of simulation steps is reached.]]></description>
+      <default>1000</default>
+    </integer>
+    <integer>
+      <name>MinimumStandardDeviation</name>
+      <label>Minimum standard deviation</label>
+      <longflag>--minStdDev</longflag>
+      <description><![CDATA[The simulation stops when there is no more significant change between two steps or if the maximum number of steps is reached.]]></description>
+      <default>1</default>
+      <constraints>
+        <minimum>0</minimum>
+        <maximum>1000</maximum>
+        <step>1</step>
+      </constraints>
     </integer>
   </parameters>
   <parameters advanced="true">
@@ -100,13 +142,6 @@
       <label>Debug</label>
       <longflag>--debug</longflag>
       <description><![CDATA[Generate debug information (e.g sofa scene).]]></description>
-      <default>false</default>
-    </boolean>
-    <boolean>
-      <name>GUI</name>
-      <label>GUI</label>
-      <longflag>--gui</longflag>
-      <description><![CDATA[Show SOFA gui.]]></description>
       <default>false</default>
     </boolean>
 
