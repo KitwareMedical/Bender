@@ -1862,7 +1862,7 @@ int main(int argc, char* argv[])
     {
     std::cout << "Init..." << std::endl;
     }
-  glewExperimental=true;
+  //glewExperimental=true;
   sofa::simulation::getSimulation()->init(root.get());
 
   if (GUI)
