@@ -397,7 +397,7 @@ Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std
 
   LayeredDepthImagesPipeline::SPtr collisionPipeline =
     addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
-  collisionPipeline->Kselfpressure.setValue(100);
+  collisionPipeline->Kselfpressure.setValue(10000);
   collisionPipeline->Kpressure.setValue(20);
   collisionPipeline->resolution.setValue(256);
   collisionPipeline->resolutionPixel.setValue(20);
@@ -1055,10 +1055,10 @@ MechanicalObject<Vec3Types>::SPtr createFinalFrame(
 /// Create a FEM in parentNode.  A MeshTopology should be defined in
 /// parentNode prior to calling this function.
 // ---------------------------------------------------------------------
-void createFiniteElementModel(Node* parentNode, bool collision,
+void createFiniteElementModel(Node* parentNode, bool linearFEM,
                               Vec3Types::VecReal &youngModulus )
 {
-  if (!collision)
+  if (linearFEM)
     {
     TetrahedronFEMForceField< Vec3Types >::SPtr femSolver =
       addNew<TetrahedronFEMForceField< Vec3Types > >(parentNode,"femSolver");
@@ -1799,7 +1799,7 @@ int main(int argc, char* argv[])
     }
 
   // Finite element method
-  createFiniteElementModel(anatomicalNode.get(), EnableCollision, youngModulus);
+  createFiniteElementModel(anatomicalNode.get(), LinearFEM, youngModulus);
 
   // Collision node
   if (EnableCollision)

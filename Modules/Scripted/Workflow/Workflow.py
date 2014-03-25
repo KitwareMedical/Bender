@@ -2263,6 +2263,7 @@ class WorkflowWidget:
     parameters["InputSurface"] = self.get('SimulatePoseSkinComboBox').currentNode()
     parameters["BoneLabel"] = self.get('SimulatePoseBoneMaterialSpinBox').value
     parameters["EnableCollision"] = self.get('SimulatePoseCollisionCheckBox').isChecked()
+    parameters["LinearFEM"] = True
     parameters["GUI"] = self.get('SimulatePoseGUICheckBox').isChecked()
     parameters["Verbose"] = True
     parameters["Debug"] = True
