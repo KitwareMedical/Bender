@@ -816,9 +816,16 @@ bool WIComp(const std::pair<double, int>& left, const std::pair<double, int>& ri
 }
 
 //-------------------------------------------------------------------------------
-vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = true)
+vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
+                    bool invertXY = true, double coef = 1.,
+                    bool verbose = true)
 {
-  std::cout << "Mesh number of points: " << mesh->GetNumberOfPoints() << std::endl;
+  coef = std::min (1., std::max(0., coef));
+  if (verbose)
+    {
+    std::cout << "Pose mesh for frame: " << coef << std::endl;
+    std::cout << "  Number of mesh points: " << mesh->GetNumberOfPoints() << std::endl;
+    }
   vtkPoints* outPoints = vtkPoints::New();
   outPoints->Allocate(mesh->GetNumberOfPoints());
   outPoints->SetNumberOfPoints(mesh->GetNumberOfPoints());
@@ -835,11 +842,11 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
   int edgeId = 0;
   if (!armatureCellData->GetArray("Transforms"))
     {
-    std::cerr << "No 'Transforms' cell array in armature" << std::endl;
+    std::cerr << "  No 'Transforms' cell array in armature" << std::endl;
     }
-  else
+  else if (verbose)
     {
-    std::cout << "# components: "
+    std::cout << "  # components: "
       << armatureCellData->GetArray("Transforms")->GetNumberOfComponents()
       << std::endl;
     }
@@ -874,7 +881,10 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
     dqs.push_back(dq);
     }
 
-  std::cout<<"Read "<<numSites<<" transforms"<<std::endl;
+  if (verbose)
+    {
+    std::cout<<"  Read "<<numSites<<" transforms"<<std::endl;
+    }
 
   //------------------------------------------------------
   // Get the weights
@@ -886,7 +896,11 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
   int numPoints = mesh->GetNumberOfPoints();
 
   std::vector<vtkFloatArray*> surfaceVertexWeights;
-  std::cout<<"Trying to use the " << numSites << " weight field data"<<std::endl;
+  if (verbose)
+    {
+    std::cout<<"Trying to use the " << numSites
+             << " weight field data" << std::endl;
+    }
 
   size_t numWeights = numSites;
   for (size_t i = 0; i < numSites; ++i)
@@ -915,7 +929,10 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
   // Note that DLB (faster) is not tweaked to give proper results.
   const bool UseScLerp = true;
 
-  std::cout << "Pose " << numPoints << "points" << std::endl;
+  if (verbose)
+    {
+    std::cout << "  Pose " << numPoints << "points" << std::endl;
+    }
 
   //----------------------------
   // Pose
@@ -948,6 +965,8 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
           double yi[3];
           const vtkDualQuaternion<double>& transform(dqs[i]);
           transform.TransformPoint(xraw, yi);
+          vtkDualQuaternion<double> t = transform * coef;
+          t.TransformPoint(xraw, yi);
           y += w*Vec3(yi);
           }
         }
@@ -988,6 +1007,7 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
           transform = dq;
           w += w2;
           }
+        transform = transform * coef;
         transform.TransformPoint(xraw, &y[0]);
         }
       }
@@ -999,8 +1019,38 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature, bool invertXY = tr
     //  }
     outPoints->SetPoint(pi,y[0],y[1],y[2]);
     }
-  std::cout << "outPoints: " << outPoints << " -> " << outPoints->GetNumberOfPoints() << std::endl;
+  if (verbose)
+    {
+    std::cout << "  outPoints: " << outPoints << " -> "
+              << outPoints->GetNumberOfPoints() << std::endl;
+    }
   return outPoints;
+}
+
+//------------------------------------------------------------------------------
+void poseMechanicalObject(
+  MechanicalObject<Vec3Types>::SPtr mechanicalObject,
+  vtkPolyData* mesh,
+  vtkPolyData* armature, bool invertArmatureXY,
+  double coef = 1.0)
+{
+  vtkPoints* posedPoints = poseMesh(mesh, armature, invertArmatureXY,
+                                    coef, /*verbose= */false);
+
+  size_t numberOfPoints = posedPoints->GetNumberOfPoints();
+  Data<MechanicalObject<Vec3Types>::VecCoord> *x =
+    mechanicalObject->write(VecCoordId::position());
+
+  MechanicalObject<Vec3Types>::VecCoord &vertices = *x->beginEdit();
+
+  for(size_t i = 0; i < numberOfPoints; ++i)
+    {
+    Vector3 point;
+    posedPoints->GetPoint(i, point.ptr());
+    vertices[i] = point;
+    }
+  x->endEdit();
+  posedPoints->Delete();
 }
 
 // ---------------------------------------------------------------------
@@ -1009,11 +1059,12 @@ MechanicalObject<Vec3Types>::SPtr createGhostMesh(
   vtkPolyData *armature,
   vtkPolyData* mesh,
   Vector6 &box,
-  bool         invertXY = true
+  bool         invertXY = true,
+  double frame = 1.
   )
 {
 
-  vtkPoints* posedPoints = poseMesh(mesh, armature, invertXY);
+  vtkPoints* posedPoints = poseMesh(mesh, armature, invertXY, frame);
   MechanicalObject<Vec3Types>::SPtr ghostMesh =
     addNew<MechanicalObject<Vec3Types> >(parentNode, "ghostMesh");
 
@@ -1790,7 +1841,8 @@ int main(int argc, char* argv[])
 
   Vector6 box;
   MechanicalObject<Vec3Types>::SPtr ghostMesh =
-    createGhostMesh(skeletalNode.get(), armature, tetMesh,box, !IsArmatureInRAS);
+    createGhostMesh(skeletalNode.get(), armature, tetMesh,box,
+                    !IsArmatureInRAS, 1. / NumberOfArmatureSteps );
 
   // Crete a fix contraint to fix the positions of the posed ghost frame
   BoxROI<Vec3Types>::SPtr boxRoi = addNew<BoxROI<Vec3Types> >(skeletalNode.get(),"BoxRoi");
@@ -1937,22 +1989,27 @@ int main(int argc, char* argv[])
     // oscillate.
     for (size_t step = 0;
          (step < minimumNumberOfSteps || stdDeviation > MinimumStandardDeviation) &&
-         (step < static_cast<size_t>(MaximumNumberOfSteps)) ; ++step)
+         (step < static_cast<size_t>(MaximumNumberOfSimulationSteps)) ; ++step)
       {
       sofa::simulation::getSimulation()->animate(root.get(), dt);
       //sofa::simulation::getSimulation()->animate(root.get());
+
+      if (step < NumberOfArmatureSteps)
+        {
+        poseMechanicalObject(ghostMesh, tetMesh, armature, !IsArmatureInRAS,
+                             static_cast<double>(step + 2 )/ NumberOfArmatureSteps);
+        }
 
       const double error = meanSquareError(ghostMesh, posedMesh);
       double mean = (lastError + error) / 2.;
       stdDeviation = sqrt((pow(lastError - mean, 2) + pow(error - mean, 2)) / 2.);
       //errorChange =  fabs(lastError-error) / lastError;
       lastError = error;
+
       if (Verbose)
         {
-        std::cout << " Iteration #" << step
-                  << " (distance: " << lastError
-                  << " std: " << stdDeviation
-                  << std::endl;
+        std::cout << " Iteration #" << step << " (distance: " << lastError
+                    << " std: " << stdDeviation << std::endl;
         }
       }
     }
