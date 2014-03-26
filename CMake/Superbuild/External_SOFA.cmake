@@ -44,12 +44,12 @@ SlicerMacroCheckExternalProjectDependency(${proj})
 # FindCUDA
 set(SOFA_CUDA_ARGS -DSOFA-PLUGIN_SOFACUDA:BOOL=OFF)
 find_package(CUDA QUIET)
-if(CUDA_FOUND AND NOT WIN32)
-  set(SOFA_CUDA_ARGS
-    -DSOFA-PLUGIN_SOFACUDA:BOOL=ON
-    -DCUDA_TOOLKIT_ROOT_DIR:PATH=${CUDA_TOOLKIT_ROOT_DIR}
-  )
-endif()
+#if(CUDA_FOUND AND NOT WIN32)
+#  set(SOFA_CUDA_ARGS
+#    -DSOFA-PLUGIN_SOFACUDA:BOOL=ON
+#    -DCUDA_TOOLKIT_ROOT_DIR:PATH=${CUDA_TOOLKIT_ROOT_DIR}
+#  )
+#endif()
 
 # Restore the proj variable
 get_filename_component(proj_filename ${CMAKE_CURRENT_LIST_FILE} NAME_WE)
