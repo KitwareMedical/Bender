@@ -1839,10 +1839,14 @@ int main(int argc, char* argv[])
     std::cout << "Create ghost mesh..." << std::endl;
     }
 
+  // In GUI mode, there is no animation decomposition, forces are computed
+  // between the final pose and the start pose. In non-GUI mode, forces are
+  // recomputed at each step.
+  const double firstFrame = (GUI ? 1. : 1. / NumberOfArmatureSteps);
   Vector6 box;
   MechanicalObject<Vec3Types>::SPtr ghostMesh =
     createGhostMesh(skeletalNode.get(), armature, tetMesh,box,
-                    !IsArmatureInRAS, 1. / NumberOfArmatureSteps );
+                    !IsArmatureInRAS, firstFrame );
 
   // Crete a fix contraint to fix the positions of the posed ghost frame
   BoxROI<Vec3Types>::SPtr boxRoi = addNew<BoxROI<Vec3Types> >(skeletalNode.get(),"BoxRoi");
