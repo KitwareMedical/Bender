@@ -96,7 +96,7 @@ set(${kit}_VERSION_MAJOR 2)
 set(${kit}_VERSION_MINOR 0)
 set(${kit}_VERSION_PATCH 0)
 # Releases define a tweak level
-set(${kit}_VERSION_TWEAK 1)
+set(${kit}_VERSION_TWEAK 2)
 set(${kit}_VERSION_RC 2)
 
 include(BenderExtractRepositoryInfo)
