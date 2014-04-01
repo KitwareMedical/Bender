@@ -122,6 +122,8 @@ endif()
 #-----------------------------------------------------------------------------
 # Slicer configuration
 #-----------------------------------------------------------------------------
+option(USE_LDI_DETECTION "Build ${kit} with LDI collision detection (under QPL license)." OFF)
+
 add_subdirectory(Modules)
 
 #-----------------------------------------------------------------------------
