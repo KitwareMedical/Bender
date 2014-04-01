@@ -28,14 +28,6 @@
 //#include <GL/glut.h>
 
 // SOFA includes
-#include <plugins/ldidetection/lib/LayeredDepthImagesPipeline.h>
-#include <plugins/ldidetection/lib/LDIDetection.h>
-#include <plugins/Flexible/quadrature/TopologyGaussPointSampler.h>
-#include <plugins/Flexible/shapeFunction/BarycentricShapeFunction.h>
-#include <plugins/Flexible/deformationMapping/LinearMapping.h>
-#include <plugins/Flexible/strainMapping/PrincipalStretchesMapping.h>
-#include <plugins/Flexible/material/StabilizedNeoHookeanForceField.h>
-
 #include <sofa/component/collision/BaseContactMapper.h>
 #include <sofa/component/collision/BruteForceDetection.h>
 #include <sofa/component/collision/DefaultCollisionGroupManager.h>
@@ -63,6 +55,13 @@
 #include <sofa/helper/vector.h>
 #include <sofa/simulation/common/Node.h>
 #include <sofa/simulation/graph/DAGSimulation.h>
+
+// SofaFlexible includes
+#include <plugins/Flexible/quadrature/TopologyGaussPointSampler.h>
+#include <plugins/Flexible/shapeFunction/BarycentricShapeFunction.h>
+#include <plugins/Flexible/deformationMapping/LinearMapping.h>
+#include <plugins/Flexible/strainMapping/PrincipalStretchesMapping.h>
+#include <plugins/Flexible/material/StabilizedNeoHookeanForceField.h>
 
 // SofaCUDA includes
 #ifdef SOFA_CUDA
@@ -339,7 +338,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
                         const std::vector<std::string> &elements
                         )
 {
-  double stiffness = 20.;//10.; // 30.
+  double stiffness = 200.;
   double friction = 0.;
   double proximity = 0.9;
   double restitution = 0.0;
@@ -347,7 +346,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
     {
     if (elements[i] == "Triangle")
       {
-      TriangleModelInRegularGrid::SPtr triModel = addNew<TriangleModelInRegularGrid>(collisionNode,
+      TriangleModel::SPtr triModel = addNew<TriangleModel>(collisionNode,
         "TriangleCollision");
       triModel->bothSide.setValue(false);
       triModel->setSelfCollision(true);
@@ -397,22 +396,8 @@ Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std
 
   //Components for collision management
   //------------------------------------
-  //--> adding collision pipeline
-  sofa::component::misc::RequiredPlugin::SPtr ldicollisionPlugin =
-  addNew<sofa::component::misc::RequiredPlugin>(root,"LDI Detection");
-  ldicollisionPlugin->pluginName.setValue("ldidetection");
-
-  LayeredDepthImagesPipeline::SPtr collisionPipeline =
-    addNew<LayeredDepthImagesPipeline>(root,"Collision Pipeline");
-  collisionPipeline->Kselfpressure.setValue(10000);
-  collisionPipeline->Kpressure.setValue(20);
-  collisionPipeline->resolution.setValue(256);
-  collisionPipeline->resolutionPixel.setValue(20);
-  collisionPipeline->depthBB.setValue(8);
-  collisionPipeline->bSelfCollision.setValue(true);
-
-  //--> adding collision detection system
-  addNew<LDIDetection>(root,"LDIDetection");
+  DefaultPipeline::SPtr collisionPipeline =
+    addNew<DefaultPipeline>(root, "Collision Pipeline");
 
   //--> adding collision detection system
   addNew<BruteForceDetection>(root,"Detection");
@@ -424,6 +409,7 @@ Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std
   ProximityIntersectionType::SPtr detectionProximity = addNew<ProximityIntersectionType>(root,"Proximity");
   detectionProximity->setAlarmDistance(0.5);     //warning distance
   detectionProximity->setContactDistance(0.2);   //min distance before setting a spring to create a repulsion
+  detectionProximity->useSurfaceNormals.setValue(true);
 
   //--> adding component to handle groups of collision.
   addNew<DefaultCollisionGroupManager>(root,"Collision Group Manager");
@@ -1961,7 +1947,7 @@ int main(int argc, char* argv[])
     //
     sofa::gui::initMain();
     sofa::gui::GUIManager::Init(gluArgv[0]);
-    root->setAnimate(true);
+    //root->setAnimate(true);
     int err = sofa::gui::GUIManager::MainLoop(root);
     if (err)
       {
