@@ -30,7 +30,6 @@ set(modules
   PadImage
   PoseSurface
   PoseLabelmap
-  SimulatePose
   VolumeMaterialExtractor
   VotingResample
   )
@@ -42,4 +41,13 @@ foreach(module ${modules})
     ${CMAKE_CURRENT_SOURCE_DIR}/${module})
 endforeach()
 
+if (NOT USE_LDI_DETECTION)
+  list(APPEND Bender_MODULES
+    ${CMAKE_CURRENT_SOURCE_DIR}/SimulatePose)
+else()
+  list(APPEND Bender_MODULES
+    ${CMAKE_CURRENT_BINARY_DIR}/../../Slicer-build/SOFA/applications/clis/SimulatePose)
+endif()
+
+message("Bender_MODULES: ${Bender_MODULES}")
 set_property(GLOBAL APPEND PROPERTY Bender_MODULES ${Bender_MODULES})
