@@ -32,6 +32,7 @@ set(modules
   PoseLabelmap
   VolumeMaterialExtractor
   VotingResample
+  VoxelizeTetrahedralMesh
   )
 
 set(Bender_MODULES)

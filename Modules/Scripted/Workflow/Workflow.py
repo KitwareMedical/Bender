@@ -98,6 +98,9 @@ class WorkflowWidget:
     # Pose surface variables
     self.simulatePoseCreateOutputConnected = False
 
+    # Voxelize mesh variables
+    self.voxelizeMeshCreateOutputConnected = False
+
     self.pages = { 0 : 'Adjust',
                    1 : 'Extract',
                    2 : 'Mesh',
@@ -105,6 +108,7 @@ class WorkflowWidget:
                    4 : 'Skinning',
                    5 : 'Weights',
                    6 : 'PoseArmature',
+                   7 : 'VoxelizeMesh'
                    }
 
     # Load/Save icons
@@ -329,6 +333,22 @@ class WorkflowWidget:
     self.get('SimulatePoseOutputNodeToolButton').connect('clicked()', self.saveSimulatePoseOutputNode)
     self.get('SimulatePoseGoToPushButton').connect('clicked()', self.openSimulatePoseModule)
 
+    # 8) Voxelize mesh to Labelmap
+    # a) Voxelize mesh
+    #    - Icons
+    self.get('VoxelizeMeshInputRestMeshNodeLoadToolButton').icon = loadIcon
+    self.get('VoxelizeMeshInputPoseMeshNodeLoadToolButton').icon = loadIcon
+    self.get('VoxelizeMeshInputRestLabelmapNodeLoadToolButton').icon = loadIcon
+    self.get('VozelizeMeshOutputLabelmapNodeSaveToolButton').icon = saveIcon
+    self.get('VoxelizeMeshSaveToolButton').icon = saveIcon
+    #    - Signals/Slots
+    self.get('VoxelizeMeshInputRestMeshNodeLoadToolButton').connect('clicked()', self.loadVoxelizeMeshInputRestMeshNode)
+    self.get('VoxelizeMeshInputPoseMeshNodeLoadToolButton').connect('clicked()', self.loadVoxelizeMeshInputPoseMeshNode)
+    self.get('VoxelizeMeshInputRestLabelmapNodeLoadToolButton').connect('clicked()', self.loadVoxelizeMeshInputRestLabelmapNode)
+    self.get('VozelizeMeshOutputLabelmapNodeSaveToolButton').connect('clicked()', self.saveVoxelizeMeshOutputNode)
+    self.get('VoxelizeMeshGoToPushButton').connect('clicked()', self.openVoxelizeMeshModule)
+    self.get('VoxelizeMeshApplyPushButton').connect('clicked(bool)', self.runVoxelizeMesh)
+
     # --------------------------------------------------------------------------
     # Initialize all the MRML aware GUI elements.
     # Lots of setup methods are called from this line
@@ -470,6 +490,8 @@ class WorkflowWidget:
                            'EditSkinnedVolumeNodeComboBox',
                            'ComputeArmatureWeightInputVolumeNodeComboBox',
                            'ComputeArmatureWeightSkinnedVolumeVolumeNodeComboBox',
+                           'VoxelizeMeshInputRestLabelmapNodeComboBox',
+                           'VoxelizeMeshOutputPoseLabelmapNodeComboBox'
                            ]
 
     for combobox in labeldMapComboBoxes:
@@ -2361,6 +2383,145 @@ class WorkflowWidget:
     else:
       self.get('SimulatePoseOutputNodeComboBox').setCurrentNode(posedNode)
 
+  #----------------------------------------------------------------------------
+  # 8) Voxelize Tetrahedral Mesh
+  #----------------------------------------------------------------------------
+  def initVoxelizeMeshPage(self):
+    self.initVoxelizeMesh()
+
+  def validateVoxelizeMeshPage(self, validateSections = True):
+    if validateSections:
+      self.validateVoxelizeMesh()
+    valid = self.get('VoxelizeMeshCollapsibleGroupBox').property('valid')
+    self.get('NextPageToolButton').enabled = not self.isWorkflow(0) or valid
+
+  def openVoxelizeMeshPage(self):
+    # Create output if necessary
+    if not self.voxelizeMeshCreateOutputConnected:
+      self.get('VoxelizeMeshInputRestLabelmapNodeComboBox').connect(
+        'currentNodeChanged(vtkMRMLNode*)', self.createOutputVoxelizeMesh)
+      self.voxelizeMeshCreateOutputConnected = True
+    self.createOutputVoxelizeMesh(self.get('VoxelizeMeshInputRestLabelmapNodeComboBox').currentNode())
+
+    armatureLogic = slicer.modules.armatures.logic()
+    if armatureLogic != None:
+      armatureLogic.SetActiveArmatureWidgetState(3) # 3 is Pose
+
+    slicer.app.layoutManager().setLayout(slicer.vtkMRMLLayoutNode.SlicerLayoutOneUp3DView)
+
+
+  #----------------------------------------------------------------------------
+  # 8) Voxelize mesh
+  def initVoxelizeMesh(self):
+    self.validateVoxelizeMesh()
+
+  def validateVoxelizeMesh(self):
+    cliNode = self.getCLINode(slicer.modules.simulatepose)
+    valid = cliNode.GetStatusString() == 'Completed'
+    self.get('VozelizeMeshOutputLabelmapNodeSaveToolButton').enabled = valid
+    self.get('VoxelizeMeshSaveToolButton').enabled = valid
+    self.get('VoxelizeMeshCollapsibleGroupBox').setProperty('valid', valid)
+    if valid:
+      self.get('VolumeRenderInputNodeComboBox').setCurrentNode(
+        self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox').currentNode())
+      self.get('VolumeRenderLabelsLineEdit').text = ''
+    self.validateVoxelizeMeshPage(validateSections = False)
+
+  def voxelizeMeshParameters(self):
+    # Setup CLI node on input changed or apply changed
+    parameters = {}
+    parameters["InputRestMesh"] = self.get('VoxelizeMeshInputRestMeshNodeComboBox').currentNode()
+    parameters["InputPosedMesh"] = self.get('VoxelizeMeshInputPoseMeshNodeComboBox').currentNode()
+    parameters["InputRestVolume"] = self.get('VoxelizeMeshInputRestLabelmapNodeComboBox').currentNode()
+    parameters["OutputPosedVolume"] = self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox').currentNode()
+    parameters["Verbose"] = True
+    return parameters
+
+  def runVoxelizeMesh(self, run):
+    if run:
+      cliNode = self.getCLINode(slicer.modules.voxelizetetrahedralmesh)
+      parameters = self.voxelizeMeshParameters()
+      slicer.cli.setNodeParameters(cliNode, parameters)
+      self.get('VoxelizeMeshApplyPushButton').setChecked(True)
+      self.observeCLINode(cliNode, self.onVoxelizeMeshCLIModified)
+      cliNode = slicer.cli.run(slicer.modules.voxelizetetrahedralmesh, cliNode, parameters, wait_for_completion = False)
+    else:
+      cliNode = self.observer(self.StatusModifiedEvent, self.onVoxelizeMeshCLIModified)
+      self.get('VoxelizeMeshApplyPushButton').enabled = False
+      if cliNode != None:
+        cliNode.Cancel()
+
+  def onVoxelizeMeshCLIModified(self, cliNode, event):
+    if cliNode.GetStatusString() == 'Completed':
+      self.applyColorNodeToPosedLabelmap()
+    if not cliNode.IsBusy():
+      self.get('VoxelizeMeshApplyPushButton').setChecked(False)
+      self.get('VoxelizeMeshApplyPushButton').enabled = True
+      print 'Simulate Pose %s' % cliNode.GetStatusString()
+      self.removeObservers(self.onVoxelizeMeshCLIModified)
+
+  def applyColorNodeToPosedLabelmap(self):
+      newNode = self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox').currentNode()
+      displayNode = newNode.GetDisplayNode()
+      if displayNode == None:
+        volumesLogic = slicer.modules.volumes.logic()
+        volumesLogic.SetVolumeAsLabelMap(newNode, 1)
+        displayNode = newNode.GetDisplayNode()
+      inputColorNode = self.get('VoxelizeMeshInputRestLabelmapNodeComboBox').currentNode().GetDisplayNode().GetColorNode()
+      if displayNode != None and inputColorNode != None:
+        displayNode.SetAndObserveColorNodeID(inputColorNode.GetID())
+      # hide the models that would hide the volume rendering
+      displayNodes = slicer.mrmlScene.GetNodesByClass('vtkMRMLModelDisplayNode')
+      displayNodes.UnRegister(displayNodes)
+      for i in range(0, displayNodes.GetNumberOfItems()):
+        displayNode = displayNodes.GetItemAsObject(i)
+        if (not displayNode.IsA('vtkMRMLAnnotationDisplayNode')):
+          displayNode.SetVisibility(0)
+      self.validateVoxelizeMesh()
+      #enable volume rendering
+      self.get('ExpandAdvancedPropertiesButton').setChecked(True)
+      self.get('AdvancedTabWidget').setCurrentWidget(self.get('VolumeRenderingTab'))
+      self.get('VolumeRenderCollapsibleGroupBox').checked = True
+      self.get('VolumeRenderCheckBox').setChecked(True)
+
+  def loadVoxelizeMeshInputRestMeshNode(self):
+    self.loadInputFile('Model in rest', 'ModelFile', self.get('VoxelizeMeshInputRestMeshNodeComboBox'))
+
+  def loadVoxelizeMeshInputPoseMeshNode(self):
+    self.loadInputFile('Model in pose', 'ModelFile', self.get('VoxelizeMeshInputPoseMeshNodeComboBox'))
+
+  def loadVoxelizeMeshInputRestLabelmapNode(self):
+    self.loadInputLabelmap('Labelmap in rest', self.get('VoxelizeMeshInputRestLabelmapNodeComboBox'))
+
+  def loadVoxelizeMeshOutputPoseLabelmapNode(self):
+    loadedNode = self.loadOutputLabelmap('Posed labelmap', self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox'))
+    if loadedNode != None:
+      cliNode = self.getCLINode(slicer.modules.voxelizemesh)
+      self.observeCLINode(cliNode, self.onVoxelizeMeshCLIModified)
+      cliNode.SetStatus(slicer.vtkMRMLCommandLineModuleNode.Completed)
+
+  def saveVoxelizeMeshOutputNode(self):
+    self.saveFile('Posed labelmap', 'VolumeFile', '.mha', self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox'))
+
+  def openVoxelizeMeshModule(self):
+    self.openModule('VoxelizeTetrahedralMesh')
+
+    cliNode = self.getCLINode(slicer.modules.voxelizemesh)
+    parameters = self.voxelizeMeshParameters()
+    slicer.cli.setNodeParameters(cliNode, parameters)
+
+  def createOutputVoxelizeMesh(self, node):
+    if node == None:
+      return
+
+    nodeName = '%s-posed' % node.GetName()
+    posedNode = self.getFirstNodeByNameAndClass(nodeName, 'vtkMRMLScalarVolumeNode')
+    if posedNode == None:
+      newNode = self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox').addNode()
+      newNode.SetName(nodeName)
+    else:
+      self.get('VoxelizeMeshOutputPoseLabelmapNodeComboBox').setCurrentNode(posedNode)
+
   # =================== END ==============
   def get(self, objectName):
     return self.findWidget(self.widget, objectName)
@@ -2435,7 +2596,7 @@ class WorkflowWidget:
     return slicer.app.settings().setValue('Bender/%s' %directory, value)
 
   def loadInputLabelmap(self, title, nodeComboBox):
-    return self.loadFile(title, nodeComboBox, 'InputDirectory')
+    return self.loadLabelmap(title, nodeComboBox, 'InputDirectory')
 
   def loadInputFile(self, title, fileType, nodeComboBox):
     return self.loadFile(title, fileType, nodeComboBox, 'InputDirectory')

@@ -20,12 +20,16 @@
 
 #include "benderIOUtils.h"
 
-#include "vtkSmartPointer.h"
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
-#include <vtkXMLPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkSTLReader.h>
-#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+#include <vtkTetra.h>
+#include <vtkUnstructuredGrid.h>
+#include <vtkXMLPolyDataReader.h>
 #include <vtksys/SystemTools.hxx>
 
 namespace bender
@@ -111,6 +115,28 @@ bool IOUtils::WriteDebugPolyData(vtkPolyData* polyData,
 {
   std::string d = GetDebugDirectory(dir);
   return WritePolyData(polyData, d + "/" + name);
+}
+
+//-----------------------------------------------------------------------------
+vtkUnstructuredGrid* IOUtils::PolyDataToUnstructuredGrid(vtkPolyData* polyData, const std::string& ss)
+{
+  vtkUnstructuredGrid* unstructuredGrid = vtkUnstructuredGrid::New();
+  unstructuredGrid->SetPoints(polyData->GetPoints());
+  vtkNew<vtkCellArray> cellArray;
+  for (vtkIdType i = 0; i < polyData->GetNumberOfCells(); ++i)
+    {
+    vtkNew<vtkTetra> tetra;
+    vtkCell* cell = polyData->GetCell(i);
+    tetra->GetPointIds()->SetId(0, cell->GetPointIds()->GetId(0));
+    tetra->GetPointIds()->SetId(1, cell->GetPointIds()->GetId(1));
+    tetra->GetPointIds()->SetId(2, cell->GetPointIds()->GetId(2));
+    tetra->GetPointIds()->SetId(3, cell->GetPointIds()->GetId(3));
+    cellArray->InsertNextCell(tetra.GetPointer());
+    }
+  unstructuredGrid->SetCells(10, cellArray.GetPointer());
+  unstructuredGrid->GetCellData()->SetScalars(
+    polyData->GetCellData()->GetScalars());
+  return unstructuredGrid;
 }
 
 //-----------------------------------------------------------------------------

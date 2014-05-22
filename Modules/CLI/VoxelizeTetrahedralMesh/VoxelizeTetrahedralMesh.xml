@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<executable>
+  <category>Meshing</category>
+  <title>Voxelize Tetrahedral Mesh</title>
+  <description><![CDATA[<p>Voxelize a tetrahedral mesh into a label map.</p>]]>
+  </description>
+  <version>2.0.0</version>
+  <documentation-url>http://public.kitware.com/Wiki/Bender/Documentation/2.0/Modules/VoxelizeTetrahedralMesh</documentation-url>
+  <license/>
+  <contributor>Julien Finet (Kitware)</contributor>
+  <acknowledgements><![CDATA[Air Force Research Laboratories]]></acknowledgements>
+  <parameters>
+    <label>IO</label>
+    <description><![CDATA[Input/output parameters]]></description>
+    <geometry fileExtensions=".vtk">
+      <name>InputRestMesh</name>
+      <label>Input rest model</label>
+      <channel>input</channel>
+      <index>0</index>
+      <description><![CDATA[This is the tetrahedral mesh that has been posed]]></description>
+    </geometry>
+    <geometry fileExtensions=".vtk">
+      <name>InputPosedMesh</name>
+      <label>Input posed model</label>
+      <channel>input</channel>
+      <index>1</index>
+      <description><![CDATA[This is the tetrahedral mesh that has been transformed. There must be a 1 to 1 match of points and cells with the input rest model]]></description>
+    </geometry>
+    <image type="label">
+      <name>InputRestVolume</name>
+      <label>Input rest volume</label>
+      <channel>input</channel>
+      <index>2</index>
+      <description><![CDATA[This is the labelmap to pose.]]></description>
+    </image>
+    <image type="label">
+      <name>OutputPosedVolume</name>
+      <label>Output posed volume</label>
+      <channel>output</channel>
+      <index>3</index>
+      <description><![CDATA[This is the posed labelmap. Its size is defined by the bounding box of the posed mesh and its resolution by the input labelmap.]]></description>
+    </image>
+  </parameters>
+  <parameters>
+    <label>Filter Settings</label>
+
+    <double>
+      <name>Padding</name>
+      <label>Padding</label>
+      <longflag>--padding</longflag>
+      <description><![CDATA[This property controls the padding to apply around the tetmesh to define the output boundaries.]]></description>
+      <default>0</default>
+    </double>
+
+    <boolean>
+      <name>IsMeshInRAS</name>
+      <label>Tetmesh in RAS</label>
+      <description><![CDATA[Whether input meshes are already in the RAS(Right, Anterior, Superior) coordinate system (true) or in LPS (Left, Posterior, Superior) coordinate system (false, default). If not, the meshes will be internally transformed into RAS.]]></description>
+      <longflag>--meshInRAS</longflag>
+      <default>false</default>
+    </boolean>
+
+    <boolean>
+      <name>Verbose</name>
+      <label>Verbose</label>
+      <longflag>--verbose</longflag>
+      <default>false</default>
+    </boolean>
+
+  </parameters>
+</executable>
