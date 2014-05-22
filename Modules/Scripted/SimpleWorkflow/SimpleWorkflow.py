@@ -1020,6 +1020,7 @@ class SimpleWorkflowWidget:
     parameters["SkinLabel"] = self.get('SkinModelMakerSkinLabelLineEdit').text
     parameters["Decimate"] = False
     parameters["Spacing"] = '5,5,5'
+    parameters["Smooth"] = False
     return parameters
 
   def runSkinModelMaker(self, run):

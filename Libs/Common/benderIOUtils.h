@@ -29,7 +29,10 @@
 #include "BenderCommonExport.h"
 #include <string>
 
+// VTK includes
 class vtkPolyData;
+class vtkUnstructuredGrid;
+
 namespace bender
 {
 class BENDER_COMMON_EXPORT IOUtils
@@ -38,6 +41,7 @@ class BENDER_COMMON_EXPORT IOUtils
   /// Read .vtk/.stl/.vtp file into a vtkPolyData.
   /// Negate x and y coordinates if invertXY==true
   /// The caller of the function is responsible for deleting the returned polydata.
+  /// \sa WritePolyData(), PolyDataToUnstructuredGrid()
   static vtkPolyData* ReadPolyData(const std::string& fileName, bool invertXY=false);
 
   static bool WritePolyData(vtkPolyData* polyData, const std::string& fileName);
@@ -46,6 +50,13 @@ class BENDER_COMMON_EXPORT IOUtils
   /// Internally uses GetDebugDirectory on the given dir.
   static bool WriteDebugPolyData(vtkPolyData* polyData,
     const std::string& name, const std::string& dir = "");
+
+  /// Convert a tetrahedral polydata into an unstructured grid which is the
+  /// appropriate data structure for tetrahedral meshes.
+  /// The caller of the function is responsible for deleting the returned
+  /// unstructured grid.
+  /// \sa ReadPolyData(), WritePolyData()
+  static vtkUnstructuredGrid* PolyDataToUnstructuredGrid(vtkPolyData* polyData, const std::string& ss = std::string());
 
   /// Convenient method to write an itk image to disk.
   template <class ImageType>
