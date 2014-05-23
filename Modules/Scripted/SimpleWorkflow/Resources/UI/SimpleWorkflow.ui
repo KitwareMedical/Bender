@@ -3157,6 +3157,9 @@ p, li { white-space: pre-wrap; }
             <property name="toolTip">
              <string>This property controls the padding to apply around the armature to define the output boundaries.</string>
             </property>
+            <property name="maximum">
+             <double>2000.000000000000000</double>
+            </property>
             <property name="singleStep">
              <double>1.000000000000000</double>
             </property>
