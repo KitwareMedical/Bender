@@ -387,8 +387,7 @@ void addCollisionModels(Node::SPtr                      collisionNode,
 
 // Create collision pipeline
 //--------------------------------------------------------------------------
-Node::SPtr createRootWithCollisionPipeline(const std::string& responseType = std::string(
-                                             "default"))
+Node::SPtr createRootWithCollisionPipeline()
 {
   //   typedef LocalMinDistance ProximityIntersectionType;
   typedef MinProximityIntersection ProximityIntersectionType;
@@ -910,7 +909,7 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
     }
 
   const size_t maximumNumberOfInterpolatedBones =
-    std::min(MaximumNumberOfInterpolatedBones, numWeights - 1);
+    std::min(MaximumNumberOfInterpolatedBones, numWeights);
   // This property controls whether to interpolate with ScLerp
   // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
   // Blending).
@@ -1986,7 +1985,7 @@ int main(int argc, char* argv[])
       sofa::simulation::getSimulation()->animate(root.get(), dt);
       //sofa::simulation::getSimulation()->animate(root.get());
 
-      if (step < NumberOfArmatureSteps)
+      if (static_cast<int>(step) < NumberOfArmatureSteps)
         {
         poseMechanicalObject(ghostMesh, tetMesh, armature, !IsArmatureInRAS,
                              static_cast<double>(step + 2 )/ NumberOfArmatureSteps);

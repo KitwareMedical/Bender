@@ -273,7 +273,7 @@ int main( int argc, char * argv[] )
     }
 
   if (sampleVertices.size() <= 0
-    || sampleVertices.size() != points->GetNumberOfPoints())
+      || sampleVertices.size() != static_cast<size_t>(points->GetNumberOfPoints()))
     {
     std::cout<<"FAILURE: "<<sampleVertices.size()<<" out of "
       <<points->GetNumberOfPoints()
