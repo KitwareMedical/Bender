@@ -482,7 +482,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
   itk::Vector<double,3> posedCoord(0.0);
 
   const size_t numSites = w_pi.GetSize();
-  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites - 1);
+  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites);
   double wSum(0.0);
   for (size_t i = 0; i < numSites; ++i)
     {
@@ -551,7 +551,7 @@ itk::Vector<double,3> Transform(typename itk::Image<T,3>::Pointer image,
   restCoord[1] = p[1];
   restCoord[2] = p[2];
   bender::WeightMap::WeightVector w_pi(numSites);
-  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites - 1);
+  maximumNumberOfInterpolatedBones = std::min(maximumNumberOfInterpolatedBones, numSites);
   //typename itk::Image<T,3>::IndexType weightIndex;
   //weightIndex[0] = round(index[0]);
   //weightIndex[1] = round(index[1]);

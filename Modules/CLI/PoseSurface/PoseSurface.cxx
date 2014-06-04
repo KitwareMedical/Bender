@@ -975,7 +975,7 @@ int main( int argc, char * argv[] )
     return EXIT_FAILURE;
     }
   size_t maximumNumberOfInterpolatedBones =
-    std::min(MaximumNumberOfInterpolatedBones, numWeights - 1);
+    std::min(MaximumNumberOfInterpolatedBones, numWeights);
   //----------------------------
   // Pose
   //----------------------------

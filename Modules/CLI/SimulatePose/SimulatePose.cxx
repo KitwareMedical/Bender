@@ -910,7 +910,7 @@ vtkPoints* poseMesh(vtkPolyData* mesh, vtkPolyData* armature,
     }
 
   const size_t maximumNumberOfInterpolatedBones =
-    std::min(MaximumNumberOfInterpolatedBones, numWeights - 1);
+    std::min(MaximumNumberOfInterpolatedBones, numWeights);
   // This property controls whether to interpolate with ScLerp
   // (Screw Linear interpolation) or DLB (Dual Quaternion Linear
   // Blending).
