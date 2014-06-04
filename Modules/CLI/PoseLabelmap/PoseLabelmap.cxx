@@ -522,7 +522,7 @@ itk::Vector<double,3> Transform(const itk::Vector<double,3>& restCoord,
     double w = ws[0].first;
     // Warning, Sclerp is only meant to blend 2 DualQuaternions, I'm not
     // sure it works with more than 2.
-    for (int i = 1; i < maximumNumberOfInterpolatedBones; ++i)
+    for (size_t i = 1; i < maximumNumberOfInterpolatedBones; ++i)
       {
       double w2 = ws[i].first;
       int i2 = ws[i].second;

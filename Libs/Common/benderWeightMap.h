@@ -55,7 +55,7 @@ public:
     float Value;
     SiteIndex Index;
 
-    WeightEntry(): Index(std::numeric_limits<SiteIndex>::max()), Value(0.){}
+    WeightEntry(): Value(0.f), Index(std::numeric_limits<SiteIndex>::max()){}
   };
 
   typedef itk::Index<3> Voxel;
