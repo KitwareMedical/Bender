@@ -67,7 +67,7 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    GIT_REPOSITORY "git://public.kitware.com/Bender/Cleaver.git"
+    GIT_REPOSITORY "git://github.com/KitwareMedical/Cleaver.git"
     GIT_TAG "09af87b1c9c07e8241c524572d2b38381bf6ce6f"
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}

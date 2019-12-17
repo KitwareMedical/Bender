@@ -130,9 +130,11 @@ find_program(CTEST_GIT_COMMAND NAMES git)
 #
 # Git repository
 #
-setOnlyIfNotDefined(GIT_REPOSITORY git://public.kitware.com/Bender/${CTEST_PROJECT_NAME}.git)
+setOnlyIfNotDefined(GIT_REPOSITORY git://github.com/KitwareMedical/${CTEST_PROJECT_NAME}.git)
 setOnlyIfNotDefined(GIT_BRANCH_NAME master)
-setOnlyIfNotDefined(DRIVER_URL http://public.kitware.com/Bender/${CTEST_PROJECT_NAME};a=blob_plain;f=CMake/DashboardDriver.cmake;hb=${GIT_BRANCH_NAME})
+setOnlyIfNotDefined(DRIVER_URL https://raw.githubusercontent.com/KitwareMedical/${CTEST_PROJECT_NAME}/${GIT_BRANCH_NAME}/CMake/DashboardDriver.cmake)
+
+
 
 
 ##########################################

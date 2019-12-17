@@ -91,7 +91,7 @@ if(NOT DEFINED ${proj}_DIR)
   ExternalProject_Add(${proj}
     SOURCE_DIR ${CMAKE_BINARY_DIR}/${proj}
     BINARY_DIR ${${proj}_DIR}
-    GIT_REPOSITORY "git://public.kitware.com/Bender/SOFA.git"
+    GIT_REPOSITORY "git://github.com/KitwareMedical/SOFA.git"
     GIT_TAG ${${proj}_GIT_TAG}
     INSTALL_COMMAND ""
     CMAKE_GENERATOR ${gen}
